@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9aa53dc9_5a1d4272",
+        "filename": "Spacy/Adapter/Kaskade/preconditioner.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-11-23T18:52:18Z",
+      "side": 1,
+      "message": "(+2) D.h. das funktioniert im Moment für Probleme mit einer Variablen, aber noch nicht für Produktäume, richtig?\nOder gibt es AdditiveMultiGrid dafür nicht?",
+      "range": {
+        "startLine": 48,
+        "startChar": 39,
+        "endLine": 48,
+        "endChar": 51
+      },
+      "revId": "73072f4c96e2e003f3a21958687b595053983b1e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
