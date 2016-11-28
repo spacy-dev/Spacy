@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7aaa499b_185ebde9",
+        "filename": "Spacy/Algorithm/ACR/acr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-11-28T19:26:33Z",
+      "side": 1,
+      "message": "I did start with a logging mechanism that can be fully eliminated by configuring Spacy with \u0027-DLogging\u003dOFF\u0027.\nWould you mind if I replace your logs with this logging mechanism (take a look at the Newton examples to see how to use this)",
+      "range": {
+        "startLine": 61,
+        "startChar": 17,
+        "endLine": 62,
+        "endChar": 70
+      },
+      "revId": "ca1c84425f76fc9071dcacab068d74cdf28432f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aaa499b_585565c4",
+        "filename": "Spacy/Algorithm/ACR/acr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-11-28T19:26:33Z",
+      "side": 1,
+      "message": "I assume that \u0027lambda \u003c 0.01\u0027 is your regularity test. For this you may use the class Mixin::RegularityTest, though this requires to let lambda be of type \u0027DampingFactor\u0027.",
+      "range": {
+        "startLine": 100,
+        "startChar": 72,
+        "endLine": 100,
+        "endChar": 76
+      },
+      "revId": "ca1c84425f76fc9071dcacab068d74cdf28432f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aaa499b_385299de",
+        "filename": "Spacy/Algorithm/ACR/acr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-11-28T19:26:33Z",
+      "side": 1,
+      "message": "Is this still relevant? Else plz remove.",
+      "range": {
+        "startLine": 113,
+        "startChar": 12,
+        "endLine": 113,
+        "endChar": 105
+      },
+      "revId": "ca1c84425f76fc9071dcacab068d74cdf28432f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aaa499b_984bed2b",
+        "filename": "Spacy/Algorithm/ACR/acr.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-11-28T19:26:33Z",
+      "side": 1,
+      "message": "This compiles for me, if that was your issue. If not please give some details about your problems.",
+      "range": {
+        "startLine": 145,
+        "startChar": 12,
+        "endLine": 145,
+        "endChar": 78
+      },
+      "revId": "ca1c84425f76fc9071dcacab068d74cdf28432f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aaa499b_f83b119b",
+        "filename": "Spacy/Algorithm/ACR/acr.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-11-28T19:26:33Z",
+      "side": 1,
+      "message": "(-1) Please add some rough description of the algorithm. CR Probably is for cubic regularization, A for ?",
+      "range": {
+        "startLine": 21,
+        "startChar": 21,
+        "endLine": 21,
+        "endChar": 24
+      },
+      "revId": "ca1c84425f76fc9071dcacab068d74cdf28432f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aaa499b_d840550a",
+        "filename": "Spacy/Algorithm/ACR/acr.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-11-28T19:26:33Z",
+      "side": 1,
+      "message": "These are currently not used. They may be useful for you, else better remove these base-classes",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 47
+      },
+      "revId": "ca1c84425f76fc9071dcacab068d74cdf28432f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7aaa499b_b8458918",
+        "filename": "Spacy/Algorithm/ACR/acr.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-11-28T19:26:33Z",
+      "side": 1,
+      "message": "What does this variable stand for? The base class Eps provides the eps(), which should be an estimate of the attainable accuracy. Here epsilon_ has another meaning, I guess. Right?",
+      "range": {
+        "startLine": 64,
+        "startChar": 39,
+        "endLine": 64,
+        "endChar": 47
+      },
+      "revId": "ca1c84425f76fc9071dcacab068d74cdf28432f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
