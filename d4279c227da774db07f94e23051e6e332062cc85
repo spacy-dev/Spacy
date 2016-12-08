@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5aa745d1_2a122863",
+        "filename": "Spacy/Adapter/Kaskade/directBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2016-12-08T17:15:54Z",
+      "side": 1,
+      "message": "Das braucht es von mir aus nicht. Ich habe das fast überall wieder entsorgt.",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 4,
+        "endChar": 81
+      },
+      "revId": "d4279c227da774db07f94e23051e6e332062cc85",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
