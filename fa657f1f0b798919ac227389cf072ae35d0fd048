@@ -2,6 +2,121 @@
   "comments": [
     {
       "key": {
+        "uuid": "06b20291_b9abd16c",
+        "filename": "Examples/Kaskade/Optimization/PDEConstraint_Nonlinear_Heat_Transfer/nonlinear_heat.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-09-28T07:55:56Z",
+      "side": 1,
+      "message": "Könnte vermutlich noch in den PPCG::linearSolver-wrapper verschoben werden (falls dieser Template-isiert wird).",
+      "range": {
+        "startLine": 202,
+        "startChar": 8,
+        "endLine": 220,
+        "endChar": 10
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ceb7e1b_92e74448",
+        "filename": "Examples/Kaskade/Optimization/PDEConstraint_Nonlinear_Heat_Transfer/nonlinear_heat.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-09-28T07:55:56Z",
+      "side": 1,
+      "message": "Hier werden die SolverCreator für Normalenschritt und Tangentialschritt gesetzt. Siehe Modifikation in AffineCovariantSolver.",
+      "range": {
+        "startLine": 296,
+        "startChar": 0,
+        "endLine": 298,
+        "endChar": 49
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca02ef8e_8230eb68",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-09-28T07:55:56Z",
+      "side": 1,
+      "message": "TODO: cg löser für projektion und lagrange update\nHat auf diese Art nicht funktioniert.",
+      "range": {
+        "startLine": 183,
+        "startChar": 20,
+        "endLine": 199,
+        "endChar": 117
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf1c4218_26da3231",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-09-28T07:55:56Z",
+      "side": 1,
+      "message": "Wäre es sinnvoll den Operator A_ bzw P_ in cgLoop anzupassen ?\nZB den Aufruf von A_ via Function-pointer oä., um auch H_tilde_operator setzen zu können. Dann bräuchte man keinen zweiten icgLoop (da im wesentlichen das selbe passiert).",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 56
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44b565e4_03b4a580",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-09-28T07:55:56Z",
+      "side": 1,
+      "message": "Fix, um den gesetzten Solver zu nutzen. Analog zu computeNormalStep.\n\nMeine Idee wäre zu testen, ob der setSolverCreator des Tangential-Operators aufgerufen wurde und nur dann diesen Teil zu nutzen.",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 13
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b77afd9f_db75efda",
         "filename": "Spacy/Algorithm/PPCG/ppcg.cpp",
         "patchSetId": 1
@@ -18,6 +133,29 @@
         "startChar": 21,
         "endLine": 180,
         "endChar": 44
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "503c102f_916799f4",
+        "filename": "Spacy/Algorithm/PPCG/ppcg.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-09-28T07:55:56Z",
+      "side": 1,
+      "message": "Wohl nicht optimal. Es müsste die Konvergenz genauer untersucht werden. Nicht mehr meine Aufgabe?",
+      "range": {
+        "startLine": 84,
+        "startChar": 15,
+        "endLine": 84,
+        "endChar": 27
       },
       "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
