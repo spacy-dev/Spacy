@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4fb35c52_2f93112f",
+        "filename": "Examples/Kaskade/Optimization/PDEConstraint_Nonlinear_Heat_Transfer/nonlinear_control.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "(-2) Plz create a new example for your problem and keep the present one.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 236,
+        "endChar": 6
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "06b20291_b9abd16c",
         "filename": "Examples/Kaskade/Optimization/PDEConstraint_Nonlinear_Heat_Transfer/nonlinear_heat.cpp",
         "patchSetId": 1
@@ -48,6 +71,75 @@
     },
     {
       "key": {
+        "uuid": "646429e5_0269aafa",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "(-1) Plz remove all commented-out code (except the one you explicitlz want comments for) and trailing whitespaces. That makes the code much easier to read and on the long run avoides a lot of confusion.",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 12
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3573fd69_d66a1633",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "What does AVD stand for? Would \u0027VariableSetDescription\u0027 be a viable alternative?",
+      "range": {
+        "startLine": 88,
+        "startChar": 18,
+        "endLine": 88,
+        "endChar": 21
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "430825a9_eb8b3a22",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": ":) If they are useless better remove them.",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 147,
+        "endChar": 35
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ca02ef8e_8230eb68",
         "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
         "patchSetId": 1
@@ -64,6 +156,98 @@
         "startChar": 20,
         "endLine": 199,
         "endChar": 117
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25600712_94a9d5a1",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "This is confusing for me. Are we talking about a preconditioner or a preconditioned CG solver? Or is the idea to use a preconditioned CG as preconditioner (which is not linear if I remember correctly)?",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 117
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "52cd0ab1_a139327d",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "(+1) This looks good, would be easier to understand with less commented out code;)",
+      "range": {
+        "startLine": 228,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 14
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0687fdf_748188a5",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "??",
+      "range": {
+        "startLine": 416,
+        "startChar": 63,
+        "endLine": 416,
+        "endChar": 81
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dac7fa06_02d47053",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "This looks correct, but inefficient. I think the assembler should be able to directly provide the block. As long as this does not slow your computations down significantly this is not a big issue. Though this probably is a point where you can easily improve a bit on efficiency.",
+      "range": {
+        "startLine": 447,
+        "startChar": 0,
+        "endLine": 460,
+        "endChar": 13
       },
       "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
@@ -94,6 +278,99 @@
     },
     {
       "key": {
+        "uuid": "0e915dfb_0c8c5762",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "I don\u0027t really get what\u0027s the point here. Definitely you should not change anything in this file, but rather adjust the operator or more likely the preconditioner such that it satisfies your needs. \nWhat is H_tilde?",
+      "parentUuid": "cf1c4218_26da3231",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 56
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b9f72ea_6cb9b945",
+        "filename": "Spacy/Algorithm/CG/linearSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "(-1) What is MyOperator and why is it needed?",
+      "range": {
+        "startLine": 36,
+        "startChar": 53,
+        "endLine": 36,
+        "endChar": 63
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2978b29e_28ec3d85",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "Quick and dirty fixes are nothing we want to see.",
+      "range": {
+        "startLine": 180,
+        "startChar": 17,
+        "endLine": 181,
+        "endChar": 32
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba27402e_3266421f",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "(-1) What is the advantage with respect to the previous approach?",
+      "range": {
+        "startLine": 183,
+        "startChar": 23,
+        "endLine": 183,
+        "endChar": 39
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "44b565e4_03b4a580",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 1
@@ -110,6 +387,53 @@
         "startChar": 0,
         "endLine": 192,
         "endChar": 13
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c6274c9_bb5dbd75",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "What about adding a function setTangentialSolverCreator, set allows to replace the given implementation of makeTangentialSolver?",
+      "parentUuid": "44b565e4_03b4a580",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 13
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0399de41_695bf5c4",
+        "filename": "Spacy/Algorithm/PPCG/linearSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "Is this needed at all? Looks redundant on first glance.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 9
       },
       "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
@@ -151,6 +475,30 @@
       "writtenOn": "2017-09-28T07:55:56Z",
       "side": 1,
       "message": "Wohl nicht optimal. Es müsste die Konvergenz genauer untersucht werden. Nicht mehr meine Aufgabe?",
+      "range": {
+        "startLine": 84,
+        "startChar": 15,
+        "endLine": 84,
+        "endChar": 27
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5110d6c_20e4685d",
+        "filename": "Spacy/Algorithm/PPCG/ppcg.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-10-08T14:29:39Z",
+      "side": 1,
+      "message": "? What exactly is your point here?",
+      "parentUuid": "503c102f_916799f4",
       "range": {
         "startLine": 84,
         "startChar": 15,
