@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b1f3d64_d93e861c",
+        "filename": "Examples/Kaskade/Optimization/PDEConstraint_Nonlinear_Heat_Transfer_newSolver/nonlinear_heat.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T21:51:08Z",
+      "side": 1,
+      "message": "Why is this automatically reordered ? This caused headaches once before, when seemingly nothing changed but it did not compile anymore.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 110
+      },
+      "revId": "370804a49362317a4ffe22496e711f600ecf0b34",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "54bb20f8_484d1d3a",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T21:51:08Z",
+      "side": 1,
+      "message": "calculation moved to end of operator(); arguments in previous version were unaltered from that point and saves unpacking of vectors.",
+      "range": {
+        "startLine": 222,
+        "startChar": 12,
+        "endLine": 222,
+        "endChar": 44
+      },
+      "revId": "370804a49362317a4ffe22496e711f600ecf0b34",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb1462fc_4b74f9c8",
+        "filename": "Spacy/Algorithm/PPCG/ppcg.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T21:51:08Z",
+      "side": 1,
+      "message": "was removed; forgot this line - just ignore it",
+      "range": {
+        "startLine": 68,
+        "startChar": 12,
+        "endLine": 68,
+        "endChar": 91
+      },
+      "revId": "370804a49362317a4ffe22496e711f600ecf0b34",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
