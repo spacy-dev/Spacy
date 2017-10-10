@@ -117,6 +117,30 @@
     },
     {
       "key": {
+        "uuid": "8e85c577_08af4e6e",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "This was adapted from https://review.gerrithub.io/#/c/305132/1/Spacy/Adapter/Kaskade/directBlockPreconditioner.hh - not defined by me",
+      "parentUuid": "3573fd69_d66a1633",
+      "range": {
+        "startLine": 88,
+        "startChar": 18,
+        "endLine": 88,
+        "endChar": 21
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "430825a9_eb8b3a22",
         "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
         "patchSetId": 1
@@ -186,6 +210,30 @@
     },
     {
       "key": {
+        "uuid": "87c06d61_7c4f49dc",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "The plan is to use preconditioned cg\u0027s as solvers for submatrices. This preconditioner contains parts of the ppcg-algorithm code, because here we can access blocks (A,B,M_u) and all the components of vectors.",
+      "parentUuid": "25600712_94a9d5a1",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 199,
+        "endChar": 117
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "52cd0ab1_a139327d",
         "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
         "patchSetId": 1
@@ -209,6 +257,30 @@
     },
     {
       "key": {
+        "uuid": "3b733cd0_910b300f",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "same as directBlockPreconditioner",
+      "parentUuid": "52cd0ab1_a139327d",
+      "range": {
+        "startLine": 228,
+        "startChar": 0,
+        "endLine": 293,
+        "endChar": 14
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b0687fdf_748188a5",
         "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
         "patchSetId": 1
@@ -220,6 +292,30 @@
       "writtenOn": "2017-10-08T14:29:39Z",
       "side": 1,
       "message": "??",
+      "range": {
+        "startLine": 416,
+        "startChar": 63,
+        "endLine": 416,
+        "endChar": 81
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8b96730_2c893009",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "This would need the above mentioned (line 182) code to work. However I could not figure out how to create an operator from a submatrix (need VectorSpace domain, range). For now it\u0027s fine to use the direct solver.",
+      "parentUuid": "b0687fdf_748188a5",
       "range": {
         "startLine": 416,
         "startChar": 63,
@@ -302,6 +398,30 @@
     },
     {
       "key": {
+        "uuid": "5051b183_551285aa",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "This is the inexact cg as needed by the ppcg implementation. H_tilde is the iteratively defined operator. It is necessary to use this code since -as far as I know- the CallableOperator only allows for one argument and hence cannot retrieve the value of w.\n\nIt might not be necessary if the operator A_ was not called directly but a method or function pointer. Then one could move the get_w() method and H_tilde there.",
+      "parentUuid": "0e915dfb_0c8c5762",
+      "range": {
+        "startLine": 181,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 56
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b9f72ea_6cb9b945",
         "filename": "Spacy/Algorithm/CG/linearSolver.hh",
         "patchSetId": 1
@@ -313,6 +433,30 @@
       "writtenOn": "2017-10-08T14:29:39Z",
       "side": 1,
       "message": "(-1) What is MyOperator and why is it needed?",
+      "range": {
+        "startLine": 36,
+        "startChar": 53,
+        "endLine": 36,
+        "endChar": 63
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80b02c35_04b3eda5",
+        "filename": "Spacy/Algorithm/CG/linearSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "It is needed because r_update is a std::function\u003cVector(Vector,Vector)\u003e. I defined it in Spacy/operator.hh as this provides the definition everywhere it is needed. Must be changed; or moved to every necessary file.",
+      "parentUuid": "6b9f72ea_6cb9b945",
       "range": {
         "startLine": 36,
         "startChar": 53,
@@ -418,6 +562,30 @@
     },
     {
       "key": {
+        "uuid": "22c54c10_02cce859",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "Done; a bit tedious though, as the user has to provide the solver (C2Functional.setSolverCreator) and call the method that tells ACS it was set.",
+      "parentUuid": "4c6274c9_bb5dbd75",
+      "range": {
+        "startLine": 182,
+        "startChar": 0,
+        "endLine": 192,
+        "endChar": 13
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0399de41_695bf5c4",
         "filename": "Spacy/Algorithm/PPCG/linearSolver.hh",
         "patchSetId": 1
@@ -429,6 +597,30 @@
       "writtenOn": "2017-10-08T14:29:39Z",
       "side": 1,
       "message": "Is this needed at all? Looks redundant on first glance.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 9
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0592c65_5b0c9c92",
+        "filename": "Spacy/Algorithm/PPCG/linearSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "Copied from cg to provide same interface.\n\nAccuracy and so on will need further research on convergence of the ppcg. Removed for now.",
+      "parentUuid": "0399de41_695bf5c4",
       "range": {
         "startLine": 16,
         "startChar": 0,
@@ -499,6 +691,30 @@
       "side": 1,
       "message": "? What exactly is your point here?",
       "parentUuid": "503c102f_916799f4",
+      "range": {
+        "startLine": 84,
+        "startChar": 15,
+        "endLine": 84,
+        "endChar": 27
+      },
+      "revId": "fa657f1f0b798919ac227389cf072ae35d0fd048",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59334c1b_cf67623a",
+        "filename": "Spacy/Algorithm/PPCG/ppcg.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-10T19:14:40Z",
+      "side": 1,
+      "message": "This kind of termination doesn\u0027t seem possible - was removed",
+      "parentUuid": "d5110d6c_20e4685d",
       "range": {
         "startLine": 84,
         "startChar": 15,
