@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "2cc27e47_cc3f3182",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-22T18:33:26Z",
+      "side": 1,
+      "message": "It\u0027s not -1.0 here, as we do want -B^T here. Above we want +B, but B is read and stored as -B actually, hence the -1.0. That should be renamed to minusB maybe.\n\nB.applyscaleaddTransposed(1.0, xp_, bu_dummy ); // bu_dummy :\u003d bu_dummy +(1.0)*(-B^T xp_)",
+      "range": {
+        "startLine": 199,
+        "startChar": 20,
+        "endLine": 201,
+        "endChar": 77
+      },
+      "revId": "370804a49362317a4ffe22496e711f600ecf0b34",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54bb20f8_484d1d3a",
         "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
         "patchSetId": 2
@@ -41,6 +64,29 @@
         "startChar": 12,
         "endLine": 222,
         "endChar": 44
+      },
+      "revId": "370804a49362317a4ffe22496e711f600ecf0b34",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2f0b172_0c91dda7",
+        "filename": "Spacy/Adapter/Kaskade/indirectBlockPreconditioner.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-10-22T18:33:26Z",
+      "side": 1,
+      "message": "This is read and stored as -B from the H block matrix (and not B). That is why there is \"B.applyscale(-1.0, ...)\" always. Should be renamed to minusB I suppose.",
+      "range": {
+        "startLine": 296,
+        "startChar": 12,
+        "endLine": 296,
+        "endChar": 20
       },
       "revId": "370804a49362317a4ffe22496e711f600ecf0b34",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
