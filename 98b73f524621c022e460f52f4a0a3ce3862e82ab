@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "49d52dd8_3f340b37",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2017-10-27T08:24:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "146b7d12_8071c08c",
+      "range": {
+        "startLine": 43,
+        "startChar": 8,
+        "endLine": 43,
+        "endChar": 9
+      },
+      "revId": "98b73f524621c022e460f52f4a0a3ce3862e82ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1a77d56_ac5c163a",
         "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.hh",
         "patchSetId": 1
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "f8eaee6c_101dd307",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2017-10-27T08:24:59Z",
+      "side": 1,
+      "message": "will be done soon",
+      "parentUuid": "b1a77d56_ac5c163a",
+      "revId": "98b73f524621c022e460f52f4a0a3ce3862e82ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f9696fb_0e404ac9",
         "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.hh",
         "patchSetId": 1
@@ -53,6 +95,30 @@
       "writtenOn": "2017-10-27T08:16:40Z",
       "side": 1,
       "message": "(-1) Plz find a more speaking name.",
+      "range": {
+        "startLine": 30,
+        "startChar": 13,
+        "endLine": 30,
+        "endChar": 38
+      },
+      "revId": "98b73f524621c022e460f52f4a0a3ce3862e82ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8544c84c_db698a78",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2017-10-27T08:24:59Z",
+      "side": 1,
+      "message": "will also be done soon",
+      "parentUuid": "5f9696fb_0e404ac9",
       "range": {
         "startLine": 30,
         "startChar": 13,
