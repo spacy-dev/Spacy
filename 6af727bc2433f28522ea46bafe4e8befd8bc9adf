@@ -22,6 +22,30 @@
       "revId": "6af727bc2433f28522ea46bafe4e8befd8bc9adf",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "381f86ff_7d35956a",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.hh",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2017-11-09T21:40:48Z",
+      "side": 1,
+      "message": "I reused the notation used in this context:\nSmall letter means damped, big letter undamped.dn\u003dnu*Dn",
+      "parentUuid": "8503f8b5_a8b0c66c",
+      "range": {
+        "startLine": 32,
+        "startChar": 74,
+        "endLine": 32,
+        "endChar": 81
+      },
+      "revId": "6af727bc2433f28522ea46bafe4e8befd8bc9adf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
