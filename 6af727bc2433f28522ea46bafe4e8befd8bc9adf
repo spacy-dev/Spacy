@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8503f8b5_a8b0c66c",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.hh",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-11-09T20:20:51Z",
+      "side": 1,
+      "message": "(+2) Not so important, but I suppose that \u0027dn\u0027 and \u0027Dt\u0027 should both start upper- or both with lower-case \u0027d\u0027, right?",
+      "range": {
+        "startLine": 32,
+        "startChar": 74,
+        "endLine": 32,
+        "endChar": 81
+      },
+      "revId": "6af727bc2433f28522ea46bafe4e8befd8bc9adf",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
