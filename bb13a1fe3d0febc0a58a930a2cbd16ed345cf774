@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "02ce5e89_60f43f5d",
+        "filename": "Examples/Kaskade/Optimization/PDEConstraint_Nonlinear_Heat_Transfer/nonlinear_control.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-11-09T20:16:53Z",
+      "side": 1,
+      "message": "That\u0027s why I love code reviews:)",
+      "parentUuid": "dcf0c81c_eef11498",
+      "range": {
+        "startLine": 96,
+        "startChar": 31,
+        "endLine": 96,
+        "endChar": 50
+      },
+      "revId": "bb13a1fe3d0febc0a58a930a2cbd16ed345cf774",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4aa55203_f526636a",
         "filename": "Examples/Kaskade/Optimization/PDEConstraint_Nonlinear_Heat_Transfer/nonlinear_control.hh",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-09T08:43:30Z",
       "side": 1,
       "message": "This part does not make sense in a general setting, only if d \u003d 1e2, c\u003d 1e-2. Would consider to remove it.\nMoreover, it shoudl be y and not u to reflect the nonlinearity of the constraint.",
+      "range": {
+        "startLine": 119,
+        "startChar": 30,
+        "endLine": 120,
+        "endChar": 96
+      },
+      "revId": "bb13a1fe3d0febc0a58a930a2cbd16ed345cf774",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f094ae43_28bf5591",
+        "filename": "Examples/Kaskade/Optimization/PDEConstraint_Nonlinear_Heat_Transfer/nonlinear_control.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-11-09T20:16:53Z",
+      "side": 1,
+      "message": "Yes, doesn\u0027t look really convincing. I think I was experimenting with local norms. Removed the scaling.",
+      "parentUuid": "4aa55203_f526636a",
       "range": {
         "startLine": 119,
         "startChar": 30,
