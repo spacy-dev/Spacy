@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c20e1be6_d874d073",
+        "filename": "Spacy/Adapter/eigen.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2017-11-11T15:19:08Z",
+      "side": 1,
+      "message": "Without this line, initialization of matrices sometimes produces nonzero matrices",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 41
+      },
+      "revId": "0eaacfb768be0c00bfec2ffeccb07d4a41b2ed49",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
