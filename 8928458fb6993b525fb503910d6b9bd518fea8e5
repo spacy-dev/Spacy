@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4d176ff_e73774ab",
+        "filename": "Spacy/Spaces/ProductSpace/C1Operator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-11-30T23:48:51Z",
+      "side": 1,
+      "message": "see below",
+      "range": {
+        "startLine": 30,
+        "startChar": 39,
+        "endLine": 30,
+        "endChar": 43
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca4f58b9_e363b6cd",
+        "filename": "Spacy/Spaces/ProductSpace/C1Operator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-11-30T23:48:51Z",
+      "side": 1,
+      "message": "see below",
+      "range": {
+        "startLine": 31,
+        "startChar": 45,
+        "endLine": 31,
+        "endChar": 50
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "57f0e479_6774b2a0",
+        "filename": "Spacy/Spaces/ProductSpace/C1Operator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-11-30T23:48:51Z",
+      "side": 1,
+      "message": "see below",
+      "range": {
+        "startLine": 47,
+        "startChar": 34,
+        "endLine": 47,
+        "endChar": 41
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebbbe5cc_309b006e",
+        "filename": "Spacy/Spaces/ProductSpace/C1Operator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-11-30T23:48:51Z",
+      "side": 1,
+      "message": "How are the matrices built up ? I would suspect first index corresponding to rows and second to columns (not Fortran-ish); then this seems to be mixed up - or am I mistaken ?\n\ncompare line 30 - I think it is correct there, but x-index belongs to inner array contrary to first here",
+      "range": {
+        "startLine": 49,
+        "startChar": 60,
+        "endLine": 49,
+        "endChar": 70
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61be24b1_b085cfb8",
+        "filename": "Spacy/Spaces/ProductSpace/C1Operator.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-11-30T23:48:51Z",
+      "side": 1,
+      "message": "does not match the return type",
+      "range": {
+        "startLine": 38,
+        "startChar": 34,
+        "endLine": 38,
+        "endChar": 44
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "567526ba_f7c2674c",
+        "filename": "Test/Spacy/Spaces/ProductSpace/C1Operator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1012452
+      },
+      "writtenOn": "2017-11-30T23:48:51Z",
+      "side": 1,
+      "message": "Does this come from some unit testing header (gtest, mockSetup)? Can not find this class.",
+      "range": {
+        "startLine": 18,
+        "startChar": 36,
+        "endLine": 18,
+        "endChar": 49
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
