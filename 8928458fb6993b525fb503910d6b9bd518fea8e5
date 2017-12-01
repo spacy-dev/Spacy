@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "8a4f5ead_44f3882d",
+        "filename": "Spacy/Spaces/ProductSpace/C1Operator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-12-01T21:04:09Z",
+      "side": 1,
+      "message": "You are not confused, I was late at night;) You are right, the indices are not consistent.\n\u0027i\u0027 is for rows, \u0027j\u0027 for columns, I did fix this and added tests that catch this behaviour. \n\nThx a lot for finding this!",
+      "parentUuid": "ebbbe5cc_309b006e",
+      "range": {
+        "startLine": 49,
+        "startChar": 60,
+        "endLine": 49,
+        "endChar": 70
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "61be24b1_b085cfb8",
         "filename": "Spacy/Spaces/ProductSpace/C1Operator.hh",
         "patchSetId": 1
