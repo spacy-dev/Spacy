@@ -117,6 +117,30 @@
     },
     {
       "key": {
+        "uuid": "edaf5b55_9baa65bf",
+        "filename": "Spacy/Spaces/ProductSpace/C1Operator.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-12-01T20:37:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61be24b1_b085cfb8",
+      "range": {
+        "startLine": 38,
+        "startChar": 34,
+        "endLine": 38,
+        "endChar": 44
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "567526ba_f7c2674c",
         "filename": "Test/Spacy/Spaces/ProductSpace/C1Operator.cpp",
         "patchSetId": 1
@@ -128,6 +152,30 @@
       "writtenOn": "2017-11-30T23:48:51Z",
       "side": 1,
       "message": "Does this come from some unit testing header (gtest, mockSetup)? Can not find this class.",
+      "range": {
+        "startLine": 18,
+        "startChar": 36,
+        "endLine": 18,
+        "endChar": 49
+      },
+      "revId": "8928458fb6993b525fb503910d6b9bd518fea8e5",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b18a9c7_51764ab6",
+        "filename": "Test/Spacy/Spaces/ProductSpace/C1Operator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2017-12-01T20:37:35Z",
+      "side": 1,
+      "message": "Yes, this comes from gtest/gtest.h and has the following motivation:\nIn the googletest framework, tests are defined as follows:\nTEST(\u003cName\u003e, \u003cTestCase\u003e)\nOften there are many tests that share the same setup. In this case we can define a \"fixture\" by deriving from \"testing::Test\". Then the syntax for test definition changes slightly to\nTEST_F(\u003cFixtureName\u003e, \u003cTestCase\u003e)\nThen the test derives from the fixture, i.e. all public and protected members defined there can be used. Moreover the default-constructor can be used to produce the desired test-setup. (For more details google \"gtest cookbook\"). \nIn the present file you can observe that none of the tests creates \"V, A11, ...\" all are provided through the fixture.",
+      "parentUuid": "567526ba_f7c2674c",
       "range": {
         "startLine": 18,
         "startChar": 36,
