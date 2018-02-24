@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "54ff1480_0e93ca3b",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-02-24T11:03:34Z",
+      "side": 1,
+      "message": "right",
+      "parentUuid": "16b669b1_34470bb4",
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc9a5749_420a4dbb",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 2
@@ -52,6 +70,53 @@
         "startChar": 60,
         "endLine": 206,
         "endChar": 73
+      },
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5643fcc_786be92f",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-02-24T11:03:34Z",
+      "side": 1,
+      "message": "(-2) Why did you remove the \u0027if\u0027?",
+      "parentUuid": "cc9a5749_420a4dbb",
+      "range": {
+        "startLine": 206,
+        "startChar": 60,
+        "endLine": 206,
+        "endChar": 73
+      },
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9867b4ea_735dc24b",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-02-24T11:03:34Z",
+      "side": 1,
+      "message": "(-2) Plz keep it as it was before. Magic numbers should be avoided. Did you observe a problem with the previously used call of setParams?",
+      "range": {
+        "startLine": 208,
+        "startChar": 15,
+        "endLine": 208,
+        "endChar": 47
       },
       "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
@@ -93,6 +158,47 @@
       "writtenOn": "2018-02-16T09:12:55Z",
       "side": 1,
       "message": "findGlobalMinimizer finds damping factor 0.95 even for linear quadratic problems. This results in 5 Composite step steps for LQ problems.\nIf log search is used, we find damping factor 1, resulting in immediate convergence (as expected)",
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b6470ea_5d8bedb1",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-02-24T11:03:34Z",
+      "side": 1,
+      "message": "Plz no magic numbers, maybe eps() fits here?",
+      "range": {
+        "startLine": 483,
+        "startChar": 72,
+        "endLine": 483,
+        "endChar": 78
+      },
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e963facc_73c9f02f",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-02-24T11:03:34Z",
+      "side": 1,
+      "message": "Is the problem the damping strategy in findGlobalMinimizer or with the parameters?",
+      "parentUuid": "e9e13d53_9b65aca1",
       "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
