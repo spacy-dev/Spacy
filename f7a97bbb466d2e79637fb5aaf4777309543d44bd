@@ -101,6 +101,30 @@
     },
     {
       "key": {
+        "uuid": "cb35cb5e_383c1ee5",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-03-08T08:40:34Z",
+      "side": 1,
+      "message": "Preconditioner is not (yet) implemented as a TriangularConstraintPreconditioner.\nThis will be changed in the future.",
+      "parentUuid": "e5643fcc_786be92f",
+      "range": {
+        "startLine": 206,
+        "startChar": 60,
+        "endLine": 206,
+        "endChar": 73
+      },
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9867b4ea_735dc24b",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 2
@@ -124,6 +148,30 @@
     },
     {
       "key": {
+        "uuid": "3500253a_a74dc03c",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-03-08T08:40:34Z",
+      "side": 1,
+      "message": "There were no problems, added setRelativeAccuracy in setParams",
+      "parentUuid": "9867b4ea_735dc24b",
+      "range": {
+        "startLine": 208,
+        "startChar": 15,
+        "endLine": 208,
+        "endChar": 47
+      },
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "418882e2_4e4f099c",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 2
@@ -135,6 +183,30 @@
       "writtenOn": "2018-02-16T09:12:55Z",
       "side": 1,
       "message": "needed for cg solution of simp normal/normal step",
+      "range": {
+        "startLine": 252,
+        "startChar": 1,
+        "endLine": 258,
+        "endChar": 13
+      },
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e64fce0_ac45ecb3",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-03-08T08:40:34Z",
+      "side": 1,
+      "message": "see two comments above: No implementation as triangularstatepreconditioner",
+      "parentUuid": "418882e2_4e4f099c",
       "range": {
         "startLine": 252,
         "startChar": 1,
@@ -199,6 +271,24 @@
       "side": 1,
       "message": "Is the problem the damping strategy in findGlobalMinimizer or with the parameters?",
       "parentUuid": "e9e13d53_9b65aca1",
+      "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e43c4921_33431e06",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-03-08T08:40:34Z",
+      "side": 1,
+      "message": "problem was with the function not checking the upper bound of the interval (he arrived at 1 + 1e-16, hence thought he was out of the interval [0,1]) \nI included a check of the upper bound after the search.",
+      "parentUuid": "e963facc_73c9f02f",
       "revId": "f7a97bbb466d2e79637fb5aaf4777309543d44bd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
