@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c7b675a_361a1211",
+        "filename": "Spacy/Algorithm/CG/cg.hh",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-03-08T08:40:34Z",
+      "side": 1,
+      "message": "similar to truncated: indicator if regularization is really a regularization and not \"CG:NoRegularization\"",
+      "revId": "91db177dd37dd913be5f59b59b28d6c3937dbbeb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7ac66ce_0b2d224e",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-03-08T08:40:34Z",
+      "side": 1,
+      "message": "see comments on patch set 2 (implementation as triangularstate preconditioner to be done in future)",
+      "revId": "91db177dd37dd913be5f59b59b28d6c3937dbbeb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1a6112e_2332a0b7",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-03-08T08:40:34Z",
+      "side": 1,
+      "message": "see above",
+      "revId": "91db177dd37dd913be5f59b59b28d6c3937dbbeb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eba14a3c_36a2d1c6",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-03-08T08:40:34Z",
+      "side": 1,
+      "message": "Problem before:\nsearch on [0,1] with 0.05 resulted in 0.95 being the last value to be tested. This is a problem if we are in local fast convergence mode, as no undamped steps are taken. Hence, i included test of upper bound of interval additionally to be safe",
+      "revId": "91db177dd37dd913be5f59b59b28d6c3937dbbeb",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
