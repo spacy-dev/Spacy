@@ -59,6 +59,3 @@ These are located in
  - Spacy/Examples/FEniCS.
 
 Paths to Kaskade may need to be adjusted according to your setup.
-
-
-
