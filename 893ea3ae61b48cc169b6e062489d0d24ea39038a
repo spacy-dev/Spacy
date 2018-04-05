@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc712e88_0525335d",
+        "filename": "Examples/KaskadeParabolic/OptimalControl/optimal_control_fung.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-04-05T10:17:04Z",
+      "side": 1,
+      "message": "mainly for",
+      "revId": "893ea3ae61b48cc169b6e062489d0d24ea39038a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a57e7d97_927023b8",
+        "filename": "Examples/KaskadeParabolic/OptimalControl_noFung/optimal_control_withoutfung.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-04-05T10:17:04Z",
+      "side": 1,
+      "message": "included the files in the adapter as predefined cost functional/constraint. These two files were removed from Kaskade, hence not every user has access via the previous links.",
+      "revId": "893ea3ae61b48cc169b6e062489d0d24ea39038a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8edb7a34_9fa7dd35",
+        "filename": "Spacy/Adapter/KaskadeParabolic/c2Functional.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-04-05T10:17:04Z",
+      "side": 1,
+      "message": "function removed from kaskade, hence usage of other/new function-",
+      "revId": "893ea3ae61b48cc169b6e062489d0d24ea39038a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
