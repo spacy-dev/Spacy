@@ -16,7 +16,7 @@
 
 #include "fem/variables.hh"
 #include "utilities/linalg/scalarproducts.hh"
-#include "fem/diffops/trackingTypeCostFunctional.hh"
+#include "trackingTypeCostFunctional.hh"
 #include "Spacy/Adapter/KaskadeParabolic/Constraints/linearModelConstraint.hh"
 
 /// \cond
