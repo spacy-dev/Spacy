@@ -131,6 +131,30 @@
     },
     {
       "key": {
+        "uuid": "899a1597_aefee7d0",
+        "filename": "Examples/KaskadeParabolic/boundary_caches.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-04-24T18:18:49Z",
+      "side": 1,
+      "message": "Ok, then I think we should rearrange this a bit (not in this commit, but in another one) as follows:\n - use \"Examples/Kaskade/Parabolic\" instead of \"Examples/KaskadeParabolic\" as all examples for Kaskade should be in the same folder.\n - then it would also be straight-forward to reuse the files boundary_caches.hh and domain_caches.hh, which I it reduces code duplication.\nAny objections?",
+      "parentUuid": "8e59910a_8b58551e",
+      "range": {
+        "startLine": 10,
+        "startChar": 7,
+        "endLine": 60,
+        "endChar": 10
+      },
+      "revId": "893ea3ae61b48cc169b6e062489d0d24ea39038a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8edb7a34_9fa7dd35",
         "filename": "Spacy/Adapter/KaskadeParabolic/c2Functional.hh",
         "patchSetId": 1
