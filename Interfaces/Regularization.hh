@@ -20,8 +20,9 @@ namespace Spacy
              * the system operator
              * @param qPq \f$ qPq \f$, where \f$q\f$ is the conjugate search direction and \f$P\f$
              * the preconditioner
+             * @param q conjugate search direction \f$q\f$
              */
-            void apply( Real& qAq, Real qPq ) const;
+            void apply( Real& qAq, Real qPq, Vector& q ) const;
 
             /**
              * @brief Update regularization (parameter).
@@ -29,8 +30,9 @@ namespace Spacy
              * the system operator
              * @param qPq \f$ qPq \f$, where \f$q\f$ is the conjugate search direction and \f$P\f$
              * the preconditioner
+             * @param q conjugate search direction \f$q\f$
              */
-            void update( Real qAq, Real qPq );
+            void update( Real qAq, Real qPq, Vector& q );
 
             /**
              * @brief Adjust residual for consistency with the regularized left hand side.
@@ -38,8 +40,9 @@ namespace Spacy
              * @param Pq \f$ Pq \f$, where \f$q\f$ is the conjugate search direction and \f$P\f$ the
              * preconditioner
              * @param r residual
+             * @param q conjugate search direction \f$q\f$
              */
-            void adjustResidual( Real alpha, const Vector& Pq, Vector& r ) const;
+            void adjustResidual( Real alpha, const Vector& Pq, Vector& r, Vector& q ) const;
         };
     }
 }

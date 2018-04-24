@@ -28,15 +28,16 @@ namespace Spacy
                            Regularization, type_erasure_table_detail::remove_reference_wrapper_t<
                                                std::decay_t< T > > >::init,
                        &RegularizationDetail::execution_wrapper<
-                           Regularization, type_erasure_table_detail::remove_reference_wrapper_t<
-                                               std::decay_t< T > > >::apply_Real_ref_Real,
-                       &RegularizationDetail::execution_wrapper<
-                           Regularization, type_erasure_table_detail::remove_reference_wrapper_t<
-                                               std::decay_t< T > > >::update_Real_Real,
-                       &RegularizationDetail::execution_wrapper<
                            Regularization,
-                           type_erasure_table_detail::remove_reference_wrapper_t< std::decay_t<
-                               T > > >::adjustResidual_Real_const_Vector_ref_Vector_ref} ),
+                           type_erasure_table_detail::remove_reference_wrapper_t<
+                               std::decay_t< T > > >::apply_Real_ref_Real_Vector_ref,
+                       &RegularizationDetail::execution_wrapper<
+                           Regularization, type_erasure_table_detail::remove_reference_wrapper_t<
+                                               std::decay_t< T > > >::update_Real_Real_Vector_ref,
+                       &RegularizationDetail::execution_wrapper<
+                           Regularization, type_erasure_table_detail::remove_reference_wrapper_t<
+                                               std::decay_t< T > > >::
+                           adjustResidual_Real_const_Vector_ref_Vector_ref_Vector_ref} ),
                   impl_( std::forward< T >( value ) )
             {
             }
@@ -67,10 +68,12 @@ namespace Spacy
             /// the system operator
             ///@param qPq \f$ qPq \f$, where \f$q\f$ is the conjugate search direction and \f$P\f$
             /// the preconditioner
-            void apply( Real& qAq, Real qPq ) const
+            ///@param q conjugate search direction \f$q\f$
+            ///
+            void apply( Real& qAq, Real qPq, Vector& q ) const
             {
                 assert( impl_ );
-                function_.apply_Real_ref_Real( impl_, qAq, std::move( qPq ) );
+                function_.apply_Real_ref_Real_Vector_ref( impl_, qAq, std::move( qPq ), q );
             }
 
             /// @brief Update regularization (parameter).
@@ -78,10 +81,13 @@ namespace Spacy
             /// the system operator
             ///@param qPq \f$ qPq \f$, where \f$q\f$ is the conjugate search direction and \f$P\f$
             /// the preconditioner
-            void update( Real qAq, Real qPq )
+            ///@param q conjugate search direction \f$q\f$
+            ///
+            void update( Real qAq, Real qPq, Vector& q )
             {
                 assert( impl_ );
-                function_.update_Real_Real( impl_, std::move( qAq ), std::move( qPq ) );
+                function_.update_Real_Real_Vector_ref( impl_, std::move( qAq ), std::move( qPq ),
+                                                       q );
             }
 
             /// @brief Adjust residual for consistency with the regularized left hand side.
@@ -89,11 +95,13 @@ namespace Spacy
             ///@param Pq \f$ Pq \f$, where \f$q\f$ is the conjugate search direction and \f$P\f$ the
             /// preconditioner
             ///@param r residual
-            void adjustResidual( Real alpha, const Vector& Pq, Vector& r ) const
+            ///@param q conjugate search direction \f$q\f$
+            ///
+            void adjustResidual( Real alpha, const Vector& Pq, Vector& r, Vector& q ) const
             {
                 assert( impl_ );
-                function_.adjustResidual_Real_const_Vector_ref_Vector_ref(
-                    impl_, std::move( alpha ), Pq, r );
+                function_.adjustResidual_Real_const_Vector_ref_Vector_ref_Vector_ref(
+                    impl_, std::move( alpha ), Pq, r, q );
             }
 
             template < class T >
