@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 
   double desiredAccuracy = getParameter(pt, "desiredAccuracy", 1e-6);
   double eps = getParameter(pt, "eps", 1e-12);
-  double alpha = getParameter(pt, "alpha", 1e-6);
+  double alpha = getParameter(pt, "alpha", 1e-1);
   int maxSteps = getParameter(pt, "maxSteps", 500);
   int initialRefinements = getParameter(pt, "initialRefinements", 4);
   int iterativeRefinements = getParameter(pt, "iterativeRefinements", 0);

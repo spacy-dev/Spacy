@@ -279,23 +279,15 @@ namespace Spacy
 
         auto insertedSpace = gm_.getSpacesVec().at(k);
         typename VariableSetDescription::VariableSet x_ref(*insertedSpace);
+        ::Kaskade::interpolateGloballyWeak<::Kaskade::PlainAverage>(::boost::fusion::at_c<0>(x_ref.data),
+                                                                    ::Kaskade::makeWeakFunctionView([](auto const& cell, auto
+                                                                                                    const& xLocal) -> ::Dune::FieldVector<double,1>
         {
-          ::Kaskade::interpolateGloballyFromFunctor<::Kaskade::PlainAverage>(boost::fusion::at_c<0>(x_ref.data), [](auto const& cell, auto const& xLocal) -> Dune::FieldVector<double,1>
-          {
-            auto x = cell.geometry().global(xLocal);
-            return Dune::FieldVector<double,1>(12*(1-x[1])*x[1]*(1-x[0])*x[0]);
-          }
-          );
-        }
-        //        else
-        //        {
-        //          ::Kaskade::interpolateGloballyFromFunctor<::Kaskade::PlainAverage>(boost::fusion::at_c<0>(x_ref.data), [](auto const& cell, auto const& xLocal) -> Dune::FieldVector<double,1>
-        //          {
-        //            auto x = cell.geometry().global(xLocal);
-        //            return Dune::FieldVector<double,1>(-1.*12*(1-x[1])*x[1]*(1-x[0])*x[0]);
-        //          }
-        //          );
-        //        }
+          auto x = cell.geometry().global(xLocal);
+          return
+              Dune::FieldVector<double,1>(12*(1-x[1])*x[1]*(1-x[0])*x[0]);
+        }));
+
         fVec_.insert(fVec_.begin() + k,f_(x_ref));
       }
 
@@ -332,22 +324,27 @@ namespace Spacy
           typename VariableSetDescription::VariableSet x_ref(VariableSetDescription(*spaces.at(i),{"y","u","p"}));
           //          if(i<5)
           {
-            ::Kaskade::interpolateGloballyFromFunctor<::Kaskade::PlainAverage>(boost::fusion::at_c<0>(x_ref.data), [](auto const& cell, auto const& xLocal) -> Dune::FieldVector<double,1>
+            ::Kaskade::interpolateGloballyWeak<::Kaskade::PlainAverage>(::boost::fusion::at_c<0>(x_ref.data),
+                                                                        ::Kaskade::makeWeakFunctionView([](auto const& cell, auto
+                                                                                                        const& xLocal) -> ::Dune::FieldVector<double,1>
             {
               auto x = cell.geometry().global(xLocal);
-              return Dune::FieldVector<double,1>(12*(1-x[1])*x[1]*(1-x[0])*x[0]);
-            }
-            );
+              return
+                  Dune::FieldVector<double,1>(12*(1-x[1])*x[1]*(1-x[0])*x[0]);
+            }));
           }
-          if(i==0u)
-          {
-            //            typename VariableSetDescription::VariableSet x0(VariableSetDescription(space,{"y","u","p"}));
 
-            ::Kaskade::IoOptions options();
-            //            ::Kaskade::writeVTKFile(gm_.getKaskGridMan().at(0)->grid().leafGridView(),x_ref,"reference",options,1);
-            ::Kaskade::writeVTK(x_ref,"reference",::Kaskade::IoOptions().setOrder(1));
+          // enable if you want to print the reference state
+          // CAREFUL: the writeVTK method you have to use depends heavily on your Kaskade Version
+//          if(i==0u)
+//          {
+//            //            typename VariableSetDescription::VariableSet x0(VariableSetDescription(space,{"y","u","p"}));
 
-          }
+//            ::Kaskade::IoOptions options();
+//            //            ::Kaskade::writeVTKFile(gm_.getKaskGridMan().at(0)->grid().leafGridView(),x_ref,"reference",options,1);
+//            ::Kaskade::writeVTK(x_ref,"reference",::Kaskade::IoOptions().setOrder(1));
+
+//          }
 
           //          else
           //          {

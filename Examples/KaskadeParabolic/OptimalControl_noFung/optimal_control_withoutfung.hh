@@ -18,8 +18,8 @@
 
 #include "fem/variables.hh"
 #include "utilities/linalg/scalarproducts.hh"
-#include "fem/diffops/trackingTypeCostFunctional.hh"
-#include "fem/diffops/antonsNonlinearTestProblems.hh"
+#include "Spacy/Adapter/KaskadeParabolic/Constraints/trackingTypeCostFunctional.hh"
+#include "Spacy/Adapter/KaskadeParabolic/Constraints/antonsNonlinearTestProblems.hh"
 
 /// \cond
 using namespace Kaskade;
