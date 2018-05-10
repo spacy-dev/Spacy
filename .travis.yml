@@ -156,6 +156,8 @@ script:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${COMPUTE_COVERAGE}" == "true" ]]; then
       cd $TRAVIS_BUILD_DIR/build/Test
+      ls
+      find -name *.gcda
       lcov --gcov-tool gcov-6 --capture --no-external --directory .. --base-directory ../../Spacy --output-file coverage.info
       lcov --remove coverage.info '*/Spacy/Adapter/*' -o coverage_without_adapter.info
       coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage_without_adapter.info
