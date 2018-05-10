@@ -27,7 +27,7 @@ mv  $TRAVIS_BUILD_DIR/build/doc/* doc/
 
 # Set git user
 git config user.name "Travis CI"
-git config user.email "$COMMIT_AUTHOR_EMAIL"
+git config user.email "lubkoll@posteo.de"
 
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
 if [ -z `git diff --exit-code` ]; then
@@ -38,6 +38,9 @@ fi
 # Add new documentation to git
 git add --all doc/*
 git commit -m"Update documentation for commit: ${SHA}"
+
+- openssl aes-256-cbc -K $encrypted_25bd1d90568b_key -iv $encrypted_25bd1d90568b_iv
+  -in travisci_rsa.enc -out travisci_rsa -d
 
 chmod 600 travisci_rsa
 eval `ssh-agent -s`
