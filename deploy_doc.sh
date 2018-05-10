@@ -39,8 +39,7 @@ fi
 git add --all doc/*
 git commit -m"Update documentation for commit: ${SHA}"
 
-- openssl aes-256-cbc -K $encrypted_25bd1d90568b_key -iv $encrypted_25bd1d90568b_iv
-  -in travisci_rsa.enc -out travisci_rsa -d
+openssl aes-256-cbc -K $encrypted_25bd1d90568b_key -iv $encrypted_25bd1d90568b_iv -in travisci_rsa.enc -out travisci_rsa -d
 
 chmod 600 travisci_rsa
 eval `ssh-agent -s`
