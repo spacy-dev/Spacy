@@ -21,12 +21,19 @@ cp -r ../googlemock/include/gmock /usr/local/include/
 cp googlemock/gtest/lib*.a /usr/local/lib
 
 cd $SHARED
+git checkout master && git pull
 mkdir -p build && cd build && rm -rf *
-cmake -DBuildTest=ON -DCoverage=ON ..
+if [ "$GCOV" == "" ]; then
+  cmake -DBuildTest=ON ..
+else
+  cmake -DBuildTest=ON -DCoverage=ON ..
+fi
 cmake --build .
 cd Test && ctest
 
-lcov --gcov-tool $GCOV --capture --no-external --directory .. --base-directory ../../Spacy --output-file coverage.info
-lcov --remove coverage.info '*/Spacy/Adapter/*' -o coverage_without_adapter.info
 
-coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage_without_adapter.info
+if [ "$GCOV" != "" ]; then
+  lcov --gcov-tool $GCOV --capture --no-external --directory .. --base-directory ../../Spacy --output-file coverage.info
+  lcov --remove coverage.info '*/Spacy/Adapter/*' -o coverage_without_adapter.info
+  coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage_without_adapter.info
+fi

@@ -6,7 +6,6 @@ addons:
     - ubuntu-toolchain-r-test
 
     packages:
-    - perl
     - ccache
     - ninja-build
     - g++-5
@@ -72,17 +71,36 @@ install:
   # Override compiler if needed
   ############################################################################
   - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; export CC=${CCOMPILER}; fi
-  
+
   ############################################################################
-  # Install a recent CMake
+  # For linux get docker image
   ############################################################################
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      CMAKE_URL="http://www.cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz"
-      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
-      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
-    else
+      docker pull lubkoll/spacy-ci:base
+    fi
+
+  ############################################################################
+  # For osx do the setup in travis
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      ############################################################################
+      # Install a recent CMake
+      ############################################################################
       if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
+
+      ############################################################################
+      # Install gtest
+      ############################################################################
+      cd ${DEPS_DIR}
+      git clone https://github.com/google/googletest.git && cd googletest
+      mkdir -p build && cd build
+      cmake -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
+      cmake --build .
+      sudo cp -r ../googletest/include/gtest /usr/local/include/
+      sudo cp -r ../googlemock/include/gmock /usr/local/include/
+      sudo cp googlemock/gtest/lib*.a /usr/local/lib
     fi
 
   ############################################################################
@@ -113,48 +131,15 @@ install:
       export CC="${LLVM_DIR}/clang/bin/clang"
       ls ${LLVM_DIR}/clang/bin
     fi
-    
-  ############################################################################
-  # Install lcov
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${COMPUTE_COVERAGE}" == "true" ]]; then
-      sudo apt-get install -y lcov
-      gem install coveralls-lcov
-    fi
-
-  ############################################################################
-  # Install gtest
-  ############################################################################
-  - cd ${DEPS_DIR}
-  - git clone https://github.com/google/googletest.git && cd googletest
-  - mkdir -p build && cd build
-  - cmake -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
-  - cmake --build .
-  - sudo cp -r ../googletest/include/gtest /usr/local/include/
-  - sudo cp -r ../googlemock/include/gmock /usr/local/include/
-  - sudo cp googlemock/gtest/lib*.a /usr/local/lib
-
-  ############################################################################
-  # Install doxygen and graphviz if documentation is generated
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${MAKE_DOC}" == "true" ]]; then
-      sudo apt-get install doxygen graphviz
-    fi
-  - |
-    if [[ "${COMPUTE_COVERAGE}" == "true" ]]; then
-      docker pull lubkoll/spacy-ci:base
-    fi
 
 script:
   - cd $TRAVIS_BUILD_DIR
-  - mkdir build && cd build
   - |
-    if [[ "${COMPUTE_COVERAGE}" == "true" ]]; then
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       SHARED=/home/shared
-      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh gcc-6 g++-6 gcov-6 ${COVERALLS_TOKEN}
+      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN}
     else
+      mkdir build && cd build
       cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
       cmake --build .
       cd Test && ctest
