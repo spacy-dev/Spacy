@@ -5,8 +5,8 @@ CXX_COMPILER=$2
 GCOV=$3
 COVERALLS_TOKEN=$4
 
-DEPS=$HOME/deps
-SHARED=$HOME/shared
+DEPS=/home/deps
+SHARED=/home/shared
 
 mkdir $DEPS && cd $DEPS
 
