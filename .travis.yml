@@ -14,6 +14,10 @@ addons:
     - g++-6
     - gcc-6
 
+
+services:
+  - docker
+
 cache:
   directories:
     - ${HOME}/.ccache
@@ -38,7 +42,7 @@ matrix:
 
     # GCC 6
     - os: linux
-      env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 COMPUTE_COVERAGE=true MAKE_DOC=true
+      env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 COMPUTE_COVERAGE=true MAKE_DOC=false
       compiler: gcc
       
     # OSX
@@ -138,30 +142,34 @@ install:
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${MAKE_DOC}" == "true" ]]; then
       sudo apt-get install doxygen graphviz
     fi
+  - |
+    if [[ "${COMPUTE_COVERAGE}" == "true" ]]; then
+      docker pull lubkoll/spacy-ci
+    fi
 
 script:
   - cd $TRAVIS_BUILD_DIR
   - mkdir build && cd build
   - |
     if [[ "${COMPUTE_COVERAGE}" == "true" ]]; then
-      cmake -DBuildTest=ON -DCoverage=ON ..
+      SHARED=/home/shared
+      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy ${SHARED}/run_in_docker.sh gcc-6 g++-6 gcov-6 $COVERALLS_TOKEN
+#      cmake -DBuildTest=ON -DCoverage=ON ..
     else
       cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
+      cmake --build .
+      cd Test && ctest
     fi
-  - cmake --build .
-  - cd Test && ctest
   ############################################################################
   # Upload coverage information to coveralls.io
   ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${COMPUTE_COVERAGE}" == "true" ]]; then
-      cd $TRAVIS_BUILD_DIR/build/Test
-      ls
-      find -name *.gcda
-      lcov --gcov-tool gcov-6 --capture --no-external --directory .. --base-directory ../../Spacy --output-file coverage.info
-      lcov --remove coverage.info '*/Spacy/Adapter/*' -o coverage_without_adapter.info
-      coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage_without_adapter.info
-    fi
+#  - |
+#    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${COMPUTE_COVERAGE}" == "true" ]]; then
+#      cd $TRAVIS_BUILD_DIR/build/Test
+#      lcov --gcov-tool gcov-6 --capture --no-external --directory .. --base-directory ../../Spacy --output-file coverage.info
+#      lcov --remove coverage.info '*/Spacy/Adapter/*' -o coverage_without_adapter.info
+#      coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage_without_adapter.info
+#    fi
 
 after_success:
 
