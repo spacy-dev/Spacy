@@ -21,6 +21,7 @@ cp -r ../googlemock/include/gmock /usr/local/include/
 cp googlemock/gtest/lib*.a /usr/local/lib
 
 cd $SHARED
+echo "<$GCOV>"
 git checkout master && git pull
 mkdir -p build && cd build && rm -rf *
 if [ "$GCOV" == "" ]; then
