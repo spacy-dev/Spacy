@@ -153,23 +153,12 @@ script:
   - |
     if [[ "${COMPUTE_COVERAGE}" == "true" ]]; then
       SHARED=/home/shared
-      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy ${SHARED}/run_in_docker.sh gcc-6 g++-6 gcov-6 $COVERALLS_TOKEN
-#      cmake -DBuildTest=ON -DCoverage=ON ..
+      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy ${SHARED}/run_in_docker.sh gcc-6 g++-6 gcov-6 ${COVERALLS_TOKEN}
     else
       cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
       cmake --build .
       cd Test && ctest
     fi
-  ############################################################################
-  # Upload coverage information to coveralls.io
-  ############################################################################
-#  - |
-#    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${COMPUTE_COVERAGE}" == "true" ]]; then
-#      cd $TRAVIS_BUILD_DIR/build/Test
-#      lcov --gcov-tool gcov-6 --capture --no-external --directory .. --base-directory ../../Spacy --output-file coverage.info
-#      lcov --remove coverage.info '*/Spacy/Adapter/*' -o coverage_without_adapter.info
-#      coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage_without_adapter.info
-#    fi
 
 after_success:
 
