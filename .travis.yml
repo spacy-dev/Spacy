@@ -144,7 +144,7 @@ install:
     fi
   - |
     if [[ "${COMPUTE_COVERAGE}" == "true" ]]; then
-      docker pull lubkoll/spacy-ci
+      docker pull lubkoll/spacy-ci:base
     fi
 
 script:
@@ -153,7 +153,7 @@ script:
   - |
     if [[ "${COMPUTE_COVERAGE}" == "true" ]]; then
       SHARED=/home/shared
-      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy ${SHARED}/run_in_docker.sh gcc-6 g++-6 gcov-6 ${COVERALLS_TOKEN}
+      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh gcc-6 g++-6 gcov-6 ${COVERALLS_TOKEN}
     else
       cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
       cmake --build .
