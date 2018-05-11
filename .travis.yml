@@ -36,7 +36,7 @@ matrix:
     # LINUX
     # GCC 5
     - os: linux
-      env: COMPILER=g++-5 CCOMPILER=gcc-5 COMPUTE_COVERAGE=false
+      env: COMPILER=g++-5 CCOMPILER=gcc-5 GCOV="" COMPUTE_COVERAGE=false
       compiler: gcc
 
     # GCC 6
