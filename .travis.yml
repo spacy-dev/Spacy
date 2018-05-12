@@ -36,12 +36,12 @@ matrix:
     # LINUX
     # GCC 5
     - os: linux
-      env: COMPILER=g++-5 CCOMPILER=gcc-5 GCOV="" COMPUTE_COVERAGE=false
+      env: COMPILER=g++-5 CCOMPILER=gcc-5 GCOV="" COMPUTE_COVERAGE=false MAKE_DOC=false
       compiler: gcc
 
     # GCC 6
     - os: linux
-      env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 COMPUTE_COVERAGE=true MAKE_DOC=false
+      env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 COMPUTE_COVERAGE=true MAKE_DOC=true
       compiler: gcc
       
     # OSX
@@ -103,57 +103,16 @@ install:
       sudo cp googlemock/gtest/lib*.a /usr/local/lib
     fi
 
-  ############################################################################
-  # Install clang, libc++ and libc++abi
-  ############################################################################
-  - |
-    if [[ "${LLVM_VERSION}" != "" ]]; then
-      LLVM_DIR=${DEPS_DIR}/llvm-${LLVM_VERSION}
-      if [[ -z "$(ls -A ${LLVM_DIR})" ]]; then
-        LLVM_URL="http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz"
-        LIBCXX_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxx-${LLVM_VERSION}.src.tar.xz"
-        LIBCXXABI_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxxabi-${LLVM_VERSION}.src.tar.xz"
-        CLANG_URL="http://llvm.org/releases/${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-14.04.tar.xz"
-        mkdir -p ${LLVM_DIR} ${LLVM_DIR}/build ${LLVM_DIR}/projects/libcxx ${LLVM_DIR}/projects/libcxxabi ${LLVM_DIR}/clang
-        travis_retry wget --quiet -O - ${LLVM_URL}      | tar --strip-components=1 -xJ -C ${LLVM_DIR}
-        travis_retry wget --quiet -O - ${LIBCXX_URL}    | tar --strip-components=1 -xJ -C ${LLVM_DIR}/projects/libcxx
-        travis_retry wget --quiet -O - ${LIBCXXABI_URL} | tar --strip-components=1 -xJ -C ${LLVM_DIR}/projects/libcxxabi
-        travis_retry wget --quiet -O - ${CLANG_URL}     | tar --strip-components=1 -xJ -C ${LLVM_DIR}/clang
-        (cd ${LLVM_DIR}/build && cmake .. -DCMAKE_INSTALL_PREFIX=${LLVM_DIR}/install -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang)
-        (cd ${LLVM_DIR}/build/projects/libcxx && make install -j2)
-        (cd ${LLVM_DIR}/build/projects/libcxxabi && make install -j2)
-      fi
-      export CXXFLAGS="-nostdinc++ -isystem ${LLVM_DIR}/install/include/c++/v1"
-      export LDFLAGS="-L ${LLVM_DIR}/install/lib -l c++ -l c++abi"
-      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${LLVM_DIR}/install/lib"
-      export PATH="${LLVM_DIR}/clang/bin:${PATH}"
-      export CXX="${LLVM_DIR}/clang/bin/clang++"
-      export CC="${LLVM_DIR}/clang/bin/clang"
-      ls ${LLVM_DIR}/clang/bin
-    fi
-
 script:
   - cd $TRAVIS_BUILD_DIR
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       SHARED=/home/shared
-      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN} ${COMPUTE_COVERAGE}
+      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN} ${COMPUTE_COVERAGE} ${MAKE_DOC}
     else
       mkdir build && cd build
       cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
       cmake --build .
       cd Test && ctest
-    fi
-
-after_success:
-
-  ############################################################################
-  # Upload documentation to repository
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${MAKE_DOC}" == "true" ]]; then
-      cd $TRAVIS_BUILD_DIR/build
-      make doc
-      ../deploy_doc.sh
     fi
 

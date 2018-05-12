@@ -5,6 +5,7 @@ CXX_COMPILER=$2
 GCOV=$3
 COVERALLS_TOKEN=$4
 COMPUTE_COVERAGE=$5
+GENERATE_DOCUMENTATION=$6
 
 DEPS=/home/deps
 SHARED=/home/shared
@@ -31,9 +32,13 @@ fi
 cmake --build .
 cd Test && ctest
 
-
 if [ "$COMPUTE_COVERAGE" == "true" ]; then
   lcov --gcov-tool $GCOV --capture --no-external --directory .. --base-directory ../../Spacy --output-file coverage.info
   lcov --remove coverage.info '*/Spacy/Adapter/*' -o coverage_without_adapter.info
   coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage_without_adapter.info
+fi
+
+if [ "$GENERATE_DOCUMENTATION" == "true" ]; then
+  cmake --build . --target doc
+  ../deploy_doc.sh
 fi
