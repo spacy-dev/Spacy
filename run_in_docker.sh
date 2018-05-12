@@ -10,12 +10,12 @@ GENERATE_DOCUMENTATION=$6
 DEPS=/home/deps
 SHARED=/home/shared
 
-mkdir $DEPS && cd $DEPS
+mkdir -p $DEPS && cd $DEPS
 
 export CXX=$(which $CXX_COMPILER)
 export CC=$(which $C_COMPILER)
 
-git clone https://github.com/google/googletest.git && cd googletest 
+cd googletest
 mkdir -p build && cd build && cmake .. && cmake --build .
 cp -r ../googletest/include/gtest /usr/local/include/
 cp -r ../googlemock/include/gmock /usr/local/include/
