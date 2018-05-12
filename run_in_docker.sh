@@ -39,6 +39,7 @@ if [ "$COMPUTE_COVERAGE" == "true" ]; then
 fi
 
 if [ "$GENERATE_DOCUMENTATION" == "true" ]; then
+  cd $SHARED/build
   cmake --build . --target doc
   ../deploy_doc.sh
 fi
