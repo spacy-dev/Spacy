@@ -2,7 +2,7 @@ language: c++
 
 addons:
   apt:
-    sources: &sources
+    sources:
     - ubuntu-toolchain-r-test
 
     packages:
@@ -12,6 +12,10 @@ addons:
     - gcc-5
     - g++-6
     - gcc-6
+
+
+services:
+  - docker
 
 cache:
   directories:
@@ -32,7 +36,7 @@ matrix:
     # LINUX
     # GCC 5
     - os: linux
-      env: COMPILER=g++-5 CCOMPILER=gcc-5 COMPUTE_COVERAGE=false
+      env: COMPILER=g++-5 CCOMPILER=gcc-5 GCOV="" COMPUTE_COVERAGE=false MAKE_DOC=false
       compiler: gcc
 
     # GCC 6
@@ -67,112 +71,48 @@ install:
   # Override compiler if needed
   ############################################################################
   - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; export CC=${CCOMPILER}; fi
-  
+
   ############################################################################
-  # Install a recent CMake
+  # For linux get docker image
   ############################################################################
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      CMAKE_URL="http://www.cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz"
-      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
-      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
-    else
+      docker pull lubkoll/spacy-ci:base
+    fi
+
+  ############################################################################
+  # For osx do the setup in travis
+  ############################################################################
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      ############################################################################
+      # Install a recent CMake
+      ############################################################################
       if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
-    fi
 
-  ############################################################################
-  # Install clang, libc++ and libc++abi
-  ############################################################################
-  - |
-    if [[ "${LLVM_VERSION}" != "" ]]; then
-      LLVM_DIR=${DEPS_DIR}/llvm-${LLVM_VERSION}
-      if [[ -z "$(ls -A ${LLVM_DIR})" ]]; then
-        LLVM_URL="http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz"
-        LIBCXX_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxx-${LLVM_VERSION}.src.tar.xz"
-        LIBCXXABI_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxxabi-${LLVM_VERSION}.src.tar.xz"
-        CLANG_URL="http://llvm.org/releases/${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-14.04.tar.xz"
-        mkdir -p ${LLVM_DIR} ${LLVM_DIR}/build ${LLVM_DIR}/projects/libcxx ${LLVM_DIR}/projects/libcxxabi ${LLVM_DIR}/clang
-        travis_retry wget --quiet -O - ${LLVM_URL}      | tar --strip-components=1 -xJ -C ${LLVM_DIR}
-        travis_retry wget --quiet -O - ${LIBCXX_URL}    | tar --strip-components=1 -xJ -C ${LLVM_DIR}/projects/libcxx
-        travis_retry wget --quiet -O - ${LIBCXXABI_URL} | tar --strip-components=1 -xJ -C ${LLVM_DIR}/projects/libcxxabi
-        travis_retry wget --quiet -O - ${CLANG_URL}     | tar --strip-components=1 -xJ -C ${LLVM_DIR}/clang
-        (cd ${LLVM_DIR}/build && cmake .. -DCMAKE_INSTALL_PREFIX=${LLVM_DIR}/install -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang)
-        (cd ${LLVM_DIR}/build/projects/libcxx && make install -j2)
-        (cd ${LLVM_DIR}/build/projects/libcxxabi && make install -j2)
-      fi
-      export CXXFLAGS="-nostdinc++ -isystem ${LLVM_DIR}/install/include/c++/v1"
-      export LDFLAGS="-L ${LLVM_DIR}/install/lib -l c++ -l c++abi"
-      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${LLVM_DIR}/install/lib"
-      export PATH="${LLVM_DIR}/clang/bin:${PATH}"
-      export CXX="${LLVM_DIR}/clang/bin/clang++"
-      export CC="${LLVM_DIR}/clang/bin/clang"
-      ls ${LLVM_DIR}/clang/bin
-    fi
-    
-  ############################################################################
-  # Install lcov
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${COMPUTE_COVERAGE}" == "true" ]]; then
-      travis_retry wget --no-check-certificate --quiet http://mirrors.us.kernel.org/ubuntu//pool/universe/l/lcov/lcov_1.12-3_all.deb
-      sudo dpkg -i lcov_1.12-3_all.deb
-      sudo apt-add-repository ppa:brightbox/ruby-ng -y
-      sudo apt-get update -qq
-      sudo apt-get install ruby2.2 -qq
-      sudo gem install coveralls-lcov
-    fi
-
-  ############################################################################
-  # Install gtest
-  ############################################################################
-  - cd ${DEPS_DIR}
-  - git clone https://github.com/google/googletest.git && cd googletest
-  - mkdir -p build && cd build
-  - cmake -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
-  - cmake --build .
-  - sudo cp -r ../googletest/include/gtest /usr/local/include/
-  - sudo cp -r ../googlemock/include/gmock /usr/local/include/
-  - sudo cp googlemock/gtest/lib*.a /usr/local/lib
-
-  ############################################################################
-  # Install doxygen and graphviz if documentation is generated
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${MAKE_DOC}" == "true" ]]; then
-      sudo apt-get install doxygen graphviz
+      ############################################################################
+      # Install gtest
+      ############################################################################
+      cd ${DEPS_DIR}
+      git clone https://github.com/google/googletest.git && cd googletest
+      mkdir -p build && cd build
+      cmake -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
+      cmake --build .
+      sudo cp -r ../googletest/include/gtest /usr/local/include/
+      sudo cp -r ../googlemock/include/gmock /usr/local/include/
+      sudo cp googlemock/gtest/lib*.a /usr/local/lib
     fi
 
 script:
   - cd $TRAVIS_BUILD_DIR
-  - mkdir build && cd build
   - |
-    if [[ "${COMPUTE_COVERAGE}" == "true" ]]; then
-      cmake -DBuildTest=ON -DCoverage=ON ..
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      SHARED=/home/shared
+      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN} ${COMPUTE_COVERAGE} ${MAKE_DOC}
     else
+      mkdir build && cd build
       cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
-    fi
-  - cmake --build .
-  - cd Test && ctest
-
-after_success:
-  ############################################################################
-  # Upload coverage information to coveralls.io
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${COMPUTE_COVERAGE}" == "true" ]]; then
-      cd $TRAVIS_BUILD_DIR/build/Test
-      lcov --gcov-tool gcov-6 --capture --no-external --directory .. --base-directory ../../Spacy --output-file coverage.info
-      lcov --remove coverage.info '*/Spacy/Adapter/*' -o coverage_without_adapter.info
-      coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage_without_adapter.info
-    fi
-
-  ############################################################################
-  # Upload documentation to repository
-  ############################################################################
-  - |
-    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${MAKE_DOC}" == "true" ]]; then
-      cd $TRAVIS_BUILD_DIR/build
-      make doc
-      ../deploy_doc.sh
+      cmake --build .
+      cd Test && ctest
     fi
 
