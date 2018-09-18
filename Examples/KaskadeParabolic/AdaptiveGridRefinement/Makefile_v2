@@ -11,7 +11,7 @@ FLAGS = $(WFLAGS) $(MYOPTFLAGS) $(COMMONFLAGS)
 
 SPACYLIB = -L/home/bt304726/Programme/spacy-gerrithub/Spacy/build/Spacy -lspacy
 
-mpc: mpc.o Makefile $(KASKADE7)/libs/libkaskade.a 
+adaptive_grid_refinement: adaptive_grid_refinement.o Makefile $(KASKADE7)/libs/libkaskade.a 
 	$(CXX) $(FLAGS) $< $(KASKADE7)/libs/umfpack_solve.o $(KASKADELIB) \
  $(DUNELIB) \
  $(UGLIB) \
@@ -20,10 +20,10 @@ mpc: mpc.o Makefile $(KASKADE7)/libs/libkaskade.a
  $(BLASLIB) $(FTNLIB) $(NUMALIB) $(SPACYLIB) -o $@
 
 clean:
-	rm -f gccerr.txt mpc mpc.o solution.vtu *.bak
+	rm -f gccerr.txt adaptive_grid_refinement adaptive_grid_refinement.o solution.vtu *.bak
 
 depend:
-	cp Makefile.gen Makefile; /home/bt304726/Programme/Kaskade7.3/gccmakedep -f Makefile $(INCLUDE) $(MAKEDEPENDFLAGS)  mpc.cpp; #/home/bt304726/Programme/Kaskade7.3/remove_install_deps Makefile
+	cp Makefile.gen Makefile; /home/bt304726/Programme/Kaskade7.3/gccmakedep -f Makefile $(INCLUDE) $(MAKEDEPENDFLAGS)  adaptive_grid_refinement.cpp; #/home/bt304726/Programme/Kaskade7.3/remove_install_deps Makefile
 
 # DO NOT DELETE
 

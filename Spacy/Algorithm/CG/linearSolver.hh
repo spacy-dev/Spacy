@@ -48,6 +48,27 @@ namespace Spacy
             /// Access operator \f$A\f$.
             const CallableOperator& A() const;
 
+            /// Setter for Termination Criterion
+            template<class TermCrit>
+            void setTermination(TermCrit term_) const
+            {
+              return cg.setTerminationCriterion(term_);
+            }
+
+            /// getter for Termination Criterion
+            template<class TermCrit>
+            TermCrit& terminationCriterion() noexcept
+            {
+              return cg.terminationCriterion();
+            }
+
+            /// getter for number of iterations
+            unsigned getIterations() const
+            {
+              return cg.getIterations();
+            }
+
+
         private:
             mutable Solver cg;
         };
@@ -90,7 +111,7 @@ namespace Spacy
                                     Real eps = 1e-15, bool verbose = false );
 
     /**
-     * @brief Construct truncated regularized conjugate gradient method.
+     * @brief Construct truncated regularized conjugate gradient method (regularized via preconditioner).
      * @param A operator
      * @param P preconditioner
      * @param relativeAccuracy relative accuracy
@@ -101,5 +122,19 @@ namespace Spacy
     CG::LinearSolver makeTRCGSolver( Operator A, CallableOperator P, Real relativeAccuracy = 1e-15,
                                      Real eps = 1e-15, bool verbose = false );
 
+
+    /**
+     * @brief Construct truncated regularized conjugate gradient method (regularized via arbitrary operator).
+     * @param A operator
+     * @param P preconditioner
+     * @param R regularization
+     * @param theta_sugg suggestion for starting value of regularization paramter
+     * @param relativeAccuracy relative accuracy
+     * @param eps maximal attainable accuracy
+     * @param verbose verbosity
+     * @return CGSolver(A,P,true,RegularizeViaPreconditioner())
+     */
+    CG::LinearSolver makeTRCGSolver( Operator A, CallableOperator P, CallableOperator R, Real& theta_sugg, Real relativeAccuracy = 1e-15,
+                                    Real eps = 1e-15, bool verbose = false );
     /** @} */
 }

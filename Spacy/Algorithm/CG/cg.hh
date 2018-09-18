@@ -143,6 +143,14 @@ namespace Spacy
              */
             const CallableOperator& A() const;
 
+            /**
+             * @brief get number of needed iterations.
+             * @return iterations
+             */
+            unsigned getIterations() const
+            {
+              return iterations_;
+            }
         private:
             /// CG Implementation.
             Vector cgLoop( Vector x, Vector r ) const;
@@ -173,6 +181,7 @@ namespace Spacy
             bool regularized_ = false;
 
             mutable Regularization regularization_;
+            mutable unsigned iterations_;
         };
     }
 }

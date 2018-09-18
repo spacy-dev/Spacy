@@ -101,7 +101,7 @@ namespace Spacy
              * @param timepoint t
              * @return interval associated with t
              */
-      unsigned getInverval(Real t) const
+      unsigned getInterval(Real t) const
       {
         auto i = 0u;
         for( ;i< vertexVec_.size(); i++)

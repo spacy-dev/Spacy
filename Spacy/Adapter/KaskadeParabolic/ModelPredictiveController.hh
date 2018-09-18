@@ -33,8 +33,8 @@ namespace Spacy
     }
 
     /**
-         * @brief Model Predictive controller for optimal control problems using composite step solver as inner solver
-         * solves optimal control problem, implements part of the control and solves forward problem to simulate a real
+         * @brief Model Predictive controller for optimal control problems using composite step solver as inner solver.
+         * Solves optimal control problem, implements part of the control and solves forward problem to simulate a real
          * world application
          */
     template<class NormalStepFunctionalDefinition,class TangentialStepFunctionalDefinition, class ForwardFunctionalDefinition>
@@ -52,7 +52,6 @@ namespace Spacy
       // generator for NormalStepFunctional for a reference state to be tracked
       using NFGenerator = std::function<NormalStepFunctionalDefinition(const typename
       Descriptions::VariableSet)>;
-
 
       /// %Kaskade::VariableSetDescription of control u
       using DescriptionsU = ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t<Descriptions,1>;
@@ -84,8 +83,8 @@ namespace Spacy
              */
       ModelPredictiveController(NFGenerator& normalFuncGenerator, TFGenerator& tangentialFuncGenerator, FFGenerator& forwardFuncGenerator,
                                 ::Spacy::Real t_end, unsigned N, unsigned MPC_Steps, ::Spacy::Real tau, unsigned N_tau_,std::string gridtype="uniform", ::Spacy::Real expfactor=::Spacy::Real{-0.345})
-        : N_tau(N_tau_),no_mpc_steps(MPC_Steps),tau_(tau),gm_(GridManager<Spaces>(N,t_end,4,1, gridtype,expfactor)),gm_fine_(GridManager<Spaces>((no_mpc_steps*N_tau_)+1,no_mpc_steps*tau,4,1)),
-          gm_forward_(GridManager<Spaces>(N_tau_+1,tau,4,1)), nfGen_(normalFuncGenerator), tfGen_(tangentialFuncGenerator), ffGen_(forwardFuncGenerator)
+        : N_tau(N_tau_),no_mpc_steps(MPC_Steps),tau_(tau),gm_(GridManager<Spaces>(N,t_end,5,1, gridtype,expfactor)),gm_fine_(GridManager<Spaces>((no_mpc_steps*N_tau_)+1,no_mpc_steps*tau,5,1)),
+          gm_forward_(GridManager<Spaces>(N_tau_+1,tau,5,1)), nfGen_(normalFuncGenerator), tfGen_(tangentialFuncGenerator), ffGen_(forwardFuncGenerator)
       {
         if(verbose_)
         {
@@ -102,21 +101,37 @@ namespace Spacy
         nsf = makeC2Functional(nfGen_,gm_,domain_);
         tsf = makeC2Functional(tfGen_,gm_,domain_);
 
+        /// Setting initial condiiton
+        typename Descriptions::VariableSet x0(Descriptions(*gm_.getSpacesVec().at(0),{"y","u","p"}));
+        ::Kaskade::interpolateGloballyWeak<::Kaskade::PlainAverage>(boost::fusion::at_c<0>(x0.data),
+                                              ::Kaskade::makeWeakFunctionView( [](auto const& cell, auto const& xLocal) -> Dune::FieldVector<double,1>
+        {
+          auto x = cell.geometry().global(xLocal);
+
+          auto returnval =  Dune::FieldVector<double,1>(+12*(1-x[1])*x[1]*(1-x[0])*x[0]);
+          if(x[0] >= 1 && x[0] <= 3) return 0*returnval;
+          return returnval;
+        }));
+
+        ::Spacy::cast_ref<C2Functional<TangentialStepFunctionalDefinition> >(tsf).setInitialCondition(boost::fusion::at_c<0>(x0.data).coefficients());
+
+        /// Functional for Simulation
         if(verbose_)
           std::cout<< "Creating Stuff for forward solution"<<std::endl;
         domain_forward_ = Spacy::KaskadeParabolic::makeHilbertSpace(gm_forward_);
         auto z = zero(domain_fine_);
+
         auto z_ps = ::Spacy::cast_ref<::Spacy::ProductSpace::Vector> (z);
         A = makeC1Operator<ForwardFunctionalDefinition>(ffGen_, gm_forward_ , domain_forward_ , domain_forward_.dualSpace(),
                                                         ::Spacy::cast_ref<::Spacy::ProductSpace::Vector>(z_ps.component(PRIMAL)).component(1));
 
         ::Spacy::cast_ref<C1Operator<ForwardFunctionalDefinition> >(A).setVerbosity(false);
+        /// Set same initial condition
+        ::Spacy::cast_ref<C1Operator<ForwardFunctionalDefinition> >(A).setInitialCondition(boost::fusion::at_c<0>(x0.data).coefficients());
 
         domain_forward_.setScalarProduct( Spacy::InducedScalarProduct( ::Spacy::cast_ref<::Spacy::KaskadeParabolic::C1Operator<ForwardFunctionalDefinition> >(A).massMatrix() ));
 
-        writeMatlab(::Spacy::cast_ref<C1Operator<ForwardFunctionalDefinition> >(A).linearization(zero(domain_forward_)).getKaskOp("A", 0).get(),"Mass"+std::to_string(0));
-        writeMatlab(::Spacy::cast_ref<C1Operator<ForwardFunctionalDefinition> >(A).linearization(zero(domain_forward_)).getKaskOp("A", 2).get(),"Mass"+std::to_string(0));
-
+        writeMatlab(::Spacy::cast_ref<C1Operator<ForwardFunctionalDefinition> >(A).linearization(zero(domain_forward_)).getKaskOp("A", 0).get(),"PDEOperator"+std::to_string(0));
 
         gridtype_ = gridtype;
         N_ = N;
@@ -161,7 +176,14 @@ namespace Spacy
           auto result = cs(x);
 
           // save open loop solution of ocp
-          OCP::printNormSolution<Descriptions>(result,::Spacy::cast_ref<C2Functional<NormalStepFunctionalDefinition> >(nsf).hessian(result),gm_,"open_loop_" + gridtype_ +"_"+ std::to_string(N_)+"_"+std::to_string(i));
+//          OCP::printNormSolution<Descriptions>(result,::Spacy::cast_ref<C2Functional<NormalStepFunctionalDefinition> >(nsf).hessian(result),gm_,"open_loop_" + gridtype_ +"_"+ std::to_string(N_)+"_"+std::to_string(i));
+          OCP::printNormSolution<Descriptions>(result,::Spacy::cast_ref<C2Functional<NormalStepFunctionalDefinition> >(nsf).hessian(zero(domain_)),gm_,"open_loop_" + gridtype_ +"_"+ std::to_string(N_)+"_"+std::to_string(i));
+
+          if(i==0)
+          {
+            const char* name = "res";
+            ::Spacy::KaskadeParabolic::OCP::writeVTK<Descriptions>(result,name);
+          }
 
 
           // ######## SIMULATION OF MODEL (FORWARD PROBLEM)########
@@ -246,7 +268,7 @@ namespace Spacy
 
         /// Print spatial norm over time of trajectory over time into file
         auto normfunctional = makeC2Functional(nfGen_,gm_fine_,domain_fine_);
-        OCP::printNormSolution<Descriptions>(trajectory,normfunctional.hessian(trajectory),gm_fine_,"mpc_trajec_" + gridtype_ +"_"+ std::to_string(N_));
+        OCP::printNormSolution<Descriptions>(trajectory,normfunctional.hessian(zero(domain_fine_)),gm_fine_,"mpc_trajec_" + gridtype_ +"_"+ std::to_string(N_));
         /// Plot trajectory as VTK File
         OCP::writeVTK<Descriptions>(trajectory,"solution");
 
@@ -264,7 +286,7 @@ namespace Spacy
         if(verbose_)
           std::cout<<"VALUE of constant Turnpike Function "<<objectivefunctional(turnpike)<<std::endl;
         /// Print spatial norm of turnpike over time on file
-        OCP::printNormSolution<Descriptions>(turnpike,normfunctional.hessian(trajectory),gm_fine_,"turnpike" + gridtype_ +"_"+ std::to_string(N_));
+        OCP::printNormSolution<Descriptions>(turnpike,normfunctional.hessian(zero(domain_fine_)),gm_fine_,"turnpike" + gridtype_ +"_"+ std::to_string(N_));
 
       }
 

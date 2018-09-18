@@ -146,7 +146,7 @@ namespace Spacy
            * @param fileName name of file to be written
            */
       template <class VariableSetDescription>
-      void writeVTK(const ::Spacy::Vector& x, const char* fileName)
+      void writeVTK(const ::Spacy::Vector& x, const std::string fileName)
       {
         using VYSetDescription = Detail::ExtractDescription_t<VariableSetDescription,0>;
         using VUSetDescription = Detail::ExtractDescription_t<VariableSetDescription,1>;
