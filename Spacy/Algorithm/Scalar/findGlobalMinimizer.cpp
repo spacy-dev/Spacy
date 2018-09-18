@@ -3,6 +3,10 @@
 #include <cassert>
 #include <iostream>
 
+#include <Spacy/Util/Mixins/Get.hh>
+#include "Fmin.h"
+
+
 namespace Spacy
 {
     namespace Scalar
@@ -78,6 +82,12 @@ namespace Spacy
                 normbefore = norm;
             }
             return tmin;
+        }
+
+        Real findMinBrent(const std::function<Real(const Real)>& f, Real a, Real b, Real eps)
+        {
+          std::function<double(double)> fun = [f] (double t){ return get(f(::Spacy::Real(t)));};
+          return Fmin(::Spacy::Mixin::get(a),::Spacy::Mixin::get(b),fun,::Spacy::Mixin::get(eps));
         }
     }
 }

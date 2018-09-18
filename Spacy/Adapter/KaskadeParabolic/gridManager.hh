@@ -47,10 +47,15 @@ namespace Spacy
     {
     public:
 
+      // state and adjoint space
       using H1Space_ptr  =  typename ::boost::fusion::result_of::at_c<Spaces,0>::type;
       using H1Space = typename std::remove_reference<decltype(*std::declval<H1Space_ptr>())>::type;
       using Grid = typename H1Space::Grid;
       static constexpr int dim = Grid::dimension;
+
+      // control space
+      using L2Space_ptr  =  typename ::boost::fusion::result_of::at_c<Spaces,1>::type;
+      using L2Space = typename std::remove_reference<decltype(*std::declval<L2Space_ptr>())>::type;
 
       GridManager() = delete;
 
@@ -88,20 +93,52 @@ namespace Spacy
         gm_.reserve(N);
         for (auto i = 0u; i < N; i++)
         {
-          gm_.push_back(std::make_shared<::Kaskade::GridManager < Grid> > (::Kaskade::createUnitSquare<Grid>(1., false)));
+          // UNIT SQUARE
+//          gm_.push_back(std::make_shared<::Kaskade::GridManager < Grid> > (::Kaskade::createUnitSquare<Grid>(1., false)));
+//          gm_.at(i)->globalRefine(initialRefinements);
+
+          // [0,3] \times [0,1]
+          Dune::GeometryType gt(Dune::GeometryType::simplex,2);
+          auto vector = [=](double x, double y)
+          {
+            Dune::FieldVector<double,2> p;
+            p[0] = x; p[1] = y;
+            return p;
+          };
+          Dune::GridFactory<Grid> factory;
+          factory.insertVertex(vector( 0, 0)); //0
+          factory.insertVertex(vector( 1, 0)); //1
+          factory.insertVertex(vector( 2, 0)); //2
+          factory.insertVertex(vector( 3, 0)); //3
+          factory.insertVertex(vector( 3, 1)); //4
+          factory.insertVertex(vector( 2, 1)); //5
+          factory.insertVertex(vector( 1, 1)); //6
+          factory.insertVertex(vector( 0, 1)); //7
+
+          factory.insertElement(gt,std::vector<unsigned int>{0,1,6});
+          factory.insertElement(gt,std::vector<unsigned int>{0,6,7});
+          factory.insertElement(gt,std::vector<unsigned int>{1,2,6});
+          factory.insertElement(gt,std::vector<unsigned int>{2,5,6});
+          factory.insertElement(gt,std::vector<unsigned int>{2,3,4});
+          factory.insertElement(gt,std::vector<unsigned int>{2,4,5});
+
+          gm_.push_back(std::make_shared<::Kaskade::GridManager < Grid> > (std::unique_ptr<Grid>(factory.createGrid())));
           gm_.at(i)->globalRefine(initialRefinements);
+
           gm_.at(i)->enforceConcurrentReads(true);
-          //          std::cout << "Size of grid at timestep " << i << ": " << gm_.at(i)->grid().leafGridView().size(dim) << std::endl;
         }
+        std::cout<<"Created "<< N << " timegrids with "<<gm_.at(1)->grid().leafGridView().size(dim)<<" each! "<<std::endl;
 
         /// construction of function spaces
         spacesVec_.reserve(N);
         spacesVecHelper_.reserve(N);
+        spacesVecHelper_control.reserve(N);
 
         for (unsigned i = 0; i < N; i++)
         {
           spacesVecHelper_.emplace_back(std::make_shared<H1Space>(H1Space(*gm_.at(i), gm_.at(i)->grid().leafGridView(), FEorder_)));
-          spacesVec_.emplace_back(std::make_shared<Spaces>(Spaces(&(*spacesVecHelper_.at(i)))));
+          spacesVecHelper_control.emplace_back(std::make_shared<L2Space>(*gm_.at(i), gm_.at(i)->grid().leafGridView(), FEorder_));
+          spacesVec_.emplace_back(std::make_shared<Spaces>(Spaces(&(*spacesVecHelper_.at(i)),&(*spacesVecHelper_control.at(i)))));
         }
       }
 
@@ -230,15 +267,44 @@ namespace Spacy
         tgptr_->refine(k);
 
         /// construct new Kaskade Gridmanager for this new timestep
-        gm_.insert(gm_.begin()+k,std::move(std::make_shared<::Kaskade::GridManager < Grid> > (::Kaskade::createUnitSquare<Grid>(1., false))));
+        Dune::GeometryType gt(Dune::GeometryType::simplex,2);
+        auto vector = [=](double x, double y)
+        {
+          Dune::FieldVector<double,2> p;
+          p[0] = x; p[1] = y;
+          return p;
+        };
+        Dune::GridFactory<Grid> factory;
+        factory.insertVertex(vector( 0, 0)); //0
+        factory.insertVertex(vector( 1, 0)); //1
+        factory.insertVertex(vector( 2, 0)); //2
+        factory.insertVertex(vector( 3, 0)); //3
+        factory.insertVertex(vector( 3, 1)); //4
+        factory.insertVertex(vector( 2, 1)); //5
+        factory.insertVertex(vector( 1, 1)); //6
+        factory.insertVertex(vector( 0, 1)); //7
+
+        factory.insertElement(gt,std::vector<unsigned int>{0,1,6});
+        factory.insertElement(gt,std::vector<unsigned int>{0,6,7});
+        factory.insertElement(gt,std::vector<unsigned int>{1,2,6});
+        factory.insertElement(gt,std::vector<unsigned int>{2,5,6});
+        factory.insertElement(gt,std::vector<unsigned int>{2,3,4});
+        factory.insertElement(gt,std::vector<unsigned int>{2,4,5});
+        gm_.insert(gm_.begin()+k,std::make_shared<::Kaskade::GridManager < Grid> > (std::unique_ptr<Grid>(factory.createGrid())));
         gm_.at(k)->globalRefine(initialRefinements_);
         gm_.at(k)->enforceConcurrentReads(true);
         if(verbose)
           std::cout << "Size of inserted grid at timestep " << k << ": " << gm_.at(k)->grid().leafGridView().size(dim) << std::endl;
 
         /// construct new Spaces for this new timestep
-        spacesVecHelper_.emplace_back(std::make_shared<H1Space> (H1Space(*gm_.at(k), gm_.at(k)->grid().leafGridView(), FEorder_)));
-        spacesVec_.emplace_back(std::make_shared<Spaces>(Spaces(&(*(spacesVecHelper_.back())))));
+//        spacesVecHelper_.emplace_back(std::make_shared<H1Space> (H1Space(*gm_.at(k), gm_.at(k)->grid().leafGridView(), FEorder_)));
+//        spacesVec_.emplace_back(std::make_shared<Spaces>(Spaces(&(*(spacesVecHelper_.back())))));
+
+
+        spacesVecHelper_.emplace_back(std::make_shared<H1Space>(H1Space(*gm_.at(k), gm_.at(k)->grid().leafGridView(), FEorder_)));
+        spacesVecHelper_control.emplace_back(std::make_shared<L2Space>(*gm_.at(k), gm_.at(k)->grid().leafGridView(), FEorder_));
+
+        spacesVec_.emplace_back(std::make_shared<Spaces>(Spaces(&(*spacesVecHelper_.back()),&(*spacesVecHelper_control.back()))));
 
         return spacesVec_.back();
       }
@@ -248,6 +314,7 @@ namespace Spacy
       std::shared_ptr<TempGrid> tgptr_ = nullptr;
       std::vector<std::shared_ptr<::Kaskade::GridManager < Grid> > > gm_{};
       std::vector<std::shared_ptr<H1Space> > spacesVecHelper_{};
+      std::vector<std::shared_ptr<L2Space> > spacesVecHelper_control{};
       std::vector<std::shared_ptr<Spaces> > spacesVec_{};
       unsigned initialRefinements_,FEorder_;
     };

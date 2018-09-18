@@ -9,17 +9,15 @@
 /*    see $KASKADE/academic.txt                                              */
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-#ifndef NONLINEAR_CONTROL_HH
-#define NONLINEAR_CONTROL_HH
+#pragma once
 
 #include <memory>
 #include <type_traits>
 
 #include "fem/variables.hh"
 #include "utilities/linalg/scalarproducts.hh"
-#include "Spacy/Adapter/KaskadeParabolic/Constraints/trackingTypeCostFunctional.hh"
-#include "Spacy/Adapter/KaskadeParabolic/Constraints/antonsNonlinearTestProblems.hh"
+#include "trackingTypeCostFunctional.hh"
+#include "Spacy/Adapter/KaskadeParabolic/Constraints/nonlinearModelConstraint.hh"
 
 /// \cond
 using namespace Kaskade;
@@ -30,6 +28,9 @@ using namespace Kaskade;
 /****************************************************************************************/
 enum class RoleOfFunctional{ NORMAL, TANGENTIAL, PRECONDITIONING };
 
+/**
+     * @brief class for nonlinear stepfunctional definition for optimal control problems solved by composite step
+     */
 template <int stateId, int controlId, int adjointId, class RType, class AnsatzVars_, class TestVars_=AnsatzVars_, class OriginVars_=AnsatzVars_, RoleOfFunctional role = RoleOfFunctional::NORMAL, bool lump=false>
 class StepFunctional
 {
@@ -58,7 +59,7 @@ public:
   public:
     DomainCache(StepFunctional const& f_,
                 typename AnsatzVars::VariableSet const& vars_,int flags=7):
-      f(f_), vars(vars_), c(f.c,f.d,f.e), J(f.J)
+      f(f_), vars(vars_), c(f.c,f.d,f.e,f.mu), J(f.J)
     {}
 
     template <class Position, class Evaluators>
@@ -74,6 +75,7 @@ public:
 
       c.evaluateAt(y,dy);
       J.evaluateAt(y,u,evaluators);
+
       if(f.c !=0.0) kappa = f.c * ( y * y ) + f.d;
       else kappa = 0.;
     }
@@ -102,15 +104,14 @@ public:
       {
         if(role == RoleOfFunctional::TANGENTIAL )
           return J.template d2<yIdx,yIdx>(arg1,arg2) + c.template d3<yIdx,yIdx,yIdx>(p,arg1,arg2);
-  else
-      {
-           if(role == RoleOfFunctional::NORMAL )
-           {
-           return J.template d2<yIdx,yIdx>(arg1,arg2)
-            +f.alpha*kappa*sp(if_(arg1.derivative,dy),if_(arg2.derivative,dy));
-               //+(1+f.c*abs(sp(dy,p.derivative)))*arg1.value*arg2.value;
-         }
-      }
+        else
+        {
+          if(role == RoleOfFunctional::NORMAL )
+          {
+            return J.template d2<yIdx,yIdx>(arg1,arg2) + kappa*f.alpha*sp(if_(arg1.derivative,dy),if_(arg2.derivative,dy));
+/*f.alpha**/
+          }
+        }
       }
 
       if(row==uIdx && col==uIdx)
@@ -125,16 +126,16 @@ public:
     }
 
   private:
+    double kappa;
     StepFunctional const& f;
     typename AnsatzVars::VariableSet const& vars;
     Dune::FieldVector<Scalar,AnsatzVars::template Components<yIdx>::m> y, y_z;
     Dune::FieldVector<Scalar,/*1*/AnsatzVars::template Components<uIdx>::m> u;
     Dune::FieldMatrix<Scalar,AnsatzVars::template Components<yIdx>::m,dim> dy;
     VariationalArg<Scalar,dim,AnsatzVars::template Components<pIdx>::m> p;
-    AntonsNonlinearTestProblem<AnsatzVars,yIdx> c;
+    NonlinearModelConstraint<AnsatzVars,yIdx> c;
     TrackingTypeCostFunctional<typename AnsatzVars::VariableSet,yIdx,uIdx> J;
     LinAlg::EuclideanScalarProduct sp;
-    double kappa;
   };
 
   class BoundaryCache : public CacheBase<StepFunctional,BoundaryCache>
@@ -181,8 +182,8 @@ public:
   };
 
 
-  explicit StepFunctional(Scalar alpha_, typename AnsatzVars::VariableSet const& ref, Scalar c_=1, Scalar d_=1, Scalar e_=0) :
-    gamma(1e9), c(c_), d(d_), e(e_), alpha(alpha_), J(alpha,ref)
+  explicit StepFunctional(Scalar alpha_, typename AnsatzVars::VariableSet const& ref,Scalar c_=1, Scalar d_=1, Scalar e_=0, Scalar mu_ = 1) :
+    gamma(1e9), c(c_), d(d_), e(e_), mu(mu_), alpha(alpha_), J(alpha,ref)
   {
     assert(gamma >= 0);
   }
@@ -204,9 +205,9 @@ public:
   struct D2 : public FunctionalBase<WeakFormulation>::D2<row,col>
   {
     static bool const present = !( (row==yIdx && col==yIdx && role==RoleOfFunctional::PRECONDITIONING ) ||
-                               ( row == pIdx && col == pIdx ) ||
-                               ( row == yIdx && col == uIdx ) ||
-                               ( row == uIdx && col == yIdx ) );
+                                   ( row == pIdx && col == pIdx ) ||
+                                   ( row == yIdx && col == uIdx ) ||
+                                   ( row == uIdx && col == yIdx ) );
     static bool const symmetric = row==col;
     static bool const lumped =  (row==uIdx && col==uIdx && role==RoleOfFunctional::PRECONDITIONING );
   };
@@ -218,7 +219,7 @@ public:
     return 4*shapeFunctionOrder - 2;
   }
 
-  Scalar gamma,  c, d, e, alpha;
+  Scalar gamma,  c, d, e, mu, alpha;
   TrackingTypeCostFunctional<typename AnsatzVars::VariableSet,yIdx,uIdx> J;
 };
 
@@ -232,5 +233,3 @@ using TangentialStepFunctional = StepFunctional<stateId,controlId,adjointId,RTyp
 template <int stateId, int controlId, int adjointId, class RType, class AnsatzVars, class TestVars=AnsatzVars, class OriginVars=AnsatzVars>
 using PreconditioningFunctional = StepFunctional<stateId,controlId,adjointId,RType,AnsatzVars,TestVars,OriginVars,RoleOfFunctional::PRECONDITIONING>;
 
-/// \endcond
-#endif

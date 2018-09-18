@@ -2,6 +2,8 @@
 
 #include <string>
 #include <tuple>
+#include <fstream>
+
 
 #include <Spacy/linearSolver.hh>
 #include <Spacy/c2Functional.hh>
@@ -74,11 +76,11 @@ namespace Spacy
 
         private:
             Vector computeNormalStep(const Vector& x) const;
-            Vector computeSimplifiedNormalStep(const Vector& trial) const;
+            Vector computeSimplifiedNormalStep(const Vector& x, const Vector& dx) const;
             Vector computeMinimumNormCorrection(const Vector& x) const;
             Vector computeTangentialStep(DampingFactor nu, const Vector& x, const Vector& dn, bool lastStepWasUndamped) const;
 
-            Vector updateLagrangeMultiplier(const Vector& x) const;
+            std::tuple<Vector,Vector,Vector> updateLagrangeMultiplier(const Vector& x,const DampingFactor nu) const;
 
             IndefiniteLinearSolver makeTangentialSolver(DampingFactor nu, const Vector& x, bool lastStepWasUndamped) const;
 
@@ -87,12 +89,12 @@ namespace Spacy
             std::function<Vector(const Vector&, const Vector&)> linearRetraction = [](const Vector& origin,const Vector& increment) { return origin+increment; };
 
 
-            std::tuple<DampingFactor, Vector, Vector, Real, Real> computeCompositeStep(DampingFactor& nu, Real norm_Dn,
-                                                                                       const Vector& x, const Vector& Dn, const Vector& Dt);
+            std::tuple<DampingFactor, Vector, Vector, Real, Real> computeCompositeStep(DampingFactor& nu, Real norm_Dn, const Vector& x, const Vector& Dn,
+                                                                                       const Vector& Dt , const Vector& res_p, const Vector& v) ;
 
             void updateOmegaC(Real norm_x, Real norm_dx, Real norm_ds);
             Real updateOmegaL(const Vector& soc, Real q_tau,
-                              DampingFactor tau, Real norm_x, Real norm_dx, const CompositeStep::CubicModel& cubic);
+                              DampingFactor tau, Real norm_x, Real norm_dx, const CompositeStep::CubicModel& cubic, Real errorterm);
 
             DampingFactor computeNormalStepDampingFactor(Real norm_Dn) const;
             DampingFactor computeTangentialStepDampingFactor(Real norm_dn, Real norm_Dt, const CompositeStep::CubicModel& cubic) const;
@@ -120,6 +122,16 @@ namespace Spacy
             StepMonitor tangentialStepMonitor = StepMonitor::Accepted;
 
             Real norm_dx_old = -1;
+
+            // for tangential step accuracy control
+            Real previous_step_contraction = 0;
+            // cg accuracy
+            Real cgAcc = 1e-1;
+            // for suggesting a regularization parameter for the TRCG
+            mutable Real theta_sugg = Real{0.};
+            // for logging purposes
+            mutable unsigned ds_it_counter;
+
         };
     }
 }
