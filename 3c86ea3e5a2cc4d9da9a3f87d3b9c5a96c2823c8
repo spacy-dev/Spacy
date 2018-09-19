@@ -1,0 +1,276 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ef95ef3c_b1595114",
+        "filename": "Spacy/Adapter/KaskadeParabolic/c2Functional.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "New part, added time discretization error estimation. Indicators are computed by C2functional as it contanins the nedeed information. External error estimator then requests the computed indicators and performs refinement.",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6bd1efae_0ae19912",
+        "filename": "Spacy/Algorithm/CG/RegularizeViaPreconditioner.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "Regularization via arbitrary callable operator (e.g. normal step matrix)\n- needs getter for Regularization to compute Rq in CG loop\n- every cg call, this class saves qAq and qRq to compute a minimal regularization parameter, such that the regularized matrix is positive definite on the search space (spanned by q)\n- This suggestion can then be used e.g. in the next composite step iteration as suggestion for the tangential step solver to prevent the long startup phase of the TRCG",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f84b5409_f24938a9",
+        "filename": "Spacy/Algorithm/CG/cg.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "For logging purposes",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ad589b9_6b47b4ef",
+        "filename": "Spacy/Algorithm/CG/linearSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "TRCG with arbitrary callable operator as regularization (previous implementation allowed only for preconditioner as regularization).",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea1ab669_bb3c1d89",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "This class implements newly developed ideas for a preemptive termination of the normal and simplified normal step computation.",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1fd65479_f022d586",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "CG error estimator with adaptive horizon choice (Strakos error estimator has hard coded \"5\" as horizon)",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bd2cbb03_d2d703d5",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "Important note: I implemented new ideas for inexact computation of the noraml and simplified normal step. Therefore, several error terms are tracked, residuals are computed, and algorithmic parameters are updated accordingly. If one does not use a CG and solves those systems exactly, the error terms are 0 and thus the updates are the same as before.",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a38639ac_1b8599f1",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "std::ofstream used.\nReason: if several simplified normal steps are computed each outer iteration, we want to save the information for all of them (rowwise).",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23018e31_7f7c26a1",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "new trcg implementation with normal step matrix for regularization.",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c119c7a_8ccfdd5e",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "With the new termination criteria for simplified normal step adn normal step, i moved the \"computeMinimumNormCorrection\" part into the functions.",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "613ebf2c_219ceb67",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "This is zero if dn is computed exactly, as then dn and dt are orthogonal",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f0d78a8_4e999fa6",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "zero if computed exactly",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7060da2b_b25800b5",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "If normal step is computed inexactly, the update has to be modified with this error term, to not mistake errors with nonlinearities",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65615213_b69369e1",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "Upper bound has to be modified, as dn and dt are not orthogonal anymore.\nif computed exactly, this is the same bound as described in the affine covariant paper.",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67e8c359_d63361b6",
+        "filename": "Spacy/Algorithm/Scalar/Fmin.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "Not sure if we want this here...It was used in Kaskade iirc and i got it from Anton. Long term goal would be probably to implement it ourselves?",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b253930_e59cb648",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-19T08:06:35Z",
+      "side": 1,
+      "message": "New line search, more sophisticated than the interval searches",
+      "revId": "3c86ea3e5a2cc4d9da9a3f87d3b9c5a96c2823c8",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
