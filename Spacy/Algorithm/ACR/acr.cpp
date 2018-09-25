@@ -30,7 +30,7 @@ namespace Spacy
 {
     namespace ACR
     {
-        DEFINE_LOG_TAG( static const char* log_tag = "ACR" );
+        DEFINE_LOG_TAG( static const char* log_tag = "ACR" )
 
         CompositeStep::CubicModel makeCubicModel( const Vector& dx, const C2Functional& f,
                                                   const Vector& x, Spacy::Real omega )
