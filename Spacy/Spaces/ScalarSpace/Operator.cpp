@@ -1,4 +1,4 @@
-#include "Operator.hh"
+#include "Operator.h"
 
 #include <Spacy/Spaces/realSpace.hh>
 #include <Spacy/Util/cast.hh>

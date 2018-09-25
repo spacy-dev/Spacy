@@ -1,7 +1,7 @@
-#include "C1Operator.hh"
+#include "C1Operator.h"
 
-#include <Spacy/Spaces/ProductSpace/vector.hh>
-#include <Spacy/Spaces/ProductSpace/vectorSpace.hh>
+#include <Spacy/Spaces/ProductSpace/Vector.h>
+#include <Spacy/Spaces/ProductSpace/VectorSpace.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/zeroVectorCreator.hh>
 

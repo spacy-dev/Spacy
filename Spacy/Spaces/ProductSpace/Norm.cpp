@@ -1,12 +1,12 @@
 #include "Norm.h"
 
 #include <Spacy/Norm.h>
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/vector.hh>
 
-#include "vector.hh"
-#include "vectorSpace.hh"
+#include "Vector.h"
+#include "VectorSpace.h"
 
 #include <cmath>
 

@@ -15,7 +15,31 @@ if(dealII)
     aux_source_directory(Adapter/dealII SRC_LIST)
 endif()
 
-aux_source_directory(. SRC_LIST)
+set(HEADERS1
+    c1Functional.hh
+    c1Operator.hh
+    c2Functional.hh
+    derivative.hh
+    dynamicOperator.hh
+    functional.hh
+    HilbertSpaceNorm.h
+    inducedScalarProduct.hh
+    linearSolver.hh
+    linearOperator.hh
+    Norm.h
+    scalarProduct.hh
+    vector.hh
+    vectorSpace.hh
+    spacy.h
+    zeroVectorCreator.hh
+    )
+list(APPEND SRC_LIST
+    ${HEADERS1}
+    derivative.cpp
+    HilbertSpaceNorm.cpp
+    inducedScalarProduct.cpp
+    vectorSpace.cpp
+    )
 aux_source_directory(Adapter/Scalar SRC_LIST)
 aux_source_directory(Adapter/Generic SRC_LIST)
 aux_source_directory(Algorithm SRC_LIST)

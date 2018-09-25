@@ -1,11 +1,11 @@
 #include "vector.hh"
 
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
 #include <Spacy/Util/Exceptions/invalidArgumentException.hh>
+#include <Spacy/Util/cast.hh>
+#include <Spacy/vectorSpace.hh>
+#include <Spacy/zeroVectorCreator.hh>
 
 #include "vectorSpace.hh"
 
@@ -13,25 +13,23 @@
 
 namespace Spacy
 {
-    const auto& get_creator(const VectorSpace& space)
+    const auto& get_creator( const VectorSpace& space )
     {
-        auto&& c = creator<FEniCS::VectorCreator>(space);
+        auto&& c = creator< FEniCS::VectorCreator >( space );
         return c.get();
     }
 
     namespace FEniCS
     {
-        Vector::Vector(const VectorSpace& V)
-            : VectorBase(V),
-              v_( get_creator(V) )
-        {}
+        Vector::Vector( const VectorSpace& V ) : VectorBase( V ), v_( get_creator( V ) )
+        {
+        }
 
-        Vector::Vector(const dolfin::Function& v, const VectorSpace& V)
-            : VectorBase(V),
-              v_(v)
-        {}
+        Vector::Vector( const dolfin::Function& v, const VectorSpace& V ) : VectorBase( V ), v_( v )
+        {
+        }
 
-        Vector& Vector::operator=(const dolfin::Function& v)
+        Vector& Vector::operator=( const dolfin::Function& v )
         {
             v_ = v;
             return *this;
@@ -53,7 +51,7 @@ namespace Spacy
             return *v_.vector();
         }
 
-        Real Vector::operator()(const Vector& y) const
+        Real Vector::operator()( const Vector& y ) const
         {
             return get().inner( y.get() );
         }

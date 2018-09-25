@@ -1,39 +1,38 @@
-#include "LinearOperator.hh"
+#include "LinearOperator.h"
 
-#include <Spacy/linearSolver.hh>
-#include <Spacy/vector.hh>
+#include "LinearSolver.h"
 #include <Spacy/Spaces/realSpace.hh>
 #include <Spacy/Util/cast.hh>
-#include "LinearSolver.hh"
+#include <Spacy/linearSolver.hh>
+#include <Spacy/vector.hh>
 
 namespace Spacy
 {
     namespace Scalar
     {
-        LinearOperator::LinearOperator(const VectorSpace& space, Real value) :
-            VectorBase(space),
-            OperatorBase(Space::R,Space::R),
-            Mixin::Get<Real>(value)
-        {}
-
-        ::Spacy::Vector LinearOperator::operator()(const ::Spacy::Vector& dx) const
+        LinearOperator::LinearOperator( const VectorSpace& space, Real value )
+            : VectorBase( space ), OperatorBase( Space::R, Space::R ), Mixin::Get< Real >( value )
         {
-            return Real( get()*Mixin::get(cast_ref<Real>(dx)) );
         }
 
-        ::Spacy::Real LinearOperator::operator()(const LinearOperator& dx) const
+        ::Spacy::Vector LinearOperator::operator()( const ::Spacy::Vector& dx ) const
         {
-            return Real( get()*dx.get() );
+            return Real( get() * Mixin::get( cast_ref< Real >( dx ) ) );
+        }
+
+        ::Spacy::Real LinearOperator::operator()( const LinearOperator& dx ) const
+        {
+            return Real( get() * dx.get() );
         }
 
         ::Spacy::LinearSolver LinearOperator::solver() const
         {
-            return LinearSolver(get());
+            return LinearSolver( get() );
         }
 
         LinearOperator LinearOperator::operator-() const
         {
-            return LinearOperator(space(),-get());
+            return LinearOperator( space(), -get() );
         }
     }
 }

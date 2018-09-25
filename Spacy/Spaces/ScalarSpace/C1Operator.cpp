@@ -1,4 +1,4 @@
-#include "c1Operator.hh"
+#include "C1Operator.h"
 
 #include <Spacy/Spaces/realSpace.hh>
 #include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
@@ -7,7 +7,7 @@
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 
-#include "LinearOperator.hh"
+#include "LinearOperator.h"
 
 #include <cassert>
 
