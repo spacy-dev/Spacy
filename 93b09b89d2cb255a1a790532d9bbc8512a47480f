@@ -2,6 +2,213 @@
   "comments": [
     {
       "key": {
+        "uuid": "1e6dfbbd_74efdddd",
+        "filename": "Spacy/Algorithm/CG/linearSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "This comment is ok, it is just a bit nicer to read if it just states what the method does, i.e.\n\u0027Set termination criterion.\u0027",
+      "range": {
+        "startLine": 51,
+        "startChar": 16,
+        "endLine": 51,
+        "endChar": 48
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c62738d5_fb3c7d97",
+        "filename": "Spacy/Algorithm/CG/linearSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "(-1) Plz rename to \u0027setTerminationCriterion\u0027",
+      "range": {
+        "startLine": 53,
+        "startChar": 17,
+        "endLine": 53,
+        "endChar": 31
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc635333_294ec3f3",
+        "filename": "Spacy/Algorithm/CG/linearSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "(-1) Plz return \u0027CG::TerminationCriterion\u0026\u0027",
+      "range": {
+        "startLine": 59,
+        "startChar": 12,
+        "endLine": 60,
+        "endChar": 21
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67178bc7_77b80ed8",
+        "filename": "Spacy/Algorithm/CG/linearSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "(-1) Plz don\u0027t use tabs, they mess up the formatting as editors use different lengths for it (typically one of 2,4,8)",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 9
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ce57f90_5c8ec730",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "This is a very generic name. Can you find one that gives a better idea of what this termination criterion does? I know that this is not easy for termination criteria, but a bit more expressive would be nice.\nIf there is a paper, then it would be good to reference it.",
+      "range": {
+        "startLine": 94,
+        "startChar": 13,
+        "endLine": 94,
+        "endChar": 28
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4721c85_ece2a912",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "Plz leave only the declarations in the header and move the implementations into the cpp-file",
+      "range": {
+        "startLine": 106,
+        "startChar": 9,
+        "endLine": 108,
+        "endChar": 31
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f200c7d_24a4a911",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "Same here, can be removed.",
+      "range": {
+        "startLine": 227,
+        "startChar": 11,
+        "endLine": 227,
+        "endChar": 15
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1ba44da_f39abc59",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "Here I would just \u0027return false;\u0027. \nThe \u0027type_\u0027 is an internal variable of this class. Thus it is fully under your control and you can make sure that it is always one of the admissible candidates.",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 235,
+        "endChar": 26
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9925c8ab_2dc70128",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "This looks like a good candidate for an enum class (though a string is also ok). Though, if you prefer strings, then plz add aliases such as\n\u0027static const std::string SimplifiedNormal \u003d \"SimplifiedNormal\"\u0027\nThis (or an enum class:) will guarantee that you cannot change the string in one place but forget another.\n\nThe enum would look like:\nenum class Type{ SimplifiedNormal, Normal, None };",
+      "range": {
+        "startLine": 241,
+        "startChar": 9,
+        "endLine": 241,
+        "endChar": 36
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f6711523_69d6c583",
         "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
         "patchSetId": 1
@@ -13,6 +220,52 @@
       "writtenOn": "2018-09-26T10:44:29Z",
       "side": 1,
       "message": "CG error estimator with adaptive horizon choice (Strakos error estimator has hard coded \"5\" as horizon)",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a0f50a5_67938fa8",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "Plz move to cpp-file",
+      "range": {
+        "startLine": 353,
+        "startChar": 0,
+        "endLine": 355,
+        "endChar": 10
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd6a351e_67e2c3cc",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "Also looks like a good candidate for an enum class.",
+      "range": {
+        "startLine": 384,
+        "startChar": 29,
+        "endLine": 384,
+        "endChar": 48
+      },
       "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
@@ -53,6 +306,93 @@
     },
     {
       "key": {
+        "uuid": "a7e8fcd3_ef9b4fb3",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "ok, looks like I should think about improving the Logger to handle such cases",
+      "parentUuid": "721ac4fd_08954248",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14adec5d_d5404164",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "(-1) Plz define on separate lines and move lower, i.e. to the 2 lines before \u0027std::tie(x, res_, v)...",
+      "range": {
+        "startLine": 111,
+        "startChar": 19,
+        "endLine": 111,
+        "endChar": 26
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cc5d01c_c99b8dfc",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "Here I am not 100% sure anymore. The implementation that you use looks more correct to me. If you agree, then plz remove the line that is commented out.",
+      "range": {
+        "startLine": 118,
+        "startChar": 16,
+        "endLine": 119,
+        "endChar": 106
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93fc4aca_4415c47f",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "(-2) Imo this has two major issues that we need to solve:\n1. It is not so nice to just comment out old code. We should try to improve existing code without removing prior existing features (except if they are completely broken)\n2. Hard-coding accuracies is not good. We should configure these from outside. If the current mixins are not sufficient for your needs, then we should maybe add another one.",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 144
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "14e4db58_63b2d323",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 1
@@ -64,6 +404,29 @@
       "writtenOn": "2018-09-26T10:44:29Z",
       "side": 1,
       "message": "With the new termination criteria for simplified normal step adn normal step, i moved the \"computeMinimumNormCorrection\" part into the functions",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea76e854_736aefbd",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "(-2) Here I am also concerned that this does not maintain the previous implementations. I am not 100% sure, but to me it looks like parts of the additional implementation might be moved into the NormalSolver, resp. the TangentialStepSolver, i.e. into wrappers around the currently used solvers.",
+      "range": {
+        "startLine": 261,
+        "startChar": 4,
+        "endLine": 375,
+        "endChar": 14
+      },
       "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
@@ -132,6 +495,52 @@
       "writtenOn": "2018-09-26T10:44:29Z",
       "side": 1,
       "message": "Upper bound has to be modified, as dn and dt are not orthogonal anymore.\nif computed exactly, this is the same bound as described in the affine covariant paper.",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3adcad1_11d29533",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "(-1) Plz replace with \u0027eps()\u0027",
+      "range": {
+        "startLine": 610,
+        "startChar": 26,
+        "endLine": 610,
+        "endChar": 31
+      },
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15a597e1_ed1b312a",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:14:48Z",
+      "side": 1,
+      "message": "(-1) Unused, plz remove",
+      "range": {
+        "startLine": 131,
+        "startChar": 12,
+        "endLine": 132,
+        "endChar": 43
+      },
       "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
