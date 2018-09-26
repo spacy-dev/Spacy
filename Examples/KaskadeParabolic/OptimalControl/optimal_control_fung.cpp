@@ -79,9 +79,9 @@ int main(int argc, char *argv[])
 
   typedef Dune::UGGrid<dim> Grid;
   typedef FEFunctionSpace<ContinuousLagrangeMapper<double,Grid::LeafGridView> > H1Space;
-  typedef boost::fusion::vector<H1Space const*> Spaces;
+  typedef boost::fusion::vector<H1Space const*,H1Space const*> Spaces;
   using VY = VariableDescription<0,1,Ids::state>;
-  using VU = VariableDescription<0,1,Ids::control>;
+  using VU = VariableDescription<1,1,Ids::control>;
   using VP = VariableDescription<0,1,Ids::adjoint>;
   typedef boost::fusion::vector< VY , VU , VP > VariableDescriptions;
   typedef VariableSetDescription<Spaces,VariableDescriptions> Descriptions;
