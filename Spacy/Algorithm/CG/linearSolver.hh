@@ -51,6 +51,25 @@ namespace Spacy
             /// Access regularization \f$R\f$.
             const Regularization& R() const;
 
+            /// Set Termination Criterion
+            template < class TermCrit >
+            void setTerminationCriterion( TermCrit term_ ) const
+            {
+                return cg.setTerminationCriterion( term_ );
+            }
+
+            /// getter for Termination Criterion
+            CG::TerminationCriterion& terminationCriterion() noexcept
+            {
+                return cg.terminationCriterion();
+            }
+
+            /// getter for number of iteration
+            unsigned getIterations() const
+            {
+                return cg.getIterations();
+            }
+
         private:
             mutable Solver cg;
         };
