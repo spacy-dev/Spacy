@@ -116,19 +116,29 @@ namespace Spacy
 
                 auto alpha = sigma / qAq;
 
-                terminate_.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ) );
-
+                if ( is< CG::Termination::AdaptiveRelativeEnergyError >( terminate_ ) )
+                {
+                    auto& t =
+                        cast_ref< CG::Termination::AdaptiveRelativeEnergyError >( terminate_ );
+                    t.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ), x );
+                }
+                else
+                {
+                    terminate_.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ) );
+                }
                 //  don't trust small numbers
                 if ( vanishingStep( step ) )
                 {
                     if ( step == 1 )
                         x += q;
                     result = Result::Converged;
+                    iterations_ = step;
                     break;
                 }
 
                 if ( terminateOnNonconvexity( qAq, qRq, x, q, step ) )
                 {
+                    iterations_ = step;
                     break;
                 }
                 x += ( get( alpha ) * q );
@@ -136,10 +146,11 @@ namespace Spacy
                 // convergence test
                 if ( terminate_() )
                 {
-                    //          if ( verbose() )
-                    std::cout << "    "
-                              << ": Terminating in iteration " << step << ".\n";
+                    if ( verbose() )
+                        std::cout << "    "
+                                  << ": Terminating in iteration " << step << ".\n";
                     result = ( step == getMaxSteps() ) ? Result::Failed : Result::Converged;
+                    iterations_ = step;
                     break;
                 }
 
