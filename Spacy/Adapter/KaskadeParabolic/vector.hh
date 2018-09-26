@@ -133,8 +133,10 @@ namespace Spacy
         ::Spacy::KaskadeParabolic::VectorCreator<Description>  vc = ::Spacy::creator<VectorCreator<Description> >(this->space());
         ::Spacy::KaskadeParabolic::SubCreator<Description> vc_k = vc.getSubCreator(k);
 
-        variableSet_.insert(variableSet_.begin()+k, VariableSet(::Spacy::creator<VectorCreator<Description> >(this->space()).getSubCreator(k).get()));
+//        variableSet_.insert(variableSet_.begin()+k, VariableSet(::Spacy::creator<VectorCreator<Description> >(this->space()).getSubCreator(k).get()));
+        variableSet_.emplace(variableSet_.begin()+k,::Spacy::creator<VectorCreator<Description> >(this->space()).getSubCreator(k).get());
 //        assert(variableSet_.at(k).data.coefficients().size() == variableSet_.at(k+1).data.coefficients().size());
+
         boost::fusion::at_c<0>(variableSet_.at(k).data) = boost::fusion::at_c<0>(variableSet_.at(k+1).data);
 
         description_.insert(description_.begin()+k, std::make_shared<Description>(vc_k.get()));
@@ -292,7 +294,7 @@ namespace Spacy
         auto gm = vc.getGridMan();
         auto tg = gm.getTempGrid();
 
-        auto index = tg.getInverval(t);
+        auto index = tg.getInterval(t);
 //        std::cout<<"Evaluate for time "<<t<<"yields index"<<index<<std::endl;
         return this->get(index);
       }
@@ -304,7 +306,7 @@ namespace Spacy
         auto gm = vc.getGridMan();
         auto tg = gm.getTempGrid();
 
-        auto index = tg.getInverval(t);
+        auto index = tg.getInterval(t);
         if(index == 0) index = 1;
 //        std::cout<<"Evaluate for time "<<t<<"yields index"<<index<<std::endl;
 
@@ -322,7 +324,7 @@ namespace Spacy
         auto gm = vc.getGridMan();
         auto tg = gm.getTempGrid();
 
-        auto index = tg.getInverval(t);
+        auto index = tg.getInterval(t);
 //        std::cout<<"Evaluate for time "<<t<<"yields index"<<index<<std::endl;
 
 
@@ -344,7 +346,7 @@ namespace Spacy
         auto gm = vc.getGridMan();
         auto tg = gm.getTempGrid();
 
-        auto index = tg.getInverval(t);
+        auto index = tg.getInterval(t);
 //        std::cout<<"Evaluate for time "<<t<<"yields index"<<index<<std::endl;
 
         // INSERTED
