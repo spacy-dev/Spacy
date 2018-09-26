@@ -99,21 +99,32 @@ namespace Spacy
                 // if( getVerbosityLevel() > 1 ) std::cout << "    " << "  sigma = " << sigma << ",
                 // alpha = " << alpha << ", qAq = " << qAq << ", qPq = " << qPq << std::endl;
 
-                terminate_.update( get( alpha ), get( qAq ), get( qPq ), get( sigma ) );
-
+                if (is<CG::Termination::AdaptiveRelativeEnergyError>(terminate_))
+                {
+                  auto &t = cast_ref<CG::Termination::AdaptiveRelativeEnergyError>(terminate_);
+                  t.update(get(alpha),get(qAq),get(qPq),get(sigma),x);
+                }
+                else
+                {
+                  terminate_.update(get(alpha),get(qAq),get(qPq),get(sigma));
+                }
                 //  don't trust small numbers
                 if ( vanishingStep( step ) )
                 {
                     if ( step == 1 )
                         x += q;
                     result = Result::Converged;
+                    iterations_ = step;
                     break;
                 }
 
                 auto Ax = A_( x );
 //                std::cout << "qAq/xAx: " << get( qAq ) << "/" << get( Ax( x ) ) << std::endl;
                 if ( terminateOnNonconvexity( qAq, qPq, x, q, step ) )
-                    break;
+                {
+                  iterations_=step;
+                  break;
+                }
 
                 x += ( get( alpha ) * q );
 
@@ -124,6 +135,7 @@ namespace Spacy
                         std::cout << "    "
                                   << ": Terminating in iteration " << step << ".\n";
                     result = ( step == getMaxSteps() ) ? Result::Failed : Result::Converged;
+                    iterations_ = step;
                     break;
                 }
 

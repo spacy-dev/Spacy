@@ -13,6 +13,7 @@
 #include <Spacy/Util/cast.hh>
 #include <Spacy/Util/Exceptions/regularityTestFailedException.hh>
 #include <Spacy/Util/logger.hh>
+#include <Spacy/Algorithm/CG/terminationCriteria.hh>
 
 #include <cmath>
 #include <iostream>
@@ -48,10 +49,17 @@ namespace Spacy
         Logger<double> logDn("dn.log");
         Logger<double> logDt("dt.log");
         Logger<double> logDx("dx.log");
+        Logger<double> logDs("ds.log");
         Logger<double> logDL("dL.log");
         Logger<int> logRejected("rejected.log");
         Logger<double> logCostFunctional("costFunctional.log");
         Logger<bool> logConvexity("convex.log");
+        Logger<unsigned> logIterationsP("pIt.log");
+        Logger<unsigned> logIterationsDn("dnIt.log");
+        Logger<unsigned> logIterationsDt("dtIt.log");
+        Logger<unsigned> logIterationsDs("dsIt.log");
+        std::ofstream ds_exit_log;
+        Logger<std::string> logDnExit("dnExit.log");
     }
 
 
@@ -99,14 +107,16 @@ namespace Spacy
             auto lastStepWasUndamped = false;
             auto x = x0;
             logCostFunctional(get(L_(primalProjection(x))));
+            ds_exit_log.open("dsExit.log");
+            Vector res_p,v; // residual of Lagrange multiplier system and projected gradient
 
             std::cout << "starting composite step solver" << std::endl;
             for(unsigned step = 1; step < getMaxSteps(); ++step)
             {
                 normalStepMonitor = tangentialStepMonitor = StepMonitor::Accepted;
 
-                domain_.setScalarProduct( PrimalInducedScalarProduct( N_.hessian(x) ) );
-                //        domain_.setScalarProduct( PrimalInducedScalarProduct( N_.hessian(primalProjection(x)) ) );
+                //domain_.setScalarProduct( PrimalInducedScalarProduct( N_.hessian(x) ) );
+                domain_.setScalarProduct( PrimalInducedScalarProduct( N_.hessian(primalProjection(x)) ) );
 
                 if( verbose() ) std::cout << "\nComposite Steps: Iteration " << step << ".\n";
                 if( verbose() ) std::cout << spacing << "Computing normal step." << std::endl;
@@ -122,7 +132,7 @@ namespace Spacy
                 if( getVerbosityLevel() > 1 ) std::cout << spacing2 << "|dn| = " << norm_Dn << ", nu = " << nu << ", |projected(Dn)| = " << norm(primalProjection(Dn)) << std::endl;
 
                 if( verbose() ) std::cout << spacing << "Computing lagrange multiplier." << std::endl;
-                x = updateLagrangeMultiplier(x);
+                std::tie(x,res_p,v) = updateLagrangeMultiplier(x,nu);
 
                 if( verbose() ) std::cout << spacing << "Computing tangential step." << std::endl;
                 auto Dt = computeTangentialStep(nu,x,Dn,lastStepWasUndamped);
@@ -136,11 +146,13 @@ namespace Spacy
                     std::cout << spacing << "Tangential step length: " << norm(Dt) << std::endl;
                     std::cout << spacing << "Computing damping factors." << std::endl;
                 }
-                std::tie(tau,dx,ds,norm_x,norm_dx) = computeCompositeStep( nu , norm_Dn , x , Dn , Dt );
+                std::tie(tau,dx,ds,norm_x,norm_dx) = computeCompositeStep( nu , norm_Dn , x , Dn , Dt, res_p, v);
 
+                if(norm_dx > 0) previous_step_contraction = norm(ds)/norm(dx);
                 if( getContraction() < 0.25 ) x = retractPrimal(x,dx+ds);
                 else x = retractPrimal(x,dx);
                 logCostFunctional(get(L_(primalProjection(x))));
+                logDs(get(norm(primalProjection(ds))));
 
                 norm_x = norm(primalProjection(x));
 
@@ -157,6 +169,7 @@ namespace Spacy
                 }
             } // end iteration
 
+            ds_exit_log.close();
             return x;
         }
 
@@ -168,23 +181,38 @@ namespace Spacy
 
             std::cout << " tangential step rhs :"  << norm( primalProjection(-d1(L_,x)) + primalProjection(-nu*d2(L_,x)(dn)) ) << std::endl;
             std::cout << " = " << norm( primalProjection(-d1(L_,x)) ) << " + " << norm(primalProjection(-nu*d2(L_,x)(dn)) ) << std::endl;
-            return primalProjection( tangentialSolver( primalProjection(-d1(L_,x)) + primalProjection(-nu*d2(L_,x)(dn)) ) );
+
+            auto y = primalProjection( tangentialSolver( primalProjection(-d1(L_,x)) + primalProjection(-nu*d2(L_,x)(dn)) ) );
+            logIterationsDt(cast_ref<CG::LinearSolver>(tangentialSolver).getIterations());
+
+            return y;
         }
 
         IndefiniteLinearSolver AffineCovariantSolver::makeTangentialSolver(DampingFactor nu, const Vector &x, bool lastStepWasUndamped) const
         {
-            Real trcgRelativeAccuracy = getMinimalAccuracy();
-            if( nu == 1 && lastStepWasUndamped )
-            {
-                trcgRelativeAccuracy = max( getRelativeAccuracy() , min( getMinimalAccuracy() , omegaL * norm_dx_old ) );
-                if( norm_dx_old > 0 && lastStepWasUndamped )
-                    trcgRelativeAccuracy = min( max( getRelativeAccuracy()/norm_dx_old , trcgRelativeAccuracy ) , getMinimalAccuracy() );
-                if( getVerbosityLevel() > 1 )
-                {
-                    std::cout << spacing2 << "relative accuracy = " << trcgRelativeAccuracy << std::endl;
-                    std::cout << spacing2 << "absolute step length accuracy = " << getRelativeAccuracy()*norm(x) << std::endl;
-                }
-            }
+//            Real trcgRelativeAccuracy = getMinimalAccuracy();
+//            if( nu == 1 && lastStepWasUndamped )
+//            {
+//                trcgRelativeAccuracy = max( getRelativeAccuracy() , min( getMinimalAccuracy() , omegaL * norm_dx_old ) );
+//                if( norm_dx_old > 0 && lastStepWasUndamped )
+//                    trcgRelativeAccuracy = min( max( getRelativeAccuracy()/norm_dx_old , trcgRelativeAccuracy ) , getMinimalAccuracy() );
+//                if( getVerbosityLevel() > 1 )
+//                {
+//                    std::cout << spacing2 << "relative accuracy = " << trcgRelativeAccuracy << std::endl;
+//                    std::cout << spacing2 << "absolute step length accuracy = " << getRelativeAccuracy()*norm(x) << std::endl;
+//                }
+//            }
+
+            // To achieve superlinear convergence, tangential step computation accuracy will be proportional to |ds|/|dx|
+            //  which is in o(|dx|), starting value is 0.01.
+
+            Real trcgRelativeAccuracy = 0.01;
+//            Real trcgRelativeAccuracy = 1e-10;
+            if(nu < 1 ) trcgRelativeAccuracy = 0.25; // if normal step damped, we compute tangential step even less accurate
+            else if (previous_step_contraction > 0) trcgRelativeAccuracy= min(trcgRelativeAccuracy,previous_step_contraction);
+
+            std::cout<<" tangential solver accuracy set to "<<trcgRelativeAccuracy<<" as contraction is "<<previous_step_contraction<<std::endl;
+
 
             auto setParams = [this,&x](auto& solver)
             {
@@ -197,14 +225,14 @@ namespace Spacy
                 solver.setMaxSteps(getMaxSteps());
             };
 
-            //    std::unique_ptr<CGSolver> trcg = nullptr;
-
             if( is<CG::LinearSolver>(normalSolver) )
             {
                 const auto& cgSolver = cast_ref<CG::LinearSolver>(normalSolver);
 
                 auto trcg = makeTRCGSolver( L_.hessian(x) , cgSolver.P() ,
                                            get(trcgRelativeAccuracy) , eps(), verbose() );
+                trcg.setTermination(CG::Termination::AdaptiveRelativeEnergyError{});
+
                 setParams(trcg);
                 return IndefiniteLinearSolver(trcg);
             }
@@ -233,57 +261,134 @@ namespace Spacy
         Vector AffineCovariantSolver::computeNormalStep(const Vector &x) const
         {
             if( !N_ ) return Vector(0*x);
-
             normalSolver = N_.hessian(primalProjection(x))^-1;
-            return computeMinimumNormCorrection(x);
-        }
 
-        Vector AffineCovariantSolver::computeSimplifiedNormalStep(const Vector &trial) const
-        {
-            if( !N_ ) return zero(chartSpace_);
-            return computeMinimumNormCorrection(trial);
-        }
-
-        Vector AffineCovariantSolver::computeMinimumNormCorrection(const Vector& x) const
-        {
             auto rhs = dualProjection(-d1(L_,x));
-            std::cout << "min norm correction rhs: " << norm(rhs) << std::endl;
             auto dn0 = zero(chartSpace_);
             if( is<CG::LinearSolver>(normalSolver) )
             {
               auto& cgSolver = cast_ref<CG::LinearSolver>(normalSolver);
-              cgSolver.setRelativeAccuracy(getRelativeAccuracy());
+              cgSolver.setRelativeAccuracy(cgAcc);
               dn0 = cgSolver.P()(rhs);
               rhs -= cgSolver.A()( dn0 );
-            }
+              auto rho_elbow = 0.5*getDesiredContraction()/getRelaxedDesiredContraction();
 
-            return dn0 + primalProjection( normalSolver( rhs ) );
+              //  new adaptive error estimator with adaptive step termination criterion
+              auto nt = CG::Termination::StepTermination(dn0, (2*getDesiredContraction()/omegaC), rho_elbow,0.9); //1 means "off"
+                cgSolver.setTermination( CG::Termination::AdaptiveRelativeEnergyError(nt));
+
+                //  new adaptive error estimator without adaptive step termination criterion
+//             cgSolver.setTermination( CG::Termination::AdaptiveRelativeEnergyError());
+                //  old error estimator
+//             cgSolver.setTermination( CG::Termination::StrakosTichyEnergyError());
+            }
+            auto sol = primalProjection( normalSolver( rhs ) );
+
+            //logging purposes
+            if( is<CG::LinearSolver>(normalSolver) )
+            {
+              auto cgSolver = cast_ref<CG::LinearSolver>(normalSolver);
+              logIterationsDn( cgSolver.getIterations() );
+              auto tc = cgSolver.template terminationCriterion<CG::TerminationCriterion>();
+              if(is<CG::Termination::AdaptiveRelativeEnergyError>(tc))
+              {
+                auto status = cast_ref<CG::Termination::AdaptiveRelativeEnergyError>(tc).getTerminationStatus();
+                logDnExit(status);
+              }
+            }
+            return dn0 + sol;
+
         }
 
-        Vector AffineCovariantSolver::updateLagrangeMultiplier(const Vector& x) const
+        Vector AffineCovariantSolver::computeSimplifiedNormalStep(const Vector& x, const Vector& dx) const
         {
-            if( !N_ || !L_ ) return zero(chartSpace_);
-            //std::cout << "lagrange multiplier rhs00: " << d1(L_,x)( d1(L_,x) ) << std::endl;
-            //std::cout << "lagrange multiplier rhs0: " << norm(d1(L_,x)) << std::endl;
-            //auto tmp = L_.d1(x);
-            //auto tmp2 = N_.d2(x,tmp);
-            //std::cout << "lagrange multiplier rhs_xx: " << tmp2(tmp) << std::endl;
-            //std::cout << "lagrange multiplier rhs: " << norm(primalProjection(d1(L_,x))) << std::endl;
-            auto tmp = normalSolver( primalProjection(-d1(L_,x)) );
+          if( !N_ ) return zero(chartSpace_);
+
+          // rhs = -c(x+dx) + c(x) + c'(x)dx
+          auto rhs = dualProjection(-d1(L_,x+dx)) + dualProjection(d1(L_,x)) + dualProjection(d2(L_,x)(dx));
+          std::cout << "min norm correction rhs: " << norm(rhs) << std::endl;
+          auto dn0 = zero(chartSpace_);
+          if( is<CG::LinearSolver>(normalSolver) )
+          {
+            auto& cgSolver = cast_ref<CG::LinearSolver>(normalSolver);
+            cgSolver.setRelativeAccuracy(cgAcc);
+            dn0 = cgSolver.P()(rhs);
+            rhs -= cgSolver.A()( dn0 );
+
+            //  new adaptive error estimator with adaptive step termination criterion
+            auto snt = CG::Termination::StepTermination(dn0,getMaximalContraction()*norm(dx)); // 0 means "off"
+            cgSolver.setTermination( CG::Termination::AdaptiveRelativeEnergyError(snt));
+
+            //  new adaptive error estimator without adaptive step termination criterion
+            //             cgSolver.setTermination( CG::Termination::AdaptiveRelativeEnergyError());
+            //  old error estimator
+            //             cgSolver.setTermination( CG::Termination::StrakosTichyEnergyError());
+          }
+
+          auto sol = primalProjection( normalSolver( rhs ) );
+
+          // logging purposes
+          if( is<CG::LinearSolver>(normalSolver) )
+          {
+            auto cgSolver = cast_ref<CG::LinearSolver>(normalSolver);
+            ds_it_counter += cgSolver.getIterations();
+            auto tc = cgSolver.template terminationCriterion<CG::TerminationCriterion>();
+            if(is<CG::Termination::AdaptiveRelativeEnergyError>(tc))
+            {
+              auto status = cast_ref<CG::Termination::AdaptiveRelativeEnergyError>(tc).getTerminationStatus();
+              ds_exit_log << status << "; ";
+            }
+          }
+
+          return dn0 + sol;
+        }
+
+
+        std::tuple<Vector,Vector,Vector> AffineCovariantSolver::updateLagrangeMultiplier(const Vector& x, const DampingFactor nu) const
+        {
+            if( !N_ || !L_ ) return std::make_tuple(zero(chartSpace_),zero(chartSpace_),zero(chartSpace_));
+
+            auto residual = zero(chartSpace_);
+            auto tmp = zero(chartSpace_);
+
+            if( is<CG::LinearSolver>(normalSolver) )
+            {
+                auto& cgSolver = cast_ref<CG::LinearSolver>(normalSolver);
+
+                Real relAcc = 0.01;
+                if(nu < 1 ) relAcc = 0.25; // if normal step damped, we compute lagrangemult step even less accurate
+
+                cgSolver.setRelativeAccuracy(relAcc);
+                cgSolver.setTermination( CG::Termination::AdaptiveRelativeEnergyError());
+//                cgSolver.setTermination( CG::Termination::StrakosTichyEnergyError());
+
+                tmp = normalSolver( primalProjection(-d1(L_,x)) );
+                residual = cgSolver.A()(tmp)-primalProjection(-d1(L_,x));
+                logDL(get(cgSolver.P()(d1(L_,x))(d1(L_,x))));
+                logIterationsP(cgSolver.getIterations());
+            }
+            else
+            {
+                tmp = normalSolver( primalProjection(-d1(L_,x)) );
+            }
+
             double normDL = get(norm(primalProjection(tmp)));
             logDL(normDL);
             std::cout << "Norm of projected gradient: " << normDL << std::endl;
-            return dualUpdate_(x,dualProjection( tmp ) );
+            std::cout << "Norm of Lagrange multiplier: "<<get(norm(dualProjection(tmp)))<<std::endl;
+
+            return std::make_tuple(dualUpdate_(x,dualProjection( tmp )),residual,primalProjection(tmp));
         }
 
         std::tuple<DampingFactor, Vector, Vector, Real, Real>
-        AffineCovariantSolver::computeCompositeStep(DampingFactor& nu, Real norm_Dn,
-                                                    const Vector& x, const Vector& Dn, const Vector& Dt)
-        {
+         AffineCovariantSolver::computeCompositeStep(DampingFactor& nu, Real norm_Dn,
+                                                     const Vector& x, const Vector& Dn, const Vector& Dt, const Vector& res_p, const Vector& v)
+         {
             auto norm_Dt = norm(Dt);
             if( getVerbosityLevel() > 1 ) std::cout << spacing2 << "|Dt| = " << norm_Dt << " vs. " << norm(primalProjection(Dt)) << std::endl;
             auto cubic = CompositeStep::makeCubicModel( nu, Dn, Dt , L_ , x , omegaL );
-            auto tau = computeTangentialStepDampingFactor(nu*norm_Dn,norm_Dt,cubic);
+            auto scalprod_DnDt = chartSpace_.scalarProduct()(Dn,Dt);
+            auto tau = computeTangentialStepDampingFactor(nu*norm_Dn,norm_Dt,cubic,nu*scalprod_DnDt, nu*Dn, Dt);
 
             auto ds = Vector{0*Dt};
             auto dx = ds;
@@ -293,6 +398,8 @@ namespace Spacy
             AcceptanceTest acceptanceTest = AcceptanceTest::Failed;
 
             int rej=-1;
+            auto res_ds = zero(chartSpace_);
+            ds_it_counter = 0;
 
             do
             {
@@ -305,7 +412,7 @@ namespace Spacy
                 auto cubicModel = CompositeStep::makeCubicModel(nu, Dn, Dt, L_, x, omegaL);
 
                 if( acceptanceTest == AcceptanceTest::LeftAdmissibleDomain ) tau *= 0.5;
-                else tau = computeTangentialStepDampingFactor(nu*norm_Dn,norm_Dt,cubicModel);
+                else tau = computeTangentialStepDampingFactor(nu*norm_Dn,norm_Dt,cubicModel,nu*scalprod_DnDt, nu*Dn, Dt);
                 if( getVerbosityLevel() > 1 ) std::cout << spacing2 << "tau = " << tau << std::endl;
                 auto q_tau = quadraticModel(get(tau));
                 std::cout << spacing2 << "q(tau) = " << q_tau << std::endl;
@@ -323,10 +430,8 @@ namespace Spacy
                 else
                 {
                     if( verbose() ) std::cout << spacing << "Computing simplified normal correction." << std::endl;
-                    ds = computeSimplifiedNormalStep(trial);
-                    //          auto trialplus = retractPrimal(x,dx+ds);
-                    ds += ( nu - 1 ) * Dn;
-                    //          std::cout << "ds1: " << norm(ds) << " vs. " << norm(primalProjection(ds)) << std::endl;
+                    ds = computeSimplifiedNormalStep(x,dx);
+
                     auto trialplus = retractPrimal(x,dx+ds);
                     // test if dx+ds is admissible
                     if( !domain_.isAdmissible(trialplus) ) acceptanceTest = AcceptanceTest::LeftAdmissibleDomain;
@@ -335,7 +440,19 @@ namespace Spacy
                     //          std::cout << "soc: " << norm(trialplus) << std::endl;
 
                     updateOmegaC(norm_x, norm_dx, norm(ds));
-                    eta = updateOmegaL(trialplus,q_tau,tau,norm_x,norm_dx,cubicModel);
+
+                    // modified Update of omega_f
+                    // computation of the residual of the simplified normal step system
+                    auto errorterm = Real{0.};
+                    if( is<CG::LinearSolver>(normalSolver) ) {
+                        auto &cgSolver = cast_ref<CG::LinearSolver>(normalSolver);
+                        res_ds = cgSolver.A()(ds)
+                                          -(  dualProjection(d1(L_, x)) +dualProjection(-d1(L_, trial)) +
+                                          dualProjection(d2(L_, x)(dx)));
+                    }
+                    errorterm = -res_p(ds)+res_ds(v);
+
+                    eta = updateOmegaL(trialplus,q_tau,tau,norm_x,norm_dx,cubicModel,errorterm);
 
                     if( getVerbosityLevel() > 1 ) std::cout << spacing2 << "|ds| = " << norm(ds) << std::endl;
                 }
@@ -379,6 +496,8 @@ namespace Spacy
             } // end while (damping factors)
             while( acceptanceTest != AcceptanceTest::Passed );
 
+            ds_exit_log << std::endl;
+            logIterationsDs(ds_it_counter);
             logNu(get(get(nu)));
             logTau(get(get(tau)));
             logOmegaC(get(get(omegaC)));
@@ -423,7 +542,7 @@ namespace Spacy
         }
 
         Real AffineCovariantSolver::updateOmegaL(const Vector& soc, Real q_tau,
-                                                 DampingFactor tau, Real norm_x, Real norm_dx, const CompositeStep::CubicModel& cubic)
+                                                 DampingFactor tau, Real norm_x, Real norm_dx, const CompositeStep::CubicModel& cubic, Real errorterm)
         {
             if( !tangentialSolver ) return 1;
 
@@ -432,7 +551,8 @@ namespace Spacy
                 eta = ( L_(primalProjection(soc)) - cubic(0) )/( cubic(get(tau)) - cubic(0) );
                       else eta = 1;
 
-            auto omegaLnew = (L_(primalProjection(soc)) - q_tau)*6/(norm_dx*norm_dx*norm_dx);
+            // omega_l corrected wit residual
+            auto omegaLnew = (L_(primalProjection(soc)) - q_tau + errorterm)*6/(norm_dx*norm_dx*norm_dx);
 
             if( !( abs(eta-1) < 0.05 && omegaLnew > omegaL ) &&
                 ( !(normalStepMonitor == StepMonitor::Rejected && tangentialStepMonitor == StepMonitor::Rejected) || omegaL < omegaLnew )
@@ -467,7 +587,8 @@ namespace Spacy
             return nu;
         }
 
-        DampingFactor AffineCovariantSolver::computeTangentialStepDampingFactor(Real norm_dn, Real norm_Dt, const CompositeStep::CubicModel& cubic) const
+        DampingFactor AffineCovariantSolver::computeTangentialStepDampingFactor(Real norm_dn, Real norm_Dt, const CompositeStep::CubicModel& cubic,
+                                                                                Real scalprod_dnDt, const Vector& dn, const Vector& Dt) const
         {
             auto tau = DampingFactor(1);
             if( !L_ )
@@ -477,7 +598,20 @@ namespace Spacy
 
             auto maxTau = Real{1.};
             if( pow(getRelaxedDesiredContraction()/omegaC,2) - norm_dn*norm_dn > 0)
-                maxTau = min( 1. , sqrt( pow( 2*getRelaxedDesiredContraction()/omegaC , 2 ) - norm_dn*norm_dn )/norm_Dt );
+            {
+              /// upper bound corrected with residual and error terms
+              if(scalprod_dnDt > 0)
+              maxTau = min(1000. , (pow( 2*getRelaxedDesiredContraction()/omegaC , 2 )- norm_dn*norm_dn)
+                                  / (scalprod_dnDt + sqrt( scalprod_dnDt*scalprod_dnDt + norm_Dt*norm_Dt*(pow( 2*getRelaxedDesiredContraction()/omegaC , 2 )-norm_dn*norm_dn))));
+              else
+              maxTau = min(1000. , (-scalprod_dnDt+sqrt(scalprod_dnDt*scalprod_dnDt + norm_Dt*norm_Dt*(pow( 2*getRelaxedDesiredContraction()/omegaC , 2 )-norm_dn*norm_dn)) )
+                                  / (norm_Dt*norm_Dt));
+
+              if(maxTau > 1e-12) tau = Scalar::findGlobalMinimizer(cubic,0,maxTau);
+              else tau = 0;
+
+              return tau;
+            }
 
             return DampingFactor(Scalar::findGlobalMinimizer( cubic, 0, maxTau , getDampingAccuracy() ));
         }

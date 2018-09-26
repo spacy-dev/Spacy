@@ -48,8 +48,28 @@ namespace Spacy
             /// Access operator \f$A\f$.
             const CallableOperator& A() const;
 
-        private:
-            mutable Solver cg;
+            /// Setter for Termination Criterion
+            template<class TermCrit>
+            void setTermination(TermCrit term_) const
+            {
+              return cg.setTerminationCriterion(term_);
+            }
+
+            /// getter for Termination Criterion
+            template<class TermCrit>
+            TermCrit& terminationCriterion() noexcept
+            {
+              return cg.terminationCriterion();
+            }
+
+	    /// getter for number of iteration
+	    unsigned getIterations() const
+	    {
+	      return cg.getIterations();
+	    }
+
+	private:
+	    mutable Solver cg;
         };
     }
 
