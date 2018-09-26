@@ -5,7 +5,7 @@
 
 #define SPACY_ENABLE_LOGGING
 #include <Spacy/Adapter/kaskadeParabolic.hh>
-#include <Spacy/Algorithm/Newton/newton.hh>
+#include <Spacy/Algorithm/Newton/Newton.h>
 #include <Spacy/InducedScalarProduct.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Log.h>
@@ -24,14 +24,16 @@ using namespace Kaskade;
 int main()
 {
     constexpr int dim = 2;
-    int refinements = 6;
+    int refinements = 4;
     int order = 1;
     unsigned no_time_steps = 11;
     double T_end = 1.;
 
     using Grid = Dune::UGGrid< dim >;
     using H1Space = FEFunctionSpace< ContinuousLagrangeMapper< double, Grid::LeafGridView > >;
-    using Spaces = boost::fusion::vector< H1Space const* >;
+    using L2Space = FEFunctionSpace< ContinuousLagrangeMapper< double, Grid::LeafGridView > >;
+
+    using Spaces = boost::fusion::vector< H1Space const*, L2Space const* >;
     using VariableDescriptions = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 0 > >;
     using VariableSetDesc = VariableSetDescription< Spaces, VariableDescriptions >;
 

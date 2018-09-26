@@ -8,8 +8,8 @@
 #include <dune/grid/uggrid.hh>
 
 #include <Spacy/Adapter/kaskadeParabolic.hh>
-#include <Spacy/Algorithm/CompositeStep/AffineCovariantSolver.h>
-#include <Spacy/Spaces/ScalarSpace/Real.h>
+#include <Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.hh>
 
 #include <fem/forEach.hh>
 #include <fem/gridmanager.hh>
@@ -19,7 +19,7 @@
 #include <utilities/kaskopt.hh>
 
 #define NCOMPONENTS 1
-#include "Spacy/Adapter/KaskadeParabolic/Constraints/lqOcpHeader.hh"
+#include "Spacy/Adapter/KaskadeParabolic/Constraints/nonlinOcpHeader.hh"
 
 int main( int argc, char* argv[] )
 {
@@ -33,90 +33,78 @@ int main( int argc, char* argv[] )
     std::unique_ptr< boost::property_tree::ptree > pt =
         getKaskadeOptions( argc, argv, silence, false );
 
-    double alpha = 1e-2;
+    double desiredAccuracy = getParameter( pt, "desiredAccuracy", 1e-6 );
+    double eps = getParameter( pt, "eps", 1e-12 );
+    double alpha = getParameter( pt, "alpha", 1e-1 );
+    int maxSteps = getParameter( pt, "maxSteps", 500 );
+    int initialRefinements = getParameter( pt, "initialRefinements", 5 );
+    int iterativeRefinements = getParameter( pt, "iterativeRefinements", 0 );
+    int FEorder = getParameter( pt, "FEorder", 1 );
+    int verbose = getParameter( pt, "verbose", 2 );
+    double c = getParameter( pt, "cPara", 0. );
+    double d = getParameter( pt, "dPara", 1. );
+    double e = getParameter( pt, "ePara", 0. );
+    double mu = getParameter( pt, "muPara", 0. );
+    double desContr = getParameter( pt, "desiredContraction", 0.5 );
+    double relDesContr = getParameter( pt, "relaxedContraction", desContr + 0.1 );
+    double maxContr = getParameter( pt, "maxContraction", 0.75 );
 
-    //  // Setting 1
-    double d = 0.01;
-    double mu = 0.;
-    ::Spacy::Real t_end = 3;
-    ::Spacy::Real tau = 0.5;
-    unsigned mpcsteps = 4;
-    auto expparam = -1.;
-    ::std::vector< unsigned > NVec = {3, 6, 11, 21, 41};
-
-    // Setting 2
-    //  ::Spacy::Real tau = 2;
-    //  unsigned mpcsteps = 4;
-    //  ::Spacy::Real t_end = 8;
-    //  auto expparam = -0.5;
-    //   ::std::vector<unsigned> NVec = {3,6,11,21,41};
-
-    // Setting 3
-    //  ::Spacy::Real tau = 1;
-    //  unsigned mpcsteps = 8;
-    //  auto expparam = -1.5;
-    //  double alpha = getParameter(pt, "alpha", 0.01);
-    //  double d = getParameter(pt, "dPara", 1e-1);
-    //  double mu = getParameter(pt, "muPara", -4.);
-    //  double t_end = getParameter(pt, "t_end", 4);
-    //  ::std::vector<unsigned> NVec = {8,21,41,61};
-
-    std::cout << "alpha " << alpha << " dPara " << d << " muPara " << mu << std::endl;
+    using std::cout;
+    using std::endl;
+    cout << "cPara: " << c << " dPara: " << d << " muPara: " << mu << " alpha:" << alpha << endl;
+    cout << "dContr: " << desContr << " rdContr: " << relDesContr << " mContr: " << maxContr
+         << endl;
 
     using Grid = Dune::UGGrid< dim >;
     using H1Space = FEFunctionSpace< ContinuousLagrangeMapper< double, Grid::LeafGridView > >;
-    using L2Space = FEFunctionSpace< ContinuousLagrangeMapper< double, Grid::LeafGridView > >;
-    using Spaces = boost::fusion::vector< H1Space const*, L2Space const* >;
+    using Spaces = boost::fusion::vector< H1Space const*, H1Space const* >;
     using VY = VariableDescription< 0, 1, stateId >;
     using VU = VariableDescription< 1, 1, controlId >;
     using VP = VariableDescription< 0, 1, adjointId >;
     using VariableDescriptions = boost::fusion::vector< VY, VU, VP >;
     using Descriptions = VariableSetDescription< Spaces, VariableDescriptions >;
 
-    // ############### Normal Functional Generator (For optimal control problem in
-    // MPC-feedback-loop) ##############
+    std::cout << "alpha " << alpha << " dPara " << d << " cPara " << c << std::endl;
+
     using NormalFunctionalDefinition =
         NormalStepFunctional< stateId, controlId, adjointId, double, Descriptions >;
     std::function< NormalFunctionalDefinition( const typename Descriptions::VariableSet ) >
-        normalFuncGenerator = [&d, &mu, &alpha]( const typename Descriptions::VariableSet y_ref ) {
-            return NormalFunctionalDefinition( alpha, y_ref, d, mu );
-        };
+        normalFuncGenerator =
+            [&c, &d, &e, &mu, &alpha]( const typename Descriptions::VariableSet y_ref ) {
+                return NormalFunctionalDefinition( alpha, y_ref, c, d, e, mu );
+            };
 
-    // ############### Tangential Functional Generator (For optimal control problem in
-    // MPC-feedback-loop) ###############
     using TangentialFunctionalDefinition =
         TangentialStepFunctional< stateId, controlId, adjointId, double, Descriptions >;
     std::function< TangentialFunctionalDefinition( const typename Descriptions::VariableSet ) >
         tangentialFuncGenerator =
-            [&d, &mu, &alpha]( const typename Descriptions::VariableSet y_ref ) {
-                return TangentialFunctionalDefinition( alpha, y_ref, d, mu );
+            [&c, &d, &e, &mu, &alpha]( const typename Descriptions::VariableSet y_ref ) {
+                return TangentialFunctionalDefinition( alpha, y_ref, c, d, e, mu );
             };
 
-    // ############### Forward Functional Generator (For forward solution/simulation of real world
-    // in MPC-feedback-loop) ###############
-    using HeatFunctionalDefinition = LinearModelPDE<
+    using HeatFunctionalDefinition = NonlinearModelPDE<
         double, ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 0 >,
         ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 1 > >;
     std::function< HeatFunctionalDefinition(
         const typename ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions,
                                                                                 1 >::VariableSet ) >
-        forwardFunctionalGenerator =
-            [&d, &mu]( const typename ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t<
-                       Descriptions, 1 >::VariableSet control ) {
-                return HeatFunctionalDefinition( d, mu, control );
-            };
+        forwardFunctionalGenerator = [&c, &d, &e, &mu](
+            const typename ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t<
+                Descriptions, 1 >::VariableSet control ) {
+            return HeatFunctionalDefinition( c, d, e, mu, control );
+        };
 
-    //  for(auto N : NVec)
-    //  {
-    //    auto tg = ::Spacy::KaskadeParabolic::TempGrid(0,t_end,N,expparam);
-    //    tg.print();
-    //  }
+    ::Spacy::Real t_end = 3;
+    ::Spacy::Real tau = 0.5;
+    unsigned mpcsteps = 4;
+    auto expparam = -1.;
+    ::std::vector< unsigned > NVec = {3, 6, 11, 21, 41};
 
     /// SAVE OBJECTIVE FUNCTION VALUE
     std::ofstream obj;
     obj.open( "data/Objective_Function.txt", std::ofstream::out | std::ofstream::app );
-    obj << "alpha: " << alpha << ", d: " << d << ", mu: " << mu << ", t_end: " << t_end
-        << ", Mpc Steps: " << mpcsteps << ", tau: " << tau << std::endl;
+    obj << "alpha: " << alpha << ", c: " << c << ", d: " << d << ", mu: " << mu
+        << ", t_end: " << t_end << ", Mpc Steps: " << mpcsteps << ", tau: " << tau << std::endl;
     obj.close();
 
     for ( auto N : NVec )
@@ -131,6 +119,8 @@ int main( int argc, char* argv[] )
             mpc_uni( normalFuncGenerator, tangentialFuncGenerator, forwardFunctionalGenerator,
                      t_end, N, mpcsteps, tau, 50 );
         mpc_uni.MPCloop();
+
+        return 0;
 
         // Solve with an exponential grid
         std::cout << "##########################" << std::endl;

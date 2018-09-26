@@ -97,6 +97,7 @@ namespace Spacy
                  */
             std::shared_ptr< Spaces > refine( unsigned k )
             {
+
                 // refining the grid
                 const std::shared_ptr< Spaces > insertedSpace = gm_.refine( k );
 
@@ -179,7 +180,7 @@ namespace Spacy
                 ::Spacy::KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, "y" ),
                 ::Spacy::KaskadeParabolic::l2Product() ) ) );
             // Control
-            using VD2 = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 1 > >;
+            using VD2 = boost::fusion::vector<::Kaskade::VariableDescription< 1, 1, 1 > >;
             using VariableSetDescription2 = ::Kaskade::VariableSetDescription< Spaces, VD2 >;
             newSpaces.push_back( std::make_shared< VectorSpace >(::Spacy::makeHilbertSpace(
                 ::Spacy::KaskadeParabolic::VectorCreator< VariableSetDescription2 >( gm, "u" ),
