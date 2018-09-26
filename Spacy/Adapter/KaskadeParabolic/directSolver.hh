@@ -7,18 +7,17 @@
 #include "fem/variables.hh"
 #include "linalg/direct.hh"
 
-#include "Spacy/LinearSolver.h"
-#include "Spacy/Operator.h"
-//#include "Spacy/C2Functional.h"
-#include "Spacy/Spaces/ScalarSpace/Real.h"
-#include "Spacy/Util/Base/OperatorBase.h"
-#include "Spacy/Vector.h"
+#include <Spacy/LinearSolver.h>
+#include <Spacy/Operator.h>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
+#include <Spacy/Util/Base/OperatorBase.h>
+#include <Spacy/Vector.h>
 #include <Spacy/ZeroVectorCreator.h>
-#include "util.hh"
 
 #include <iostream>
 
 #include "linearBlockOperator.hh"
+#include "util.hh"
 
 namespace Spacy
 {
