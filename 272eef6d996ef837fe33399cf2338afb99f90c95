@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "3d9263f1_fab71ef2",
+        "filename": "Spacy/Algorithm/CG/RegularizeViaPreconditioner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:58:33Z",
+      "side": 1,
+      "message": "Plz also use the LOG macro here",
+      "range": {
+        "startLine": 54,
+        "startChar": 1,
+        "endLine": 54,
+        "endChar": 84
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "948b56d0_5ff8568c",
         "filename": "Spacy/Algorithm/CG/RegularizeViaPreconditioner.hh",
         "patchSetId": 2
@@ -13,6 +36,69 @@
       "writtenOn": "2018-09-26T10:43:56Z",
       "side": 1,
       "message": "Regularization via arbitrary callable operator (e.g. normal step matrix)\n\nneeds getter for Regularization to compute Rq in CG loop\nevery cg call, this class saves qAq and qRq to compute a minimal regularization parameter, such that the regularized matrix is positive definite on the search space (spanned by q)\nThis suggestion can then be used e.g. in the next composite step iteration as suggestion for the tangential step solver to prevent the long startup phase of the TRCG",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9109f238_4f2f93f1",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:58:33Z",
+      "side": 1,
+      "message": "(-1) The formatting is messed up:( Plz run clang-format from within the Spacy repo",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dee513e8_552bfa44",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:58:33Z",
+      "side": 1,
+      "message": "(-1) To me it this looks strange. The suggestion for theta is computed after the termination of the loop. Therefore I assume that this is used for the next iteration of the outer loop. If this is correct, then this should also be done in the outer loop. If the outer loop is the AffineCovariantCompositeStepSolver, then probably in a wrapper for the corresponding solver.",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 9
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "093ac733_f53ee803",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:58:33Z",
+      "side": 1,
+      "message": "(-1) Instead of introducing a new variable you can also use Pq. This allows you to reuse much more of the current implementation. \nTo me it looks like the quantities Pq, pQp, should be actually be maintained completely in the regularization implementations. But that does not need to be done now.",
+      "range": {
+        "startLine": 109,
+        "startChar": 8,
+        "endLine": 109,
+        "endChar": 21
+      },
       "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
@@ -36,6 +122,52 @@
     },
     {
       "key": {
+        "uuid": "62eccf9d_ee103941",
+        "filename": "Spacy/Algorithm/CG/linearSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:58:33Z",
+      "side": 1,
+      "message": "Instead of passing theta_sugg by reference I would prefer to add a method \u0027Regularization\u0026 regularization();\u0027 to \u0027CG::Solver\u0027.\nThen you can access the regularization from through \u0027linearization.impl().regularization()\u0027. Then with the usual cast-strategy of spacy you can cast it to \u0027CG::RegularizeViaCallableOperator\u0027 and add suitable setters and getters there. \nThe advantage is that this is much easier to understand and debug. References always make life harder as you never know if it does not get modified somewhere else.",
+      "range": {
+        "startLine": 115,
+        "startChar": 89,
+        "endLine": 115,
+        "endChar": 105
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "37576b46_dc7d403e",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:58:33Z",
+      "side": 1,
+      "message": "(-1) no tabs plz, only whitespaces (you can see here why;)",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 3
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ab1daa26_a65aa322",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 2
@@ -47,6 +179,24 @@
       "writtenOn": "2018-09-26T10:43:56Z",
       "side": 1,
       "message": "new trcg implementation with normal step matrix for regularization.",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16378b82_c89fe604",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T17:58:33Z",
+      "side": 1,
+      "message": "I am curious what preconditioner you use now",
+      "parentUuid": "ab1daa26_a65aa322",
       "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
