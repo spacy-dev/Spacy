@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6711523_69d6c583",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:44:29Z",
+      "side": 1,
+      "message": "CG error estimator with adaptive horizon choice (Strakos error estimator has hard coded \"5\" as horizon)",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e95eea14_ea793ffe",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:44:29Z",
+      "side": 1,
+      "message": "Important note: I implemented new ideas for inexact computation of the noraml and simplified normal step. Therefore, several error terms are tracked, residuals are computed, and algorithmic parameters are updated accordingly. If one does not use a CG and solves those systems exactly, the error terms are 0 and thus the updates are the same as before.",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "721ac4fd_08954248",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:44:29Z",
+      "side": 1,
+      "message": "std::ofstream used.\nReason: if several simplified normal steps are computed each outer iteration, we want to save the information for all of them (rowwise).",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14e4db58_63b2d323",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:44:29Z",
+      "side": 1,
+      "message": "With the new termination criteria for simplified normal step adn normal step, i moved the \"computeMinimumNormCorrection\" part into the functions",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1407a334_141930db",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:44:29Z",
+      "side": 1,
+      "message": "This is zero if dn is computed exactly, as then dn and dt are orthogonal",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2362d1b9_2463e2b6",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:44:29Z",
+      "side": 1,
+      "message": "zero if computed exactly",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e7719aa_862c14e0",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:44:29Z",
+      "side": 1,
+      "message": "If normal step is computed inexactly, the update has to be modified with this error term, to not mistake errors with nonlinearities",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6a00922_1e4aef7a",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:44:29Z",
+      "side": 1,
+      "message": "Upper bound has to be modified, as dn and dt are not orthogonal anymore.\nif computed exactly, this is the same bound as described in the affine covariant paper.",
+      "revId": "93b09b89d2cb255a1a790532d9bbc8512a47480f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
