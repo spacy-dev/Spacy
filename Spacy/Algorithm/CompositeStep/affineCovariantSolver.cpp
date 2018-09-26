@@ -127,6 +127,8 @@ namespace Spacy
                 if( verbose() ) std::cout << spacing << "Computing tangential step." << std::endl;
                 auto Dt = computeTangentialStep(nu,x,Dn,lastStepWasUndamped);
 
+		if( verbose() ) std::cout << spacing << "Suggested regularization parameter for TRCG"<<theta_sugg<<std::endl;
+
                 auto tau = DampingFactor{0};
                 Real norm_x = 0., norm_dx = 0.;
                 auto ds = Dt; auto dx = Dt;
@@ -202,9 +204,12 @@ namespace Spacy
             if( is<CG::LinearSolver>(normalSolver) )
             {
                 const auto& cgSolver = cast_ref<CG::LinearSolver>(normalSolver);
-
-                auto trcg = makeTRCGSolver( L_.hessian(x) , cgSolver.P() ,
-                                           get(trcgRelativeAccuracy) , eps(), verbose() );
+                // preconditioner as regularization
+//                auto trcg = makeTRCGSolver( L_.hessian(x) , cgSolver.P() ,
+//                                           get(trcgRelativeAccuracy) , eps(), verbose() );
+                //normal step matrix as regularization
+                auto trcg = makeTRCGSolver( L_.hessian(x) , cgSolver.P(), N_.hessian(primalProjection(x)), theta_sugg,
+                                            get(trcgRelativeAccuracy) , eps(), verbose() );
                 setParams(trcg);
                 return IndefiniteLinearSolver(trcg);
             }

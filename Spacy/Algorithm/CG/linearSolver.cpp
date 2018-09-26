@@ -111,4 +111,15 @@ namespace Spacy
         solver.setVerbosity( verbose );
         return solver;
     }
+
+    CG::LinearSolver makeTRCGSolver( Operator A, CallableOperator P, CallableOperator R, Real& theta_sugg, Real relativeAccuracy,
+                                    Real eps, bool verbose)
+    {
+      auto solver = CG::LinearSolver( std::move( A ), std::move( P ), true,
+                                      CG::RegularizeViaCallableOperator(std::move(R),theta_sugg));
+      solver.setRelativeAccuracy( relativeAccuracy );
+      solver.set_eps( eps );
+      solver.setVerbosity( verbose );
+      return solver;
+    }
 }
