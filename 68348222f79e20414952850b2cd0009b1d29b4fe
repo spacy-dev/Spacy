@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "518f7221_e288db95",
+        "filename": "Spacy/Algorithm/Scalar/Fmin.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:45:57Z",
+      "side": 1,
+      "message": "Not sure if we want this here...It was used in Kaskade iirc and i got it from Anton. Long term goal would be probably to implement it ourselves?",
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a126ca56_4c69efee",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:45:57Z",
+      "side": 1,
+      "message": "New line search, more sophisticated than the interval searches",
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
