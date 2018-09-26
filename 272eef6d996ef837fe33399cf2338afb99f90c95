@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "948b56d0_5ff8568c",
+        "filename": "Spacy/Algorithm/CG/RegularizeViaPreconditioner.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:43:56Z",
+      "side": 1,
+      "message": "Regularization via arbitrary callable operator (e.g. normal step matrix)\n\nneeds getter for Regularization to compute Rq in CG loop\nevery cg call, this class saves qAq and qRq to compute a minimal regularization parameter, such that the regularized matrix is positive definite on the search space (spanned by q)\nThis suggestion can then be used e.g. in the next composite step iteration as suggestion for the tangential step solver to prevent the long startup phase of the TRCG",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48156756_19ad2e6f",
+        "filename": "Spacy/Algorithm/CG/linearSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:43:56Z",
+      "side": 1,
+      "message": "TRCG with arbitrary callable operator as regularization (previous implementation allowed only for preconditioner as regularization).",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab1daa26_a65aa322",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-26T10:43:56Z",
+      "side": 1,
+      "message": "new trcg implementation with normal step matrix for regularization.",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
