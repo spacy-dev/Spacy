@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26acf49f_e4563784",
+        "filename": "Spacy/Adapter/KaskadeParabolic/ModelPredictiveController.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T16:10:25Z",
+      "side": 1,
+      "message": "(+2) To me it looks like this file contains some specific information that should rather go to the examples, like this function.\nWe don\u0027t need to do it now, I will look into it in the next weeks and hope to come up with some suggestions.",
+      "range": {
+        "startLine": 111,
+        "startChar": 0,
+        "endLine": 111,
+        "endChar": 21
+      },
+      "revId": "3d1dd7b21e3fe18f3ecbab58cf8d05db8d5810c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f9c539d_a68f65a9",
+        "filename": "Spacy/Adapter/KaskadeParabolic/vector.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T16:10:25Z",
+      "side": 1,
+      "message": "(-1) Plz remove",
+      "range": {
+        "startLine": 136,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 152
+      },
+      "revId": "3d1dd7b21e3fe18f3ecbab58cf8d05db8d5810c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fbd40d3_5c931a66",
+        "filename": "Spacy/Adapter/KaskadeParabolic/writeVTK.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T16:10:25Z",
+      "side": 1,
+      "message": "(-1) Plz pass around strings by reference, they are rather large objects:\n\u0027const std::string fileName\u0027 -\u003e \u0027const std::string\u0026 fileName\u0027",
+      "range": {
+        "startLine": 149,
+        "startChar": 52,
+        "endLine": 149,
+        "endChar": 63
+      },
+      "revId": "3d1dd7b21e3fe18f3ecbab58cf8d05db8d5810c0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
