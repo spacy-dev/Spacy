@@ -5,8 +5,8 @@
 
 #include "terminationCriteria.hh"
 #include "Spacy/Util/Exceptions/singularOperatorException.hh"
-#include "Spacy/vector.hh"
 #include "Spacy/Util/cast.hh"
+#include "Spacy/vector.hh"
 
 #include <algorithm>
 #include <cassert>
@@ -25,8 +25,8 @@ namespace Spacy
               terminate_( CG::Termination::StrakosTichyEnergyError{} ), truncated_( truncated ),
               regularization_( std::move( regularization ) )
         {
-          if(!::Spacy::is<NoRegularization> (regularization_))
-            regularized_ = true;
+            if ( !::Spacy::is< NoRegularization >( regularization_ ) )
+                regularized_ = true;
         }
 
         Vector Solver::solve( const Vector& x, const Vector& b ) const
@@ -70,19 +70,30 @@ namespace Spacy
             return A_;
         }
 
+        const Regularization& Solver::R() const
+        {
+            return regularization_;
+        }
+
         Vector Solver::cgLoop( Vector x, Vector r ) const
         {
             terminate_.clear();
             result = Result::Failed;
 
+            if ( is< RegularizeViaCallableOperator >( regularization_ ) )
+            {
+                auto& regimpl = cast_ref< RegularizeViaCallableOperator >( regularization_ );
 
+                regimpl.resetMemory();
+            }
             // initialization phase for conjugate gradients
             auto Ax = A_( x );
             r -= Ax;
             auto Qr = Q( r );
 
             auto q = Qr;
-            auto Pq = r; // required only for regularized or hybrid conjugate gradient methods
+            auto Rq = r; // required only for regularized or hybrid conjugate gradient methods with
+                         // precond as regularization
 
             auto sigma = abs( r( Qr ) ); // preconditioned residual norm squared
 
@@ -92,14 +103,20 @@ namespace Spacy
                 // if( getVerbosityLevel() > 1 ) std::cout << "Iteration: " << step << std::endl;
                 auto Aq = A_( q );
                 Real qAq = Aq( q );
-                Real qPq = Pq( q );
-                regularization_.apply( qAq, qPq );
+
+                // in the case of arbitrary Regularization, we have to compute Rq
+                if ( is< RegularizeViaCallableOperator >( regularization_ ) )
+                {
+                    auto& regimpl = cast_ref< RegularizeViaCallableOperator >( regularization_ );
+                    Rq = regimpl.getRegularization()( q );
+                }
+                Real qRq = Rq( q );
+
+                regularization_.apply( qAq, qRq );
 
                 auto alpha = sigma / qAq;
-                // if( getVerbosityLevel() > 1 ) std::cout << "    " << "  sigma = " << sigma << ",
-                // alpha = " << alpha << ", qAq = " << qAq << ", qPq = " << qPq << std::endl;
 
-                terminate_.update( get( alpha ), get( qAq ), get( qPq ), get( sigma ) );
+                terminate_.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ) );
 
                 //  don't trust small numbers
                 if ( vanishingStep( step ) )
@@ -110,25 +127,25 @@ namespace Spacy
                     break;
                 }
 
-                auto Ax = A_( x );
-//                std::cout << "qAq/xAx: " << get( qAq ) << "/" << get( Ax( x ) ) << std::endl;
-                if ( terminateOnNonconvexity( qAq, qPq, x, q, step ) )
+                if ( terminateOnNonconvexity( qAq, qRq, x, q, step ) )
+                {
                     break;
-
+                }
                 x += ( get( alpha ) * q );
 
                 // convergence test
                 if ( terminate_() )
                 {
-                    if ( verbose() )
-                        std::cout << "    "
-                                  << ": Terminating in iteration " << step << ".\n";
+                    //          if ( verbose() )
+                    std::cout << "    "
+                              << ": Terminating in iteration " << step << ".\n";
                     result = ( step == getMaxSteps() ) ? Result::Failed : Result::Converged;
                     break;
                 }
 
                 r -= alpha * Aq;
-                regularization_.adjustResidual( alpha, Pq, r );
+
+                regularization_.adjustResidual( alpha, Rq, r );
 
                 Qr = Q( r );
 
@@ -139,8 +156,13 @@ namespace Spacy
 
                 q *= get( beta );
                 q += Qr; //  q = Qr + beta*q
-                Pq *= get( beta );
-                Pq += r; // Pq = r + beta*Pq
+
+                // if regularization is the preconditioner, we update it, as Pq is not accessible
+                if ( is< RegularizeViaPreconditioner >( regularization_ ) )
+                {
+                    Rq *= get( beta );
+                    Rq += r; // Pq = r + beta*Pq
+                }
             }
 
             return x;
@@ -169,7 +191,7 @@ namespace Spacy
             return false;
         }
 
-        bool Solver::terminateOnNonconvexity( Real qAq, Real qPq, Vector& x, const Vector& q,
+        bool Solver::terminateOnNonconvexity( Real qAq, Real qRq, Vector& x, const Vector& q,
                                               unsigned step ) const
         {
             if ( qAq > 0 )
@@ -212,7 +234,8 @@ namespace Spacy
                 return true;
             }
 
-            regularization_.update( qAq, qPq );
+            regularization_.update( qAq, qRq );
+
             if ( verbose() )
                 std::cout << "    "
                           << ": Regularizing at nonconvexity in iteration " << step << "."

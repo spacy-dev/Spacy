@@ -120,6 +120,9 @@ namespace Spacy
             StepMonitor tangentialStepMonitor = StepMonitor::Accepted;
 
             Real norm_dx_old = -1;
+
+	    // for suggesting a regularization parameter for the TRCG
+	    mutable Real theta_sugg = Real{0.};
         };
     }
 }

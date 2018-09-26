@@ -143,6 +143,12 @@ namespace Spacy
              */
             const CallableOperator& A() const;
 
+            /**
+             * @brief Access regularization.
+             * @return Regularization \f$R\f$
+             */
+            const Regularization& R() const;
+
         private:
             /// CG Implementation.
             Vector cgLoop( Vector x, Vector r ) const;
