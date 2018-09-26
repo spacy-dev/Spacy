@@ -19,6 +19,41 @@
     },
     {
       "key": {
+        "uuid": "b322c9ef_80ab8b30",
+        "filename": "Spacy/Algorithm/Scalar/Fmin.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T16:03:10Z",
+      "side": 1,
+      "message": "I think its ok like it is. In my opinion it is better to leave this comment as it highlights the original author. I wanted to ask him if he is ok with this, but unfortunately he died in an accident 9 years ago:(",
+      "parentUuid": "518f7221_e288db95",
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09500bff_c1113f81",
+        "filename": "Spacy/Algorithm/Scalar/Fmin.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T16:03:10Z",
+      "side": 1,
+      "message": "(-1) Plz add \u0027#pragma once\u0027 before the first line of code, i.e. before \u0027#include \u003climits\u003e\u0027",
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a126ca56_4c69efee",
         "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
         "patchSetId": 1
@@ -30,6 +65,52 @@
       "writtenOn": "2018-09-26T10:45:57Z",
       "side": 1,
       "message": "New line search, more sophisticated than the interval searches",
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d170c7e_620aaf2e",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T16:03:10Z",
+      "side": 1,
+      "message": "(+1) You can avoid the \u0027std::function\u0027 by writing\n\u0027const auto fun \u003d ...\u0027",
+      "range": {
+        "startLine": 89,
+        "startChar": 10,
+        "endLine": 89,
+        "endChar": 39
+      },
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46055a97_5ce3f72d",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-09-26T16:03:10Z",
+      "side": 1,
+      "message": "If I am not mistaken, it should be good enough to write:\nreturn Fmin(get(a), get(b), fun, get(eps));",
+      "range": {
+        "startLine": 90,
+        "startChar": 17,
+        "endLine": 90,
+        "endChar": 97
+      },
       "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
