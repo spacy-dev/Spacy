@@ -25,6 +25,9 @@
 #include "directBlockPreconditioner.hh"
 #include "gridManager.hh"
 
+// for goal oriented error estimation
+#include "Constraints/quantityOfInterest.hh"
+
 namespace Spacy
 {
   /** @addtogroup KaskadeParabolicGroup
@@ -90,6 +93,11 @@ namespace Spacy
       using VectorImplP = Vector<VPSetDescription>;
 
       using PSV = ::Spacy::ProductSpace::Vector;
+
+      /// for goal oriented error estimation
+      using QOI = QuantityOfInterest<0,1,2,double,VariableSetDescription>;
+      using AssemblerQOI = ::Kaskade::VariationalFunctionalAssembler< ::Kaskade::LinearizationAt<QOI> >;
+
 
       /**
              * @brief Construct a twice differentiable dynamical functional \f$f: X\rightarrow \mathbb{R}\f$ from %Kaskade 7.
@@ -174,31 +182,6 @@ namespace Spacy
       }
 
 
-      void computeErrorDistribution(::Spacy::Vector x)
-      {
-        assembleMassMatrices();
-        assemblePDElocalPart(x);
-        assembleStateEquationError(x);
-        assembleAdjointEquationError(x);
-        assembleStationarityConditionError(x);
-
-        return;
-      }
-
-      std::vector<::Spacy::Real> getStateEqError() const
-      {
-        return StateEqDist;
-      }
-
-      std::vector<::Spacy::Real> getAdjEqError() const
-      {
-        return AdjEqDist;
-      }
-
-      std::vector<::Spacy::Real> getStatCondError() const
-      {
-        return StatCondDist;
-      }
 
       /**
              * @brief Access \f$f''(x)\f$ as linear operator \f$X\rightarrow X^*\f$.
@@ -284,9 +267,11 @@ namespace Spacy
                                                                                                     const& xLocal) -> ::Dune::FieldVector<double,1>
         {
           auto x = cell.geometry().global(xLocal);
-          return
-              Dune::FieldVector<double,1>(12*(1-x[1])*x[1]*(1-x[0])*x[0]);
+          auto returnval =  Dune::FieldVector<double,1>(+12*(1-x[1])*(x[1])*(3-x[0])*(x[0]-2));
+          if(x[0] >= 0 && x[0] <= 2) return 0*returnval;
+            return returnval;
         }));
+
 
         fVec_.insert(fVec_.begin() + k,f_(x_ref));
       }
@@ -296,6 +281,30 @@ namespace Spacy
         boost::fusion::at_c<0>(y0_.data) = y0_coeff;
         return;
       }
+
+      /**
+             * @brief Get Error Indicators for error estimation via cost functional.
+             * @param x Solution for which the time discretization error is to be estimated
+             * @return for each timestep 3 indicators for state,adjoint and stationarity condition each
+             */
+      std::vector<std::vector<::Spacy::Real> > getCostFuncErrorIndicators(::Spacy::Vector x)
+      {
+        return computeCostFuncErrorIndicators(x);
+      }
+
+      /**
+             * @brief Get Error Indicators for error estimation via arbitrary functional.
+             * Functional integrates the QOI over all of over [0,\tau] \times \Omega
+             * @param x Solution for which the time discretization error is to be estimated
+             * @param tau end time for the functional
+             * @return for each timestep 6 indicators for state,adjoint,stationarity and dual equations.
+             */
+      std::vector<std::vector<::Spacy::Real> > getQOIErrorIndicators(const ::Spacy::Vector &x, ::Spacy::Real tau)
+      {
+        tau_ = tau;
+        return computeGoalOrientedIndicators(x);
+      }
+
 
     private:
 
@@ -321,6 +330,8 @@ namespace Spacy
         auto spaces = gm_.getSpacesVec();
         for(auto i = 0u;i<no_time_steps;i++)
         {
+          if(verbose)
+          std::cout<<"Setting reference for timepoint"<<i<<std::endl;
           typename VariableSetDescription::VariableSet x_ref(VariableSetDescription(*spaces.at(i),{"y","u","p"}));
           //          if(i<5)
           {
@@ -329,32 +340,21 @@ namespace Spacy
                                                                                                         const& xLocal) -> ::Dune::FieldVector<double,1>
             {
               auto x = cell.geometry().global(xLocal);
-              return
-                  Dune::FieldVector<double,1>(12*(1-x[1])*x[1]*(1-x[0])*x[0]);
+              auto returnval =  Dune::FieldVector<double,1>(+12*(1-x[1])*(x[1])*(3-x[0])*(x[0]-2));
+              if(x[0] >= 0 && x[0] <= 2) return 0*returnval;
+                return returnval;
             }));
           }
 
-          // enable if you want to print the reference state
+          // enable if you want to print the constant in time reference state
           // CAREFUL: the writeVTK method you have to use depends heavily on your Kaskade Version
-//          if(i==0u)
-//          {
-//            //            typename VariableSetDescription::VariableSet x0(VariableSetDescription(space,{"y","u","p"}));
+          if(i==0u)
+          {
+            if(verbose)
+            std::cout<<"writing reference"<<std::endl;
+                        ::Kaskade::writeVTKFile(gm_.getKaskGridMan().at(0)->grid().leafGridView(),x_ref,"reference",::Kaskade::IoOptions(),1);
+          }
 
-//            ::Kaskade::IoOptions options();
-//            //            ::Kaskade::writeVTKFile(gm_.getKaskGridMan().at(0)->grid().leafGridView(),x_ref,"reference",options,1);
-//            ::Kaskade::writeVTK(x_ref,"reference",::Kaskade::IoOptions().setOrder(1));
-
-//          }
-
-          //          else
-          //          {
-          //            ::Kaskade::interpolateGloballyFromFunctor<::Kaskade::PlainAverage>(boost::fusion::at_c<0>(x_ref.data), [](auto const& cell, auto const& xLocal) -> Dune::FieldVector<double,1>
-          //            {
-          //              auto x = cell.geometry().global(xLocal);
-          //              return Dune::FieldVector<double,1>(-1.*12*(1-x[1])*x[1]*(1-x[0])*x[0]);
-          //            }
-          //            );
-          //          }
           fVec_.push_back(f_(x_ref));
         }
         return;
@@ -744,11 +744,17 @@ namespace Spacy
         }
       }
 
-      void assembleStateEquationError(Spacy::Vector x)
+      /**
+             * @brief Compute Error Indicators for error estimation via cost functional.
+             * @param x Solution for which the time discretization error is to be estimated
+             * @return for each timestep 3 indicators for state,adjoint and stationarity condition each
+             */
+      std::vector< std::vector<::Spacy::Real> > computeCostFuncErrorIndicators(::Spacy::Vector x)
       {
-        if(verbose)
-          std::cout << "computing the stateEqErr "<<std::endl;
-
+        
+        assembleMassMatrices();
+        assemblePDElocalPart(x);
+        
         auto dtVec = gm_.getTempGrid().getDtVec();
         auto spacesVec = gm_.getSpacesVec();
 
@@ -766,7 +772,7 @@ namespace Spacy
         assert(::Spacy::is<VectorImplP>(x_p));
         auto x_p_impl = ::Spacy::cast_ref<VectorImplP>(x_p);
 
-        StateEqDist = std::vector<Spacy::Real>(dtVec.size(),Real{0});
+        std::vector<::Spacy::Real> rho_u(dtVec.size(),Real{0});
 
         for(auto i = 1u;i< dtVec.size(); i++)
         {
@@ -780,53 +786,27 @@ namespace Spacy
 
           CoefficientVectorP pdiff(
                 VPSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
-          boost::fusion::at_c<0>(pdiff.data) = x_p_impl.getCoeffVec(i);
-          boost::fusion::at_c<0>(pdiff.data) -= x_p_impl.getCoeffVec(i-1);
+          boost::fusion::at_c<0>(pdiff.data) = x_p_impl.getCoeffVec(i-1);
+          boost::fusion::at_c<0>(pdiff.data) -= x_p_impl.getCoeffVec(i);
+
 
           auto My = ydiff;
           Mass_diag_.at(i).apply(ydiff,My);
-          StateEqDist.at(i) += pdiff*My;
-          std::cout<<StateEqDist.at(i)<<std::endl;
+          rho_u.at(i) += pdiff*My;
 
           if(verbose)
             std::cout<< "computing 0.5*k_m*a(y_m,u_m)(z_m-z_{m-1}) "<<std::endl;
           CoefficientVectorP a_coeff(::Kaskade::component<2>(spatialPart.at(i-1)));
           auto dummy = a_coeff*pdiff;
           dummy *= get(dtVec.at(i))/2.;
-          StateEqDist.at(i) += dummy;
-          std::cout<<StateEqDist.at(i)<<std::endl;
+          rho_u.at(i) += dummy;
 
 
           // SOURCE TERM WOULD GO HERE
         }
-      }
 
-      void assembleAdjointEquationError(Spacy::Vector x)
-      {
-        if(verbose)
-          std::cout << "computing the adjEqErr "<<std::endl;
-
-        auto dtVec = gm_.getTempGrid().getDtVec();
-        auto spacesVec = gm_.getSpacesVec();
-
-        /// DOMAIN VECTOR
-        auto x_ps = ::Spacy::cast_ref<PSV>(x);
-        //subvectors as Spacy::Vector
-        auto x_y = (::Spacy::cast_ref<PSV>(x_ps.component(PRIMAL))).component(0);
-        auto x_u = (::Spacy::cast_ref<PSV>(x_ps.component(PRIMAL))).component(1);
-        auto x_p = (::Spacy::cast_ref<PSV>(x_ps.component(DUAL))).component(0);
-        //Implementation on as Spacy::KaskadeParabolic::Vector
-        assert(Spacy::is<VectorImplY>(x_y));
-        auto x_y_impl = ::Spacy::cast_ref<VectorImplY>(x_y);
-        assert(::Spacy::is<VectorImplU>(x_u));
-        auto x_u_impl = ::Spacy::cast_ref<VectorImplU>(x_u);
-        assert(::Spacy::is<VectorImplP>(x_p));
-        auto x_p_impl = ::Spacy::cast_ref<VectorImplP>(x_p);
-
-        AdjEqDist.resize(dtVec.size(),Real{0});
-
+        std::vector<::Spacy::Real> rho_z(dtVec.size(),Real{0});
         //  for a(y_{m-1},u_m)p_m
-        std::vector<CoefficientVector> spatialPart_adj;
 
         for(auto i = 1u;i< dtVec.size(); i++)
         {
@@ -838,9 +818,8 @@ namespace Spacy
           typename VariableSetDescription::VariableSet x(variableSet);
 
           boost::fusion::at_c<0>(x.data) = x_y_impl.getCoeffVec(i-1);
-          boost::fusion::at_c<1>(x.data) = x_u_impl.getCoeffVec(i);
+          boost::fusion::at_c<1>(x.data) = x_u_impl.getCoeffVec(i-1);
           boost::fusion::at_c<2>(x.data) = x_p_impl.getCoeffVec(i);
-          std::cout<<boost::fusion::at_c<0>(x.data).coefficients().two_norm()<<" "<<boost::fusion::at_c<1>(x.data).coefficients().two_norm()<<" "<<boost::fusion::at_c<2>(x.data).coefficients().two_norm()<<std::endl;
 
           Assembler assembler(space);
           assembler.assemble(::Kaskade::linearization(fVec_.at(i),x) , Assembler::RHS , getNumberOfThreads() );
@@ -860,21 +839,46 @@ namespace Spacy
           boost::fusion::at_c<0>(y_before.data) = x_y_impl.getCoeffVec(i-1);
 
           CoefficientVectorY a_coeff_indexverschieden(::Kaskade::component<0>(spatialPart_adj.at(i-1)));
-          CoefficientVectorP a_coeff_indexgleich(::Kaskade::component<0>(spatialPart.at(i-1)));
+          CoefficientVectorY a_coeff_indexgleich(::Kaskade::component<0>(spatialPart.at(i-1)));
 
-          AdjEqDist.at(i) += a_coeff_indexgleich*y_now;
-          AdjEqDist.at(i) -= a_coeff_indexverschieden*y_before;
+          rho_z.at(i) -= a_coeff_indexgleich*y_now;
+          rho_z.at(i) += a_coeff_indexverschieden*y_before;
 
-          AdjEqDist.at(i) *= dtVec.at(i)/2.;
+          rho_z.at(i) *= dtVec.at(i)/2.;
         }
+
+        std::vector<::Spacy::Real> rho_q(dtVec.size(),Real{0});
+
+        //  for a(y_{m},u_{m-1})
+
+
+        for(auto i = 1u;i< dtVec.size(); i++)
+        {
+          if(verbose)
+            std::cout<< "summing up part "<<i<<" of stationarity condition"<<std::endl;
+          CoefficientVectorU u_now(
+                VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          CoefficientVectorU u_before(
+                VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i-1)));
+
+          boost::fusion::at_c<0>(u_now.data) = x_u_impl.getCoeffVec(i);
+          boost::fusion::at_c<0>(u_before.data) = x_u_impl.getCoeffVec(i-1);
+
+          CoefficientVectorU a_coeff_indexverschieden(::Kaskade::component<1>(spatialPart_adj.at(i-1)));
+          CoefficientVectorU a_coeff_indexgleich(::Kaskade::component<1>(spatialPart.at(i-1)));
+          rho_q.at(i) -= a_coeff_indexgleich*u_now;
+          rho_q.at(i) += a_coeff_indexverschieden*u_before;
+
+          rho_q.at(i) *= dtVec.at(i)/2.;
+        }
+
+        return std::vector<std::vector<::Spacy::Real> > {rho_u,rho_z,rho_q};
       }
 
-      void assembleStationarityConditionError(Spacy::Vector x)
+      ::Spacy::Vector solveQOIEquation(const ::Spacy::Vector x)
       {
-        if(verbose)
-          std::cout << "computing the StatCondErr "<<std::endl;
 
-        auto dtVec = gm_.getTempGrid().getDtVec();
+        std::cout<<"Solving QOI EquatioN"<<std::endl;
         auto spacesVec = gm_.getSpacesVec();
 
         /// DOMAIN VECTOR
@@ -891,48 +895,347 @@ namespace Spacy
         assert(::Spacy::is<VectorImplP>(x_p));
         auto x_p_impl = ::Spacy::cast_ref<VectorImplP>(x_p);
 
-        StatCondDist.resize(dtVec.size(),Real{0});
 
-        //  for a(y_{m},u_{m-1})
-        std::vector<CoefficientVector> spatialPart_stat;
+        rhs_QOI = zero(domain());
+        /// Get implementation of rhs_
+        auto& rhs_ps = ::Spacy::cast_ref<PSV>(rhs_QOI);
+        //subvectors as Spacy::Vector
+        auto& rhs_y = (::Spacy::cast_ref<PSV>(rhs_ps.component(PRIMAL))).component(0);
+        auto& rhs_u = (::Spacy::cast_ref<PSV>(rhs_ps.component(PRIMAL))).component(1);
+        auto& rhs_p = (::Spacy::cast_ref<PSV>(rhs_ps.component(DUAL))).component(0);
+        //Implementation on as Spacy::KaskadeParabolic::Vector
+        auto& rhs_y_impl = ::Spacy::cast_ref<VectorImplY>(rhs_y);
+        auto& rhs_u_impl = ::Spacy::cast_ref<VectorImplU>(rhs_u);
+        auto& rhs_p_impl = ::Spacy::cast_ref<VectorImplP>(rhs_p);
 
-        for(auto i = 1u;i< dtVec.size(); i++)
+        std::cout<<"Hallo"<<std::endl;
+        std::cout<<"max index"<<gm_.getTempGrid().getInterval(tau_)<<std::endl;
+        //assemble rhs
+        for(auto i = 0u;i<=gm_.getTempGrid().getInterval(tau_); i++)
         {
-          if(verbose)
-            std::cout<< "Assembling a(ym,um-1)p_m for stationarity condition "<<i<<std::endl;
+            std::cout<< "Assembling Derivatives of QOI"<<i<<std::endl;
           auto space = *spacesVec.at(i);
           VariableSetDescription variableSet(space);
           typename VariableSetDescription::VariableSet x(variableSet);
 
           boost::fusion::at_c<0>(x.data) = x_y_impl.getCoeffVec(i);
-          boost::fusion::at_c<1>(x.data) = x_u_impl.getCoeffVec(i-1);
-          boost::fusion::at_c<2>(x.data) = x_p_impl.getCoeffVec(i);
+          boost::fusion::at_c<1>(x.data) = x_u_impl.getCoeffVec(i);
+//          boost::fusion::at_c<2>(x.data) = 0*x_p_impl.getCoeffVec(i);
 
-          Assembler assembler(space);
-          assembler.assemble(::Kaskade::linearization(fVec_.at(i),x) , Assembler::RHS , getNumberOfThreads() );
-          spatialPart_stat.push_back(CoefficientVector(assembler.rhs()));
+          AssemblerQOI assembler(space);
+          assembler.assemble(::Kaskade::linearization(qoi_,x) , AssemblerQOI::RHS , getNumberOfThreads() );
+
+          CoefficientVector c(assembler.rhs());
+          QOI_Coeffvec.push_back(CoefficientVector(assembler.rhs()));
+
+          CoefficientVectorY ycoeff(::Kaskade::component<0>(CoefficientVector(assembler.rhs())));
+          CoefficientVectorU ucoeff(::Kaskade::component<1>(CoefficientVector(assembler.rhs())));
+
+          rhs_y_impl.getCoeffVec_nonconst(i) = boost::fusion::at_c<0>(ycoeff.data);
+          rhs_u_impl.getCoeffVec_nonconst(i) = boost::fusion::at_c<0>(ucoeff.data);
+
+
+          //integration of constant function
+          if(i<gm_.getTempGrid().getInterval(tau_))
+          {
+            rhs_y_impl.getCoeffVec_nonconst(i) *= get(gm_.getTempGrid().getDtVec().at(i));
+            rhs_u_impl.getCoeffVec_nonconst(i) *= get(gm_.getTempGrid().getDtVec().at(i));
+          }
+          else
+          {
+            std::cout<<"index is "<<i<<std::endl;
+            std::cout<<"tau "<<tau_<<" before "<<get(gm_.getTempGrid().getVertexVec().at(i-1))<<" difference "<<get(tau_)-get(gm_.getTempGrid().getVertexVec().at(i-1))<<std::endl;
+            rhs_y_impl.getCoeffVec_nonconst(i) *= get(tau_)-get(gm_.getTempGrid().getVertexVec().at(i-1));
+            rhs_u_impl.getCoeffVec_nonconst(i) *= get(tau_)-get(gm_.getTempGrid().getVertexVec().at(i-1));
+          }
+
         }
 
+        rhs_QOI*=-1;
+        auto solver = *H_ptr^-1;
+        ::Spacy::cast_ref<::Spacy::CG::LinearSolver>(solver).setVerbosity(true);
+        auto vpy = solver(rhs_QOI);
+
+        std::cout<<"returning from qoi system solve"<<std::endl;
+        return vpy;
+      }
+
+      /**
+             * @brief Compute Error Indicators for error estimation via arbitrary functional.
+             * Functional integrates the QOI over all of over [0,\tau] \times \Omega
+             * @param x Solution for which the time discretization error is to be estimated
+             * @return for each timestep 6 indicators for state,adjoint,stationarity and dual equations.
+             */
+      std::vector< std::vector<::Spacy::Real> > computeGoalOrientedIndicators(::Spacy::Vector x)
+      {
+        if(verbose)
+          std::cout<<"computing goal oriented error indicators"<<std::endl;
+        auto dtVec = gm_.getTempGrid().getDtVec();
+        auto spacesVec = gm_.getSpacesVec();
+
+        //Following assembles the RHS i.e. L'(x)
+        assemblePDElocalPart(x);
+
+        /// DOMAIN VECTOR
+        auto x_ps = ::Spacy::cast_ref<PSV>(x);
+        //subvectors as Spacy::Vector
+        auto x_y = (::Spacy::cast_ref<PSV>(x_ps.component(PRIMAL))).component(0);
+        auto x_u = (::Spacy::cast_ref<PSV>(x_ps.component(PRIMAL))).component(1);
+        auto x_p = (::Spacy::cast_ref<PSV>(x_ps.component(DUAL))).component(0);
+        //Implementation on as Spacy::KaskadeParabolic::Vector
+        assert(Spacy::is<VectorImplY>(x_y));
+        auto x_y_impl = ::Spacy::cast_ref<VectorImplY>(x_y);
+        assert(::Spacy::is<VectorImplU>(x_u));
+        auto x_u_impl = ::Spacy::cast_ref<VectorImplU>(x_u);
+        assert(::Spacy::is<VectorImplP>(x_p));
+        auto x_p_impl = ::Spacy::cast_ref<VectorImplP>(x_p);
+
+
+        assembleHessian(x);
+        makeHessianLBOPointer();
+
+        //Solve Equation for new variables (v,p,y)
+        auto vpy = solveQOIEquation(x);
+        auto vpy_ps = ::Spacy::cast_ref<PSV>(vpy);
+        //subvectors as Spacy::Vector
+        auto v = (::Spacy::cast_ref<PSV>(vpy_ps.component(PRIMAL))).component(0);
+        auto p = (::Spacy::cast_ref<PSV>(vpy_ps.component(PRIMAL))).component(1);
+        auto y = (::Spacy::cast_ref<PSV>(vpy_ps.component(DUAL))).component(0);
+        //Implementation on as Spacy::KaskadeParabolic::Vector
+        assert(Spacy::is<VectorImplY>(v));
+        auto v_impl = ::Spacy::cast_ref<VectorImplY>(v);
+        assert(::Spacy::is<VectorImplU>(p));
+        auto p_impl = ::Spacy::cast_ref<VectorImplU>(p);
+        assert(::Spacy::is<VectorImplP>(y));
+        auto y_impl = ::Spacy::cast_ref<VectorImplP>(y);
+
+        // RHO U
+        if(verbose)
+          std::cout<<"computing RHO U"<<std::endl;
+        auto rho_u = std::vector<Spacy::Real>(dtVec.size(),Real{0});
         for(auto i = 1u;i< dtVec.size(); i++)
         {
-          if(verbose)
-            std::cout<< "summing up part "<<i<<" of stationarity condition"<<std::endl;
-          CoefficientVectorU u_now(
+          // <um-um-1, ym-1 - ym>
+          CoefficientVectorY udiff(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+
+          boost::fusion::at_c<0>(udiff.data) = x_y_impl.getCoeffVec(i);
+          boost::fusion::at_c<0>(udiff.data) -= x_y_impl.getCoeffVec(i-1);
+
+          CoefficientVectorP ydiff(
+                VPSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          boost::fusion::at_c<0>(ydiff.data) = y_impl.getCoeffVec(i-1);
+          boost::fusion::at_c<0>(ydiff.data) -= y_impl.getCoeffVec(i);
+
+          auto Mu = udiff;
+          Mass_diag_.at(i).apply(udiff,Mu);
+          rho_u.at(i) += ydiff*Mu;
+
+          CoefficientVectorP a_coeff(::Kaskade::component<2>(spatialPart.at(i-1))); /// Shifted by 1
+          auto dummy = a_coeff*ydiff;
+          dummy *= get(dtVec.at(i))/2.;
+          rho_u.at(i) += dummy;
+          // SOURCE TERM WOULD GO HERE
+        }
+
+        //RHO Z
+        if(verbose)
+          std::cout<<"computing RHO Z"<<std::endl;
+        auto rho_z = std::vector<Spacy::Real>(dtVec.size(),Real{0});
+        for(auto i = 1u;i< dtVec.size(); i++)
+        {
+          CoefficientVectorY v_now(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          CoefficientVectorY v_before(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i-1)));
+
+          boost::fusion::at_c<0>(v_now.data) = v_impl.getCoeffVec(i);
+          boost::fusion::at_c<0>(v_before.data) = v_impl.getCoeffVec(i-1);
+
+          CoefficientVectorY a_coeff(::Kaskade::component<0>(spatialPart.at(i-1)));
+
+          rho_z.at(i) -= a_coeff*v_now;
+          rho_z.at(i) += a_coeff*v_before;
+          rho_z.at(i) *= dtVec.at(i)/2.;
+        }
+
+        // RHO q
+        if(verbose)
+          std::cout<<"computing RHO Q"<<std::endl;
+        auto rho_q = std::vector<Spacy::Real>(dtVec.size(),Real{0});
+        for(auto i = 1u;i< dtVec.size(); i++)
+        {
+          CoefficientVectorU p_now(
                 VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
-          CoefficientVectorU u_before(
+          CoefficientVectorU p_before(
                 VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i-1)));
 
-          boost::fusion::at_c<0>(u_now.data) = x_u_impl.getCoeffVec(i);
-          boost::fusion::at_c<0>(u_before.data) = x_u_impl.getCoeffVec(i-1);
+          boost::fusion::at_c<0>(p_now.data) = p_impl.getCoeffVec(i);
+          boost::fusion::at_c<0>(p_before.data) = p_impl.getCoeffVec(i-1);
 
-          CoefficientVectorY a_coeff_indexverschieden(::Kaskade::component<1>(spatialPart_stat.at(i-1)));
-          CoefficientVectorP a_coeff_indexgleich(::Kaskade::component<1>(spatialPart.at(i-1)));
-          StatCondDist.at(i) += a_coeff_indexgleich*u_now;
-          std::cout<<StatCondDist.at(i)<<std::endl;
-          StatCondDist.at(i) -= a_coeff_indexverschieden*u_before;
+          CoefficientVectorU a_coeff(::Kaskade::component<1>(spatialPart.at(i-1)));
 
-          StatCondDist.at(i) *= dtVec.at(i)/2.;
+          rho_q.at(i) -= a_coeff*p_now;
+          rho_q.at(i) += a_coeff*p_before;
+          rho_q.at(i) *= dtVec.at(i)/2.;
         }
+
+        //RHO V
+        if(verbose)
+          std::cout<<"computing RHO V"<<std::endl;
+        auto rho_v = std::vector<Spacy::Real>(dtVec.size(),Real{0});
+        for(auto i = 1u;i< dtVec.size(); i++)
+        {
+          CoefficientVectorY v_diff(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          CoefficientVectorY v_now(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          boost::fusion::at_c<0>(v_diff.data) = v_impl.getCoeffVec(i);
+          boost::fusion::at_c<0>(v_diff.data) -= v_impl.getCoeffVec(i-1);
+          boost::fusion::at_c<0>(v_now.data) = v_impl.getCoeffVec(i);
+
+          CoefficientVectorP z_diff(
+                VPSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          boost::fusion::at_c<0>(z_diff.data) = x_p_impl.getCoeffVec(i-1);
+          boost::fusion::at_c<0>(z_diff.data) -= x_p_impl.getCoeffVec(i);
+
+          CoefficientVectorY y_now(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          boost::fusion::at_c<0>(y_now.data) = y_impl.getCoeffVec(i);
+
+          auto Mv = v_diff;
+          Mass_diag_.at(i).apply(v_diff,Mv);
+          rho_v.at(i) += z_diff*Mv;
+
+          CoefficientVectorP a_coeff(VPSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          A_.at(i).apply(v_now,a_coeff);
+
+          auto dummy = a_coeff*z_diff;
+          dummy *= get(dtVec.at(i))/2.;
+          rho_v.at(i) += dummy;
+
+          CoefficientVectorU p_now(
+                VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          boost::fusion::at_c<0>(p_now.data) = p_impl.getCoeffVec(i);
+
+          B_.at(i).apply(p_now,a_coeff);
+
+          dummy = a_coeff*z_diff;
+          dummy *= get(dtVec.at(i))/2.;
+          rho_v.at(i) += dummy;
+        }
+
+        //RHO Y
+        if(verbose)
+          std::cout<<"computing RHO Y"<<std::endl;
+        auto rho_y = std::vector<Spacy::Real>(dtVec.size(),Real{0});
+        for(auto i = 1u;i< dtVec.size(); i++)
+        {
+          CoefficientVectorP a_coeff(VPSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          CoefficientVectorY x_y_now(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          CoefficientVectorY x_y_before(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i-1)));
+
+          CoefficientVectorP y_now(
+                VPSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+
+          boost::fusion::at_c<0>(x_y_before.data) = x_y_impl.getCoeffVec(i-1);
+          boost::fusion::at_c<0>(x_y_now.data) = x_y_impl.getCoeffVec(i);
+          boost::fusion::at_c<0>(y_now.data) = y_impl.getCoeffVec(i);
+
+          A_.at(i-1).apply(x_y_before,a_coeff);
+          rho_y.at(i) += a_coeff*y_now;
+
+          A_.at(i).apply(x_y_now,a_coeff);
+          rho_y.at(i) -= a_coeff*y_now;
+
+          CoefficientVectorY My_coeff(VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          CoefficientVectorY v_now(
+                VYSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+
+          boost::fusion::at_c<0>(v_now.data) = v_impl.getCoeffVec(i);
+
+          My_.at(i-1).apply(x_y_before,My_coeff);
+          rho_y.at(i) += My_coeff*v_now;
+
+          My_.at(i).apply(x_y_now,My_coeff);
+          rho_y.at(i) -= My_coeff*v_now;
+          rho_y.at(i) *= dtVec.at(i)/2.;
+
+          auto maxindex = gm_.getTempGrid().getInterval(tau_);
+
+          if(i<=maxindex)
+          {
+            CoefficientVectorY qoicoeff_before(::Kaskade::component<0>(QOI_Coeffvec.at(i-1)));
+            CoefficientVectorY qoicoeff_now(::Kaskade::component<0>(QOI_Coeffvec.at(i)));
+
+            if(i<maxindex)
+              rho_y.at(i) += dtVec.at(i)/2.*(qoicoeff_before*x_y_before-qoicoeff_now*x_y_now);
+            if(i==maxindex)
+              rho_y.at(i) += (get(tau_)-get(gm_.getTempGrid().getDtVec().at(i-1)))/2.
+                  *(qoicoeff_before*x_y_before-qoicoeff_now*x_y_now);
+          }
+
+        }
+
+        //RHO P
+        if(verbose)
+          std::cout<<"computing RHO P"<<std::endl;
+        auto rho_p = std::vector<Spacy::Real>(dtVec.size(),Real{0});
+        for(auto i = 1u;i< dtVec.size(); i++)
+        {
+          CoefficientVectorP a_coeff(VPSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+
+          CoefficientVectorU x_u_now(
+                VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          CoefficientVectorU x_u_before(
+                VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i-1)));
+
+          CoefficientVectorP y_now(
+                VPSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+
+          boost::fusion::at_c<0>(x_u_before.data) = x_u_impl.getCoeffVec(i-1);
+          boost::fusion::at_c<0>(x_u_now.data) = x_u_impl.getCoeffVec(i);
+          boost::fusion::at_c<0>(y_now.data) = y_impl.getCoeffVec(i);
+
+          B_.at(i-1).apply(x_u_before,a_coeff);
+          rho_p.at(i) -= a_coeff*y_now;
+
+          B_.at(i).apply(x_u_now,a_coeff);
+          rho_p.at(i) += a_coeff*y_now;
+
+          CoefficientVectorU Mu_coeff(VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+          CoefficientVectorU p_now(
+                VUSetDescription::template CoefficientVectorRepresentation<>::init(*spacesVec.at(i)));
+
+          boost::fusion::at_c<0>(p_now.data) = p_impl.getCoeffVec(i);
+
+          Mu_.at(i-1).apply(x_u_before,Mu_coeff);
+          rho_p.at(i) += Mu_coeff*p_now;
+
+          Mu_.at(i).apply(x_u_now,Mu_coeff);
+          rho_p.at(i) -= Mu_coeff*p_now;
+
+          rho_p.at(i) *= dtVec.at(i)/2.;
+
+
+          auto maxindex = gm_.getTempGrid().getInterval(tau_);
+
+          if(i<=maxindex)
+          {
+            CoefficientVectorU qoicoeff_before(::Kaskade::component<1>(QOI_Coeffvec.at(i-1)));
+            CoefficientVectorU qoicoeff_now(::Kaskade::component<1>(QOI_Coeffvec.at(i)));
+
+            if(i<maxindex)
+              rho_p.at(i) += dtVec.at(i)/2.*(qoicoeff_before*x_u_before-qoicoeff_now*x_u_now);
+            if(i==maxindex)
+              rho_p.at(i) += (get(tau_)-get(gm_.getTempGrid().getDtVec().at(i-1)))/2.
+                  *(qoicoeff_before*x_u_before-qoicoeff_now*x_u_now);
+          }
+        }
+        auto ret = std::vector< std::vector<::Spacy::Real> > {rho_u,rho_z,rho_q,rho_v,rho_y,rho_p};
+        return ret;
       }
       //Problem definition
       GridManager<Spaces>& gm_;
@@ -984,11 +1287,15 @@ namespace Spacy
         return ::Spacy::makeTCGSolver(f,P);
       };
 
-      //ERROR ESTIMATION
+      // Discreization error estimation
       std::vector<CoefficientVector> spatialPart;
-      ::std::vector<::Spacy::Real> StateEqDist;
-      ::std::vector<::Spacy::Real> StatCondDist;
-      ::std::vector<::Spacy::Real> AdjEqDist;
+      std::vector<CoefficientVector> spatialPart_adj;
+
+      // goal oriented error estimation
+      QOI qoi_{};
+      ::Spacy::Real tau_{2.5};
+      ::Spacy::Vector rhs_QOI{};
+      std::vector<CoefficientVector> QOI_Coeffvec;
 
     };
 
