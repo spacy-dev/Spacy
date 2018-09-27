@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "f6e61c30_99c69501",
+        "filename": "Spacy/Algorithm/Scalar/Fmin.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-27T06:44:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09500bff_c1113f81",
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a126ca56_4c69efee",
         "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
         "patchSetId": 1
@@ -94,6 +112,30 @@
     },
     {
       "key": {
+        "uuid": "4e08ed68_4a9d2a92",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-27T06:44:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d170c7e_620aaf2e",
+      "range": {
+        "startLine": 89,
+        "startChar": 10,
+        "endLine": 89,
+        "endChar": 39
+      },
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46055a97_5ce3f72d",
         "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
         "patchSetId": 1
@@ -114,6 +156,30 @@
       "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7ea6d09_b45861a4",
+        "filename": "Spacy/Algorithm/Scalar/findGlobalMinimizer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-27T06:44:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46055a97_5ce3f72d",
+      "range": {
+        "startLine": 90,
+        "startChar": 17,
+        "endLine": 90,
+        "endChar": 97
+      },
+      "revId": "68348222f79e20414952850b2cd0009b1d29b4fe",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
