@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bf5bc8e1_21fc8d6a",
+        "filename": "Spacy/Algorithm/CG/RegularizeViaPreconditioner.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-30T12:07:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d9263f1_fab71ef2",
+      "range": {
+        "startLine": 54,
+        "startChar": 1,
+        "endLine": 54,
+        "endChar": 84
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "948b56d0_5ff8568c",
         "filename": "Spacy/Algorithm/CG/RegularizeViaPreconditioner.hh",
         "patchSetId": 2
@@ -59,6 +83,24 @@
     },
     {
       "key": {
+        "uuid": "56074348_e748e7c7",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-30T12:07:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9109f238_4f2f93f1",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dee513e8_552bfa44",
         "filename": "Spacy/Algorithm/CG/cg.cpp",
         "patchSetId": 2
@@ -82,6 +124,30 @@
     },
     {
       "key": {
+        "uuid": "c07a542a_ba30c1e3",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-30T12:07:27Z",
+      "side": 1,
+      "message": "Thanks for the comment, youre totally right. Computation is now done in the AffineCovariantCompositeStepSolver via the CG::LinearSolver Wrapper :)",
+      "parentUuid": "dee513e8_552bfa44",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 9
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "093ac733_f53ee803",
         "filename": "Spacy/Algorithm/CG/cg.cpp",
         "patchSetId": 2
@@ -93,6 +159,30 @@
       "writtenOn": "2018-09-26T17:58:33Z",
       "side": 1,
       "message": "(-1) Instead of introducing a new variable you can also use Pq. This allows you to reuse much more of the current implementation. \nTo me it looks like the quantities Pq, pQp, should be actually be maintained completely in the regularization implementations. But that does not need to be done now.",
+      "range": {
+        "startLine": 109,
+        "startChar": 8,
+        "endLine": 109,
+        "endChar": 21
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cfde990_50a76a93",
+        "filename": "Spacy/Algorithm/CG/cg.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-30T12:07:27Z",
+      "side": 1,
+      "message": "Fixes this, renamed qPq to qRq and Pq to Rq for general Regularization.\nOfc, if Preconditioner is the Regularization, I preserved the functionality, i.e. the updates of Pq at the end of the CG loop.",
+      "parentUuid": "093ac733_f53ee803",
       "range": {
         "startLine": 109,
         "startChar": 8,
@@ -145,6 +235,30 @@
     },
     {
       "key": {
+        "uuid": "a9d0f84a_a9681b16",
+        "filename": "Spacy/Algorithm/CG/linearSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-30T12:07:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62eccf9d_ee103941",
+      "range": {
+        "startLine": 115,
+        "startChar": 89,
+        "endLine": 115,
+        "endChar": 105
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "37576b46_dc7d403e",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 2
@@ -165,6 +279,30 @@
       "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f149fd16_8035dfe5",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-30T12:07:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37576b46_dc7d403e",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 3
+      },
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -197,6 +335,24 @@
       "side": 1,
       "message": "I am curious what preconditioner you use now",
       "parentUuid": "ab1daa26_a65aa322",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc1a6167_b1cbe3f3",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-09-30T12:07:27Z",
+      "side": 1,
+      "message": "Matrix of the system: L_hessian(x)\nPreconditioner: Normal step matrix without M_y block and M_u block replaced by diagonal\nRegularization: Normal step matrix.\n\nits ofc possible to use tihs preconditioner as regularization, but due to the missing M_y part, one needs higher regularization parameters as opposed to using the full normal step matrix :)",
+      "parentUuid": "16378b82_c89fe604",
       "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
