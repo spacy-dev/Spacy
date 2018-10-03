@@ -356,6 +356,24 @@
       "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ebdc6f6_b8206449",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-03T18:45:20Z",
+      "side": 1,
+      "message": "nice:)",
+      "parentUuid": "cc1a6167_b1cbe3f3",
+      "revId": "272eef6d996ef837fe33399cf2338afb99f90c95",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
     }
   ]
 }
