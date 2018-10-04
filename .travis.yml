@@ -96,11 +96,9 @@ install:
       cd ${DEPS_DIR}
       git clone https://github.com/google/googletest.git && cd googletest
       mkdir -p build && cd build
-      cmake -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
+      cmake -DCMAKE_CXX_FLAGS="${CXXFLAGS} -std=c++11" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
       cmake --build .
-      sudo cp -r ../googletest/include/gtest /usr/local/include/
-      sudo cp -r ../googlemock/include/gmock /usr/local/include/
-      sudo cp googlemock/gtest/lib*.a /usr/local/lib
+      sudo make install
     fi
 
 script:
