@@ -13,7 +13,8 @@ namespace Spacy
         void Eps::set_eps( Real eps )
         {
             eps_ = eps;
-            sqrt_eps_ = sqrt( eps_ ) : cbrt_eps_ = cbrt( eps_ );
+            sqrt_eps_ = sqrt( eps_ );
+            cbrt_eps_ = cbrt( eps_ );
             notify();
         }
 

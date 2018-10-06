@@ -32,9 +32,9 @@ namespace Spacy
             void update( Eps* changedSubject );
 
         private:
-            Real eps_;
-            Real sqrt_eps_;
-            Real cbrt_eps_;
+            Real eps_{0};
+            Real sqrt_eps_{0};
+            Real cbrt_eps_{0};
         };
     }
 }
