@@ -17,13 +17,13 @@
 #include <Spacy/Util/voider.hh>
 
 // Interfaces and directly related functionality
+#include <Spacy/HilbertSpaceNorm.hh>
 #include <Spacy/Norm.h>
 #include <Spacy/c1Functional.hh>
 #include <Spacy/c1Operator.hh>
 #include <Spacy/c2Functional.hh>
 #include <Spacy/derivative.hh>
 #include <Spacy/functional.hh>
-#include <Spacy/hilbertSpaceNorm.hh>
 #include <Spacy/inducedScalarProduct.hh>
 #include <Spacy/linearOperator.hh>
 #include <Spacy/linearSolver.hh>
