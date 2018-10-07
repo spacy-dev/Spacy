@@ -17,7 +17,7 @@
 #include <Spacy/Util/voider.hh>
 
 // Interfaces and directly related functionality
-#include <Spacy/HilbertSpaceNorm.hh>
+#include <Spacy/HilbertSpaceNorm.h>
 #include <Spacy/Norm.h>
 #include <Spacy/c1Functional.hh>
 #include <Spacy/c1Operator.hh>
