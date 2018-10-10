@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14096dda_894170cf",
+        "filename": "Spacy/Adapter/KaskadeParabolic/tempGrid.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:23:13Z",
+      "side": 1,
+      "message": "plz remove",
+      "range": {
+        "startLine": 109,
+        "startChar": 30,
+        "endLine": 109,
+        "endChar": 42
+      },
+      "revId": "35565a8edde47bc0c8f45e82ddda78d450c03ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec9d5204_52308732",
+        "filename": "Spacy/Adapter/KaskadeParabolic/vector.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:23:13Z",
+      "side": 1,
+      "message": "plz remove",
+      "range": {
+        "startLine": 331,
+        "startChar": 16,
+        "endLine": 331,
+        "endChar": 95
+      },
+      "revId": "35565a8edde47bc0c8f45e82ddda78d450c03ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94e45d27_7068dfee",
+        "filename": "Spacy/Adapter/KaskadeParabolic/vector.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:23:13Z",
+      "side": 1,
+      "message": "plz remove",
+      "range": {
+        "startLine": 345,
+        "startChar": 16,
+        "endLine": 345,
+        "endChar": 95
+      },
+      "revId": "35565a8edde47bc0c8f45e82ddda78d450c03ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2faba18_4b383fa3",
+        "filename": "Spacy/Adapter/KaskadeParabolic/vector.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:23:13Z",
+      "side": 1,
+      "message": "plz remove",
+      "range": {
+        "startLine": 363,
+        "startChar": 15,
+        "endLine": 363,
+        "endChar": 95
+      },
+      "revId": "35565a8edde47bc0c8f45e82ddda78d450c03ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdfed837_48b6ec9a",
+        "filename": "Spacy/Adapter/KaskadeParabolic/vector.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:23:13Z",
+      "side": 1,
+      "message": "plz remove",
+      "range": {
+        "startLine": 388,
+        "startChar": 16,
+        "endLine": 388,
+        "endChar": 95
+      },
+      "revId": "35565a8edde47bc0c8f45e82ddda78d450c03ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18bf4105_ff0540ba",
+        "filename": "Spacy/Adapter/KaskadeParabolic/writeVTK.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:23:13Z",
+      "side": 1,
+      "message": "plz remove",
+      "range": {
+        "startLine": 253,
+        "startChar": 16,
+        "endLine": 253,
+        "endChar": 33
+      },
+      "revId": "35565a8edde47bc0c8f45e82ddda78d450c03ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c12d6f2_c60dde26",
+        "filename": "Spacy/Adapter/KaskadeParabolic/writeVTK.hh",
+        "patchSetId": 2
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:23:13Z",
+      "side": 1,
+      "message": "plz remove",
+      "range": {
+        "startLine": 257,
+        "startChar": 16,
+        "endLine": 260,
+        "endChar": 97
+      },
+      "revId": "35565a8edde47bc0c8f45e82ddda78d450c03ed2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
