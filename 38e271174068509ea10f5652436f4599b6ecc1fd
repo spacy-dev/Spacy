@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d48e170b_8e1dd496",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:07:25Z",
+      "side": 1,
+      "message": "Looks like this should be eps() and the class should derive from Mixin::Eps",
+      "range": {
+        "startLine": 164,
+        "startChar": 44,
+        "endLine": 164,
+        "endChar": 49
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1de1128f_cb239778",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:07:25Z",
+      "side": 1,
+      "message": "(*1) \u0027const\u0027 would be nice and possibly \u0027auto\u0027:\nconst auto a \u003d ...\nand same for b",
+      "range": {
+        "startLine": 373,
+        "startChar": 16,
+        "endLine": 373,
+        "endChar": 20
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8dcf501_8d6ecaae",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:07:25Z",
+      "side": 1,
+      "message": "Formatting of the comments looks a bit weird.",
+      "range": {
+        "startLine": 116,
+        "startChar": 1,
+        "endLine": 126,
+        "endChar": 21
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6452ef8_bb86230e",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:07:25Z",
+      "side": 1,
+      "message": "(-1) As far as I can see this can be defined with \u0027errorterm\u0027 as it is not used before.",
+      "range": {
+        "startLine": 488,
+        "startChar": 12,
+        "endLine": 488,
+        "endChar": 46
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4355db4_d0dfea9d",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:07:25Z",
+      "side": 1,
+      "message": "Isn\u0027t this just the gradient of the normalstep-functional? Then you could directly use this one and avoid the \u0027if(is...\u0027",
+      "range": {
+        "startLine": 550,
+        "startChar": 33,
+        "endLine": 550,
+        "endChar": 45
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8f1fc9b_a235c150",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:07:25Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 685,
+        "startChar": 33,
+        "endLine": 685,
+        "endChar": 36
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d5c4ddc_6a779db8",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-10T18:07:25Z",
+      "side": 1,
+      "message": "Can you plz reorder the arguments to \n(Real norm_dn, Real norm_dt, Real dndt, const CompositeStep::CubicModel\u0026 cubic).",
+      "range": {
+        "startLine": 119,
+        "startChar": 48,
+        "endLine": 121,
+        "endChar": 66
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
