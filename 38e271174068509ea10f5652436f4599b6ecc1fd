@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "196af1e3_c7fe0375",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-10-10T20:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d48e170b_8e1dd496",
+      "range": {
+        "startLine": 164,
+        "startChar": 44,
+        "endLine": 164,
+        "endChar": 49
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1de1128f_cb239778",
         "filename": "Spacy/Algorithm/CG/terminationCriteria.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a069a7b7_367d6898",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-10-10T20:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1de1128f_cb239778",
+      "range": {
+        "startLine": 373,
+        "startChar": 16,
+        "endLine": 373,
+        "endChar": 20
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9ee1e874_bb0c2816",
+        "filename": "Spacy/Algorithm/CG/terminationCriteria.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-10-10T20:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8dcf501_8d6ecaae",
+      "range": {
+        "startLine": 116,
+        "startChar": 1,
+        "endLine": 126,
+        "endChar": 21
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6452ef8_bb86230e",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "6d2c3cb8_9f529ba1",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-10-10T20:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6452ef8_bb86230e",
+      "range": {
+        "startLine": 488,
+        "startChar": 12,
+        "endLine": 488,
+        "endChar": 46
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d4355db4_d0dfea9d",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
         "patchSetId": 1
@@ -105,6 +201,30 @@
       "writtenOn": "2018-10-10T18:07:25Z",
       "side": 1,
       "message": "Isn\u0027t this just the gradient of the normalstep-functional? Then you could directly use this one and avoid the \u0027if(is...\u0027",
+      "range": {
+        "startLine": 550,
+        "startChar": 33,
+        "endLine": 550,
+        "endChar": 45
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed14f535_0beeaaa3",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-10-10T20:01:26Z",
+      "side": 1,
+      "message": "youre totally right, thanks for pointing this out. I included an output of this (scalar) error term and checked for the previous implementation (where this system is solved with LU Factorization -\u003e error term is (numerically) zero).",
+      "parentUuid": "d4355db4_d0dfea9d",
       "range": {
         "startLine": 550,
         "startChar": 33,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "7efe2b08_cf7fe527",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-10-10T20:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8f1fc9b_a235c150",
+      "range": {
+        "startLine": 685,
+        "startChar": 33,
+        "endLine": 685,
+        "endChar": 36
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d5c4ddc_6a779db8",
         "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh",
         "patchSetId": 1
@@ -160,6 +304,30 @@
       "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fc86880_93e5f5e2",
+        "filename": "Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1011367
+      },
+      "writtenOn": "2018-10-10T20:01:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d5c4ddc_6a779db8",
+      "range": {
+        "startLine": 119,
+        "startChar": 48,
+        "endLine": 121,
+        "endChar": 66
+      },
+      "revId": "38e271174068509ea10f5652436f4599b6ecc1fd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
