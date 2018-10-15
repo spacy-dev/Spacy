@@ -124,15 +124,14 @@ namespace Spacy
               //   writeMatlab(H_.getKaskOp("Mu", i).get(),"Mubefore"+std::to_string(i));
 
               Mutype Mu(H_.getKaskOp("Mu",i).get());
-              Mutype Mudiag(getDiag<Mutype>(Mu));
 
-              Mudiag *= dt;
+              Mu *= dt;
               //  writeMatlab(Mu.get(),"Muafter"+std::to_string(i));
 
               solMu.emplace_back(std::make_shared
                                  <::Kaskade::InverseLinearOperator <
                                  ::Kaskade::DirectSolver < CoefficientVectorU, CoefficientVectorU> >
-                                 > (::Kaskade::directInverseOperator(Mudiag,
+                                 > (::Kaskade::directInverseOperator(Mu,
                                                                      DirectType::UMFPACK3264,
                                                                      MatrixProperties::GENERAL)));
             }
@@ -305,19 +304,6 @@ namespace Spacy
         ::Kaskade::InverseLinearOperator<::Kaskade::DirectSolver<CoefficientVectorY, CoefficientVectorP> > > > solDiag{};
         mutable std::vector< std::shared_ptr<
         ::Kaskade::InverseLinearOperator<::Kaskade::DirectSolver<CoefficientVectorU, CoefficientVectorU> > > > solMu{};
-
-        template<class MatrixType>
-        MatrixType getDiag(const MatrixType& K)
-        {
-          const ::Kaskade::MatrixAsTriplet<double>& A(K.get());
-          MatrixType B;
-          for(int i=0; i<A.nnz();++i)
-          {
-            if(A.ridx[i]==A.cidx[i])
-              B.get_non_const().addEntry(A.ridx[i],A.cidx[i],A.data[i]);
-          }
-          return B;
-        }
 
       };
     }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
+
+#include <iostream>
 
 namespace Spacy
 {
@@ -105,12 +105,12 @@ namespace Spacy
              * @param timepoint t
              * @return interval associated with t
              */
-            unsigned getInterval( Real t ) const
+            unsigned getInverval( Real t ) const
             {
                 auto i = 0u;
                 for ( ; i < vertexVec_.size(); i++ )
                 {
-                    if ( vertexVec_.at( i ) >= t )
+                    if ( vertexVec_.at( i ) /*+  1e-10*/ >= t )
                         return i;
                 }
 
@@ -119,9 +119,7 @@ namespace Spacy
                 return 0;
             }
 
-            /**
-             * @brief print time grid
-             */
+            /// print time grid
             void print() const
             {
                 std::cout << "Vertices  :";

@@ -45,7 +45,7 @@ namespace Spacy
              * @brief Construct vector \f$x\f$ from underlying vector space.
              * @param space underlying vector space
              */
-            explicit Vector( const VectorSpace& space ) : VectorBase( space )
+            Vector( const VectorSpace& space ) : VectorBase( space )
             {
                 auto c = creator< VectorCreator< Description > >( space );
 
@@ -112,10 +112,10 @@ namespace Spacy
             }
 
             /**
-             * @brief Apply as dual element.
-             * @param y primal vector
-             * @return \f$x(y)\f$
-             */
+              * @brief Apply as dual element.
+              * @param y primal vector
+              * @return \f$x(y)\f$
+              */
             ::Spacy::Real operator()( const Vector& y ) const
             {
                 assert( this->variableSet_.size() == y.variableSet_.size() );
@@ -149,14 +149,13 @@ namespace Spacy
                     ::Spacy::creator< VectorCreator< Description > >( this->space() );
                 ::Spacy::KaskadeParabolic::SubCreator< Description > vc_k = vc.getSubCreator( k );
 
-                variableSet_.emplace(
+                variableSet_.insert(
                     variableSet_.begin() + k,
-                    ::Spacy::creator< VectorCreator< Description > >( this->space() )
-                        .getSubCreator( k )
-                        .get() );
+                    VariableSet(::Spacy::creator< VectorCreator< Description > >( this->space() )
+                                    .getSubCreator( k )
+                                    .get() ) );
                 //        assert(variableSet_.at(k).data.coefficients().size() ==
                 //        variableSet_.at(k+1).data.coefficients().size());
-
                 boost::fusion::at_c< 0 >( variableSet_.at( k ).data ) =
                     boost::fusion::at_c< 0 >( variableSet_.at( k + 1 ).data );
 
@@ -273,7 +272,7 @@ namespace Spacy
 
             /**
              * @brief Subtract Vectors living on different time grids (vector to be subtracted
-              * piecewise constant)
+             * piecewise constant)
              * @param y vector to subtract from this vector
              * @return \f$ x-=y\f$.
              */
@@ -326,17 +325,11 @@ namespace Spacy
                     ::Spacy::creator< VectorCreator< Description > >( this->space() );
                 auto gm = vc.getGridMan();
                 auto tg = gm.getTempGrid();
+                auto index = tg.getInverval( t );
 
-                auto index = tg.getInterval( t );
                 return this->get( index );
             }
 
-            /**
-             * @brief Evaluate this vector as a piecewise constant function at time t
-             * specialized implementation for control as we dont have a value at zero there
-             * @param t timepoint
-             * @return VariableSet at time t
-             */
             const VariableSet& evaluate_u( const ::Spacy::Real t ) const
             {
                 ::Spacy::KaskadeParabolic::VectorCreator< Description > vc =
@@ -344,7 +337,7 @@ namespace Spacy
                 auto gm = vc.getGridMan();
                 auto tg = gm.getTempGrid();
 
-                auto index = tg.getInterval( t );
+                auto index = tg.getInverval( t );
                 if ( index == 0 )
                     index = 1;
 
@@ -363,7 +356,7 @@ namespace Spacy
                 auto gm = vc.getGridMan();
                 auto tg = gm.getTempGrid();
 
-                auto index = tg.getInterval( t );
+                auto index = tg.getInverval( t );
 
                 VariableSet vs_right = this->get( index );
                 if ( index != 0u )
@@ -380,12 +373,6 @@ namespace Spacy
                 return vs_right;
             }
 
-            /**
-             * @brief Evaluate this vector as a piecewise linear interpolated function at time t
-             * specialized implementation for control as we dont have a value at zero there
-             * @param t timepoint
-             * @return VariableSet at time t
-             */
             VariableSet evaluate_linearInterpolated_u( const ::Spacy::Real t ) const
             {
                 ::Spacy::KaskadeParabolic::VectorCreator< Description > vc =
@@ -393,11 +380,10 @@ namespace Spacy
                 auto gm = vc.getGridMan();
                 auto tg = gm.getTempGrid();
 
-                auto index = tg.getInterval( t );
+                auto index = tg.getInverval( t );
 
                 if ( index == 0 )
                     index = 1;
-                // index++;
                 VariableSet vs_right = this->get( index );
                 if ( index != 1u )
                 {
