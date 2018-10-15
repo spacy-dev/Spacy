@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f525161f_d7027717",
+        "filename": "Spacy/Adapter/KaskadeParabolic/vector.hh",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-15T19:00:25Z",
+      "side": 1,
+      "message": "This is not part of your change, but apparently I did overlook this before. \nCan you please change this to\n\u0027explicit Vector(const VectorSpace\u0026...\u0027.\nElse this would admit implicit conversions from vector spaces to vectors.",
+      "range": {
+        "startLine": 48,
+        "startChar": 11,
+        "endLine": 48,
+        "endChar": 46
+      },
+      "revId": "fe2781dc76d0ead1a054377b87f917362c884362",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
