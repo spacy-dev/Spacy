@@ -1,7 +1,7 @@
 #pragma once
 
 #include <functional>
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 
 namespace Spacy
 {
@@ -12,7 +12,8 @@ namespace Spacy
     /**
      * @brief Type-erased scalar product.
      *
-     * The minimal signature (besides copy and/or move constructor/assignment) of a scalar product is:
+     * The minimal signature (besides copy and/or move constructor/assignment) of a scalar product
+     * is:
      * @code
      * // My scalar product.
      * class MyScalarProduct
@@ -23,5 +24,5 @@ namespace Spacy
      * };
      * @endcode
      */
-    using ScalarProduct = std::function<Real(const Vector&, const Vector&)>;
+    using ScalarProduct = std::function< Real( const Vector&, const Vector& ) >;
 }

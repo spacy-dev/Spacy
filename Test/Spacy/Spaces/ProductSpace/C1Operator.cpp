@@ -4,8 +4,8 @@
 #include <Spacy/Spaces/ProductSpace/C1Operator.hh>
 #include <Spacy/Spaces/ProductSpace/vector.hh>
 #include <Spacy/Spaces/ProductSpace/vectorSpace.hh>
-#include <Spacy/Spaces/ScalarSpace/c1Operator.hh>
-#include <Spacy/Spaces/realSpace.hh>
+#include <Spacy/Spaces/RealSpace.h>
+#include <Spacy/Spaces/ScalarSpace/C1Operator.h>
 #include <Spacy/Util/cast.hh>
 
 #include <memory>

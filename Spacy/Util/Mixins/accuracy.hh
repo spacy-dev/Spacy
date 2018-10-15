@@ -2,7 +2,7 @@
 
 #include "macros.hh"
 
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 
 GENERATE_MIXIN_HEADER( Real, AbsoluteAccuracy, 1e-15 )
 

@@ -7,7 +7,7 @@
 #include <Spacy/Util/type_erasure_util.h>
 
 #include <functional>
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions/invalidArgumentException.hh>
 #include <Spacy/linearSolver.hh>
 #include <Spacy/vector.hh>

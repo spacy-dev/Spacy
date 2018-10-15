@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 
 namespace Spacy
 {
@@ -11,6 +11,6 @@ namespace Spacy
 
     namespace Rothe
     {
-        Vector genericMethod(const DynamicC1Operator& A, Real t0=0, Real t1=1);
+        Vector genericMethod( const DynamicC1Operator& A, Real t0 = 0, Real t1 = 1 );
     }
 }

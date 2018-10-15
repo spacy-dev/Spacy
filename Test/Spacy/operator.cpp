@@ -1,122 +1,120 @@
 #include <Test/gtest.hh>
 
-#include <Spacy/operator.hh>
-#include <Spacy/Spaces/realSpace.hh>
-#include <Spacy/Util/cast.hh>
 #include <Test/mockSetup.hh>
+#include <Spacy/Spaces/RealSpace.h>
+#include <Spacy/Util/cast.hh>
+#include <Spacy/operator.hh>
 
 using namespace Spacy;
 
 namespace
 {
-  struct TestOperator
-  {
-    TestOperator(const VectorSpace& domain, const VectorSpace& range)
-      : domain_(&domain), range_(&range)
-    {}
-
-    Vector operator()(const Vector&) const
+    struct TestOperator
     {
-      return Real(3.);
-    }
+        TestOperator( const VectorSpace& domain, const VectorSpace& range )
+            : domain_( &domain ), range_( &range )
+        {
+        }
 
-    const VectorSpace& domain() const
+        Vector operator()( const Vector& ) const
+        {
+            return Real( 3. );
+        }
+
+        const VectorSpace& domain() const
+        {
+            return *domain_;
+        }
+
+        const VectorSpace& range() const
+        {
+            return *range_;
+        }
+
+    private:
+        const VectorSpace* domain_;
+        const VectorSpace* range_;
+    };
+
+    void test( const Operator& f, const VectorSpace& X, const VectorSpace& Y )
     {
-      return *domain_;
+        EXPECT_DOUBLE_EQ( get( cast_ref< Real >( f( zero( X ) ) ) ), 3 );
+        EXPECT_EQ( X.index(), f.domain().index() );
+        EXPECT_EQ( Y.index(), f.range().index() );
     }
-
-    const VectorSpace& range() const
-    {
-      return *range_;
-    }
-
-  private:
-    const VectorSpace* domain_;
-    const VectorSpace* range_;
-  };
-
-  void test(const Operator& f, const VectorSpace& X, const VectorSpace& Y)
-  {
-    EXPECT_DOUBLE_EQ( get(cast_ref<Real>(f(zero(X)))) , 3 );
-    EXPECT_EQ( X.index() , f.domain().index() );
-    EXPECT_EQ( Y.index() , f.range().index() );
-  }
 }
 
-
-TEST(Operator,Assert)
+TEST( Operator, Assert )
 {
-  auto X = createMockBanachSpace();
-  Operator f;
-  ASSERT_DEATH( f(zero(X)) , "" );
-  ASSERT_DEATH( f.domain() , "" );
-  ASSERT_DEATH( f.range() , "" );
+    auto X = createMockBanachSpace();
+    Operator f;
+    ASSERT_DEATH( f( zero( X ) ), "" );
+    ASSERT_DEATH( f.domain(), "" );
+    ASSERT_DEATH( f.range(), "" );
 }
 
-TEST(Operator,IsEmpty)
+TEST( Operator, IsEmpty )
 {
-  auto X = createMockBanachSpace();
-  auto Y = createMockBanachSpace();
-  Operator f;
-  Operator g = TestOperator(X,Y);
+    auto X = createMockBanachSpace();
+    auto Y = createMockBanachSpace();
+    Operator f;
+    Operator g = TestOperator( X, Y );
 
-  bool f_is_empty = !f;
-  bool g_is_empty = !g;
-  ASSERT_TRUE( f_is_empty );
-  ASSERT_FALSE( g_is_empty );
+    bool f_is_empty = !f;
+    bool g_is_empty = !g;
+    ASSERT_TRUE( f_is_empty );
+    ASSERT_FALSE( g_is_empty );
 }
 
-TEST(Operator,Cast)
+TEST( Operator, Cast )
 {
-  auto X = createMockBanachSpace();
-  auto Y = createMockBanachSpace();
-  Operator f = TestOperator(X,Y);
+    auto X = createMockBanachSpace();
+    auto Y = createMockBanachSpace();
+    Operator f = TestOperator( X, Y );
 
-  ASSERT_TRUE( f.target<TestOperator>() != nullptr );
+    ASSERT_TRUE( f.target< TestOperator >() != nullptr );
 }
 
-TEST(Operator,StoreRValue)
+TEST( Operator, StoreRValue )
 {
-  auto X = createMockBanachSpace();
-  auto Y = createMockBanachSpace();
-  Operator f = TestOperator(X,Y);
+    auto X = createMockBanachSpace();
+    auto Y = createMockBanachSpace();
+    Operator f = TestOperator( X, Y );
 
-  test(f,X,Y);
+    test( f, X, Y );
 }
 
-TEST(Operator,StoreCopy)
+TEST( Operator, StoreCopy )
 {
-  auto X = createMockBanachSpace();
-  auto Y = createMockBanachSpace();
-  auto g = TestOperator(X,Y);
-  Operator f = g;
+    auto X = createMockBanachSpace();
+    auto Y = createMockBanachSpace();
+    auto g = TestOperator( X, Y );
+    Operator f = g;
 
-  test(f,X,Y);
+    test( f, X, Y );
 }
 
-TEST(Operator,Copy)
+TEST( Operator, Copy )
 {
-  auto X = createMockBanachSpace();
-  auto Y = createMockBanachSpace();
-  Operator g = TestOperator(X,Y);
-  Operator f = g;
+    auto X = createMockBanachSpace();
+    auto Y = createMockBanachSpace();
+    Operator g = TestOperator( X, Y );
+    Operator f = g;
 
-  test(f,X,Y);
+    test( f, X, Y );
 }
 
-TEST(Operator,Move)
+TEST( Operator, Move )
 {
-  auto X = createMockBanachSpace();
-  auto Y = createMockBanachSpace();
-  Operator g = TestOperator(X,Y);
-  bool is_empty_before_move = !g;
-  Operator f = std::move(g);
-  bool is_empty_after_move = !g;
+    auto X = createMockBanachSpace();
+    auto Y = createMockBanachSpace();
+    Operator g = TestOperator( X, Y );
+    bool is_empty_before_move = !g;
+    Operator f = std::move( g );
+    bool is_empty_after_move = !g;
 
-  EXPECT_FALSE(is_empty_before_move);
-  EXPECT_TRUE(is_empty_after_move);
+    EXPECT_FALSE( is_empty_before_move );
+    EXPECT_TRUE( is_empty_after_move );
 
-  test(f,X,Y);
+    test( f, X, Y );
 }
-
-

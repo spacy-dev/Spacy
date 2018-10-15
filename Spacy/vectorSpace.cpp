@@ -6,7 +6,7 @@
 
 #include <Spacy/HilbertSpaceNorm.h>
 #include <Spacy/Spaces/ProductSpace/vectorSpace.hh>
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/zeroVectorCreator.hh>
 
 #include <stdexcept>

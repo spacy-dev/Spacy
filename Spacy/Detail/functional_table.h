@@ -6,7 +6,7 @@
 #include <Spacy/Util/storage.h>
 #include <Spacy/Util/type_erasure_util.h>
 
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 namespace Spacy

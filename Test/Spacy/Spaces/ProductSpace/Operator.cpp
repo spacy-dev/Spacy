@@ -3,8 +3,8 @@
 #include <Test/mockSetup.hh>
 #include <Spacy/Spaces/ProductSpace/Operator.hh>
 #include <Spacy/Spaces/ProductSpace/vector.hh>
-#include <Spacy/Spaces/ScalarSpace/Operator.hh>
-#include <Spacy/Spaces/realSpace.hh>
+#include <Spacy/Spaces/RealSpace.h>
+#include <Spacy/Spaces/ScalarSpace/Operator.h>
 #include <Spacy/Util/cast.hh>
 
 #include <memory>

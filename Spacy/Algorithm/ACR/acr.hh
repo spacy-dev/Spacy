@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/mixins.hh>
 #include <Spacy/c2Functional.hh>
 #include <Spacy/linearSolver.hh>

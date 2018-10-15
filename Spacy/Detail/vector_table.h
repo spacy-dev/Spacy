@@ -8,7 +8,7 @@
 
 #include <type_traits>
 #include <functional>
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
 #include <Spacy/Util/Mixins/Get.hh>
 #include <Spacy/vectorSpace.hh>

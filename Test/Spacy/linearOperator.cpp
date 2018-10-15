@@ -1,134 +1,132 @@
 #include <Test/gtest.hh>
 
-#include <Spacy/vector.hh>
-#include <Spacy/linearOperator.hh>
-#include <Spacy/Spaces/realSpace.hh>
-#include <Spacy/Util/cast.hh>
-#include <Test/mockSetup.hh>
 #include <Test/Mock/linearOperator.hh>
 #include <Test/Mock/linearSolver.hh>
+#include <Test/mockSetup.hh>
+#include <Spacy/Spaces/RealSpace.h>
+#include <Spacy/Util/cast.hh>
+#include <Spacy/linearOperator.hh>
+#include <Spacy/vector.hh>
 
 using namespace Spacy;
 
 namespace
 {
-  void test(const LinearOperator& f, double value)
-  {
-    EXPECT_DOUBLE_EQ( toDouble(f(zero(Space::R))) , value );
-    EXPECT_EQ( 0u , f.domain().index() );
-    EXPECT_EQ( 0u , f.range().index() );
+    void test( const LinearOperator& f, double value )
+    {
+        EXPECT_DOUBLE_EQ( toDouble( f( zero( Space::R ) ) ), value );
+        EXPECT_EQ( 0u, f.domain().index() );
+        EXPECT_EQ( 0u, f.range().index() );
 
-    auto L = f.solver();
-    auto expected = is<Mock::IndefiniteLinearSolver>(L);
-    EXPECT_TRUE(expected);
-  }
+        auto L = f.solver();
+        auto expected = is< Mock::IndefiniteLinearSolver >( L );
+        EXPECT_TRUE( expected );
+    }
 }
 
 #ifndef NDEBUG
-TEST(LinearOperator,Assert)
+TEST( LinearOperator, Assert )
 {
-  auto X = createMockBanachSpace();
-  LinearOperator f;
-  EXPECT_DEATH( f( zero(X) ) , "" );
-  EXPECT_DEATH( f.solver() , "" );
-  EXPECT_DEATH( f.domain() , "" );
-  EXPECT_DEATH( f.range() , "" );
-  EXPECT_DEATH( -f , "" );
+    auto X = createMockBanachSpace();
+    LinearOperator f;
+    EXPECT_DEATH( f( zero( X ) ), "" );
+    EXPECT_DEATH( f.solver(), "" );
+    EXPECT_DEATH( f.domain(), "" );
+    EXPECT_DEATH( f.range(), "" );
+    EXPECT_DEATH( -f, "" );
 
-  LinearOperator g;
-  EXPECT_DEATH( f*=1 , "" );
-  EXPECT_DEATH( f+=g , "" );
-  EXPECT_DEATH( f-=g , "" );
-  EXPECT_DEATH( f(g) , "" );
+    LinearOperator g;
+    EXPECT_DEATH( f *= 1, "" );
+    EXPECT_DEATH( f += g, "" );
+    EXPECT_DEATH( f -= g, "" );
+    EXPECT_DEATH( f( g ), "" );
 
-  f = Mock::LinearOperator(1);
-  EXPECT_DEATH( f+=g , "" );
-  EXPECT_DEATH( f-=g , "" );
-  EXPECT_DEATH( f(g) , "" );
+    f = Mock::LinearOperator( 1 );
+    EXPECT_DEATH( f += g, "" );
+    EXPECT_DEATH( f -= g, "" );
+    EXPECT_DEATH( f( g ), "" );
 
-  EXPECT_DEATH( g+=f , "" );
-  EXPECT_DEATH( g-=f , "" );
-  EXPECT_DEATH( g(f) , "" );
+    EXPECT_DEATH( g += f, "" );
+    EXPECT_DEATH( g -= f, "" );
+    EXPECT_DEATH( g( f ), "" );
 }
 #endif
 
-TEST(LinearOperator,IsEmpty)
+TEST( LinearOperator, IsEmpty )
 {
-  LinearOperator f;
-  LinearOperator g = Mock::LinearOperator(1);
+    LinearOperator f;
+    LinearOperator g = Mock::LinearOperator( 1 );
 
-  bool f_is_empty = !f;
-  bool g_is_empty = !g;
-  ASSERT_TRUE( f_is_empty );
-  ASSERT_FALSE( g_is_empty );
+    bool f_is_empty = !f;
+    bool g_is_empty = !g;
+    ASSERT_TRUE( f_is_empty );
+    ASSERT_FALSE( g_is_empty );
 }
 
-TEST(LinearOperator,Cast)
+TEST( LinearOperator, Cast )
 {
-  LinearOperator f = Mock::LinearOperator();
+    LinearOperator f = Mock::LinearOperator();
 
-  ASSERT_TRUE( f.target<Mock::LinearOperator>() != nullptr );
+    ASSERT_TRUE( f.target< Mock::LinearOperator >() != nullptr );
 }
 
-TEST(LinearOperator,StoreRValue)
+TEST( LinearOperator, StoreRValue )
 {
-  LinearOperator f = Mock::LinearOperator(1);
-  test(f,1);
+    LinearOperator f = Mock::LinearOperator( 1 );
+    test( f, 1 );
 }
 
-TEST(LinearOperator,Copy)
+TEST( LinearOperator, Copy )
 {
-  LinearOperator g = Mock::LinearOperator(1);
-  LinearOperator f = g;
-  test(f,1);
+    LinearOperator g = Mock::LinearOperator( 1 );
+    LinearOperator f = g;
+    test( f, 1 );
 }
 
-TEST(LinearOperator,StoreCopy)
+TEST( LinearOperator, StoreCopy )
 {
-  auto g = Mock::LinearOperator(1);
-  LinearOperator f = g;
-  test(f,1);
+    auto g = Mock::LinearOperator( 1 );
+    LinearOperator f = g;
+    test( f, 1 );
 }
 
-TEST(LinearOperator,Add)
+TEST( LinearOperator, Add )
 {
-  LinearOperator f = Mock::LinearOperator(1), g = Mock::LinearOperator(2);
-  f += g;
-  test(f,3);
+    LinearOperator f = Mock::LinearOperator( 1 ), g = Mock::LinearOperator( 2 );
+    f += g;
+    test( f, 3 );
 }
 
-TEST(LinearOperator,Subtract)
+TEST( LinearOperator, Subtract )
 {
-  LinearOperator f = Mock::LinearOperator(1), g = Mock::LinearOperator(2);
-  f -= g;
-  test(f,-1);
+    LinearOperator f = Mock::LinearOperator( 1 ), g = Mock::LinearOperator( 2 );
+    f -= g;
+    test( f, -1 );
 }
 
-TEST(LinearOperator,Multiply)
+TEST( LinearOperator, Multiply )
 {
-  LinearOperator f = Mock::LinearOperator(1);
-  f *= 2;
-  test(f,2);
+    LinearOperator f = Mock::LinearOperator( 1 );
+    f *= 2;
+    test( f, 2 );
 }
 
-TEST(LinearOperator,Negate)
+TEST( LinearOperator, Negate )
 {
-  LinearOperator g = Mock::LinearOperator(1);
-  auto f = -g;
-  test(f,-1);
+    LinearOperator g = Mock::LinearOperator( 1 );
+    auto f = -g;
+    test( f, -1 );
 }
 
-TEST(LinearOperator,Move)
+TEST( LinearOperator, Move )
 {
-  LinearOperator g = Mock::LinearOperator(1);
-  bool is_empty_before_move = !g;
-  LinearOperator f = std::move(g);
-  bool is_empty_after_move = !g;
+    LinearOperator g = Mock::LinearOperator( 1 );
+    bool is_empty_before_move = !g;
+    LinearOperator f = std::move( g );
+    bool is_empty_after_move = !g;
 
-  EXPECT_FALSE(is_empty_before_move);
-  EXPECT_TRUE(is_empty_after_move);
+    EXPECT_FALSE( is_empty_before_move );
+    EXPECT_TRUE( is_empty_after_move );
 
-  test(f,1);
+    test( f, 1 );
 }
-
-

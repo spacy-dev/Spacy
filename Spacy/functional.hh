@@ -6,7 +6,7 @@
 #include <Spacy/Detail/functional_table.h>
 #include <Spacy/Util/storage.h>
 
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 namespace Spacy

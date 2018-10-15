@@ -17,26 +17,25 @@ namespace Spacy
     namespace Scalar
     {
         /// Linear operator for scalar problems.
-        struct LinearOperator :
-                VectorBase ,
-                OperatorBase ,
-                Mixin::Get<Real> ,
-                AddArithmeticOperators<LinearOperator>
+        struct LinearOperator : VectorBase,
+                                OperatorBase,
+                                Mixin::Get< Real >,
+                                AddArithmeticOperators< LinearOperator >
         {
             /// Create linear operator.
-            LinearOperator(const VectorSpace& space, Real value);
+            LinearOperator( const VectorSpace& space, Real value );
 
             /// Apply linear operator.
-            ::Spacy::Vector operator()(const ::Spacy::Vector& dx) const;
+            ::Spacy::Vector operator()( const ::Spacy::Vector& dx ) const;
 
             /// Apply as dual space element.
-            Real operator()(const LinearOperator& dx) const;
+            Real operator()( const LinearOperator& dx ) const;
 
             /// Get additive inverse.
             LinearOperator operator-() const;
 
             /// Get solver for the computation of the inverse of this linear operator.
-            std::function< ::Spacy::Vector(const ::Spacy::Vector&) > solver() const;
+            std::function<::Spacy::Vector( const ::Spacy::Vector& ) > solver() const;
         };
     }
     /** @} */

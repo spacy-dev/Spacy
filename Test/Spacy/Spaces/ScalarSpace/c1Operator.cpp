@@ -1,70 +1,70 @@
 #include <Test/gtest.hh>
 
+#include <Spacy/Spaces/ScalarSpace/C1Operator.h>
+#include <Spacy/Spaces/ScalarSpace/LinearOperator.h>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/vector.hh>
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
-#include <Spacy/Spaces/ScalarSpace/c1Operator.hh>
-#include <Spacy/Spaces/ScalarSpace/LinearOperator.hh>
 
 #include <Test/mockSetup.hh>
 
 using namespace Spacy;
 
-auto linearFunctionValue(double x)
+auto linearFunctionValue( double x )
 {
-  return 2*x;
+    return 2 * x;
 }
 
-auto linearFunctionDerivative(double)
+auto linearFunctionDerivative( double )
 {
-  return 2;
+    return 2;
 }
 
-auto quadraticFunctionValue(double x)
+auto quadraticFunctionValue( double x )
 {
-  return x*x-1;
+    return x * x - 1;
 }
 
-auto quadraticFunctionDerivative(double x)
+auto quadraticFunctionDerivative( double x )
 {
-  return 2*x;
+    return 2 * x;
 }
 
-TEST(ScalarAdapter_C1Operator,LinearExample_Apply)
+TEST( ScalarAdapter_C1Operator, LinearExample_Apply )
 {
-  auto A = Scalar::C1Operator(&linearFunctionValue,&linearFunctionDerivative);
-  EXPECT_EQ( toDouble( A(Real(3)) ) , 6. );
+    auto A = Scalar::C1Operator( &linearFunctionValue, &linearFunctionDerivative );
+    EXPECT_EQ( toDouble( A( Real( 3 ) ) ), 6. );
 }
 
-TEST(ScalarAdapter_C1Operator,LinearExample_Derivative)
+TEST( ScalarAdapter_C1Operator, LinearExample_Derivative )
 {
-  auto A = Scalar::C1Operator(&linearFunctionValue,&linearFunctionDerivative);
-  EXPECT_EQ( toDouble( A.d1(Real(3),Real(2)) ) , 4. );
+    auto A = Scalar::C1Operator( &linearFunctionValue, &linearFunctionDerivative );
+    EXPECT_EQ( toDouble( A.d1( Real( 3 ), Real( 2 ) ) ), 4. );
 }
 
-TEST(ScalarAdapter_C1Operator,LinearExample_Linearization)
+TEST( ScalarAdapter_C1Operator, LinearExample_Linearization )
 {
-  auto A = Scalar::C1Operator(&linearFunctionValue,&linearFunctionDerivative);
-  auto dA = A.linearization(Real(3));
-  EXPECT_EQ( toDouble(dA(Real(2))) , 4. );
-  EXPECT_EQ( toDouble(dA.solver()(Real(3))) , 1.5 );
+    auto A = Scalar::C1Operator( &linearFunctionValue, &linearFunctionDerivative );
+    auto dA = A.linearization( Real( 3 ) );
+    EXPECT_EQ( toDouble( dA( Real( 2 ) ) ), 4. );
+    EXPECT_EQ( toDouble( dA.solver()( Real( 3 ) ) ), 1.5 );
 }
 
-TEST(ScalarAdapter_C1Operator,QuadraticExample_Apply)
+TEST( ScalarAdapter_C1Operator, QuadraticExample_Apply )
 {
-  auto A = Scalar::C1Operator(&quadraticFunctionValue,&quadraticFunctionDerivative);
-  EXPECT_EQ( toDouble( A(Real(3)) ) , 8. );
+    auto A = Scalar::C1Operator( &quadraticFunctionValue, &quadraticFunctionDerivative );
+    EXPECT_EQ( toDouble( A( Real( 3 ) ) ), 8. );
 }
 
-TEST(ScalarAdapter_C1Operator,QuadraticExample_Derivative)
+TEST( ScalarAdapter_C1Operator, QuadraticExample_Derivative )
 {
-  auto A = Scalar::C1Operator(&quadraticFunctionValue,&quadraticFunctionDerivative);
-  EXPECT_EQ( toDouble( A.d1(Real(3),Real(2)) ) , 12. );
+    auto A = Scalar::C1Operator( &quadraticFunctionValue, &quadraticFunctionDerivative );
+    EXPECT_EQ( toDouble( A.d1( Real( 3 ), Real( 2 ) ) ), 12. );
 }
 
-TEST(ScalarAdapter_C1Operator,QuadraticExample_Linearization)
+TEST( ScalarAdapter_C1Operator, QuadraticExample_Linearization )
 {
-  auto A = Scalar::C1Operator(&quadraticFunctionValue,&quadraticFunctionDerivative);
-  auto dA = A.linearization(Real(3));
-  EXPECT_EQ( toDouble(dA(Real(2))) , 12. );
-  EXPECT_EQ( toDouble(dA.solver()(Real(3))) , .5 );
+    auto A = Scalar::C1Operator( &quadraticFunctionValue, &quadraticFunctionDerivative );
+    auto dA = A.linearization( Real( 3 ) );
+    EXPECT_EQ( toDouble( dA( Real( 2 ) ) ), 12. );
+    EXPECT_EQ( toDouble( dA.solver()( Real( 3 ) ) ), .5 );
 }

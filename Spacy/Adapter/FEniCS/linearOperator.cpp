@@ -1,6 +1,6 @@
 #include "linearOperator.hh"
 
-#include <Spacy/Spaces/realSpace.hh>
+#include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>

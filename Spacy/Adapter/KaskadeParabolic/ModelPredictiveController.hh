@@ -2,7 +2,7 @@
 #include <Spacy/Algorithm/Newton/newton.hh>
 
 #include <Spacy/Adapter/kaskadeParabolic.hh>
-#include <Spacy/Spaces/realSpace.hh>
+#include <Spacy/Spaces/RealSpace.h>
 
 #include <Spacy/inducedScalarProduct.hh>
 

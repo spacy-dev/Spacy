@@ -5,8 +5,8 @@
 #include <Spacy/Algorithm/Newton/terminationCriteria.hh>
 
 // Spaces
+#include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Spaces/productSpace.hh>
-#include <Spacy/Spaces/realSpace.hh>
 
 // Util
 #include <Spacy/Util/cast.hh>

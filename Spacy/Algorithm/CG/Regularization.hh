@@ -6,7 +6,7 @@
 #include <Spacy/Algorithm/CG/Detail/Regularization_table.h>
 #include <Spacy/Util/storage.h>
 
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/vector.hh>
 namespace Spacy
 {

@@ -1,15 +1,14 @@
 #pragma once
 
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Mixins/Eps.hh>
 #include <Spacy/Util/Mixins/Get.hh>
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
 
 namespace Spacy
 {
-    /// A simple model of a damping factor \f$\nu\f$ that is computed up to a prescribed accuracy \f$\varepsilon\f$.
-    class DampingFactor :
-            public Mixin::Get<Real>,
-            public Mixin::Eps
+    /// A simple model of a damping factor \f$\nu\f$ that is computed up to a prescribed accuracy
+    /// \f$\varepsilon\f$.
+    class DampingFactor : public Mixin::Get< Real >, public Mixin::Eps
     {
     public:
         /**
@@ -17,7 +16,7 @@ namespace Spacy
          * @param nu damping factor \f$\nu\f$
          * @param eps accuracy \f$\varepsilon\f$.
          */
-        explicit DampingFactor(Real nu, Real eps = 1e-3) noexcept;
+        explicit DampingFactor( Real nu, Real eps = 1e-3 ) noexcept;
 
         /**
          * @brief Set damping factor \f$\nu\f$.
@@ -26,10 +25,10 @@ namespace Spacy
          *
          * @param nu damping factor
          */
-        DampingFactor& operator=(Real nu) noexcept;
+        DampingFactor& operator=( Real nu ) noexcept;
 
         /// In-place multiplication
-        DampingFactor& operator*=(Real value);
+        DampingFactor& operator*=( Real value );
 
         /// Invert damping factor
         DampingFactor operator-() const noexcept;

@@ -2,11 +2,11 @@
 
 //#include "Spacy/norm.hh"
 //#include "Spacy/scalarProduct.hh"
-//#include "Spacy/Spaces/realSpace.hh"
+//#include "Spacy/Spaces/RealSpace.h"
 //#include "Spacy/Spaces/productSpace.hh"
 //#include "Spacy/Util/cast.hh"
 
-//namespace
+// namespace
 //{
 //  double to_double(const Spacy::Vector& x)
 //  {
@@ -19,7 +19,7 @@
 //  }
 //}
 
-//TEST(ProductSpaceTest,PurePrimalElementTest)
+// TEST(ProductSpaceTest,PurePrimalElementTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -31,7 +31,7 @@
 //  EXPECT_DOUBLE_EQ( to_double(x_.variable(1)) , 0. );
 //}
 
-//TEST(ProductSpaceTest,PureDualElementTest)
+// TEST(ProductSpaceTest,PureDualElementTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -43,7 +43,7 @@
 //  EXPECT_DOUBLE_EQ( to_double(x_.variable(1)) , 0. );
 //}
 
-//TEST(ProductSpaceTest,MixedElementTest)
+// TEST(ProductSpaceTest,MixedElementTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -55,7 +55,7 @@
 //  EXPECT_DOUBLE_EQ( to_double(x_.variable(1)) , 0. );
 //}
 
-//TEST(ProductSpaceTest,PurePrimalElementSumTest)
+// TEST(ProductSpaceTest,PurePrimalElementSumTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -140,7 +140,7 @@
 //  EXPECT_DOUBLE_EQ( to_double(cast_ref<ProductSpace::Vector>(x).variable(1)) , 8. );
 //}
 
-//TEST(ProductSpaceTest,PureDualElementSumTest)
+// TEST(ProductSpaceTest,PureDualElementSumTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -221,7 +221,7 @@
 //  EXPECT_DOUBLE_EQ( to_double(cast_ref<ProductSpace::Vector>(x).variable(1)) , 8. );
 //}
 
-//TEST(ProductSpaceTest,MixedElementSumTest)
+// TEST(ProductSpaceTest,MixedElementSumTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -300,7 +300,7 @@
 //  EXPECT_DOUBLE_EQ( to_double(cast_ref<ProductSpace::Vector>(x).variable(1)) , 8. );
 //}
 
-//TEST(ProductSpaceTest,PurePrimalElementProductTest)
+// TEST(ProductSpaceTest,PurePrimalElementProductTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -322,7 +322,7 @@
 //  EXPECT_DOUBLE_EQ( toDouble(dual(x)*dual(y)) , 0.);
 //}
 
-//TEST(ProductSpaceTest,PureDualElementProductTest)
+// TEST(ProductSpaceTest,PureDualElementProductTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -344,7 +344,7 @@
 //  EXPECT_DOUBLE_EQ( toDouble(dual(x)*dual(y)) , 4.);
 //}
 
-//TEST(ProductSpaceTest,MixedElementProductTest)
+// TEST(ProductSpaceTest,MixedElementProductTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -366,7 +366,7 @@
 //  EXPECT_DOUBLE_EQ( toDouble(dual(x)*dual(y)) , 3.);
 //}
 
-//TEST(ProductSpaceTest,MixedElementArithmeticProductTest)
+// TEST(ProductSpaceTest,MixedElementArithmeticProductTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -407,7 +407,7 @@
 //  EXPECT_DOUBLE_EQ( to_double(cast_ref<ProductSpace::Vector>(z).variable(1)) , 9. );
 //}
 
-//TEST(ProductSpaceTest,ScalarProductTest)
+// TEST(ProductSpaceTest,ScalarProductTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -423,7 +423,7 @@
 //  EXPECT_DOUBLE_EQ( toDouble(x*y), toDouble(R2.scalarProduct()(x,y)) );
 //}
 
-//TEST(ProductSpaceTest,NormTest)
+// TEST(ProductSpaceTest,NormTest)
 //{
 //  using namespace Spacy;
 //  auto R = std::make_shared<VectorSpace>( ScalarSpace::makeHilbertSpace() );
@@ -438,4 +438,3 @@
 //  EXPECT_DOUBLE_EQ( toDouble(R2.norm()(x)) , 3. );
 //  EXPECT_DOUBLE_EQ( toDouble(R2.norm()(y)) , 5. );
 //}
-

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 
 namespace Spacy
 {
@@ -10,10 +10,10 @@ namespace Spacy
         class Cubic
         {
         public:
-            Cubic(Real a, Real b, Real c, Real d) noexcept;
+            Cubic( Real a, Real b, Real c, Real d ) noexcept;
 
             /// Compute \f$q(t) = a + bt + ct^2 + dt^3 \f$.
-            Real operator()(Real t) const noexcept;
+            Real operator()( Real t ) const noexcept;
 
         private:
             Real a_, b_, c_, d_;
