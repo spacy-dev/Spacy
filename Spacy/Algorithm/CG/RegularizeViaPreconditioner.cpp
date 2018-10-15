@@ -52,8 +52,8 @@ namespace Spacy
                                                                       double minIncrease,
                                                                       double maxIncrease,
                                                                       double eps )
-            : Mixin::Eps( eps ), minIncrease_( minIncrease ), maxIncrease_( maxIncrease ),
-              R_( std::move( R ) ), theta_( theta_sugg )
+            : Mixin::Eps( eps ), theta_( theta_sugg ), minIncrease_( minIncrease ),
+              maxIncrease_( maxIncrease ), R_( std::move( R ) )
         {
             LOG( log_tag_callable, "Suggested regularization parameter: ", theta_sugg );
         }
