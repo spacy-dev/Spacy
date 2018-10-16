@@ -26,39 +26,6 @@ namespace Spacy
             assert( components_.size() == spaces.size() );
         }
 
-        //        Vector::Vector(const Vector& other)
-        //            : VectorBase(other.space()),
-        //              components_(other.components_)
-        //        {
-        //            for(auto i=0u; i<numberOfVariables(); ++i)
-        //            {
-        //                assert(other.components_[i]);
-        //                assert(components_[i]);
-        //            }
-        //            std::cout << "Size1: " << components_.size() << std::endl;
-        //            std::cout << "Size1_other: " << other.components_.size() << std::endl;
-        //            id_ = vector_id_counter++;
-        //            std::cout << "Id: " << id_ << ", space id: " << space().index() <<  std::endl;
-        //            std::cout << "copy from " << other.id_ << ", space id: " <<
-        //            other.space().index() << std::endl;
-        //            assert(id_ != other.id_);
-        //        }
-
-        //        Vector::Vector(Vector&& other)
-        //            : VectorBase(other.space()),
-        //              components_(std::move(other.components_))
-        //        {
-        //            assert(other.components_.empty());
-        //            for(auto i=0u; i<numberOfVariables(); ++i)
-        //                assert(components_[i]);
-        //            std::cout << "Size2: " << components_.size() << std::endl;
-        //            std::cout << "Size2_other: " << other.components_.size() << std::endl;
-        //            id_ = vector_id_counter++;
-        //            std::cout << "Id: " << id_ << ", space id: " << space().index() <<  std::endl;
-        //            std::cout << "move from " << other.id_ << ", space id: " <<
-        //            other.space().index() << std::endl;
-        //        }
-
         Vector& Vector::operator+=( const Vector& y )
         {
             checkSpaceCompatibility( this->space(), y.space() );
