@@ -3,10 +3,9 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <iostream>
 #include <limits>
 #include <numeric>
-
-#include <iostream>
 
 namespace Spacy
 {
@@ -30,7 +29,8 @@ namespace Spacy
                        ( scaledGamma2.size() > lookAhead_ && squaredRelativeError() < tol * tol );
             }
 
-            void StrakosTichyEnergyError::update( double alpha, double qAq, double, double rPINVr )
+            void StrakosTichyEnergyError::update( double alpha, double qAq, double, double rPINVr,
+                                                  const Vector& )
             {
                 scaledGamma2.push_back( alpha * rPINVr );
                 energyNorm2 += alpha * rPINVr;
