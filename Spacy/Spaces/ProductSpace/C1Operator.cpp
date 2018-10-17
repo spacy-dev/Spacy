@@ -1,9 +1,10 @@
-#include "C1Operator.hh"
+#include "C1Operator.h"
 
-#include <Spacy/Spaces/ProductSpace/vector.hh>
-#include <Spacy/Spaces/ProductSpace/vectorSpace.hh>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/zeroVectorCreator.hh>
+
+#include "Vector.h"
+#include "VectorSpace.h"
 
 #include <cassert>
 #include <numeric>

@@ -1,8 +1,8 @@
 #include <Test/gtest.hh>
 
 #include <Test/mockSetup.hh>
-#include <Spacy/Spaces/ProductSpace/Operator.hh>
-#include <Spacy/Spaces/ProductSpace/vector.hh>
+#include <Spacy/Spaces/ProductSpace/Operator.h>
+#include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Spaces/ScalarSpace/Operator.h>
 #include <Spacy/Util/cast.hh>

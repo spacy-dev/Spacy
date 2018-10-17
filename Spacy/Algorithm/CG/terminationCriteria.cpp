@@ -1,5 +1,7 @@
 #include "terminationCriteria.hh"
 
+#include <Spacy/Spaces/ProductSpace.h>
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>

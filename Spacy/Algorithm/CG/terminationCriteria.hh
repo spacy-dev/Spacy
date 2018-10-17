@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Spacy/Spaces/productSpace.hh>
 #include <Spacy/Util/Mixins/Eps.hh>
 #include <Spacy/Util/Mixins/accuracy.hh>
 #include <Spacy/Util/Mixins/maxSteps.hh>

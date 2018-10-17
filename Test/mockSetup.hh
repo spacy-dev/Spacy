@@ -6,8 +6,8 @@
 #include <vector>
 #include <tuple>
 
+#include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/Spaces/productSpace.hh>
 #include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/vector.hh>

@@ -3,7 +3,7 @@
 //#include "Spacy/norm.hh"
 //#include "Spacy/scalarProduct.hh"
 //#include "Spacy/Spaces/RealSpace.h"
-//#include "Spacy/Spaces/productSpace.hh"
+//#include "Spacy/Spaces/ProductSpace.h"
 //#include "Spacy/Util/cast.hh"
 
 // namespace

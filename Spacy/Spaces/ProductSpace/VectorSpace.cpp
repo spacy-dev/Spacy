@@ -1,12 +1,12 @@
-#include "vectorSpace.hh"
+#include "VectorSpace.h"
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 
-#include "scalarProduct.hh"
-#include "vector.hh"
+#include "ScalarProduct.h"
+#include "Vector.h"
 
 #include <algorithm>
 #include <cassert>

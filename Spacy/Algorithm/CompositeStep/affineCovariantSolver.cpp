@@ -12,7 +12,7 @@
 #include <iostream>
 #include <utility>
 #include <Spacy/Algorithm/CG/terminationCriteria.hh>
-#include <Spacy/Spaces/ProductSpace/vector.hh>
+#include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Exceptions/regularityTestFailedException.hh>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/Util/logger.hh>

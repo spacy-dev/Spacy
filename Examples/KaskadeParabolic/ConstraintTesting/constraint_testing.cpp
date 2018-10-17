@@ -9,8 +9,8 @@
 
 #include <Spacy/Adapter/kaskadeParabolic.hh>
 #include <Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh>
+#include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Spaces/productSpace.hh>
 
 #include <fem/forEach.hh>
 #include <fem/gridmanager.hh>

@@ -1,8 +1,8 @@
 #include "util.hh"
 
-#include <Spacy/Spaces/productSpace.hh>
 #include <Spacy/Adapter/Eigen/vector.hh>
 #include <Spacy/Adapter/Generic/vector.hh>
+#include <Spacy/Spaces/ProductSpace.h>
 
 namespace Spacy
 {
@@ -13,81 +13,92 @@ namespace Spacy
      * @brief %Vector for %Rn, based on the %Eigen library.
      */
         ///  Copy ::Spacy::Vector to flat coefficient vector of %Eigen .
-        void copyToFlatVector(const ::Spacy::Vector& x, Eigen::VectorXd& y, unsigned& currentIndex)
+        void copyToFlatVector( const ::Spacy::Vector& x, Eigen::VectorXd& y,
+                               unsigned& currentIndex )
         {
-            if( is<Vector>(x) )
+            if ( is< Vector >( x ) )
             {
-                y.block(currentIndex,0,cast_ref<Vector>(x).get().size(),1)=cast_ref<Vector>(x).get();
-                currentIndex += cast_ref<Vector>(x).get().size();
+                y.block( currentIndex, 0, cast_ref< Vector >( x ).get().size(), 1 ) =
+                    cast_ref< Vector >( x ).get();
+                currentIndex += cast_ref< Vector >( x ).get().size();
                 return;
             }
 
-            if(is<::Spacy::ProductSpace::Vector>(x))
+            if ( is<::Spacy::ProductSpace::Vector >( x ) )
             {
-                for(unsigned int i=0; i < cast_ref<::Spacy::ProductSpace::Vector>(x).numberOfVariables(); ++i)
+                for ( unsigned int i = 0;
+                      i < cast_ref<::Spacy::ProductSpace::Vector >( x ).numberOfVariables(); ++i )
                 {
-                    copyToFlatVector(cast_ref< ::Spacy::ProductSpace::Vector>(x).component(i),y,currentIndex);
+                    copyToFlatVector( cast_ref<::Spacy::ProductSpace::Vector >( x ).component( i ),
+                                      y, currentIndex );
                 }
                 return;
             }
         }
 
-        void copy(const ::Spacy::Vector& x, Eigen::VectorXd& y)
+        void copy( const ::Spacy::Vector& x, Eigen::VectorXd& y )
         {
-            unsigned index=0;
-            y.resize(getSize(x));
-            copyToFlatVector(x,y,index);
+            unsigned index = 0;
+            y.resize( getSize( x ) );
+            copyToFlatVector( x, y, index );
         }
-
 
         ///  Copy flat coefficient vector of %Eigen to ::Spacy::Vector.
-        void copyFromFlatVector(const Eigen::VectorXd& x,::Spacy::Vector& y, unsigned& currentIndex)
+        void copyFromFlatVector( const Eigen::VectorXd& x, ::Spacy::Vector& y,
+                                 unsigned& currentIndex )
         {
-            if( is<Vector>(y) )
+            if ( is< Vector >( y ) )
             {
-                cast_ref<Vector>(y).get()=x.block(currentIndex,0,cast_ref<Vector>(y).get().size(),1);
-                currentIndex += cast_ref<Vector>(y).get().size();
+                cast_ref< Vector >( y ).get() =
+                    x.block( currentIndex, 0, cast_ref< Vector >( y ).get().size(), 1 );
+                currentIndex += cast_ref< Vector >( y ).get().size();
                 return;
             }
 
-            if( is<::Spacy::ProductSpace::Vector>(y))
+            if ( is<::Spacy::ProductSpace::Vector >( y ) )
             {
-                for(unsigned int i=0; i < cast_ref<::Spacy::ProductSpace::Vector>(y).numberOfVariables(); ++i)
+                for ( unsigned int i = 0;
+                      i < cast_ref<::Spacy::ProductSpace::Vector >( y ).numberOfVariables(); ++i )
                 {
-                    copyFromFlatVector(x,cast_ref<::Spacy::ProductSpace::Vector>(y).component(i),currentIndex);
+                    copyFromFlatVector(
+                        x, cast_ref<::Spacy::ProductSpace::Vector >( y ).component( i ),
+                        currentIndex );
                 }
                 return;
             }
         }
 
-        void copy(const Eigen::VectorXd& x,::Spacy::Vector& y)
+        void copy( const Eigen::VectorXd& x, ::Spacy::Vector& y )
         {
-            unsigned index=0;
-            copyFromFlatVector(x,y,index);
+            unsigned index = 0;
+            copyFromFlatVector( x, y, index );
         }
 
-        void getSizeOfFlatVector(const ::Spacy::Vector& y, unsigned& currentIndex)
+        void getSizeOfFlatVector( const ::Spacy::Vector& y, unsigned& currentIndex )
         {
-            if( is<Vector>(y) )
+            if ( is< Vector >( y ) )
             {
-                currentIndex += cast_ref<Vector>(y).get().size();
+                currentIndex += cast_ref< Vector >( y ).get().size();
                 return;
             }
 
-            if( is<::Spacy::ProductSpace::Vector>(y))
+            if ( is<::Spacy::ProductSpace::Vector >( y ) )
             {
-                for(unsigned int i=0; i < cast_ref<::Spacy::ProductSpace::Vector>(y).numberOfVariables(); ++i)
+                for ( unsigned int i = 0;
+                      i < cast_ref<::Spacy::ProductSpace::Vector >( y ).numberOfVariables(); ++i )
                 {
-                    getSizeOfFlatVector(cast_ref<::Spacy::ProductSpace::Vector>(y).component(i),currentIndex);
+                    getSizeOfFlatVector(
+                        cast_ref<::Spacy::ProductSpace::Vector >( y ).component( i ),
+                        currentIndex );
                 }
                 return;
             }
         }
 
-        unsigned getSize(const ::Spacy::Vector& y)
+        unsigned getSize( const ::Spacy::Vector& y )
         {
-            unsigned index=0;
-            getSizeOfFlatVector(y,index);
+            unsigned index = 0;
+            getSizeOfFlatVector( y, index );
             return index;
         }
     }
