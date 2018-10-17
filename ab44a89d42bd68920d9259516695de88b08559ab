@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "37dad954_7e759794",
+        "filename": "Spacy/Adapter/KaskadeParabolic/Constraints/quantityOfInterest.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-17T18:36:36Z",
+      "side": 1,
+      "message": "(-2) Somethings wrong here. Whatever the quantity of interest may be (the name is too generic), it is not used. This is just a sum of squared norms.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 24
+      },
+      "revId": "ab44a89d42bd68920d9259516695de88b08559ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbed5849_4a72eab1",
+        "filename": "Spacy/Adapter/KaskadeParabolic/c2Functional.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-10-17T18:36:36Z",
+      "side": 1,
+      "message": "OMG :D\n\nIts a bit long, maybe you can factor out some parts of this?",
+      "revId": "ab44a89d42bd68920d9259516695de88b08559ab",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5ba69bc6_242b0808",
         "filename": "Spacy/Adapter/KaskadeParabolic/c2Functional.hh",
         "patchSetId": 1
