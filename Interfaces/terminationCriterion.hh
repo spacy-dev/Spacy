@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Spacy/vector.hh>
+
 namespace Spacy
 {
     namespace CG
@@ -12,20 +14,19 @@ namespace Spacy
 
             void clear();
 
-            void update(double alpha, double qAq, double qPq, double rPINVr);
+            void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& x );
 
             bool vanishingStep() const;
 
             bool minimalDecreaseAchieved() const;
 
-            void set_eps(double eps);
+            void set_eps( double eps );
 
-            void setAbsoluteAccuracy(double accuracy);
+            void setAbsoluteAccuracy( double accuracy );
 
-            void setMinimalAccuracy(double accuracy);
+            void setMinimalAccuracy( double accuracy );
 
-            void setRelativeAccuracy(double accuracy);
+            void setRelativeAccuracy( double accuracy );
         };
     }
 }
-

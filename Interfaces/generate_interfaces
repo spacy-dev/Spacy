@@ -6,25 +6,25 @@ BUFFER_SIZE=16
 INCLUDE_DIR=/home/lars/Projects/Spacy
 
 COMMAND=/home/lars/Libraries/build-llvm2/bin/clang-type-erase
-COMMON_ARGS="-detail-dir=$DETAIL_DIR -include-dir=$INCLUDE_DIR -util-dir=$UTIL_DIR -util-include-dir=<$UTIL_DIR/type_erasure_util.h> -storage-include-dir=<$UTIL_DIR/storage.h>"
+COMMON_ARGS="-detail-dir=$DETAIL_DIR -include-dir=$INCLUDE_DIR -util-dir=$UTIL_DIR -util-include-dir=<$UTIL_DIR/type_erasure_util.h>"
 SMALL_SBO_ARGS="-sbo -buffer-size=$BUFFER_SIZE"
 
 function generate_interface {
 echo "generate $1"
-$COMMAND $COMMON_ARGS $2 -target-dir=Spacy $1 -std=c++14
+$COMMAND $COMMON_ARGS $3 -target-dir=$2 $1 -std=c++14 -I..
 }
 
 function generate_interfaces {
-generate_interface zeroVectorCreator.hh ""
-generate_interface          operator.hh "$SMALL_SBO_ARGS"
-generate_interface    linearOperator.hh "$SMALL_SBO_ARGS"
-generate_interface        c1Operator.hh "$SMALL_SBO_ARGS"
-generate_interface   dynamicOperator.hh "$SMALL_SBO_ARGS"
-generate_interface        functional.hh "$SMALL_SBO_ARGS"
-generate_interface      c1Functional.hh "$SMALL_SBO_ARGS"
-generate_interface      c2Functional.hh "$SMALL_SBO_ARGS"
-generate_interface            vector.hh "$SMALL_SBO_ARGS"
-generate_interface linearSolver.hh ""
+generate_interface zeroVectorCreator.hh Spacy ""
+generate_interface          operator.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface    linearOperator.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface        c1Operator.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface   dynamicOperator.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface        functional.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface      c1Functional.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface      c2Functional.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface            vector.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface linearSolver.hh Spacy ""
 }
 
 #mkdir -p $INCLUDE_DIR/Spacy/$DETAIL_DIR
@@ -34,11 +34,10 @@ generate_interfaces
 echo "for CG: generate terminationCriterion.hh"
 CG_DIR=Spacy/Algorithm/CG
 mkdir -p $INCLUDE_DIR/$CG_DIR/$DETAIL_DIR
-$COMMAND $COMMON_ARGS -target-dir=$CG_DIR terminationCriterion.hh -std=c++14
-$COMMAND $COMMON_ARGS -target-dir=$CG_DIR Regularization.hh -std=c++14
+generate_interface terminationCriterion.hh $CG_DIR ""
+generate_interface Regularization.hh $CG_DIR ""
 
 # generate interface for printer of logger
 echo "for logger: generate printer.hh"
 mkdir -p $INCLUDE_DIR/$UTIL_DIR/$DETAIL_DIR
-$COMMAND $COMMON_ARGS -target-dir=$UTIL_DIR printer.hh -std=c++14
-
+generate_interface printer.hh $UTIL_DIR ""

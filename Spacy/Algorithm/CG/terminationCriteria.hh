@@ -1,18 +1,15 @@
 #pragma once
 
-#include <vector>
-
+#include <Spacy/Spaces/productSpace.hh>
 #include <Spacy/Util/Mixins/Eps.hh>
 #include <Spacy/Util/Mixins/accuracy.hh>
 #include <Spacy/Util/Mixins/maxSteps.hh>
 #include <Spacy/Util/Mixins/verbosity.hh>
-
-// added for extra step termination
-#include <iostream>
-#include <limits>
-#include <string>
-#include <Spacy/Spaces/productSpace.hh>
 #include <Spacy/vector.hh>
+
+#include <string>
+#include <vector>
+
 namespace Spacy
 {
     /** @addtogroup CGGroup  @{ */
@@ -52,7 +49,7 @@ namespace Spacy
                  * the conjugate search direction \f$q\f$ (here: unused)
                  * @param rPINVr squared \f$P^{-1}\f$-norm of the residual
                  */
-                void update( double alpha, double qAq, double qPq, double rPINVr );
+                void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& );
 
                 /**
                  * \brief check if the energy norm of the current step \f$\|q\|_A=\sqrt(qAq)\f$ is

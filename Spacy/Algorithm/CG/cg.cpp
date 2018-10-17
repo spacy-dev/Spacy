@@ -101,7 +101,7 @@ namespace Spacy
             for ( unsigned step = 1; true; step++ )
             {
                 // if( getVerbosityLevel() > 1 ) std::cout << "Iteration: " << step << std::endl;
-                auto Aq = A_( q );
+                const auto Aq = A_( q );
                 Real qAq = Aq( q );
 
                 // in the case of arbitrary Regularization, we have to compute Rq
@@ -114,18 +114,9 @@ namespace Spacy
 
                 regularization_.apply( qAq, qRq );
 
-                auto alpha = sigma / qAq;
+                const auto alpha = sigma / qAq;
 
-                if ( is< CG::Termination::AdaptiveRelativeEnergyError >( terminate_ ) )
-                {
-                    auto& t =
-                        cast_ref< CG::Termination::AdaptiveRelativeEnergyError >( terminate_ );
-                    t.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ), x );
-                }
-                else
-                {
-                    terminate_.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ) );
-                }
+                terminate_.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ), x );
                 //  don't trust small numbers
                 if ( vanishingStep( step ) )
                 {
@@ -161,8 +152,8 @@ namespace Spacy
                 Qr = Q( r );
 
                 // determine new search direction
-                auto sigmaNew = abs( r( Qr ) ); // sigma = <Qr,r>
-                auto beta = sigmaNew / sigma;
+                const auto sigmaNew = abs( r( Qr ) ); // sigma = <Qr,r>
+                const auto beta = sigmaNew / sigma;
                 sigma = sigmaNew;
 
                 q *= get( beta );

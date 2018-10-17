@@ -3,8 +3,12 @@
 
 #pragma once
 
-#include <Spacy/Algorithm/CG/Detail/terminationCriterion_table.h>
-#include <Spacy/Util/storage.h>
+#include <Spacy/Util/SmartPointerStorage.h>
+
+#include <memory>
+#include <type_traits>
+
+#include <Spacy/vector.hh>
 
 namespace Spacy
 {
@@ -13,57 +17,154 @@ namespace Spacy
         /// Type-erased termination criterion for conjugate gradient methods.
         class TerminationCriterion
         {
+            struct Interface
+            {
+                virtual ~Interface() = default;
+                virtual std::unique_ptr< Interface > clone() const = 0;
+                virtual bool operator()() const = 0;
+                virtual void clear() = 0;
+                virtual void update( double alpha, double qAq, double qPq, double rPINVr,
+                                     const Vector& x ) = 0;
+                virtual bool vanishingStep() const = 0;
+                virtual bool minimalDecreaseAchieved() const = 0;
+                virtual void set_eps( double eps ) = 0;
+                virtual void setAbsoluteAccuracy( double accuracy ) = 0;
+                virtual void setMinimalAccuracy( double accuracy ) = 0;
+                virtual void setRelativeAccuracy( double accuracy ) = 0;
+            };
+
+            template < class Impl >
+            struct Wrapper : Interface
+            {
+                template < class T >
+                Wrapper( T&& t ) : impl( std::forward< T >( t ) )
+                {
+                }
+
+                std::unique_ptr< Interface > clone() const
+                {
+                    return std::make_unique< Wrapper< Impl > >( impl );
+                }
+
+                bool operator()() const override
+                {
+                    return impl.operator()();
+                }
+
+                void clear() override
+                {
+                    impl.clear();
+                }
+
+                void update( double alpha, double qAq, double qPq, double rPINVr,
+                             const Vector& x ) override
+                {
+                    impl.update( std::move( alpha ), std::move( qAq ), std::move( qPq ),
+                                 std::move( rPINVr ), x );
+                }
+
+                bool vanishingStep() const override
+                {
+                    return impl.vanishingStep();
+                }
+
+                bool minimalDecreaseAchieved() const override
+                {
+                    return impl.minimalDecreaseAchieved();
+                }
+
+                void set_eps( double eps ) override
+                {
+                    impl.set_eps( std::move( eps ) );
+                }
+
+                void setAbsoluteAccuracy( double accuracy ) override
+                {
+                    impl.setAbsoluteAccuracy( std::move( accuracy ) );
+                }
+
+                void setMinimalAccuracy( double accuracy ) override
+                {
+                    impl.setMinimalAccuracy( std::move( accuracy ) );
+                }
+
+                void setRelativeAccuracy( double accuracy ) override
+                {
+                    impl.setRelativeAccuracy( std::move( accuracy ) );
+                }
+
+                Impl impl;
+            };
+
+            template < class Impl >
+            struct Wrapper< std::reference_wrapper< Impl > > : Wrapper< Impl& >
+            {
+                template < class T >
+                Wrapper( T&& t ) : Wrapper< Impl& >( std::forward< T >( t ) )
+                {
+                }
+            };
+
         public:
             TerminationCriterion() noexcept = default;
 
             template < class T,
-                       typename std::enable_if< TerminationCriterionDetail::Concept<
-                           TerminationCriterion, typename std::decay< T >::type >::value >::type* =
+                       typename std::enable_if< !std::is_same<
+                           typename std::decay< T >::type, TerminationCriterion >::value >::type* =
                            nullptr >
-            TerminationCriterion( T&& value )
-                : function_( {&TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::call,
-                              &TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::clear,
-                              &TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::update_double_double_double_double,
-                              &TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::vanishingStep,
-                              &TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::minimalDecreaseAchieved,
-                              &TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::set_eps_double,
-                              &TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::setAbsoluteAccuracy_double,
-                              &TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::setMinimalAccuracy_double,
-                              &TerminationCriterionDetail::execution_wrapper<
-                                  TerminationCriterion,
-                                  type_erasure_table_detail::remove_reference_wrapper_t<
-                                      std::decay_t< T > > >::setRelativeAccuracy_double} ),
-                  impl_( std::forward< T >( value ) )
+            TerminationCriterion( T&& value ) : impl_( std::forward< T >( value ) )
             {
             }
 
+            bool operator()() const
+            {
+                return impl_->operator()();
+            }
+
+            void clear()
+            {
+                impl_->clear();
+            }
+
+            void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& x )
+            {
+                impl_->update( std::move( alpha ), std::move( qAq ), std::move( qPq ),
+                               std::move( rPINVr ), x );
+            }
+
+            bool vanishingStep() const
+            {
+                return impl_->vanishingStep();
+            }
+
+            bool minimalDecreaseAchieved() const
+            {
+                return impl_->minimalDecreaseAchieved();
+            }
+
+            void set_eps( double eps )
+            {
+                impl_->set_eps( std::move( eps ) );
+            }
+
+            void setAbsoluteAccuracy( double accuracy )
+            {
+                impl_->setAbsoluteAccuracy( std::move( accuracy ) );
+            }
+
+            void setMinimalAccuracy( double accuracy )
+            {
+                impl_->setMinimalAccuracy( std::move( accuracy ) );
+            }
+
+            void setRelativeAccuracy( double accuracy )
+            {
+                impl_->setRelativeAccuracy( std::move( accuracy ) );
+            }
+
             template < class T,
-                       typename std::enable_if< TerminationCriterionDetail::Concept<
-                           TerminationCriterion, typename std::decay< T >::type >::value >::type* =
+                       typename std::enable_if< !std::is_same<
+                           typename std::decay< T >::type, TerminationCriterion >::value >::type* =
                            nullptr >
             TerminationCriterion& operator=( T&& value )
             {
@@ -73,62 +174,6 @@ namespace Spacy
             explicit operator bool() const noexcept
             {
                 return bool( impl_ );
-            }
-
-            bool operator()() const
-            {
-                assert( impl_ );
-                return function_.call( impl_ );
-            }
-
-            void clear()
-            {
-                assert( impl_ );
-                function_.clear( impl_ );
-            }
-
-            void update( double alpha, double qAq, double qPq, double rPINVr )
-            {
-                assert( impl_ );
-                function_.update_double_double_double_double( impl_, std::move( alpha ),
-                                                              std::move( qAq ), std::move( qPq ),
-                                                              std::move( rPINVr ) );
-            }
-
-            bool vanishingStep() const
-            {
-                assert( impl_ );
-                return function_.vanishingStep( impl_ );
-            }
-
-            bool minimalDecreaseAchieved() const
-            {
-                assert( impl_ );
-                return function_.minimalDecreaseAchieved( impl_ );
-            }
-
-            void set_eps( double eps )
-            {
-                assert( impl_ );
-                function_.set_eps_double( impl_, std::move( eps ) );
-            }
-
-            void setAbsoluteAccuracy( double accuracy )
-            {
-                assert( impl_ );
-                function_.setAbsoluteAccuracy_double( impl_, std::move( accuracy ) );
-            }
-
-            void setMinimalAccuracy( double accuracy )
-            {
-                assert( impl_ );
-                function_.setMinimalAccuracy_double( impl_, std::move( accuracy ) );
-            }
-
-            void setRelativeAccuracy( double accuracy )
-            {
-                assert( impl_ );
-                function_.setRelativeAccuracy_double( impl_, std::move( accuracy ) );
             }
 
             template < class T >
@@ -144,8 +189,7 @@ namespace Spacy
             }
 
         private:
-            TerminationCriterionDetail::Table< TerminationCriterion > function_;
-            clang::type_erasure::Storage impl_;
+            clang::type_erasure::polymorphic::Storage< Interface, Wrapper > impl_;
         };
     }
 }
