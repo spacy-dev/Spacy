@@ -160,11 +160,11 @@ namespace Spacy
                 q += Qr; //  q = Qr + beta*q
 
                 // if regularization is the preconditioner, we update it, as Pq is not accessible
-                if ( is< RegularizeViaPreconditioner >( regularization_ ) )
-                {
-                    Rq *= get( beta );
-                    Rq += r; // Pq = r + beta*Pq
-                }
+                if ( is< RegularizeViaCallableOperator >( regularization_ ) )
+                    continue;
+
+                Rq *= get( beta );
+                Rq += r; // Pq = r + beta*Pq
             }
 
             return x;
