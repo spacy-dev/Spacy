@@ -4,26 +4,26 @@
 
 #include "fem/assemble.hh"
 #include "fem/istlinterface.hh"
-#include "linalg/triplet.hh"
 #include "io/iobase.hh"
 #include "io/vtk.hh"
+#include "linalg/triplet.hh"
 
+#include <Spacy/Algorithm/CG/linearSolver.hh>
+#include <Spacy/Util/Base/FunctionalBase.h>
+#include <Spacy/Util/Mixins/Eps.h>
+#include <Spacy/Util/Mixins/NumberOfThreads.h>
 #include <Spacy/c1Operator.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
-#include <Spacy/Util/Mixins/Eps.h>
-#include <Spacy/Util/Mixins/NumberOfThreads.h>
-#include <Spacy/Util/Base/FunctionalBase.hh>
-#include <Spacy/Algorithm/CG/linearSolver.hh>
 
-#include "directSolver.hh"
-#include "vectorSpace.hh"
-#include "vector.hh"
-#include "linearBlockOperatorSpace.hh"
-#include "linearBlockOperator.hh"
 #include "directBlockPreconditioner.hh"
+#include "directSolver.hh"
 #include "gridManager.hh"
+#include "linearBlockOperator.hh"
+#include "linearBlockOperatorSpace.hh"
+#include "vector.hh"
+#include "vectorSpace.hh"
 
 namespace Spacy
 {
@@ -106,8 +106,6 @@ namespace Spacy
         if(verbose)
           std::cout<<"C2 functional built with "<<gm.getSpacesVec().size()<<std::endl;
         this->resizeMembers();
-
-//        y0_(VYSetDescription::template CoefficientVectorRepresentation<>::init(*gm_.getSpacesVec().at(0)));
       }
 
       /**

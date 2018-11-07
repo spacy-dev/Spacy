@@ -6,19 +6,19 @@
 #include "fem/istlinterface.hh"
 #include "linalg/triplet.hh"
 
+#include <Spacy/Util/Base/FunctionalBase.h>
+#include <Spacy/Util/Mixins/Eps.h>
+#include <Spacy/Util/Mixins/NumberOfThreads.h>
 #include <Spacy/c1Operator.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
-#include <Spacy/Util/Mixins/Eps.h>
-#include <Spacy/Util/Mixins/NumberOfThreads.h>
-#include <Spacy/Util/Base/FunctionalBase.hh>
 
 #include "directSolver.hh"
-#include "vectorSpace.hh"
-#include "vector.hh"
-#include "operatorSpace.hh"
 #include "linearOperator.hh"
+#include "operatorSpace.hh"
+#include "vector.hh"
+#include "vectorSpace.hh"
 
 namespace Spacy
 {
