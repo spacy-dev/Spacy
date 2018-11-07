@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0f7c12b_a022c2c0",
+        "filename": "Examples/KaskadeParabolic/AdaptiveGridRefinement/Makefile_v2",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-11-07T17:25:57Z",
+      "side": 1,
+      "message": "Is this intentionally added?\nI am asking as there are a paths that are specific to your local setup. If this file should be added, then I think it would be nice to define a variable for the path to Kaskade, assign it and reuse it. Then others only have to change one line to adjust this file to their setup.",
+      "revId": "0e13d5917ed79f09f6e10be5b9679a1825f48b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90d6adaa_8c8e3ea4",
+        "filename": "Spacy/Adapter/KaskadeParabolic/Constraints/quantityOfInterest.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-11-07T17:25:57Z",
+      "side": 1,
+      "message": "Can you remove the Kaskade-copyright?\nAnd maybe rename the file according to the class name?",
+      "revId": "0e13d5917ed79f09f6e10be5b9679a1825f48b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d02337f5_f6af35a1",
+        "filename": "Spacy/Adapter/KaskadeParabolic/Constraints/quantityOfInterest.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-11-07T17:25:57Z",
+      "side": 1,
+      "message": "sry for being pedantic;) isn\u0027t this the H1-norm as it only defines a half-norm in L2?\nAnd the norm is only defined on the (YxU), but not the space of the adjoint.",
+      "range": {
+        "startLine": 40,
+        "startChar": 14,
+        "endLine": 40,
+        "endChar": 27
+      },
+      "revId": "0e13d5917ed79f09f6e10be5b9679a1825f48b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ade3f2da_06060249",
+        "filename": "Spacy/Adapter/KaskadeParabolic/c2Functional.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-11-07T17:25:57Z",
+      "side": 1,
+      "message": "(-1) The comments are again formatted badly:(",
+      "revId": "0e13d5917ed79f09f6e10be5b9679a1825f48b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5a21307_a97f015d",
+        "filename": "Spacy/Adapter/KaskadeParabolic/c2Functional.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-11-07T17:25:57Z",
+      "side": 1,
+      "message": "(-1) Can you please remove commented-out code (here and below). Commented-out code is a frequent source of bugs as it confuses future readers of this file as they don\u0027t know if this should actually be used or not.",
+      "revId": "0e13d5917ed79f09f6e10be5b9679a1825f48b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c37be6ab_2056e313",
+        "filename": "Spacy/Adapter/KaskadeParabolic/directBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-11-07T17:25:57Z",
+      "side": 1,
+      "message": "What does \u0027OCP\u0027 stand for? Would it make sense to use a more speaking name for the namespace?",
+      "range": {
+        "startLine": 30,
+        "startChar": 18,
+        "endLine": 30,
+        "endChar": 21
+      },
+      "revId": "0e13d5917ed79f09f6e10be5b9679a1825f48b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba2ecfb2_9af81d42",
+        "filename": "Spacy/Adapter/KaskadeParabolic/directBlockPreconditioner.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-11-07T17:25:57Z",
+      "side": 1,
+      "message": "Please remove or make it optional (here and below).",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 81
+      },
+      "revId": "0e13d5917ed79f09f6e10be5b9679a1825f48b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c24a239_3194e9d1",
+        "filename": "Spacy/Adapter/KaskadeParabolic/directSolver.hh",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1009832
+      },
+      "writtenOn": "2018-11-07T17:25:57Z",
+      "side": 1,
+      "message": "Plz adjust formatting of comments",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 23
+      },
+      "revId": "0e13d5917ed79f09f6e10be5b9679a1825f48b73",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
