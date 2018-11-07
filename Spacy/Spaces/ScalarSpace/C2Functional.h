@@ -3,7 +3,7 @@
 #include <memory>
 #include <functional>
 
-#include <Spacy/Util/Base/FunctionalBase.hh>
+#include <Spacy/Util/Base/FunctionalBase.h>
 
 namespace Spacy
 {

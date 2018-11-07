@@ -14,7 +14,7 @@ namespace Spacy
          * @brief Constructor.
          * @param domain domain space \f$X\f$.
          */
-        explicit FunctionalBase(const VectorSpace& domain);
+        explicit FunctionalBase( const VectorSpace& domain );
 
         /// Access domain space \f$X\f$.
         const VectorSpace& domain() const;

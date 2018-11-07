@@ -1,12 +1,12 @@
-#include "FunctionalBase.hh"
+#include "FunctionalBase.h"
 
 #include <Spacy/vectorSpace.hh>
 
 namespace Spacy
 {
-    FunctionalBase::FunctionalBase(const VectorSpace& domain)
-        : domain_(domain)
-    {}
+    FunctionalBase::FunctionalBase( const VectorSpace& domain ) : domain_( domain )
+    {
+    }
 
     const VectorSpace& FunctionalBase::domain() const
     {
