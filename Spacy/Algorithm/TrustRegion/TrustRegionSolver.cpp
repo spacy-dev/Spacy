@@ -1,4 +1,4 @@
-#include "TrustRegionSolver.hh"
+#include "TrustRegionSolver.h"
 
 #include <Spacy/HilbertSpaceNorm.h>
 #include <Spacy/Util/log.hh>
