@@ -16,8 +16,6 @@ namespace Mock
   public:
     static constexpr int testValue = 3;
 
-    Vector() = default;
-
     Vector(const Spacy::VectorSpace& space);
 
     Vector& operator+=(const Vector& y );

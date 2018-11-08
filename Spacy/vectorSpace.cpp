@@ -135,6 +135,16 @@ namespace Spacy
         return *creator_;
     }
 
+    void VectorSpace::add(Vector* vector) const
+    {
+        vectors_.insert(vector);
+    }
+
+    void VectorSpace::remove(Vector* vector) const
+    {
+        vectors_.erase(vector);
+    }
+
     VectorSpace makeBanachSpace( ZeroVectorCreator&& creator, Norm norm )
     {
         return VectorSpace{std::move( creator ), std::move( norm )};

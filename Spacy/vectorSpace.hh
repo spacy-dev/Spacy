@@ -1,8 +1,9 @@
 #pragma once
 
-#include <memory>
-#include <vector>
 #include <functional>
+#include <memory>
+#include <set>
+#include <vector>
 
 #include <Spacy/Norm.h>
 #include <Spacy/Util/Mixins/Eps.hh>
@@ -18,6 +19,8 @@ namespace Spacy
         static unsigned spaceIndex = 1;
     }
     class ZeroVectorCreator;
+
+    class Vector;
     /// @endcond
 
     /**
@@ -106,6 +109,17 @@ namespace Spacy
 
         const ZeroVectorCreator& creator() const;
 
+        /**
+         * @brief add register vector in vector space
+         * @param vector
+         *
+         * Vectors that are registered are automatically transfered on grid refinement.
+         */
+        void add(Vector* vector) const;
+
+        /// Deregister vector from vector space
+        void remove(Vector* vector) const;
+
     private:
         std::unique_ptr< ZeroVectorCreator > creator_;
         Norm norm_ = {};
@@ -116,6 +130,7 @@ namespace Spacy
                                     {}; ///< primal and dual spaces with respect to this space
         const VectorSpace* dualSpace_ = nullptr;
         std::function< bool( const Vector& ) > restriction_ = []( const Vector& ) { return true; };
+        mutable std::set<Vector*> vectors_;
     };
 
     /// Construct Banach space.

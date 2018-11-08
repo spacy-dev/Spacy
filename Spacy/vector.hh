@@ -11,12 +11,13 @@
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
 #include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Base/RegisterVector.h>
 #include <Spacy/vectorSpace.hh>
 
 namespace Spacy
 {
     /// Type-erased vector.
-    class Vector
+    class Vector : public Util::CopyMoveConstructRegistration<Vector>
     {
     public:
         Vector() noexcept = default;
@@ -47,6 +48,12 @@ namespace Spacy
                                           std::decay_t< T > > >::space} ),
               impl_( std::forward< T >( value ) )
         {
+            Util::registerVector(this);
+        }
+
+        ~Vector()
+        {
+            Util::deregisterVector(this);
         }
 
         template < class T, typename std::enable_if< VectorDetail::Concept<
