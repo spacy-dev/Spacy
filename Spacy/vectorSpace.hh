@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <memory>
-#include <set>
 #include <vector>
 
 #include <Spacy/Norm.h>
@@ -35,6 +34,8 @@ namespace Spacy
     class VectorSpace : public Mixin::Eps
     {
     public:
+        using Index = unsigned;
+
         VectorSpace();
 
         ~VectorSpace();
@@ -49,9 +50,9 @@ namespace Spacy
          */
         VectorSpace( ZeroVectorCreator&& creator, Norm norm, bool defaultIndex = false );
 
-        VectorSpace( VectorSpace&& V );
+        VectorSpace(VectorSpace&& V );
 
-        VectorSpace& operator=( VectorSpace&& V );
+        VectorSpace& operator=(VectorSpace&& V );
 
         /// Vector spaces can not copied.
         VectorSpace( const VectorSpace& ) = delete;
@@ -66,7 +67,7 @@ namespace Spacy
         const Norm& norm() const;
 
         /// Access unique index of the function space.
-        unsigned index() const;
+        Index index() const;
 
         /// Change scalar product.
         void setScalarProduct( ScalarProduct sp );
@@ -109,28 +110,16 @@ namespace Spacy
 
         const ZeroVectorCreator& creator() const;
 
-        /**
-         * @brief add register vector in vector space
-         * @param vector
-         *
-         * Vectors that are registered are automatically transfered on grid refinement.
-         */
-        void add(Vector* vector) const;
-
-        /// Deregister vector from vector space
-        void remove(Vector* vector) const;
-
     private:
         std::unique_ptr< ZeroVectorCreator > creator_;
         Norm norm_ = {};
         ScalarProduct sp_ = {};
-        unsigned index_ = Detail::spaceIndex++;
+        Index index_ = Detail::spaceIndex++;
         std::vector< unsigned > primalSpaces_ = {},
                                 dualSpaces_ =
                                     {}; ///< primal and dual spaces with respect to this space
         const VectorSpace* dualSpace_ = nullptr;
         std::function< bool( const Vector& ) > restriction_ = []( const Vector& ) { return true; };
-        mutable std::set<Vector*> vectors_;
     };
 
     /// Construct Banach space.

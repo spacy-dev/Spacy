@@ -61,7 +61,7 @@ namespace Spacy
         return norm_;
     }
 
-    unsigned VectorSpace::index() const
+    VectorSpace::Index VectorSpace::index() const
     {
         return index_;
     }
@@ -133,16 +133,6 @@ namespace Spacy
     const ZeroVectorCreator& VectorSpace::creator() const
     {
         return *creator_;
-    }
-
-    void VectorSpace::add(Vector* vector) const
-    {
-        vectors_.insert(vector);
-    }
-
-    void VectorSpace::remove(Vector* vector) const
-    {
-        vectors_.erase(vector);
     }
 
     VectorSpace makeBanachSpace( ZeroVectorCreator&& creator, Norm norm )

@@ -3,61 +3,152 @@
 
 #pragma once
 
-#include <Spacy/Detail/vector_table.h>
-#include <Spacy/Util/storage.h>
-
-#include <type_traits>
-#include <functional>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
 #include <Spacy/Util/Mixins/Get.hh>
-#include <Spacy/Util/Base/RegisterVector.h>
+#include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/vectorSpace.hh>
+#include <memory>
+#include <type_traits>
+#include <functional>
 
 namespace Spacy
 {
     /// Type-erased vector.
-    class Vector : public Util::CopyMoveConstructRegistration<Vector>
+    class Vector
     {
+        struct Interface
+        {
+            virtual ~Interface() = default;
+            virtual std::shared_ptr< Interface > clone() const = 0;
+            virtual Real call_const_Vector_ref( const Vector& x ) const = 0;
+            virtual void add_const_Vector_ref( const Vector& y ) = 0;
+            virtual void subtract_const_Vector_ref( const Vector& y ) = 0;
+            virtual void multiply_double( double a ) = 0;
+            virtual Vector negate() const = 0;
+            virtual bool compare_const_Vector_ref( const Vector& y ) const = 0;
+            virtual const VectorSpace& space() const = 0;
+        };
+
+        template < class Impl >
+        struct Wrapper : Interface
+        {
+            template < class T >
+            Wrapper( T&& t ) : impl( std::forward< T >( t ) )
+            {
+            }
+
+            std::shared_ptr< Interface > clone() const
+            {
+                return std::make_shared< Wrapper< Impl > >( impl );
+            }
+
+            Real call_const_Vector_ref( const Vector& x ) const override
+            {
+                return impl.operator()( *x.template target< typename std::decay< Impl >::type >() );
+            }
+
+            void add_const_Vector_ref( const Vector& y ) override
+            {
+                impl.operator+=( *y.template target< typename std::decay< Impl >::type >() );
+            }
+
+            void subtract_const_Vector_ref( const Vector& y ) override
+            {
+                impl.operator-=( *y.template target< typename std::decay< Impl >::type >() );
+            }
+
+            void multiply_double( double a ) override
+            {
+                impl.operator*=( std::move( a ) );
+            }
+
+            Vector negate() const override
+            {
+                return impl.operator-();
+            }
+
+            bool compare_const_Vector_ref( const Vector& y ) const override
+            {
+                return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
+            }
+
+            const VectorSpace& space() const override
+            {
+                return impl.space();
+            }
+
+            Impl impl;
+        };
+
+        template < class Impl >
+        struct Wrapper< std::reference_wrapper< Impl > > : Wrapper< Impl& >
+        {
+            template < class T >
+            Wrapper( T&& t ) : Wrapper< Impl& >( std::forward< T >( t ) )
+            {
+            }
+        };
+
     public:
         Vector() noexcept = default;
 
-        template < class T, typename std::enable_if< VectorDetail::Concept<
-                                Vector, typename std::decay< T >::type >::value >::type* = nullptr >
-        Vector( T&& value )
-            : function_( {&VectorDetail::execution_wrapper<
-                              Vector, type_erasure_table_detail::remove_reference_wrapper_t<
-                                          std::decay_t< T > > >::call_const_Vector_ref,
-                          &VectorDetail::execution_wrapper<
-                              Vector, type_erasure_table_detail::remove_reference_wrapper_t<
-                                          std::decay_t< T > > >::add_const_Vector_ref,
-                          &VectorDetail::execution_wrapper<
-                              Vector, type_erasure_table_detail::remove_reference_wrapper_t<
-                                          std::decay_t< T > > >::subtract_const_Vector_ref,
-                          &VectorDetail::execution_wrapper<
-                              Vector, type_erasure_table_detail::remove_reference_wrapper_t<
-                                          std::decay_t< T > > >::multiply_double,
-                          &VectorDetail::execution_wrapper<
-                              Vector, type_erasure_table_detail::remove_reference_wrapper_t<
-                                          std::decay_t< T > > >::negate,
-                          &VectorDetail::execution_wrapper<
-                              Vector, type_erasure_table_detail::remove_reference_wrapper_t<
-                                          std::decay_t< T > > >::compare_const_Vector_ref,
-                          &VectorDetail::execution_wrapper<
-                              Vector, type_erasure_table_detail::remove_reference_wrapper_t<
-                                          std::decay_t< T > > >::space} ),
-              impl_( std::forward< T >( value ) )
+        template <
+            class T,
+            typename std::enable_if<
+                !std::is_same< typename std::decay< T >::type, Vector >::value &&
+                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
+                nullptr >
+        Vector( T&& value ) : impl_( std::forward< T >( value ) )
         {
-            Util::registerVector(this);
         }
 
-        ~Vector()
+        /// Apply as dual space element.
+        Real operator()( const Vector& x ) const
         {
-            Util::deregisterVector(this);
+            return impl_->call_const_Vector_ref( x );
         }
 
-        template < class T, typename std::enable_if< VectorDetail::Concept<
-                                Vector, typename std::decay< T >::type >::value >::type* = nullptr >
+        Vector& operator+=( const Vector& y )
+        {
+            impl_->add_const_Vector_ref( y );
+            return *this;
+        }
+
+        Vector& operator-=( const Vector& y )
+        {
+            impl_->subtract_const_Vector_ref( y );
+            return *this;
+        }
+
+        Vector& operator*=( double a )
+        {
+            impl_->multiply_double( std::move( a ) );
+            return *this;
+        }
+
+        Vector operator-() const
+        {
+            return impl_->negate();
+        }
+
+        bool operator==( const Vector& y ) const
+        {
+            return impl_->compare_const_Vector_ref( y );
+        }
+
+        /// Access underlying space.
+        const VectorSpace& space() const
+        {
+            return impl_->space();
+        }
+
+        template <
+            class T,
+            typename std::enable_if<
+                !std::is_same< typename std::decay< T >::type, Vector >::value &&
+                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
+                nullptr >
         Vector& operator=( T&& value )
         {
             return *this = Vector( std::forward< T >( value ) );
@@ -66,50 +157,6 @@ namespace Spacy
         explicit operator bool() const noexcept
         {
             return bool( impl_ );
-        }
-
-        /// Apply as dual space element.
-        Real operator()( const Vector& x ) const
-        {
-            assert( impl_ );
-            return function_.call_const_Vector_ref( impl_, x.impl_ );
-        }
-
-        Vector& operator+=( const Vector& y )
-        {
-            assert( impl_ );
-            return function_.add_const_Vector_ref( *this, impl_, y.impl_ );
-        }
-
-        Vector& operator-=( const Vector& y )
-        {
-            assert( impl_ );
-            return function_.subtract_const_Vector_ref( *this, impl_, y.impl_ );
-        }
-
-        Vector& operator*=( double a )
-        {
-            assert( impl_ );
-            return function_.multiply_double( *this, impl_, std::move( a ) );
-        }
-
-        Vector operator-() const
-        {
-            assert( impl_ );
-            return function_.negate( impl_ );
-        }
-
-        bool operator==( const Vector& y ) const
-        {
-            assert( impl_ );
-            return function_.compare_const_Vector_ref( impl_, y.impl_ );
-        }
-
-        /// Access underlying space.
-        const VectorSpace& space() const
-        {
-            assert( impl_ );
-            return function_.space( impl_ );
         }
 
         template < class T >
@@ -125,8 +172,7 @@ namespace Spacy
         }
 
     private:
-        VectorDetail::Table< Vector > function_;
-        clang::type_erasure::SBOStorage< 16 > impl_;
+        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
     };
     /// Multiplication with arithmetic types (double,float,int,...).
     template < class Arithmetic,
