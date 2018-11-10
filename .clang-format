@@ -50,12 +50,13 @@ IncludeCategories:
   - Regex:           '^(<|")(Spacy)/'
     Priority:        5
   - Regex:           '^"(Util|Detail)/'
-    Priority:        10
-  - Regex:           '^((<|")(gtest|isl|json)/)'
-    Priority:        2
-  - Regex:           '^(<(array|algorithm|cassert|chrono|cmath|cstdlib|iostream|limits|list|map|memory|numeric|random|set|stdexcept|string|vector|type_traits|utility)>)'
-  - Regex:           '.*'
     Priority:        1
+  - Regex:           '^((<|")(gtest|isl|json)/)'
+    Priority:        10
+  - Regex:           '^(<(array|algorithm|cassert|chrono|cmath|cstdlib|iostream|limits|list|map|memory|numeric|random|set|stdexcept|string|vector|type_traits|utility)>)'
+    Priority:        20
+  - Regex:           '.*'
+    Priority:        30
 IndentCaseLabels: false
 IndentWidth:     4
 IndentWrappedFunctionNames: false
