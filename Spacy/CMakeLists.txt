@@ -16,6 +16,7 @@ if(dealII)
 endif()
 
 aux_source_directory(. SRC_LIST)
+aux_source_directory(Adaptivity SRC_LIST)
 aux_source_directory(Adapter/Scalar SRC_LIST)
 aux_source_directory(Adapter/Generic SRC_LIST)
 aux_source_directory(Algorithm SRC_LIST)

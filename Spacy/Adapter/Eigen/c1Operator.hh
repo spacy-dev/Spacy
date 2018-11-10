@@ -5,7 +5,7 @@
 
 #include <Spacy/Util/Base/OperatorBase.hh>
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 namespace Spacy
 {

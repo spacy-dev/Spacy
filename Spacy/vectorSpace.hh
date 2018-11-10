@@ -32,6 +32,8 @@ namespace Spacy
     class VectorSpace : public Mixin::Eps
     {
     public:
+        using Index = unsigned;
+
         VectorSpace();
 
         ~VectorSpace();
@@ -46,9 +48,9 @@ namespace Spacy
          */
         VectorSpace( ZeroVectorCreator&& creator, Norm norm, bool defaultIndex = false );
 
-        VectorSpace( VectorSpace&& V );
+        VectorSpace(VectorSpace&& V );
 
-        VectorSpace& operator=( VectorSpace&& V );
+        VectorSpace& operator=(VectorSpace&& V );
 
         /// Vector spaces can not copied.
         VectorSpace( const VectorSpace& ) = delete;
@@ -63,7 +65,7 @@ namespace Spacy
         const Norm& norm() const;
 
         /// Access unique index of the function space.
-        unsigned index() const;
+        Index index() const;
 
         /// Change scalar product.
         void setScalarProduct( ScalarProduct sp );
@@ -110,7 +112,7 @@ namespace Spacy
         std::unique_ptr< ZeroVectorCreator > creator_;
         Norm norm_ = {};
         ScalarProduct sp_ = {};
-        unsigned index_ = Detail::spaceIndex++;
+        Index index_ = Detail::spaceIndex++;
         std::vector< unsigned > primalSpaces_ = {},
                                 dualSpaces_ =
                                     {}; ///< primal and dual spaces with respect to this space
