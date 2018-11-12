@@ -11,7 +11,7 @@
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/Util/Mixins/numberOfThreads.hh>
-#include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Mixins/Get.h>
 
 #include "gridManager.hh"
 #include "directSolver.hh"

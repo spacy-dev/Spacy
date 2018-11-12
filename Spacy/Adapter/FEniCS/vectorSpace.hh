@@ -5,7 +5,7 @@
 
 #include <dolfin.h>
 
-#include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Mixins/Get.h>
 
 namespace Spacy
 {

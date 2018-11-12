@@ -5,7 +5,7 @@
 #include <functional>
 
 #include <Spacy/Norm.h>
-#include <Spacy/Util/Mixins/Eps.hh>
+#include <Spacy/Util/Mixins/Eps.h>
 #include <Spacy/scalarProduct.hh>
 
 namespace Spacy

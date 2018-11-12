@@ -1,4 +1,4 @@
-#include "regularityTest.hh"
+#include "RegularityTest.h"
 
 namespace Spacy
 {

@@ -3,12 +3,8 @@
 #include <memory>
 #include <string>
 
-#include "Spacy/Util/Mixins/Eps.hh"
-#include "Spacy/Util/Mixins/accuracy.hh"
-#include "Spacy/Util/Mixins/iterativeRefinements.hh"
-#include "Spacy/Util/Mixins/maxSteps.hh"
-#include "Spacy/Util/Mixins/verbosity.hh"
-#include "Spacy/operator.hh"
+#include <Spacy/Util/Mixins.h>
+#include <Spacy/operator.hh>
 
 #include "Regularization.hh"
 #include "terminationCriterion.hh"

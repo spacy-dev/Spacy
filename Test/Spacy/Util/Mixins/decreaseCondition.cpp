@@ -1,6 +1,6 @@
 #include <Test/gtest.hh>
 
-#include <Spacy/Util/Mixins/decreaseCondition.hh>
+#include <Spacy/Util/Mixins/DecreaseCondition.h>
 
 TEST(Mixin,DecreaseCondition)
 {

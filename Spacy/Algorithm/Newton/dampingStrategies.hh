@@ -2,8 +2,8 @@
 
 #include <Spacy/Algorithm/dampingFactor.hh>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/Mixins/Eps.hh>
-#include <Spacy/Util/Mixins/regularityTest.hh>
+#include <Spacy/Util/Mixins/Eps.h>
+#include <Spacy/Util/Mixins/RegularityTest.h>
 #include <Spacy/vector.hh>
 
 #include <functional>

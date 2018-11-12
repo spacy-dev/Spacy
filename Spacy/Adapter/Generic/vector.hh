@@ -3,7 +3,7 @@
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Base/AddArithmeticOperators.hh>
 #include <Spacy/Util/Base/VectorBase.hh>
-#include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/Util/voider.hh>
 
 namespace Spacy

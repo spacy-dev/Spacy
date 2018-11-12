@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/mixins.hh>
+#include <Spacy/Util/Mixins.h>
 #include <Spacy/c2Functional.hh>
 #include <Spacy/linearSolver.hh>
 #include <Spacy/vector.hh>

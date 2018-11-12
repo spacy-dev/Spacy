@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Mixins/Get.h>
 
 
 

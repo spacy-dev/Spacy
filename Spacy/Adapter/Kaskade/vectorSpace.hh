@@ -3,7 +3,7 @@
 #include <type_traits>
 
 #include <Spacy/Spaces/ProductSpace.h>
-#include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 

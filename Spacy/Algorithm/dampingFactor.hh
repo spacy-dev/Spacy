@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/Mixins/Eps.hh>
-#include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Mixins/Eps.h>
+#include <Spacy/Util/Mixins/Get.h>
 
 namespace Spacy
 {

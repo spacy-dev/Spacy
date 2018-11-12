@@ -13,7 +13,7 @@
 #include "vector.hh"
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Util/Base/AddArithmeticOperators.hh>
-#include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/Util/cast.hh>
 
 namespace Spacy

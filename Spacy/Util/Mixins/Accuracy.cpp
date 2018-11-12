@@ -1,6 +1,6 @@
-#include "accuracy.hh"
+#include "Accuracy.h"
 
-#include "macros.hh"
+#include "Macros.h"
 
 GENERATE_MIXIN_SOURCE( Spacy::Real, AbsoluteAccuracy )
 
@@ -16,4 +16,4 @@ GENERATE_MIXIN_SOURCE( Spacy::Real, TangentialAccuracy )
 
 GENERATE_MIXIN_SOURCE( Spacy::Real, FallBackTangentialAccuracy )
 
-#include "undefMacros.hh"
+#include "UndefMacros.h"

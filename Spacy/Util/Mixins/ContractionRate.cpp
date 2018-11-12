@@ -1,4 +1,4 @@
-#include "contractionRate.hh"
+#include "ContractionRate.h"
 
 #include <cassert>
 

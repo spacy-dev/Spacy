@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Util/mixins.hh>
+#include <Spacy/Util/Mixins.h>
 
 namespace Spacy
 {

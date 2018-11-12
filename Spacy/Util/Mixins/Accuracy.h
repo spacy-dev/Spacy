@@ -1,6 +1,6 @@
 #pragma once
 
-#include "macros.hh"
+#include "Macros.h"
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 
@@ -18,4 +18,4 @@ GENERATE_MIXIN_HEADER( Real, TangentialAccuracy, 0.1 )
 
 GENERATE_MIXIN_HEADER( Real, FallBackTangentialAccuracy, 0.25 )
 
-#include "undefMacros.hh"
+#include "UndefMacros.h"

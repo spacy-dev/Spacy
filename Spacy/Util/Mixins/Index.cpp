@@ -1,6 +1,6 @@
-#include "index.hh"
+#include "Index.h"
 
-#include "macros.hh"
+#include "Macros.h"
 
 GENERATE_MIXIN_SOURCE(unsigned,StateIndex)
 
@@ -8,4 +8,4 @@ GENERATE_MIXIN_SOURCE(unsigned,ControlIndex)
 
 GENERATE_MIXIN_SOURCE(unsigned,AdjointIndex)
 
-#include "undefMacros.hh"
+#include "UndefMacros.h"

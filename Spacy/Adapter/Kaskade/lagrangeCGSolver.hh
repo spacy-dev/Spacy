@@ -1,11 +1,10 @@
-#ifndef SPACY_KASKADE_LAGRANGE_CG_SOLVER_HH
-#define SPACY_KASKADE_LAGRANGE_CG_SOLVER_HH
+#pragma once
 
 #include <string>
 
 #include "Spacy/Algorithm/CG/linearSolver.hh"
 #include "Spacy/Algorithm/CG/triangularStateConstraintPreconditioner.hh"
-#include "Spacy/Util/mixins.hh"
+#include <Spacy/Util/Mixins.h>
 #include "Spacy/linearSolver.hh"
 
 #include "linearOperator.hh"
@@ -170,5 +169,3 @@ namespace Spacy
         }
     }
 }
-
-#endif // SPACY_KASKADE_LAGRANGE_CG_SOLVER_HH

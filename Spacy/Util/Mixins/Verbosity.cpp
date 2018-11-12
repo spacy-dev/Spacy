@@ -1,4 +1,4 @@
-#include "verbosity.hh"
+#include "Verbosity.h"
 
 namespace Spacy
 {

@@ -1,4 +1,4 @@
-#include "decreaseCondition.hh"
+#include "DecreaseCondition.h"
 
 namespace Spacy
 {

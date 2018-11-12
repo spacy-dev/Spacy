@@ -1,4 +1,4 @@
-#include "Eps.hh"
+#include "Eps.h"
 
 namespace Spacy
 {

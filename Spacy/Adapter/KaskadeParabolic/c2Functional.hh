@@ -12,8 +12,8 @@
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
-#include <Spacy/Util/Mixins/Eps.hh>
-#include <Spacy/Util/Mixins/numberOfThreads.hh>
+#include <Spacy/Util/Mixins/Eps.h>
+#include <Spacy/Util/Mixins/NumberOfThreads.h>
 #include <Spacy/Util/Base/FunctionalBase.hh>
 #include <Spacy/Algorithm/CG/linearSolver.hh>
 

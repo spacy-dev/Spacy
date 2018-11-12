@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Spacy/Util/Mixins/Eps.hh>
-#include <Spacy/Util/Mixins/accuracy.hh>
-#include <Spacy/Util/Mixins/maxSteps.hh>
-#include <Spacy/Util/Mixins/verbosity.hh>
+#include <Spacy/Util/Mixins.h>
 #include <Spacy/vector.hh>
 
 #include <string>

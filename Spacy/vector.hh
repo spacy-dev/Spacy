@@ -5,7 +5,7 @@
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
-#include <Spacy/Util/Mixins/Get.hh>
+#include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/vectorSpace.hh>
 #include <memory>
@@ -38,7 +38,7 @@ namespace Spacy
             {
             }
 
-            std::shared_ptr< Interface > clone() const
+            std::shared_ptr< Interface > clone() const override
             {
                 return std::make_shared< Wrapper< Impl > >( impl );
             }

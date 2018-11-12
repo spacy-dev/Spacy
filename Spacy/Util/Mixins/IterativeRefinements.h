@@ -1,7 +1,7 @@
 #pragma once
 
-#include "macros.hh"
+#include "Macros.h"
 
 GENERATE_MIXIN_HEADER(unsigned,IterativeRefinements,0)
 
-#include "undefMacros.hh"
+#include "UndefMacros.h"

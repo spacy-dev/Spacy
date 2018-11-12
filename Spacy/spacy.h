@@ -13,7 +13,7 @@
 #include <Spacy/Util/copy.hh>
 #include <Spacy/Util/invoke.hh>
 #include <Spacy/Util/log.hh>
-#include <Spacy/Util/mixins.hh>
+#include <Spacy/Util/Mixins.h>
 #include <Spacy/Util/voider.hh>
 
 // Interfaces and directly related functionality

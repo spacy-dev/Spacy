@@ -1,14 +1,10 @@
-// Copyright (C) 2015 by Lars Lubkoll. All rights reserved.
-// Released under the terms of the GNU General Public License version 3 or later.
+#pragma once
 
-#ifndef SPACY_CONJUGATE_GRADIENTS_TRIANGULARSTATECONSTRAINTPRECONDITIONER_HH
-#define SPACY_CONJUGATE_GRADIENTS_TRIANGULARSTATECONSTRAINTPRECONDITIONER_HH
-
-#include "Spacy/linearSolver.hh"
-#include "Spacy/operator.hh"
-#include "Spacy/vector.hh"
-#include "Spacy/Util/Mixins/index.hh"
-#include "Spacy/Util/Base/OperatorBase.hh"
+#include <Spacy/linearSolver.hh>
+#include <Spacy/operator.hh>
+#include <Spacy/vector.hh>
+#include <Spacy/Util/Mixins/Index.h>
+#include <Spacy/Util/Base/OperatorBase.hh>
 
 namespace Spacy
 {
@@ -81,5 +77,3 @@ namespace Spacy
     };
   }
 }
-
-#endif // SPACY_CONJUGATE_GRADIENTS_TRIANGULARSTATECONSTRAINTPRECONDITIONER_HH
