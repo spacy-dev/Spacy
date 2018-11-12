@@ -56,6 +56,11 @@ namespace Spacy
                 return Detail::create_zero_vector<VectorImpl>(dim_, *space);
             }
 
+            void setDimension(unsigned dim)
+            {
+                dim_ = dim;
+            }
+
             unsigned dim() const
             {
                 return dim_;

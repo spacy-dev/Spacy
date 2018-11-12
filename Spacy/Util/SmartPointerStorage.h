@@ -1,3 +1,6 @@
+// This file was automatically generated using clang-type-erase.
+// Please do not modify.
+
 #pragma once
 
 #include <array>
@@ -126,7 +129,7 @@ namespace clang
                            std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
                                nullptr >
                 explicit Storage( T&& t )
-                    : interface_( std::make_unique< Wrapper< T > >( std::forward< T >( t ) ) )
+                    : interface_( std::make_unique< Wrapper< std::decay_t<T> > >( std::forward< T >( t ) ) )
                 {
                 }
 
@@ -170,7 +173,7 @@ namespace clang
                            std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
                                nullptr >
                 explicit COWStorage( T&& t )
-                    : interface_( std::make_shared< Wrapper< T > >( std::forward< T >( t ) ) )
+                    : interface_( std::make_shared< Wrapper< std::decay_t<T> > >( std::forward< T >( t ) ) )
                 {
                 }
 
