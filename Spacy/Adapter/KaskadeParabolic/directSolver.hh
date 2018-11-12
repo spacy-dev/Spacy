@@ -13,7 +13,7 @@
 //#include "Spacy/c2Functional.hh"
 #include "Spacy/vector.hh"
 #include "Spacy/Util/Base/OperatorBase.hh"
-#include "Spacy/Spaces/ScalarSpace/Real.hh"
+#include "Spacy/Spaces/ScalarSpace/Real.h"
 #include "util.hh"
 #include <Spacy/zeroVectorCreator.hh>
 

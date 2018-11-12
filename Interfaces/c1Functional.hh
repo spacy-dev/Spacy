@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Spaces/ScalarSpace/Real.hh>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 
