@@ -1,6 +1,6 @@
 #include <Test/gtest.hh>
 
-#include <Spacy/Util/invoke.hh>
+#include <Spacy/Util/Invoke.h>
 #include <Spacy/Algorithm/Scalar/quadratic.hh>
 
 namespace

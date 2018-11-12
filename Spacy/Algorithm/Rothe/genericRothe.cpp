@@ -1,6 +1,6 @@
 #include "genericRothe.hh"
 
-#include <Spacy/dynamicOperator.hh>
+#include <Spacy/DynamicOperator.h>
 #include <Spacy/vector.hh>
 #include <Spacy/zeroVectorCreator.hh>
 #include <Spacy/linearOperator.hh>

@@ -13,7 +13,7 @@
 #include "vectorSpace.hh"
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Util/cast.hh>
-#include <Spacy/Util/invoke.hh>
+#include <Spacy/Util/Invoke.h>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 

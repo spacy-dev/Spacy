@@ -11,7 +11,7 @@
 // Util
 #include <Spacy/Util/cast.hh>
 #include <Spacy/Util/copy.hh>
-#include <Spacy/Util/invoke.hh>
+#include <Spacy/Util/Invoke.h>
 #include <Spacy/Util/log.hh>
 #include <Spacy/Util/Mixins.h>
 #include <Spacy/Util/voider.hh>
@@ -22,7 +22,8 @@
 #include <Spacy/c1Functional.hh>
 #include <Spacy/c1Operator.hh>
 #include <Spacy/c2Functional.hh>
-#include <Spacy/derivative.hh>
+#include <Spacy/Derivative.h>
+#include <Spacy/DynamicOperator.h>
 #include <Spacy/functional.hh>
 #include <Spacy/inducedScalarProduct.hh>
 #include <Spacy/linearOperator.hh>

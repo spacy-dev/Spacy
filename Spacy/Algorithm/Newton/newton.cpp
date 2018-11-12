@@ -6,7 +6,7 @@
 #include <Spacy/Util/log.hh>
 
 #include <Spacy/c1Operator.hh>
-#include <Spacy/derivative.hh>
+#include <Spacy/Derivative.h>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 

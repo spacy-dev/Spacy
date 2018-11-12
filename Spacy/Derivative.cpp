@@ -1,9 +1,11 @@
-#include "derivative.hh"
+#include "Derivative.h"
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Base/OperatorBase.hh>
 #include <Spacy/linearOperator.hh>
 #include <Spacy/vectorSpace.hh>
+
+#include <utility>
 
 namespace Spacy
 {

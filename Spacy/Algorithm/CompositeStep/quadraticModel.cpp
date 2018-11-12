@@ -1,6 +1,6 @@
 #include "quadraticModel.hh"
 
-#include <Spacy/Util/invoke.hh>
+#include <Spacy/Util/Invoke.h>
 #include <Spacy/c2Functional.hh>
 #include <Spacy/scalarProduct.hh>
 #include <Spacy/vector.hh>
