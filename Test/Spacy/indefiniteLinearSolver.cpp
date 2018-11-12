@@ -1,9 +1,13 @@
 #include <Test/gtest.hh>
 
 #include <Test/Mock/linearSolver.hh>
+#include <Test/Mock/norm.hh>
 #include <Test/Mock/vector.hh>
+#include <Test/Mock/vectorCreator.hh>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/linearSolver.hh>
+#include <Spacy/vectorSpace.hh>
+#include <Spacy/zeroVectorCreator.hh>
 
 using namespace Spacy;
 
@@ -27,8 +31,8 @@ TEST( IndefiniteLinearSolver, Apply )
 {
     auto solver = Mock::IndefiniteLinearSolver{};
     IndefiniteLinearSolver typeErasedSolver( solver );
-    Mock::Vector vector;
-    ASSERT_NO_THROW( typeErasedSolver( vector ) );
+    const auto V = VectorSpace(Mock::VectorCreator(), Mock::Norm());
+    ASSERT_NO_THROW( typeErasedSolver( zero(V) ) );
 }
 
 TEST( IndefiniteLinearSolver, IsPositiveDefinite )
