@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <memory>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
 #include <Spacy/Util/Base/FunctionalBase.hh>
 
