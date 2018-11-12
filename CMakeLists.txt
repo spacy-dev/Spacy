@@ -54,6 +54,9 @@ if(Eigen3_FOUND)
   include_directories(${EIGEN3_INCLUDE_DIR})
 endif()
 
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 set(DOC_DIR "doc" CACHE STRING "Output directory for the doxygen documentation")
 
 if(Coverage)
