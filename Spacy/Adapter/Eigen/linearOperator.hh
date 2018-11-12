@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 #include <Spacy/Util/Mixins/Get.hh>
 #include <Spacy/Util/Base/AddArithmeticOperators.hh>
