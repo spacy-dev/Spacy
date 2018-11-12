@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <Spacy/Adapter/Generic/vector.hh>
+#include <Spacy/Adapter/Generic/Vector.h>
 
 namespace Spacy
 {

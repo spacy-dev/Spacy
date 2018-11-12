@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Adapter/Generic/linearOperatorCreator.hh>
+#include <Spacy/Adapter/Generic/LinearOperatorCreator.h>
 #include "linearOperator.hh"
 
 namespace Spacy

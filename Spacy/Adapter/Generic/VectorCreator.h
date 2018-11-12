@@ -3,7 +3,7 @@
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/Util/voider.hh>
 
-#include "vector.hh"
+#include "Vector.h"
 
 namespace Spacy
 {
