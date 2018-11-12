@@ -3,7 +3,7 @@
 UTIL_DIR=Spacy/Util
 DETAIL_DIR=Detail
 BUFFER_SIZE=16
-INCLUDE_DIR=/home/lars/Projects/Spacy
+INCLUDE_DIR=$1
 
 COMMAND=/home/lars/Libraries/build-llvm2/bin/clang-type-erase
 COMMON_ARGS="-detail-dir=$DETAIL_DIR -include-dir=$INCLUDE_DIR -util-dir=$UTIL_DIR -util-include-dir=<$UTIL_DIR/type_erasure_util.h>"
