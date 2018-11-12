@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-#include <Spacy/Adapter/Generic/vectorCreator.hh>
+#include <Spacy/Adapter/Generic/VectorCreator.h>
 
 namespace Spacy
 {

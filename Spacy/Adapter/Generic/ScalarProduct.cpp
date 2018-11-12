@@ -1,4 +1,4 @@
-#include "scalarProduct.hh"
+#include "ScalarProduct.h"
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/vector.hh>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <deal.II/lac/vector.h>
-#include <Spacy/Adapter/Generic/vector.hh>
+#include <Spacy/Adapter/Generic/Vector.h>
 
 namespace Spacy
 {

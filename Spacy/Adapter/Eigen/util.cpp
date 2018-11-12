@@ -1,7 +1,7 @@
 #include "util.hh"
 
 #include <Spacy/Adapter/Eigen/vector.hh>
-#include <Spacy/Adapter/Generic/vector.hh>
+#include <Spacy/Adapter/Generic/Vector.h>
 #include <Spacy/Spaces/ProductSpace.h>
 
 namespace Spacy
