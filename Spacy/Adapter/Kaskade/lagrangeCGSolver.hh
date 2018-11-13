@@ -2,10 +2,10 @@
 
 #include <string>
 
+#include "Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h"
 #include "Spacy/Algorithm/CG/linearSolver.hh"
-#include "Spacy/Algorithm/CG/triangularStateConstraintPreconditioner.hh"
-#include <Spacy/Util/Mixins.h>
 #include "Spacy/linearSolver.hh"
+#include <Spacy/Util/Mixins.h>
 
 #include "linearOperator.hh"
 #include "util.hh"

@@ -3,14 +3,11 @@
 #include "quadraticModel.hh"
 
 #include "Spacy/Algorithm/CG/RegularizeViaPreconditioner.hh"
+#include <Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h>
 #include <Spacy/Algorithm/CG/linearSolver.hh>
-#include <Spacy/Algorithm/CG/triangularStateConstraintPreconditioner.hh>
 #include <Spacy/Algorithm/Scalar/findGlobalMinimizer.hh>
 #include <Spacy/Algorithm/dampingFactor.hh>
 
-#include <cmath>
-#include <iostream>
-#include <utility>
 #include <Spacy/Algorithm/CG/terminationCriteria.hh>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Exceptions.h>
@@ -18,6 +15,9 @@
 #include <Spacy/Util/logger.hh>
 #include <Spacy/inducedScalarProduct.hh>
 #include <Spacy/zeroVectorCreator.hh>
+#include <cmath>
+#include <iostream>
+#include <utility>
 
 namespace Spacy
 {
