@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/Mixins/Eps.h>
 #include <Spacy/Util/Mixins/Accuracy.h>
+#include <Spacy/Util/Mixins/Eps.h>
 #include <Spacy/Util/Mixins/Verbosity.h>
 #include <Spacy/Util/log.hh>
 

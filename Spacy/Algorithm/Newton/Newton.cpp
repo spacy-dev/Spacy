@@ -1,16 +1,15 @@
-#include "newton.hh"
+#include "Newton.h"
 
-#include <Spacy/Algorithm/Newton/dampingStrategies.hh>
-#include <Spacy/Algorithm/Newton/terminationCriteria.hh>
-#include <Spacy/Util/Exceptions.h>
-#include <Spacy/Util/log.hh>
+#include "DampingStrategies.h"
+#include "TerminationCriteria.h"
 
-#include <Spacy/c1Operator.hh>
 #include <Spacy/Derivative.h>
+#include <Spacy/Util/Exceptions.h>
+#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/log.hh>
+#include <Spacy/c1Operator.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
-
-#include <Spacy/Util/cast.hh>
 
 namespace Spacy
 {

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <functional>
-#include <Spacy/Algorithm/Newton/newton.hh>
+#include <Spacy/Algorithm/Newton/Newton.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/c1Operator.hh>
 #include <Spacy/inducedScalarProduct.hh>
 #include <Spacy/zeroVectorCreator.hh>
+#include <functional>
 
 using namespace Spacy;
 
