@@ -3,9 +3,8 @@
 #include <string>
 #include <dolfin.h>
 
-#include <Spacy/Util/Base/AddArithmeticOperators.hh>
-#include <Spacy/Util/Base/VectorBase.hh>
-
+#include <Spacy/Util/Base/AddArithmeticOperators.h>
+#include <Spacy/Util/Base/VectorBase.h>
 
 namespace Spacy
 {
@@ -20,18 +19,16 @@ namespace Spacy
          * @ingroup FenicsGroup VectorSpaceGroup
          * @brief %Vector implementation for %FEniCS (single space).
          */
-        class Vector :
-                public VectorBase ,
-                public AddArithmeticOperators<Vector>
+        class Vector : public VectorBase, public AddArithmeticOperators< Vector >
         {
         public:
             /// Construct zero vector \f$x=0\f$ from underlying vector space.
-            explicit Vector(const VectorSpace& V);
+            explicit Vector( const VectorSpace& V );
 
-            Vector(const dolfin::Function& v, const VectorSpace& V);
+            Vector( const dolfin::Function& v, const VectorSpace& V );
 
             /// Assign from dolfin::Function.
-            Vector& operator=(const dolfin::Function& v);
+            Vector& operator=( const dolfin::Function& v );
 
             //      Vector& axpy(double a, const AbstractVector& y);
 
@@ -42,10 +39,10 @@ namespace Spacy
             const dolfin::GenericVector& get() const;
 
             /// Apply as dual element.
-            Real operator()(const Vector& y) const;
+            Real operator()( const Vector& y ) const;
 
         private:
-            friend void writeVTK(const Vector&,const std::string&);
+            friend void writeVTK( const Vector&, const std::string& );
             dolfin::Function v_;
         };
     }

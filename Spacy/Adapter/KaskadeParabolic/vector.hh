@@ -6,7 +6,7 @@
 
 #include <Spacy/Adapter/KaskadeParabolic/util.hh>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/Base/VectorBase.hh>
+#include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/vectorSpace.hh>
 

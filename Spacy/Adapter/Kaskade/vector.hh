@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/Base/AddArithmeticOperators.hh>
-#include <Spacy/Util/Base/VectorBase.hh>
+#include <Spacy/Util/Base/AddArithmeticOperators.h>
+#include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/vectorSpace.hh>
 
 #include "util.hh"

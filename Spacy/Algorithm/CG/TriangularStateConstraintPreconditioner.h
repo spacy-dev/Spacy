@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Util/Base/OperatorBase.hh>
+#include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Mixins/Index.h>
 #include <Spacy/linearSolver.hh>
 #include <Spacy/operator.hh>

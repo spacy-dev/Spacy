@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include <Spacy/Util/Base/VectorBase.hh>
+#include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/vector.hh>

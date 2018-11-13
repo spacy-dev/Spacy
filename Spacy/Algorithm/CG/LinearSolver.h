@@ -3,7 +3,7 @@
 #include "CG.h"
 #include "Regularization.h"
 
-#include <Spacy/Util/Base/OperatorBase.hh>
+#include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Mixins.h>
 
 namespace Spacy

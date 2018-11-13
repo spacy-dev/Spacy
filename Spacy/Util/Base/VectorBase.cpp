@@ -1,29 +1,30 @@
-#include "VectorBase.hh"
+#include "VectorBase.h"
+
 #include <Spacy/vectorSpace.hh>
 
 namespace Spacy
 {
-    VectorBase::VectorBase( const VectorSpace& space )
-        : space_(space)
-    {}
-
-    VectorBase::VectorBase(const VectorBase& y)
-        : space_(y.space_)
-    {}
-
-    VectorBase::VectorBase(VectorBase&& y) noexcept
-        : space_(y.space_)
-    {}
-
-    VectorBase& VectorBase::operator=(const VectorBase& y)
+    VectorBase::VectorBase( const VectorSpace& space ) : space_( space )
     {
-        checkSpaceCompatibility(this->space(),y.space());
+    }
+
+    VectorBase::VectorBase( const VectorBase& y ) : space_( y.space_ )
+    {
+    }
+
+    VectorBase::VectorBase( VectorBase&& y ) noexcept : space_( y.space_ )
+    {
+    }
+
+    VectorBase& VectorBase::operator=( const VectorBase& y )
+    {
+        checkSpaceCompatibility( this->space(), y.space() );
         return *this;
     }
 
-    VectorBase& VectorBase::operator=(VectorBase&& y) noexcept
+    VectorBase& VectorBase::operator=( VectorBase&& y ) noexcept
     {
-        checkSpaceCompatibility(this->space(),y.space());
+        checkSpaceCompatibility( this->space(), y.space() );
         return *this;
     }
 

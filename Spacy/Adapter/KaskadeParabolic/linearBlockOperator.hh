@@ -2,19 +2,19 @@
 
 #include <utility>
 
-#include <Spacy/Util/Base/OperatorBase.hh>
-#include <Spacy/Util/Base/VectorBase.hh>
+#include <Spacy/Util/Base/OperatorBase.h>
+#include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/linearSolver.hh>
 #include <Spacy/vector.hh>
 
+#include <Spacy/Spaces/ProductSpace.h>
+#include <Spacy/Util/Base/AddArithmeticOperators.h>
+#include <Spacy/Util/Mixins/Get.h>
+#include <Spacy/Util/cast.hh>
 #include "directSolver.hh"
 #include "linearBlockOperatorSpace.hh"
 #include "util.hh" // copy
 #include "vector.hh"
-#include <Spacy/Spaces/ProductSpace.h>
-#include <Spacy/Util/Base/AddArithmeticOperators.hh>
-#include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/Util/cast.hh>
 
 namespace Spacy
 {

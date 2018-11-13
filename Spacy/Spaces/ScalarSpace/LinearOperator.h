@@ -2,9 +2,9 @@
 
 #include <functional>
 
-#include <Spacy/Util/Base/AddArithmeticOperators.hh>
-#include <Spacy/Util/Base/OperatorBase.hh>
-#include <Spacy/Util/Base/VectorBase.hh>
+#include <Spacy/Util/Base/AddArithmeticOperators.h>
+#include <Spacy/Util/Base/OperatorBase.h>
+#include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Mixins/Get.h>
 
 namespace Spacy

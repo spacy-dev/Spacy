@@ -19,19 +19,19 @@ namespace Spacy
          * @brief Constructor.
          * @param space underlying vector space
          */
-        VectorBase(const VectorSpace& space);
+        VectorBase( const VectorSpace& space );
 
         /// Copy constructor.
-        VectorBase(const VectorBase& y);
+        VectorBase( const VectorBase& y );
 
         /// Move constructor.
-        VectorBase(VectorBase&& y) noexcept;
+        VectorBase( VectorBase&& y ) noexcept;
 
         /// Copy assignment.
-        VectorBase& operator=(const VectorBase& y);
+        VectorBase& operator=( const VectorBase& y );
 
         /// Move assignment.
-        VectorBase& operator=(VectorBase&& y) noexcept;
+        VectorBase& operator=( VectorBase&& y ) noexcept;
 
         /// Access underlying vector space.
         const VectorSpace& space() const;

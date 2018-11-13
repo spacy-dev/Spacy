@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Util/Base/OperatorBase.hh>
+#include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/c1Operator.hh>
 #include <Spacy/operator.hh>
 
