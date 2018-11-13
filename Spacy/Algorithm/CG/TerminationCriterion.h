@@ -4,11 +4,9 @@
 #pragma once
 
 #include <Spacy/Util/SmartPointerStorage.h>
-
+#include <Spacy/vector.hh>
 #include <memory>
 #include <type_traits>
-
-#include <Spacy/vector.hh>
 
 namespace Spacy
 {
@@ -21,7 +19,7 @@ namespace Spacy
             {
                 virtual ~Interface() = default;
                 virtual std::unique_ptr< Interface > clone() const = 0;
-                virtual bool operator()() const = 0;
+                virtual bool call() const = 0;
                 virtual void clear() = 0;
                 virtual void update( double alpha, double qAq, double qPq, double rPINVr,
                                      const Vector& x ) = 0;
@@ -41,12 +39,12 @@ namespace Spacy
                 {
                 }
 
-                std::unique_ptr< Interface > clone() const
+                std::unique_ptr< Interface > clone() const override
                 {
                     return std::make_unique< Wrapper< Impl > >( impl );
                 }
 
-                bool operator()() const override
+                bool call() const override
                 {
                     return impl.operator()();
                 }
@@ -108,17 +106,19 @@ namespace Spacy
         public:
             TerminationCriterion() noexcept = default;
 
-            template < class T,
-                       typename std::enable_if< !std::is_same<
-                           typename std::decay< T >::type, TerminationCriterion >::value >::type* =
-                           nullptr >
+            template <
+                class T,
+                typename std::enable_if<
+                    !std::is_same< typename std::decay< T >::type, TerminationCriterion >::value &&
+                    !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
+                    nullptr >
             TerminationCriterion( T&& value ) : impl_( std::forward< T >( value ) )
             {
             }
 
             bool operator()() const
             {
-                return impl_->operator()();
+                return impl_->call();
             }
 
             void clear()
@@ -162,10 +162,12 @@ namespace Spacy
                 impl_->setRelativeAccuracy( std::move( accuracy ) );
             }
 
-            template < class T,
-                       typename std::enable_if< !std::is_same<
-                           typename std::decay< T >::type, TerminationCriterion >::value >::type* =
-                           nullptr >
+            template <
+                class T,
+                typename std::enable_if<
+                    !std::is_same< typename std::decay< T >::type, TerminationCriterion >::value &&
+                    !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
+                    nullptr >
             TerminationCriterion& operator=( T&& value )
             {
                 return *this = TerminationCriterion( std::forward< T >( value ) );

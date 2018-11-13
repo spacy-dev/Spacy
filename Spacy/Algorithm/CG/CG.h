@@ -6,8 +6,8 @@
 #include <Spacy/Util/Mixins.h>
 #include <Spacy/operator.hh>
 
-#include "Regularization.hh"
-#include "terminationCriterion.hh"
+#include "Regularization.h"
+#include "TerminationCriterion.h"
 
 namespace Spacy
 {
