@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <Spacy/Util/Base/VectorBase.hh>
-#include <Spacy/Util/Exceptions/invalidArgumentException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/vector.hh>
 

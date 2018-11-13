@@ -11,7 +11,7 @@
 #include <deal.II/lac/vector.h>
 // For boundary values
 #include <Spacy/Util/Base/FunctionalBase.h>
-#include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>

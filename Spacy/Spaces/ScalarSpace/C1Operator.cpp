@@ -1,7 +1,7 @@
 #include "C1Operator.h"
 
 #include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
@@ -27,11 +27,11 @@ namespace Spacy
             : OperatorBase( domain, range ), value_( value ), derivative_( derivative ),
               operatorSpace_( std::make_shared< VectorSpace >(
                   []( const ::Spacy::VectorSpace* ) -> Spacy::Vector {
-                      throw CallOfUndefinedFunctionException(
+                      throw Exception::CallOfUndefinedFunction(
                           "OperatorCreator::operator()(const VectorSpace*)" );
                   },
                   []( const ::Spacy::Vector& ) -> Spacy::Real {
-                      throw CallOfUndefinedFunctionException( "LinearOperatorNorm" );
+                      throw Exception::CallOfUndefinedFunction( "LinearOperatorNorm" );
                   },
                   true ) )
         {

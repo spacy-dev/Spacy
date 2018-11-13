@@ -1,7 +1,6 @@
 #include "vectorSpace.hh"
 
-#include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
-#include <Spacy/Util/Exceptions/invalidArgumentException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>
 
 #include <Spacy/HilbertSpaceNorm.h>
@@ -192,6 +191,6 @@ namespace Spacy
     void checkSpaceCompatibility( const VectorSpace& V, const VectorSpace& W )
     {
         if ( V.index() != W.index() )
-            throw IncompatibleSpaceException( V.index(), W.index() );
+            throw Exception::IncompatibleSpace( V.index(), W.index() );
     }
 }

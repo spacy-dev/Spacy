@@ -4,7 +4,7 @@
 #pragma once
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/vectorSpace.hh>
@@ -218,7 +218,7 @@ namespace Spacy
     inline void checkDualPairing( const Vector& x, const Vector& y )
     {
         if ( !y.space().isPrimalWRT( x.space() ) )
-            throw IncompatibleSpaceException( x.space().index(), y.space().index() );
+            throw Exception::IncompatibleSpace( x.space().index(), y.space().index() );
     }
 
     template < class T, typename std::enable_if< std::is_arithmetic< T >::value >::type* = nullptr >

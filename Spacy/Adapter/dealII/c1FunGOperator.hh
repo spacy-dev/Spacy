@@ -15,7 +15,7 @@
 #include <Spacy/zeroVectorCreator.hh>
 #include <Spacy/Util/Base/OperatorBase.hh>
 #include <Spacy/Util/cast.hh>
-#include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
+#include <Spacy/Util/Exceptions.h>
 
 #include "copy.hh"
 #include "init.hh"

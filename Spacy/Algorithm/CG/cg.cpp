@@ -1,10 +1,7 @@
-// Copyright (C) 2015 by Lars Lubkoll. All rights reserved.
-// Released under the terms of the GNU General Public License version 3 or later.
-
 #include "cg.hh"
 
 #include "terminationCriteria.hh"
-#include "Spacy/Util/Exceptions/singularOperatorException.hh"
+#include "Spacy/Util/Exceptions.h"
 #include "Spacy/Util/cast.hh"
 #include "Spacy/vector.hh"
 
@@ -216,7 +213,7 @@ namespace Spacy
                               << std::endl;
                 }
 
-                throw SingularOperatorException( "CG::terminateOnNonconvexity" );
+                throw Exception::SingularOperator( "CG::terminateOnNonconvexity" );
             }
 
             if ( truncated_ && ( !regularized_ || terminate_.minimalDecreaseAchieved() ) )

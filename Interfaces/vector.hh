@@ -2,7 +2,7 @@
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/vectorSpace.hh>
-#include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
 #include <functional>
 #include <type_traits>
@@ -73,7 +73,7 @@ namespace Spacy
   inline void checkDualPairing(const Vector& x, const Vector& y)
   {
     if( !y.space().isPrimalWRT(x.space()) )
-      throw IncompatibleSpaceException(x.space().index(),y.space().index());
+      throw Exception::IncompatibleSpace(x.space().index(),y.space().index());
   }
 
 

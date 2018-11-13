@@ -8,7 +8,6 @@
 
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>

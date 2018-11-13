@@ -4,7 +4,7 @@
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/linearSolver.hh>
-#include <Spacy/Util/Exceptions/invalidArgumentException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <functional>
 
 namespace Spacy

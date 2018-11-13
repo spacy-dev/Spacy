@@ -4,8 +4,7 @@
 #include <Spacy/zeroVectorCreator.hh>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/cast.hh>
-#include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
-#include <Spacy/Util/Exceptions/invalidArgumentException.hh>
+#include <Spacy/Util/Exceptions.h>
 
 #include "vectorSpace.hh"
 

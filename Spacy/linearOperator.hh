@@ -3,68 +3,199 @@
 
 #pragma once
 
-#include <Spacy/Detail/linearOperator_table.h>
-#include <Spacy/Util/storage.h>
-
-#include <functional>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/Exceptions/invalidArgumentException.hh>
+#include <Spacy/Util/Exceptions.h>
+#include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/linearSolver.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
+#include <memory>
+#include <type_traits>
+#include <functional>
+
 namespace Spacy
 {
     /// Type-erased linear operator \f$A:\ X \to Y \f$.
     class LinearOperator
     {
+        struct Interface
+        {
+            virtual ~Interface() = default;
+            virtual std::shared_ptr< Interface > clone() const = 0;
+            virtual Vector call_const_Vector_ref( const Vector& x ) const = 0;
+            virtual Real call_const_LinearOperator_ref( const LinearOperator& x ) const = 0;
+            virtual void add_const_LinearOperator_ref( const LinearOperator& y ) = 0;
+            virtual void subtract_const_LinearOperator_ref( const LinearOperator& y ) = 0;
+            virtual void multiply_double( double a ) = 0;
+            virtual LinearOperator negate() const = 0;
+            virtual bool compare_const_LinearOperator_ref( const LinearOperator& y ) const = 0;
+            virtual std::function< Vector( const Vector& ) > solver() const = 0;
+            virtual const VectorSpace& domain() const = 0;
+            virtual const VectorSpace& range() const = 0;
+            virtual const VectorSpace& space() const = 0;
+        };
+
+        template < class Impl >
+        struct Wrapper : Interface
+        {
+            template < class T >
+            Wrapper( T&& t ) : impl( std::forward< T >( t ) )
+            {
+            }
+
+            std::shared_ptr< Interface > clone() const override
+            {
+                return std::make_shared< Wrapper< Impl > >( impl );
+            }
+
+            Vector call_const_Vector_ref( const Vector& x ) const override
+            {
+                return impl.operator()( x );
+            }
+
+            Real call_const_LinearOperator_ref( const LinearOperator& x ) const override
+            {
+                return impl.operator()( *x.template target< typename std::decay< Impl >::type >() );
+            }
+
+            void add_const_LinearOperator_ref( const LinearOperator& y ) override
+            {
+                impl.operator+=( *y.template target< typename std::decay< Impl >::type >() );
+            }
+
+            void subtract_const_LinearOperator_ref( const LinearOperator& y ) override
+            {
+                impl.operator-=( *y.template target< typename std::decay< Impl >::type >() );
+            }
+
+            void multiply_double( double a ) override
+            {
+                impl.operator*=( std::move( a ) );
+            }
+
+            LinearOperator negate() const override
+            {
+                return impl.operator-();
+            }
+
+            bool compare_const_LinearOperator_ref( const LinearOperator& y ) const override
+            {
+                return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
+            }
+
+            std::function< Vector( const Vector& ) > solver() const override
+            {
+                return impl.solver();
+            }
+
+            const VectorSpace& domain() const override
+            {
+                return impl.domain();
+            }
+
+            const VectorSpace& range() const override
+            {
+                return impl.range();
+            }
+
+            const VectorSpace& space() const override
+            {
+                return impl.space();
+            }
+
+            Impl impl;
+        };
+
+        template < class Impl >
+        struct Wrapper< std::reference_wrapper< Impl > > : Wrapper< Impl& >
+        {
+            template < class T >
+            Wrapper( T&& t ) : Wrapper< Impl& >( std::forward< T >( t ) )
+            {
+            }
+        };
+
     public:
         LinearOperator() noexcept = default;
 
-        template < class T,
-                   typename std::enable_if< LinearOperatorDetail::Concept<
-                       LinearOperator, typename std::decay< T >::type >::value >::type* = nullptr >
-        LinearOperator( T&& value )
-            : function_(
-                  {&LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::call_const_Vector_ref,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::call_const_LinearOperator_ref,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::add_const_LinearOperator_ref,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::subtract_const_LinearOperator_ref,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::multiply_double,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::negate,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::compare_const_LinearOperator_ref,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::solver,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::domain,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::range,
-                   &LinearOperatorDetail::execution_wrapper<
-                       LinearOperator, type_erasure_table_detail::remove_reference_wrapper_t<
-                                           std::decay_t< T > > >::space} ),
-              impl_( std::forward< T >( value ) )
+        template <
+            class T,
+            typename std::enable_if<
+                !std::is_same< typename std::decay< T >::type, LinearOperator >::value &&
+                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
+                nullptr >
+        LinearOperator( T&& value ) : impl_( std::forward< T >( value ) )
         {
         }
 
-        template < class T,
-                   typename std::enable_if< LinearOperatorDetail::Concept<
-                       LinearOperator, typename std::decay< T >::type >::value >::type* = nullptr >
+        /// Apply operator.
+        Vector operator()( const Vector& x ) const
+        {
+            return impl_->call_const_Vector_ref( x );
+        }
+
+        Real operator()( const LinearOperator& x ) const
+        {
+            return impl_->call_const_LinearOperator_ref( x );
+        }
+
+        LinearOperator& operator+=( const LinearOperator& y )
+        {
+            impl_->add_const_LinearOperator_ref( y );
+            return *this;
+        }
+
+        LinearOperator& operator-=( const LinearOperator& y )
+        {
+            impl_->subtract_const_LinearOperator_ref( y );
+            return *this;
+        }
+
+        LinearOperator& operator*=( double a )
+        {
+            impl_->multiply_double( std::move( a ) );
+            return *this;
+        }
+
+        LinearOperator operator-() const
+        {
+            return impl_->negate();
+        }
+
+        bool operator==( const LinearOperator& y ) const
+        {
+            return impl_->compare_const_LinearOperator_ref( y );
+        }
+
+        std::function< Vector( const Vector& ) > solver() const
+        {
+            return impl_->solver();
+        }
+
+        /// Access domain space \f$X\f$.
+        const VectorSpace& domain() const
+        {
+            return impl_->domain();
+        }
+
+        /// Access range space \f$Y\f$.
+        const VectorSpace& range() const
+        {
+            return impl_->range();
+        }
+
+        /// Access underlying space of linear operators.
+        const VectorSpace& space() const
+        {
+            return impl_->space();
+        }
+
+        template <
+            class T,
+            typename std::enable_if<
+                !std::is_same< typename std::decay< T >::type, LinearOperator >::value &&
+                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
+                nullptr >
         LinearOperator& operator=( T&& value )
         {
             return *this = LinearOperator( std::forward< T >( value ) );
@@ -73,76 +204,6 @@ namespace Spacy
         explicit operator bool() const noexcept
         {
             return bool( impl_ );
-        }
-
-        /// Apply operator.
-        Vector operator()( const Vector& x ) const
-        {
-            assert( impl_ );
-            return function_.call_const_Vector_ref( impl_, x );
-        }
-
-        Real operator()( const LinearOperator& x ) const
-        {
-            assert( impl_ );
-            return function_.call_const_LinearOperator_ref( impl_, x.impl_ );
-        }
-
-        LinearOperator& operator+=( const LinearOperator& y )
-        {
-            assert( impl_ );
-            return function_.add_const_LinearOperator_ref( *this, impl_, y.impl_ );
-        }
-
-        LinearOperator& operator-=( const LinearOperator& y )
-        {
-            assert( impl_ );
-            return function_.subtract_const_LinearOperator_ref( *this, impl_, y.impl_ );
-        }
-
-        LinearOperator& operator*=( double a )
-        {
-            assert( impl_ );
-            return function_.multiply_double( *this, impl_, std::move( a ) );
-        }
-
-        LinearOperator operator-() const
-        {
-            assert( impl_ );
-            return function_.negate( impl_ );
-        }
-
-        bool operator==( const LinearOperator& y ) const
-        {
-            assert( impl_ );
-            return function_.compare_const_LinearOperator_ref( impl_, y.impl_ );
-        }
-
-        std::function< Vector( const Vector& ) > solver() const
-        {
-            assert( impl_ );
-            return function_.solver( impl_ );
-        }
-
-        /// Access domain space \f$X\f$.
-        const VectorSpace& domain() const
-        {
-            assert( impl_ );
-            return function_.domain( impl_ );
-        }
-
-        /// Access range space \f$Y\f$.
-        const VectorSpace& range() const
-        {
-            assert( impl_ );
-            return function_.range( impl_ );
-        }
-
-        /// Access underlying space of linear operators.
-        const VectorSpace& space() const
-        {
-            assert( impl_ );
-            return function_.space( impl_ );
         }
 
         template < class T >
@@ -158,8 +219,7 @@ namespace Spacy
         }
 
     private:
-        LinearOperatorDetail::Table< LinearOperator > function_;
-        clang::type_erasure::SBOStorage< 16 > impl_;
+        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
     };
     /// Access solver via A^-1. Throws for k!=-1.
     inline LinearSolver operator^( const LinearOperator& A, int k )
@@ -174,7 +234,7 @@ namespace Spacy
     inline LinearSolver operator^( LinearOperator&& A, int k )
     {
         if ( k == -1 )
-            return A.solver();
+            return std::move( A.solver() );
         throw Exception::InvalidArgument(
             "operator^ for LinearOperator only defined for exponent: k = -1." );
     }

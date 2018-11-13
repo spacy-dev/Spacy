@@ -3,7 +3,7 @@
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 #include <Spacy/c1Operator.hh>
-#include <Spacy/Util/Exceptions/regularityTestFailedException.hh>
+#include <Spacy/Util/Exceptions.h>
 
 #include <cmath>
 
@@ -35,7 +35,7 @@ namespace Spacy
         while(true)
         {
           if( regularityTestFailed(nu) )
-              throw RegularityTestFailedException("Newton::DampingStrategy::AffineCovariant",get(get(nu)));
+              throw Exception::RegularityTestFailed("Newton::DampingStrategy::AffineCovariant",get(get(nu)));
 
           auto trial = x + nu*dx;
           auto ds = DFInv_(-F_(trial)) - (1-nu)*dx;
@@ -87,7 +87,7 @@ namespace Spacy
         while( true )
         {
           if( !regularityTestPassed(nu))
-              throw RegularityTestFailedException("Newton::DampingStrategy::AffineContravariant",get(get(nu)));
+              throw Exception::RegularityTestFailed("Newton::DampingStrategy::AffineContravariant",get(get(nu)));
 
           auto trial = x + nu*dx;
 

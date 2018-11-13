@@ -2,7 +2,7 @@
 
 #include <Spacy/Algorithm/Newton/dampingStrategies.hh>
 #include <Spacy/Algorithm/Newton/terminationCriteria.hh>
-#include <Spacy/Util/Exceptions/notConvergedException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/log.hh>
 
 #include <Spacy/c1Operator.hh>

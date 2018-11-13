@@ -12,7 +12,7 @@
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 #include <Spacy/Util/cast.hh>
-#include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/vectorSpace.hh>
 
 #include "cgSolver.hh"

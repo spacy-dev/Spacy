@@ -28,7 +28,7 @@ TEST( ProductSpaceVector, AddThrow )
     auto v = zero( std::get< 0 >( V ) );
     auto w = zero( std::get< 0 >( W ) );
 
-    ASSERT_THROW( v + w, IncompatibleSpaceException );
+    ASSERT_THROW( v + w, Exception::IncompatibleSpace );
 }
 
 TEST( ProductSpaceVector, Subtract )
@@ -55,7 +55,7 @@ TEST( ProductSpaceVector, SubtractThrow )
     auto v = zero( std::get< 0 >( V ) );
     auto w = zero( std::get< 0 >( W ) );
 
-    ASSERT_THROW( v - w, IncompatibleSpaceException );
+    ASSERT_THROW( v - w, Exception::IncompatibleSpace );
 }
 
 TEST( ProductSpaceVector, MultiplyWithDouble )
@@ -100,7 +100,7 @@ TEST( ProductSpaceVector, ComparisonThrow )
     auto v = createFirstTestVector( std::get< 0 >( V ) );
     auto w = createFirstTestVector( std::get< 0 >( W ) );
 
-    ASSERT_THROW( v == w, IncompatibleSpaceException );
+    ASSERT_THROW( v == w, Exception::IncompatibleSpace );
 }
 
 TEST( ProductSpaceVector, NumberOfVariables )
@@ -151,7 +151,7 @@ TEST( ProductSpaceVector, ApplyAsDual )
     auto dual = createFirstTestVector( W );
 
     ASSERT_EQ( get( dual( primal ) ), 5. );
-    ASSERT_THROW( primal( dual ), IncompatibleSpaceException );
+    ASSERT_THROW( primal( dual ), Exception::IncompatibleSpace );
 }
 
 TEST( ExtractComponentView, OneLayer )

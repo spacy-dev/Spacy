@@ -1,7 +1,7 @@
 #include "C2Functional.h"
 
 #include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/Util/Exceptions/callOfUndefinedFunctionException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/linearOperator.hh>
 #include <Spacy/vector.hh>
@@ -21,11 +21,11 @@ namespace Spacy
               derivative_( std::move( derivative ) ), secDerivative_( std::move( secDerivative ) ),
               operatorSpace_( std::make_shared< VectorSpace >(
                   []( const ::Spacy::VectorSpace* ) -> Spacy::Vector {
-                      throw CallOfUndefinedFunctionException(
+                      throw Exception::CallOfUndefinedFunction(
                           "OperatorCreator::operator()(const VectorSpace*)" );
                   },
                   []( const ::Spacy::Vector& ) -> Spacy::Real {
-                      throw CallOfUndefinedFunctionException( "LinearOperatorNorm" );
+                      throw Exception::CallOfUndefinedFunction( "LinearOperatorNorm" );
                   },
                   true ) )
         {

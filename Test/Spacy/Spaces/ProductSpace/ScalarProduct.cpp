@@ -24,5 +24,5 @@ TEST( ProductSpaceProduct, ApplyThrow )
     auto v = zero( std::get< 0 >( V ) );
     auto w = zero( std::get< 0 >( W ) );
 
-    EXPECT_THROW( sp( v, w ), IncompatibleSpaceException );
+    EXPECT_THROW( sp( v, w ), Exception::IncompatibleSpace );
 }

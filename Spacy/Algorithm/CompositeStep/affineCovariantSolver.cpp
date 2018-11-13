@@ -13,7 +13,7 @@
 #include <utility>
 #include <Spacy/Algorithm/CG/terminationCriteria.hh>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
-#include <Spacy/Util/Exceptions/regularityTestFailedException.hh>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/Util/logger.hh>
 #include <Spacy/inducedScalarProduct.hh>
@@ -797,10 +797,10 @@ namespace Spacy
         void AffineCovariantSolver::regularityTest( DampingFactor nu, DampingFactor tau ) const
         {
             if ( !regularityTestPassed( nu ) )
-                throw RegularityTestFailedException(
+                throw Exception::RegularityTestFailed(
                     "AffineCovariantSolver::regularityTest (nu,...)", get( get( nu ) ) );
             //      if( !regularityTestPassed(tau) ) throw
-            //      RegularityTestFailedException("AffineCovariantSolver::regularityTest
+            //      Exception::RegularityTestFailed("AffineCovariantSolver::regularityTest
             //      (...,tau)",get(tau));
         }
     }
