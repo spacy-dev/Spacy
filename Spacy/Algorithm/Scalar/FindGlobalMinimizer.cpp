@@ -1,10 +1,10 @@
-#include "findGlobalMinimizer.hh"
+#include "FindGlobalMinimizer.h"
 
 #include <cassert>
 #include <iostream>
 
-#include "Fmin.h"
 #include <Spacy/Util/Mixins/Get.h>
+#include "Fmin.h"
 
 namespace Spacy
 {

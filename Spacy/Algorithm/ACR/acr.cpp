@@ -3,7 +3,7 @@
 #include <Spacy/Algorithm/CG/CG.h>
 #include <Spacy/Algorithm/CG/LinearSolver.h>
 #include <Spacy/Algorithm/CompositeStep/quadraticModel.hh>
-#include <Spacy/Algorithm/Scalar/findGlobalMinimizer.hh>
+#include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
 #include <Spacy/Algorithm/dampingFactor.hh>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/Util/log.hh>
