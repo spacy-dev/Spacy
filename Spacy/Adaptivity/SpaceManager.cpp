@@ -8,14 +8,6 @@
 
 namespace Spacy
 {
-    namespace
-    {
-        std::string notFound(SpaceManager::SpaceIndex spaceIndex)
-        {
-            return "Space " + std::to_string(spaceIndex) + " not found.";
-        }
-    }
-
     void SpaceManager::add(SpaceIndex idx, SpatialAdaptivity adaptivity)
     {
         using std::end;
@@ -37,7 +29,7 @@ namespace Spacy
         const auto subscribedVectorsIterator = find(v->space().index());
         const auto containsSpace = subscribedVectorsIterator != end(subscribedVectors_);
         if(!containsSpace)
-            throw std::runtime_error(notFound(v->space().index()).append(" Can't subscribe vector."));
+            return;
 
         subscribedVectorsIterator->second.vectors.insert(v);
     }
@@ -48,7 +40,7 @@ namespace Spacy
         const auto subscribedVectorsIterator = find(v->space().index());
         const auto containsSpace = subscribedVectorsIterator != end(subscribedVectors_);
         if(!containsSpace)
-            throw std::runtime_error(notFound(v->space().index()).append(" Can't unsubscribe vector."));
+            return;
 
         subscribedVectorsIterator->second.vectors.erase(v);
     }
@@ -60,7 +52,7 @@ namespace Spacy
         const auto subscribedVectorsIterator = find(idx);
         const auto containsSpace = subscribedVectorsIterator != end(subscribedVectors_);
         if(!containsSpace)
-            throw std::runtime_error(notFound(idx).append(" Ignoring error indicator."));
+            throw std::runtime_error("Space " + std::to_string(idx) + " not found.");
 
         auto& adjustGrid = subscribedVectorsIterator->second.adaptivity;
         const auto transfer = adjustGrid(errorIndicator);
