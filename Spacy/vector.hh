@@ -7,6 +7,7 @@
 #include <Spacy/Util/Exceptions/incompatibleSpaceException.hh>
 #include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/Util/SmartPointerStorage.h>
+#include <Spacy/Adaptivity/SpaceManager.h>
 #include <Spacy/vectorSpace.hh>
 #include <memory>
 #include <type_traits>
@@ -101,6 +102,51 @@ namespace Spacy
                 nullptr >
         Vector( T&& value ) : impl_( std::forward< T >( value ) )
         {
+            globalSpaceManager().subscribe(this);
+        }
+
+        Vector(const Vector& v)
+            : impl_(v.impl_)
+        {
+            if(*this)
+                globalSpaceManager().subscribe(this);
+        }
+
+        Vector(Vector&& v) noexcept
+            : impl_(v.impl_)
+        {
+            if(v)
+                globalSpaceManager().unsubscribe(&v);
+            if(*this)
+                globalSpaceManager().subscribe(this);
+        }
+
+        Vector& operator=(const Vector& v)
+        {
+            if(*this)
+                globalSpaceManager().unsubscribe(this);
+            impl_ = v.impl_;
+            if(*this)
+                globalSpaceManager().subscribe(this);
+            return *this;
+        }
+
+        Vector& operator=(Vector&& v) noexcept
+        {
+            if(v)
+                globalSpaceManager().unsubscribe(&v);
+            if(*this)
+                globalSpaceManager().unsubscribe(this);
+            impl_ = std::move(v.impl_);
+            if(*this)
+                globalSpaceManager().subscribe(this);
+            return *this;
+        }
+
+        ~Vector()
+        {
+            if(*this)
+                globalSpaceManager().unsubscribe(this);
         }
 
         /// Apply as dual space element.
