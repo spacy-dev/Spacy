@@ -1,4 +1,4 @@
-#include "RegularizeViaPreconditioner.hh"
+#include "RegularizeViaPreconditioner.h"
 
 #include <Spacy/Util/log.hh>
 

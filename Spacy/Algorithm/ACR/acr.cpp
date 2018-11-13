@@ -1,7 +1,7 @@
 #include "acr.hh"
 
-#include <Spacy/Algorithm/CG/cg.hh>
-#include <Spacy/Algorithm/CG/linearSolver.hh>
+#include <Spacy/Algorithm/CG/CG.h>
+#include <Spacy/Algorithm/CG/LinearSolver.h>
 #include <Spacy/Algorithm/CompositeStep/quadraticModel.hh>
 #include <Spacy/Algorithm/Scalar/findGlobalMinimizer.hh>
 #include <Spacy/Algorithm/dampingFactor.hh>

@@ -2,13 +2,12 @@
 
 #include "quadraticModel.hh"
 
-#include "Spacy/Algorithm/CG/RegularizeViaPreconditioner.hh"
+#include <Spacy/Algorithm/CG/LinearSolver.h>
+#include <Spacy/Algorithm/CG/RegularizeViaPreconditioner.h>
+#include <Spacy/Algorithm/CG/TerminationCriteria.h>
 #include <Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h>
-#include <Spacy/Algorithm/CG/linearSolver.hh>
 #include <Spacy/Algorithm/Scalar/findGlobalMinimizer.hh>
 #include <Spacy/Algorithm/dampingFactor.hh>
-
-#include <Spacy/Algorithm/CG/terminationCriteria.hh>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>

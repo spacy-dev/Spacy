@@ -1,6 +1,6 @@
-#include "linearSolver.hh"
+#include "LinearSolver.h"
 
-#include "RegularizeViaPreconditioner.hh"
+#include "RegularizeViaPreconditioner.h"
 
 #include <Spacy/operator.hh>
 #include <Spacy/vectorSpace.hh>

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "cg.hh"
+#include "CG.h"
 
+#include <Spacy/Algorithm/CG/Regularization.hh>
 #include <Spacy/Util/Base/OperatorBase.hh>
 #include <Spacy/Util/Mixins.h>
-#include <Spacy/Algorithm/CG/Regularization.hh>
 
 namespace Spacy
 {

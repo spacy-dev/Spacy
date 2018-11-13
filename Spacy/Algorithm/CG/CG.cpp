@@ -1,9 +1,11 @@
-#include "cg.hh"
+#include "CG.h"
 
-#include "terminationCriteria.hh"
-#include "Spacy/Util/Exceptions.h"
-#include "Spacy/Util/cast.hh"
-#include "Spacy/vector.hh"
+#include <Spacy/Util/Exceptions.h>
+#include <Spacy/Util/cast.hh>
+#include <Spacy/vector.hh>
+
+#include "RegularizeViaPreconditioner.h"
+#include "TerminationCriteria.h"
 
 #include <algorithm>
 #include <cassert>
@@ -11,7 +13,6 @@
 #include <iostream>
 #include <utility>
 
-#include "RegularizeViaPreconditioner.hh"
 namespace Spacy
 {
     namespace CG

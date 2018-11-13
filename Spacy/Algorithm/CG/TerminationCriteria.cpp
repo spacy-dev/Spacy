@@ -1,4 +1,4 @@
-#include "terminationCriteria.hh"
+#include "TerminationCriteria.h"
 
 #include <Spacy/Spaces/ProductSpace.h>
 
