@@ -1,6 +1,6 @@
 #include "C1Operator.h"
 
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/zeroVectorCreator.hh>
 
 #include "Vector.h"

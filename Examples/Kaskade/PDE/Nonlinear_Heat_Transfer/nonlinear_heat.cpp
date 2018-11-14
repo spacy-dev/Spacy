@@ -6,8 +6,8 @@
 #define SPACY_ENABLE_LOGGING
 #include <Spacy/Adapter/kaskade.hh>
 #include <Spacy/Algorithm/Newton/newton.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Log.h>
-#include <Spacy/Util/cast.hh>
 #include <Spacy/inducedScalarProduct.hh>
 #include <Spacy/zeroVectorCreator.hh>
 

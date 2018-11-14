@@ -10,12 +10,12 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/numerics/matrix_tools.h>
 
-#include "vectorSpace.hh"
 #include <Spacy/Spaces/ProductSpace.h>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Invoke.h>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
+#include "vectorSpace.hh"
 
 #include <type_traits>
 

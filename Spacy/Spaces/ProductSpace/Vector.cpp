@@ -1,7 +1,7 @@
 #include "Vector.h"
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 

@@ -3,8 +3,8 @@
 #include <gtest/gtest.h>
 
 #include <Spacy/Spaces/RealSpace.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/Util/cast.hh>
 #include <Spacy/c1Operator.hh>
 
 struct Linear

@@ -3,7 +3,7 @@
 #include <string>
 #include <fstream>
 
-#include <Spacy/Util/voider.hh>
+#include <Spacy/Util/Voider.h>
 
 namespace Spacy
 {

@@ -4,7 +4,7 @@
 //#include "Spacy/scalarProduct.hh"
 //#include "Spacy/Spaces/RealSpace.h"
 //#include "Spacy/Spaces/ProductSpace.h"
-//#include "Spacy/Util/cast.hh"
+//#include "Spacy/Util/Cast.h"
 
 // namespace
 //{

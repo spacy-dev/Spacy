@@ -1,12 +1,12 @@
 #include <Test/gtest.hh>
 
-#include <Test/mockSetup.hh>
 #include <Spacy/Spaces/ProductSpace/C1Operator.h>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Spaces/ProductSpace/VectorSpace.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Spaces/ScalarSpace/C1Operator.h>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
+#include <Test/mockSetup.hh>
 
 #include <memory>
 #include <vector>

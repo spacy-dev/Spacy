@@ -2,7 +2,7 @@
 
 #include <Spacy/Spaces/ScalarSpace/LinearSolver.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/vector.hh>
 
 using namespace Spacy;

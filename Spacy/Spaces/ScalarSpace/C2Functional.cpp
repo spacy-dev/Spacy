@@ -1,8 +1,8 @@
 #include "C2Functional.h"
 
 #include <Spacy/Spaces/RealSpace.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/Util/cast.hh>
 #include <Spacy/linearOperator.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>

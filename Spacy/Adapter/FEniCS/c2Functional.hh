@@ -3,7 +3,7 @@
 #include <memory>
 
 #include <Spacy/Util/Base/FunctionalBase.h>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/operator.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>

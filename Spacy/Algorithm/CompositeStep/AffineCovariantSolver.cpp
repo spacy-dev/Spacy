@@ -1,6 +1,6 @@
-#include "affineCovariantSolver.hh"
+#include "AffineCovariantSolver.h"
 
-#include "quadraticModel.hh"
+#include "QuadraticModel.h"
 
 #include <Spacy/Algorithm/CG/LinearSolver.h>
 #include <Spacy/Algorithm/CG/RegularizeViaPreconditioner.h>
@@ -9,9 +9,9 @@
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Logger.h>
-#include <Spacy/Util/cast.hh>
 #include <Spacy/inducedScalarProduct.hh>
 #include <Spacy/zeroVectorCreator.hh>
 #include <cmath>

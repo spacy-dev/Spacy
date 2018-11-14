@@ -2,11 +2,11 @@
 
 #include <Spacy/Algorithm/CG/CG.h>
 #include <Spacy/Algorithm/CG/LinearSolver.h>
-#include <Spacy/Algorithm/CompositeStep/quadraticModel.hh>
+#include <Spacy/Algorithm/CompositeStep/QuadraticModel.h>
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Log.h>
-#include <Spacy/Util/cast.hh>
 #include <Spacy/operator.hh>
 #include <Spacy/zeroVectorCreator.hh>
 

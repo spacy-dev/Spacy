@@ -10,7 +10,7 @@
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 
 #include "../../gtest.hh"
 #include <gmock/gmock.h>

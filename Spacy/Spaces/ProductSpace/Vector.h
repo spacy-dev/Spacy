@@ -5,8 +5,8 @@
 #include <vector>
 
 #include <Spacy/Util/Base/VectorBase.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/Util/cast.hh>
 #include <Spacy/vector.hh>
 
 namespace Spacy

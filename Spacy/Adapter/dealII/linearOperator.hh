@@ -5,9 +5,9 @@
 
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Base/VectorBase.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/Util/cast.hh>
 #include <Spacy/linearSolver.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>

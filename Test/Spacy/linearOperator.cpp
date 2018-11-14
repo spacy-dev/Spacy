@@ -1,12 +1,12 @@
 #include <Test/gtest.hh>
 
+#include <Spacy/Spaces/RealSpace.h>
+#include <Spacy/Util/Cast.h>
+#include <Spacy/linearOperator.hh>
+#include <Spacy/vector.hh>
 #include <Test/Mock/linearOperator.hh>
 #include <Test/Mock/linearSolver.hh>
 #include <Test/mockSetup.hh>
-#include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/Util/cast.hh>
-#include <Spacy/linearOperator.hh>
-#include <Spacy/vector.hh>
 
 using namespace Spacy;
 

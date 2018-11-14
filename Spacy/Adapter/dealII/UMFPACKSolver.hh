@@ -4,9 +4,9 @@
 #include <deal.II/lac/sparse_matrix.h>
 
 #include <Spacy/Util/Base/OperatorBase.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Mixins/accuracy.hh>
 #include <Spacy/Util/Mixins/maxSteps.hh>
-#include <Spacy/Util/cast.hh>
 #include <Spacy/vector.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>

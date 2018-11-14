@@ -1,6 +1,6 @@
 #include "LinearSolver.h"
 
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/vector.hh>
 
 #include "Real.h"

@@ -1,6 +1,6 @@
 #include "util.hh"
 
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/copy.hh>
 
 #include <Spacy/vector.hh>
@@ -14,63 +14,67 @@
 
 namespace Spacy
 {
-  namespace
-  {
-    void copyToDolfinVectorIfConsistent(const Vector& x, dolfin::GenericVector& y)
+    namespace
     {
-      if( !is<FEniCS::Vector>(x) ) return;
+        void copyToDolfinVectorIfConsistent( const Vector& x, dolfin::GenericVector& y )
+        {
+            if ( !is< FEniCS::Vector >( x ) )
+                return;
 
-      const auto& x_ = cast_ref<FEniCS::Vector>(x);
-      for(auto j=0u; j<cast_ref<FEniCS::VectorCreator>(x_.space().creator()).size(); ++j)
-      {
-        const auto& creator = Spacy::creator<FEniCS::VectorCreator>(x_.space());
-        y.setitem(creator.dofmap(j),x_.get().getitem(j));
-      }
-      y.apply("insert");
+            const auto& x_ = cast_ref< FEniCS::Vector >( x );
+            for ( auto j = 0u; j < cast_ref< FEniCS::VectorCreator >( x_.space().creator() ).size();
+                  ++j )
+            {
+                const auto& creator = Spacy::creator< FEniCS::VectorCreator >( x_.space() );
+                y.setitem( creator.dofmap( j ), x_.get().getitem( j ) );
+            }
+            y.apply( "insert" );
+        }
+
+        void copyFromDolfinVectorIfConsistent( const dolfin::GenericVector& y, Vector& x )
+        {
+            if ( !is< FEniCS::Vector >( x ) )
+                return;
+
+            auto& x_ = cast_ref< FEniCS::Vector >( x );
+            for ( auto j = 0u; j < cast_ref< FEniCS::VectorCreator >( x_.space().creator() ).size();
+                  ++j )
+            {
+                const auto& creator = Spacy::creator< FEniCS::VectorCreator >( x_.space() );
+                x_.get().setitem( j, y.getitem( creator.dofmap( j ) ) );
+            }
+            x_.get().apply( "insert" );
+        }
     }
 
-    void copyFromDolfinVectorIfConsistent(const dolfin::GenericVector& y, Vector& x)
+    namespace FEniCS
     {
-      if( !is<FEniCS::Vector>(x) ) return;
+        void copyCoefficients( const dolfin::Form& F, dolfin::Form& G )
+        {
+            for ( std::size_t i = 0; i < F.num_coefficients(); ++i )
+                G.set_coefficient( i, F.coefficient( i ) );
+        }
 
-      auto& x_ = cast_ref<FEniCS::Vector>(x);
-      for(auto j=0u; j<cast_ref<FEniCS::VectorCreator>(x_.space().creator()).size(); ++j)
-      {
-        const auto& creator = Spacy::creator<FEniCS::VectorCreator>(x_.space());
-        x_.get().setitem( j, y.getitem( creator.dofmap(j) ) );
-      }
-      x_.get().apply("insert");
+        void copy( const ::Spacy::Vector& x, dolfin::GenericVector& y )
+        {
+            genericCopy<::Spacy::Vector, dolfin::GenericVector >( x, y,
+                                                                  copyToDolfinVectorIfConsistent );
+        }
+
+        void copy( const ::Spacy::Vector& x, dolfin::Function& y )
+        {
+            copy( x, *y.vector() );
+        }
+
+        void copy( const dolfin::GenericVector& y, ::Spacy::Vector& x )
+        {
+            genericCopy< dolfin::GenericVector, ::Spacy::Vector >(
+                y, x, copyFromDolfinVectorIfConsistent );
+        }
+
+        void copy( const dolfin::Function& y, ::Spacy::Vector& x )
+        {
+            copy( *y.vector(), x );
+        }
     }
-  }
-
-  namespace FEniCS
-  {
-    void copyCoefficients(const dolfin::Form& F, dolfin::Form& G)
-    {
-      for(std::size_t i=0; i<F.num_coefficients(); ++i)
-          G.set_coefficient( i , F.coefficient(i) );
-    }
-
-
-    void copy(const ::Spacy::Vector& x, dolfin::GenericVector& y)
-    {
-      genericCopy< ::Spacy::Vector , dolfin::GenericVector >(x,y,copyToDolfinVectorIfConsistent);
-    }
-
-    void copy(const ::Spacy::Vector& x, dolfin::Function& y)
-    {
-      copy(x,*y.vector());
-    }
-
-
-    void copy(const dolfin::GenericVector& y, ::Spacy::Vector& x)
-    {
-      genericCopy< dolfin::GenericVector , ::Spacy::Vector >(y,x,copyFromDolfinVectorIfConsistent);
-    }
-
-    void copy(const dolfin::Function& y, ::Spacy::Vector& x)
-    {
-      copy(*y.vector(),x);
-    }
-  }
 }

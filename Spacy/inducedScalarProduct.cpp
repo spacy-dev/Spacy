@@ -1,7 +1,7 @@
 #include "inducedScalarProduct.hh"
 
 #include <Spacy/Spaces/ProductSpace/Vector.h>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 
 #include <utility>
 

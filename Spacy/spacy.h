@@ -19,12 +19,12 @@
 #include <Spacy/Spaces/RealSpace.h>
 
 // Util
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Invoke.h>
 #include <Spacy/Util/Log.h>
 #include <Spacy/Util/Mixins.h>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Voider.h>
 #include <Spacy/Util/copy.hh>
-#include <Spacy/Util/voider.hh>
 
 // Interfaces and directly related functionality
 #include <Spacy/Derivative.h>

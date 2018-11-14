@@ -4,7 +4,7 @@
 #include <Spacy/Util/Base/AddArithmeticOperators.h>
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/Util/voider.hh>
+#include <Spacy/Util/Voider.h>
 
 namespace Spacy
 {

@@ -1,7 +1,7 @@
 #include "vectorSpace.hh"
 
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/Util/cast.hh>
 
 #include <Spacy/HilbertSpaceNorm.h>
 #include <Spacy/Spaces/ProductSpace/VectorSpace.h>

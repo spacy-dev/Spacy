@@ -9,8 +9,8 @@
 
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Util/Base/AddArithmeticOperators.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/Util/cast.hh>
 #include "directSolver.hh"
 #include "linearBlockOperatorSpace.hh"
 #include "util.hh" // copy

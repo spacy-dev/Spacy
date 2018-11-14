@@ -6,7 +6,7 @@
 
 #include <Spacy/Spaces/ScalarSpace/RealSpace.hh>
 #include <Spacy/Util/Base/OperatorBase.h>
-#include <Spacy/Util/cast.hh>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/vectorSpace.hh>
 
 #include "assignXIfPresent.hh"
