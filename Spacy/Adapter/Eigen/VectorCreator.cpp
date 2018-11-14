@@ -1,9 +1,9 @@
-#include "vectorCreator.hh"
+#include "VectorCreator.h"
 
 #include <Spacy/Spaces/ProductSpace/VectorSpace.h>
 #include <Spacy/zeroVectorCreator.hh>
 
-#include "scalarProduct.hh"
+#include "ScalarProduct.h"
 
 #include <memory>
 #include <vector>

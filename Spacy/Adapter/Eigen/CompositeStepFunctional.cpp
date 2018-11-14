@@ -1,16 +1,15 @@
-#include "compositeStepFunctional.hh"
+#include "CompositeStepFunctional.h"
 
-#include <Spacy/Adapter/Eigen/linearOperator.hh>
-#include <Spacy/Adapter/Eigen/util.hh>
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>
 
-#include "linearOperator.hh"
-#include "linearOperatorCreator.hh"
-#include "scalarProduct.hh"
-#include "vector.hh"
-#include "vectorCreator.hh"
+#include "Copy.h"
+#include "LinearOperator.h"
+#include "LinearOperatorCreator.h"
+#include "ScalarProduct.h"
+#include "Vector.h"
+#include "VectorCreator.h"
 
 namespace Spacy
 {
@@ -70,7 +69,7 @@ namespace Spacy
 
             ::Spacy::Vector res = zero( domain() );
 
-            ::Spacy::Rn::copy( d_1, res );
+            copy( d_1, res );
 
             return res;
         }
