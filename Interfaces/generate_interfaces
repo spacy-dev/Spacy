@@ -15,15 +15,15 @@ $COMMAND $COMMON_ARGS $3 -target-dir=$2 $1 -std=c++14 -I.. -x c++-header
 }
 
 function generate_interfaces {
-generate_interface zeroVectorCreator.hh Spacy ""
-generate_interface          operator.hh Spacy "$SMALL_SBO_ARGS"
-generate_interface    linearOperator.hh Spacy "$SMALL_SBO_ARGS"
-generate_interface        c1Operator.hh Spacy "$SMALL_SBO_ARGS"
-generate_interface   dynamicOperator.hh Spacy "$SMALL_SBO_ARGS"
-generate_interface        functional.hh Spacy "$SMALL_SBO_ARGS"
-generate_interface      c1Functional.hh Spacy "$SMALL_SBO_ARGS"
-generate_interface      c2Functional.hh Spacy "$SMALL_SBO_ARGS"
-generate_interface            vector.hh Spacy "$SMALL_SBO_ARGS"
+generate_interface  ZeroVectorCreator.h Spacy ""
+generate_interface           Operator.h Spacy "$SMALL_SBO_ARGS"
+generate_interface     LinearOperator.h Spacy "$SMALL_SBO_ARGS"
+generate_interface         C1Operator.h Spacy "$SMALL_SBO_ARGS"
+generate_interface    DynamicOperator.h Spacy "$SMALL_SBO_ARGS"
+generate_interface         Functional.h Spacy "$SMALL_SBO_ARGS"
+generate_interface       C1Functional.h Spacy "$SMALL_SBO_ARGS"
+generate_interface       C2Functional.h Spacy "$SMALL_SBO_ARGS"
+generate_interface             Vector.h Spacy "$SMALL_SBO_ARGS"
 generate_interface linearSolver.hh Spacy ""
 }
 
