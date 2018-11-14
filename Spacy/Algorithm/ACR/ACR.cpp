@@ -1,4 +1,4 @@
-#include "acr.hh"
+#include "ACR.h"
 
 #include <Spacy/Algorithm/CG/CG.h>
 #include <Spacy/Algorithm/CG/LinearSolver.h>
