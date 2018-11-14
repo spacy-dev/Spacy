@@ -1,6 +1,6 @@
 #include "RegularizeViaPreconditioner.h"
 
-#include <Spacy/Util/log.hh>
+#include <Spacy/Util/Log.h>
 
 namespace Spacy
 {

@@ -1,5 +1,15 @@
 #pragma once
 
+#include <string>
+#include <utility>
+#include <vector>
+#include <fstream>
+#include <functional>
+#include <ostream>
+#include <unordered_map>
+
+#include "Printer.h"
+
 #ifndef SPACY_ENABLE_LOGGING
 #define SET_LOG_PRINTER( printer )
 #define ADD_LOG_PRINTER( printer )
@@ -30,16 +40,6 @@
     ::Spacy::Log::log_f( __FILE__, "", "" );                                                       \
     ::Spacy::Log::log_f( __FILE__, "--------------------------------------------------", "" );     \
     ::Spacy::Log::log_f( __FILE__, "", "" )
-
-#include <string>
-#include <utility>
-#include <vector>
-#include <fstream>
-#include <functional>
-#include <ostream>
-#include <unordered_map>
-
-#include "printer.hh"
 
 namespace Spacy
 {

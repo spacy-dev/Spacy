@@ -5,8 +5,8 @@
 
 #include <Spacy/Derivative.h>
 #include <Spacy/Util/Exceptions.h>
+#include <Spacy/Util/Log.h>
 #include <Spacy/Util/cast.hh>
-#include <Spacy/Util/log.hh>
 #include <Spacy/c1Operator.hh>
 #include <Spacy/vectorSpace.hh>
 #include <Spacy/zeroVectorCreator.hh>

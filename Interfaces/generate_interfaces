@@ -40,7 +40,7 @@ function generate_logger_interfaces {
 # generate interface for printer of logger
 echo "for logger: generate printer.hh"
 mkdir -p $INCLUDE_DIR/$UTIL_DIR/$DETAIL_DIR
-generate_interface printer.hh $UTIL_DIR ""
+generate_interface Printer.h $UTIL_DIR ""
 }
 
 mkdir -p $INCLUDE_DIR/Spacy/$DETAIL_DIR

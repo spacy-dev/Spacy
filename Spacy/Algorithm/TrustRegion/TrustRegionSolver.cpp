@@ -1,7 +1,7 @@
 #include "TrustRegionSolver.h"
 
 #include <Spacy/HilbertSpaceNorm.h>
-#include <Spacy/Util/log.hh>
+#include <Spacy/Util/Log.h>
 #include <Spacy/inducedScalarProduct.hh>
 #include <Spacy/zeroVectorCreator.hh>
 

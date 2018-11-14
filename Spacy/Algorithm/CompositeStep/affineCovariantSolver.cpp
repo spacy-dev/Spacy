@@ -10,8 +10,8 @@
 #include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Exceptions.h>
+#include <Spacy/Util/Logger.h>
 #include <Spacy/Util/cast.hh>
-#include <Spacy/Util/logger.hh>
 #include <Spacy/inducedScalarProduct.hh>
 #include <Spacy/zeroVectorCreator.hh>
 #include <cmath>

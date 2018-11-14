@@ -17,7 +17,8 @@ namespace Spacy
              * @param name name of the logged value
              * @param printable wraps writing of the logged value to some stream
              */
-            void operator()(const char* tag, const char* name, const std::function<void(std::ostream&)>& printable);
+            void operator()( const char* tag, const char* name,
+                             const std::function< void( std::ostream& ) >& printable );
         };
     }
 }

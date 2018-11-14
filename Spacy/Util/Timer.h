@@ -1,21 +1,23 @@
 #pragma once
 
 #include <chrono>
-#include <tuple>
 #include <vector>
+#include <tuple>
 
 #ifndef SPACY_ENABLE_TIMERS
-#define SPACY_START_TIMER(unit)
+#define SPACY_START_TIMER( unit )
 #define SPACY_PAUSE_TIMER
-#define SPACY_END_TIMER(message)
+#define SPACY_END_TIMER( message )
 #else
-#define SPACY_START_TIMER(unit) Timer<unit> timer;
+#define SPACY_START_TIMER( unit ) Timer< unit > timer;
 #define SPACY_PAUSE_TIMER timer.stop();
-#define SPACY_END_TIMER(message) timer.stop(); timer.report(message);
+#define SPACY_END_TIMER( message )                                                                 \
+    timer.stop();                                                                                  \
+    timer.report( message );
 
 namespace Spacy
 {
-    template <class Unit>
+    template < class Unit >
     class Timer
     {
     public:
@@ -34,12 +36,12 @@ namespace Spacy
          * For printing std::printf is used. Thus the place where the timing result appears in the
          * message must be marked by '%i'.
          */
-        void report(const char* message);
+        void report( const char* message );
 
     private:
-        using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
-        using TimeInterval = std::tuple<TimePoint,TimePoint>;
-        std::vector<TimeInterval> intervals_;
+        using TimePoint = std::chrono::time_point< std::chrono::high_resolution_clock >;
+        using TimeInterval = std::tuple< TimePoint, TimePoint >;
+        std::vector< TimeInterval > intervals_;
     };
 }
 

@@ -5,8 +5,8 @@
 #include <Spacy/Algorithm/CompositeStep/quadraticModel.hh>
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
+#include <Spacy/Util/Log.h>
 #include <Spacy/Util/cast.hh>
-#include <Spacy/Util/log.hh>
 #include <Spacy/operator.hh>
 #include <Spacy/zeroVectorCreator.hh>
 

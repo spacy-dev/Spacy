@@ -20,10 +20,10 @@
 
 // Util
 #include <Spacy/Util/Invoke.h>
+#include <Spacy/Util/Log.h>
 #include <Spacy/Util/Mixins.h>
 #include <Spacy/Util/cast.hh>
 #include <Spacy/Util/copy.hh>
-#include <Spacy/Util/log.hh>
 #include <Spacy/Util/voider.hh>
 
 // Interfaces and directly related functionality
