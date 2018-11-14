@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Algorithm/dampingFactor.hh>
+#include <Spacy/Algorithm/DampingFactor.h>
 
 #include "MixinConnection.h"
 

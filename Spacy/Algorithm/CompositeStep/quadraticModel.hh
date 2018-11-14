@@ -2,9 +2,9 @@
 
 #include <cassert>
 
+#include <Spacy/Algorithm/DampingFactor.h>
+#include <Spacy/Algorithm/LipschitzConstant.h>
 #include <Spacy/Algorithm/Scalar/Models.h>
-#include <Spacy/Algorithm/dampingFactor.hh>
-#include <Spacy/Algorithm/lipschitzConstant.hh>
 
 namespace Spacy
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Algorithm/dampingFactor.hh>
+#include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Mixins/Eps.h>
 #include <Spacy/Util/Mixins/RegularityTest.h>

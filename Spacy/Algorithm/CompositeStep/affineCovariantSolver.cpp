@@ -6,8 +6,8 @@
 #include <Spacy/Algorithm/CG/RegularizeViaPreconditioner.h>
 #include <Spacy/Algorithm/CG/TerminationCriteria.h>
 #include <Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h>
+#include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
-#include <Spacy/Algorithm/dampingFactor.hh>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/cast.hh>

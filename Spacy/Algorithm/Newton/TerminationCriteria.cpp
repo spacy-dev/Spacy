@@ -1,6 +1,6 @@
 #include "TerminationCriteria.h"
 
-#include <Spacy/Algorithm/dampingFactor.hh>
+#include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/c1Operator.hh>
 #include <Spacy/vector.hh>
 

@@ -4,8 +4,8 @@
 #include <fstream>
 #include <tuple>
 
-#include <Spacy/Algorithm/dampingFactor.hh>
-#include <Spacy/Algorithm/lipschitzConstant.hh>
+#include <Spacy/Algorithm/DampingFactor.h>
+#include <Spacy/Algorithm/LipschitzConstant.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Mixins.h>
 #include <Spacy/c2Functional.hh>

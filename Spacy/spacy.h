@@ -7,11 +7,11 @@
 #include <Spacy/Algorithm/CG/TerminationCriteria.h>
 #include <Spacy/Algorithm/CG/TerminationCriterion.h>
 #include <Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh>
+#include <Spacy/Algorithm/DampingFactor.h>
+#include <Spacy/Algorithm/LipschitzConstant.h>
 #include <Spacy/Algorithm/Newton/Newton.h>
 #include <Spacy/Algorithm/Newton/TerminationCriteria.h>
 #include <Spacy/Algorithm/TrustRegion/TrustRegionSolver.h>
-#include <Spacy/Algorithm/dampingFactor.hh>
-#include <Spacy/Algorithm/lipschitzConstant.hh>
 #include <Spacy/Algorithm/parameter.hh>
 
 // Spaces
