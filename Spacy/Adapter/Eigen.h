@@ -9,4 +9,4 @@
 #include "Eigen/LinearSolver.h"
 #include "Eigen/ScalarProduct.h"
 #include "Eigen/Vector.h"
-#include "Eigen/vectorCreator.h"
+#include "Eigen/VectorCreator.h"

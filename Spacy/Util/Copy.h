@@ -1,10 +1,10 @@
 #pragma once
 
-#include <functional>
-
-#include <Spacy/Spaces/ProductSpace/vector.hh>
+#include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/vector.hh>
+
+#include <functional>
 
 namespace Spacy
 {

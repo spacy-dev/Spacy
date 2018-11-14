@@ -1,18 +1,17 @@
 #pragma once
 
 // Algorithms
-#include <Spacy/Algorithm/ACR/acr.hh>
+#include <Spacy/Algorithm/ACR/ACR.h>
 #include <Spacy/Algorithm/CG/CG.h>
 #include <Spacy/Algorithm/CG/LinearSolver.h>
 #include <Spacy/Algorithm/CG/TerminationCriteria.h>
 #include <Spacy/Algorithm/CG/TerminationCriterion.h>
-#include <Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh>
+#include <Spacy/Algorithm/CompositeStep/AffineCovariantSolver.h>
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Algorithm/LipschitzConstant.h>
 #include <Spacy/Algorithm/Newton/Newton.h>
 #include <Spacy/Algorithm/Newton/TerminationCriteria.h>
 #include <Spacy/Algorithm/TrustRegion/TrustRegionSolver.h>
-#include <Spacy/Algorithm/parameter.hh>
 
 // Spaces
 #include <Spacy/Spaces/ProductSpace.h>
@@ -20,11 +19,11 @@
 
 // Util
 #include <Spacy/Util/Cast.h>
+#include <Spacy/Util/Copy.h>
 #include <Spacy/Util/Invoke.h>
 #include <Spacy/Util/Log.h>
 #include <Spacy/Util/Mixins.h>
 #include <Spacy/Util/Voider.h>
-#include <Spacy/Util/copy.hh>
 
 // Interfaces and directly related functionality
 #include <Spacy/Derivative.h>
