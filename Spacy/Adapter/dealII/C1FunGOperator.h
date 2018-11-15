@@ -17,13 +17,13 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "C1FungOperatorAssembly.hh"
+#include "C1FungOperatorAssembly.h"
+#include "Copy.h"
+#include "Init.h"
+#include "LinearOperator.h"
+#include "Util.h"
+#include "Vector.h"
 #include "VectorSpace.h"
-#include "copy.hh"
-#include "init.hh"
-#include "linearOperator.hh"
-#include "util.hh"
-#include "vector.hh"
 
 #include <algorithm>
 #include <iostream>

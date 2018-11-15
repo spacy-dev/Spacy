@@ -6,10 +6,10 @@
 
 #include <Spacy/ZeroVectorCreator.h>
 
+#include "Init.h"
+#include "Util.h"
+#include "Vector.h"
 #include "VectorSpace.h"
-#include "init.hh"
-#include "util.hh"
-#include "vector.hh"
 
 #include <string>
 #include <fstream>

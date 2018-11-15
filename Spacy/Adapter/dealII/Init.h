@@ -10,8 +10,8 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
+#include "Util.h"
 #include "VectorSpace.h"
-#include "util.hh"
 
 namespace Spacy
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <deal.II/lac/vector.h>
 #include <Spacy/Adapter/Generic/Vector.h>
+#include <deal.II/lac/vector.h>
 
 namespace Spacy
 {
@@ -11,6 +11,6 @@ namespace Spacy
          * @ingroup dealIIGroup, VectorSpaceGroup
          * @brief %Vector adapter for deal.II
          */
-        using Vector = Generic::Vector< dealii::Vector<double> >;
+        using Vector = Generic::Vector< dealii::Vector< double > >;
     }
 }

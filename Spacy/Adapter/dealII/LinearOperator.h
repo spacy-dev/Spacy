@@ -13,9 +13,9 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "UMFPACKSolver.hh"
-#include "cgSolver.hh"
-#include "vector.hh"
+#include "CG.h"
+#include "UMFPACK.h"
+#include "Vector.h"
 
 #include <algorithm>
 

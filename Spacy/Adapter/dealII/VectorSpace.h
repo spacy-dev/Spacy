@@ -14,7 +14,7 @@
 #include <Spacy/Spaces/ProductSpace/VectorSpace.h>
 #include <Spacy/VectorSpace.h>
 
-#include "vector.hh"
+#include "Vector.h"
 
 #include <map>
 #include <memory>

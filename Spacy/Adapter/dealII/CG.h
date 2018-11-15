@@ -1,7 +1,8 @@
 #pragma once
 
-#include <deal.II/lac/sparse_direct.h>
-#include <deal.II/lac/sparse_matrix.h>
+#include <deal.II/lac/block_sparse_matrix.h>
+#include <deal.II/lac/precondition.h>
+#include <deal.II/lac/solver_cg.h>
 
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
@@ -11,39 +12,30 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
+#include "Vector.h"
 #include "VectorSpace.h"
-#include "util.hh"
-#include "vector.hh"
-
-#include <map>
-#include <memory>
 
 namespace Spacy
 {
     /** @addtogroup dealIIGroup @{ */
     namespace dealII
     {
-        template < class VariableDims >
-        class UMFPackSolver : public OperatorBase,
-                              public Mixin::AbsoluteAccuracy,
-                              public Mixin::MaxSteps
+        template < int dim >
+        class CGSolver : public OperatorBase, public Mixin::AbsoluteAccuracy, public Mixin::MaxSteps
         {
-            using Matrix = typename Traits< VariableDims >::Matrix;
-
         public:
-            UMFPackSolver( const Matrix& A, const Spacy::Vector& boundary_values,
-                           const VectorSpace& domain, const VectorSpace& range )
+            CGSolver( const dealii::BlockSparseMatrix< double >& A,
+                      const Spacy::Vector& boundary_values, const VectorSpace& domain,
+                      const VectorSpace& range )
                 : OperatorBase( range, domain ), A_( A.get_sparsity_pattern() ),
-                  solver_( std::make_shared< dealii::SparseDirectUMFPACK >() ),
                   boundary_values_( boundary_values )
             {
                 A_.copy_from( A );
-                solver_->initialize( A_ );
             }
 
-            UMFPackSolver( const UMFPackSolver& other )
+            CGSolver( const CGSolver& other )
                 : OperatorBase( other ), A_( other.A_.get_sparsity_pattern() ),
-                  solver_( other.solver_ ), boundary_values_( other.boundary_values_ )
+                  boundary_values_( other.boundary_values_ )
             {
                 checkSpaceCompatibility( domain(), other.domain() );
                 checkSpaceCompatibility( range(), other.range() );
@@ -51,13 +43,12 @@ namespace Spacy
                 A_.copy_from( other.A_ );
             }
 
-            UMFPackSolver& operator=( const UMFPackSolver& other )
+            CGSolver& operator=( const CGSolver& other )
             {
                 checkSpaceCompatibility( domain(), other.domain() );
                 checkSpaceCompatibility( range(), other.range() );
 
                 A_.copy_from( other.A_ );
-                solver_ = other.solver_;
                 boundary_values_ = other.boundary_values_;
                 return *this;
             }
@@ -66,17 +57,20 @@ namespace Spacy
             {
                 auto& x_ = cast_ref< Vector >( x );
 
+                dealii::SolverControl params( getMaxSteps(), get( getAbsoluteAccuracy() ) );
+                dealii::SolverCG<> solver( params );
+
                 auto y = zero( range() );
                 auto& y_ = cast_ref< Vector >( y );
 
-                solver_->vmult( get( y_ ), get( x_ ) );
+                solver.solve( A_.block( 0, 0 ), get( y_ ), get( x_ ),
+                              dealii::PreconditionIdentity() );
 
                 return y + boundary_values_;
             }
 
         private:
-            mutable Matrix A_;
-            std::shared_ptr< dealii::SparseDirectUMFPACK > solver_;
+            mutable dealii::BlockSparseMatrix< double > A_;
             Spacy::Vector boundary_values_;
         };
     }

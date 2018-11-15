@@ -17,11 +17,11 @@
 #include <Spacy/ZeroVectorCreator.h>
 #include <deal.II/numerics/matrix_tools.h>
 
+#include "Copy.h"
+#include "LinearOperator.h"
+#include "Util.h"
+#include "Vector.h"
 #include "VectorSpace.h"
-#include "copy.hh"
-#include "linearOperator.hh"
-#include "util.hh"
-#include "vector.hh"
 
 #include <algorithm>
 #include <memory>
