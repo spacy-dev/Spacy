@@ -3,7 +3,7 @@
 #include <functional>
 
 #include <Spacy/Util/Base/OperatorBase.h>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/VectorSpace.h>
 
 namespace Spacy
 {

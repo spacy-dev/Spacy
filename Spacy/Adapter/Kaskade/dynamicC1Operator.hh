@@ -9,9 +9,9 @@
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Mixins/numberOfThreads.hh>
 
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "Definitions/mass_matrix.hh"
 #include "directSolver.hh"

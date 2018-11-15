@@ -1,9 +1,9 @@
 #include "Derivative.h"
 
+#include <Spacy/LinearOperator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Base/OperatorBase.h>
-#include <Spacy/linearOperator.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/VectorSpace.h>
 
 #include <utility>
 

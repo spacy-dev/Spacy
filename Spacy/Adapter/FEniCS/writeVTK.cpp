@@ -2,7 +2,7 @@
 
 #include <Spacy/Adapter/Generic/WriteVTK.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include "vector.hh"
 

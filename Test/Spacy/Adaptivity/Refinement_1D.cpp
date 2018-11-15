@@ -6,9 +6,9 @@
 #include <Spacy/Adapter/Eigen/VectorCreator.h>
 
 #include <Spacy/HilbertSpaceNorm.h>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <Spacy/Util/Cast.h>
 

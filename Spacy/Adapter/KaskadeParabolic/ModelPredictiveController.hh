@@ -4,7 +4,7 @@
 #include <Spacy/Adapter/kaskadeParabolic.hh>
 #include <Spacy/Spaces/RealSpace.h>
 
-#include <Spacy/inducedScalarProduct.hh>
+#include <Spacy/InducedScalarProduct.h>
 
 namespace Spacy
 {

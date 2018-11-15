@@ -4,8 +4,8 @@
 
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 
 #include "gridManager.hh"
 #include "subCreator.hh"

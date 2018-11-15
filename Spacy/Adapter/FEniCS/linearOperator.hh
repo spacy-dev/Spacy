@@ -4,10 +4,10 @@
 #include <utility>
 #include <functional>
 
+#include <Spacy/LinearSolver.h>
 #include <Spacy/Util/Base/AddArithmeticOperators.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Base/VectorBase.h>
-#include <Spacy/linearSolver.hh>
 
 #include "luSolver.hh"
 

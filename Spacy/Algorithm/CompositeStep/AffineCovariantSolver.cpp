@@ -8,12 +8,12 @@
 #include <Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h>
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
+#include <Spacy/InducedScalarProduct.h>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Logger.h>
-#include <Spacy/inducedScalarProduct.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/ZeroVectorCreator.h>
 #include <cmath>
 #include <iostream>
 #include <utility>

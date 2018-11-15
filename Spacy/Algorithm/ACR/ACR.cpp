@@ -5,10 +5,10 @@
 #include <Spacy/Algorithm/CompositeStep/QuadraticModel.h>
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Log.h>
-#include <Spacy/operator.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <cmath>
 #include <utility>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 #include <functional>
 
 namespace Spacy

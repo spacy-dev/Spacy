@@ -1,10 +1,10 @@
 #include "QuadraticModel.h"
 
+#include <Spacy/C2Functional.h>
+#include <Spacy/ScalarProduct.h>
 #include <Spacy/Util/Invoke.h>
-#include <Spacy/c2Functional.hh>
-#include <Spacy/scalarProduct.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 
 #include <cmath>
 #include <tuple>

@@ -1,8 +1,8 @@
 #include <Test/gtest.hh>
 
-#include <Test/mockSetup.hh>
+#include <Spacy/C1Functional.h>
 #include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/c1Functional.hh>
+#include <Test/mockSetup.hh>
 
 using namespace Spacy;
 

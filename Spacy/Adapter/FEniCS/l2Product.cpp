@@ -2,8 +2,8 @@
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 
 #include "vector.hh"
 

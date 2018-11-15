@@ -1,6 +1,6 @@
 #include "Real.h"
 
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include "RealSpace.h"
 

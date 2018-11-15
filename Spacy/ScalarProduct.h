@@ -1,7 +1,7 @@
 #pragma once
 
-#include <functional>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
+#include <functional>
 
 namespace Spacy
 {

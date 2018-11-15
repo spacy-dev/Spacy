@@ -1,7 +1,7 @@
+#include "Spacy/Spaces/ProductSpace.h"
+#include "VectorSpace.h"
 #include "c2Functional.hh"
 #include "vector.hh"
-#include "vectorSpace.hh"
-#include "Spacy/Spaces/ProductSpace.h"
 
 namespace Spacy
 {

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Spacy/C1Operator.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Base/OperatorBase.h>
-#include <Spacy/c1Operator.hh>
-#include <Spacy/operator.hh>
 
 #include <vector>
 #include <functional>

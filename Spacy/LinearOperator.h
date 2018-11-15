@@ -3,12 +3,12 @@
 
 #pragma once
 
+#include <Spacy/LinearSolver.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/SmartPointerStorage.h>
-#include <Spacy/linearSolver.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 #include <memory>
 #include <type_traits>
 #include <functional>
@@ -131,62 +131,73 @@ namespace Spacy
         /// Apply operator.
         Vector operator()( const Vector& x ) const
         {
+            assert( impl_ );
             return impl_->call_const_Vector_ref( x );
         }
 
         Real operator()( const LinearOperator& x ) const
         {
+            assert( impl_ );
             return impl_->call_const_LinearOperator_ref( x );
         }
 
         LinearOperator& operator+=( const LinearOperator& y )
         {
+            assert( impl_ );
             impl_->add_const_LinearOperator_ref( y );
             return *this;
         }
 
         LinearOperator& operator-=( const LinearOperator& y )
         {
+            assert( impl_ );
             impl_->subtract_const_LinearOperator_ref( y );
             return *this;
         }
 
         LinearOperator& operator*=( double a )
         {
+            assert( impl_ );
             impl_->multiply_double( std::move( a ) );
             return *this;
         }
 
         LinearOperator operator-() const
         {
+            assert( impl_ );
             return impl_->negate();
         }
 
         bool operator==( const LinearOperator& y ) const
         {
+            assert( impl_ );
             return impl_->compare_const_LinearOperator_ref( y );
         }
 
         std::function< Vector( const Vector& ) > solver() const
         {
+            assert( impl_ );
             return impl_->solver();
         }
 
         /// Access domain space \f$X\f$.
         const VectorSpace& domain() const
         {
+            assert( impl_ );
             return impl_->domain();
         }
 
         /// Access range space \f$Y\f$.
         const VectorSpace& range() const
         {
+            assert( impl_ );
             return impl_->range();
         }
 
         /// Access underlying space of linear operators.
         const VectorSpace& space() const
         {
+            assert( impl_ );
             return impl_->space();
         }
 
@@ -221,6 +232,7 @@ namespace Spacy
     private:
         clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
     };
+
     /// Access solver via A^-1. Throws for k!=-1.
     inline LinearSolver operator^( const LinearOperator& A, int k )
     {

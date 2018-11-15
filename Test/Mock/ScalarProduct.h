@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include "norm.hh"
 

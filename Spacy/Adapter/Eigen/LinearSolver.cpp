@@ -1,9 +1,9 @@
 #include "LinearSolver.h"
 
 #include <Spacy/Util/Cast.h>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "Copy.h"
 #include "Vector.h"

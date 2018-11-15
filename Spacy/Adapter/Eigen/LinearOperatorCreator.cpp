@@ -1,7 +1,7 @@
 #include "LinearOperatorCreator.h"
 
 #include <Spacy/Util/Cast.h>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <Eigen/Dense>
 

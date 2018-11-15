@@ -2,13 +2,13 @@
 
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
+#include "VectorSpace.h"
 #include "operatorSpace.hh"
 #include "util.hh" // copy
-#include "vectorSpace.hh"
 
 #include <cassert>
 

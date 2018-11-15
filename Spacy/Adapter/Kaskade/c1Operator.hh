@@ -2,10 +2,10 @@
 
 #include <utility>
 
-#include <Spacy/c1Operator.hh>
-#include <Spacy/linearOperator.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/C1Operator.h>
+#include <Spacy/LinearOperator.h>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Mixins/numberOfThreads.hh>

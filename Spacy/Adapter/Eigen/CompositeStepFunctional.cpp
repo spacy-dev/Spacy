@@ -1,8 +1,8 @@
 #include "CompositeStepFunctional.h"
 
 #include <Spacy/Spaces/ProductSpace.h>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "Copy.h"
 #include "LinearOperator.h"

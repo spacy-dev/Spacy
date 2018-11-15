@@ -1,9 +1,9 @@
 #include "copy.hh"
 
+#include <Spacy/Spaces/ProductSpace/VectorSpace.h>
 #include <Spacy/Spaces/ProductSpace/vector.hh>
-#include <Spacy/Spaces/ProductSpace/vectorSpace.hh>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "vector.hh"
 

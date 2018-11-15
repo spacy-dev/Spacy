@@ -1,9 +1,9 @@
 #include <Test/gtest.hh>
 
+#include <Spacy/C1Operator.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/c1Operator.hh>
-#include <Spacy/operator.hh>
 #include <Test/Mock/linearOperator.hh>
 #include <Test/mockSetup.hh>
 

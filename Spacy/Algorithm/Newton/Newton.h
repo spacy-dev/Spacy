@@ -2,7 +2,7 @@
 
 #include "Parameter.h"
 
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include <functional>
 

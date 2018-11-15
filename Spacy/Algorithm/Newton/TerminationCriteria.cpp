@@ -1,8 +1,8 @@
 #include "TerminationCriteria.h"
 
 #include <Spacy/Algorithm/DampingFactor.h>
-#include <Spacy/c1Operator.hh>
-#include <Spacy/vector.hh>
+#include <Spacy/C1Operator.h>
+#include <Spacy/Vector.h>
 
 namespace Spacy
 {

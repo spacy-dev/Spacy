@@ -26,19 +26,19 @@
 #include <Spacy/Util/Voider.h>
 
 // Interfaces and directly related functionality
+#include <Spacy/C1Functional.h>
+#include <Spacy/C1Operator.h>
+#include <Spacy/C2Functional.h>
 #include <Spacy/Derivative.h>
 #include <Spacy/DynamicOperator.h>
+#include <Spacy/Functional.h>
 #include <Spacy/HilbertSpaceNorm.h>
+#include <Spacy/InducedScalarProduct.h>
+#include <Spacy/LinearOperator.h>
+#include <Spacy/LinearSolver.h>
 #include <Spacy/Norm.h>
-#include <Spacy/c1Functional.hh>
-#include <Spacy/c1Operator.hh>
-#include <Spacy/c2Functional.hh>
-#include <Spacy/functional.hh>
-#include <Spacy/inducedScalarProduct.hh>
-#include <Spacy/linearOperator.hh>
-#include <Spacy/linearSolver.hh>
-#include <Spacy/operator.hh>
-#include <Spacy/scalarProduct.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Operator.h>
+#include <Spacy/ScalarProduct.h>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>

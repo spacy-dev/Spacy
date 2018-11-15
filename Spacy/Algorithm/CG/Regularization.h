@@ -5,7 +5,7 @@
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/SmartPointerStorage.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 #include <memory>
 #include <type_traits>
 
@@ -87,6 +87,7 @@ namespace Spacy
             /// Initialize regularization.
             void init()
             {
+                assert( impl_ );
                 impl_->init();
             }
 
@@ -97,6 +98,7 @@ namespace Spacy
             /// the preconditioner
             void apply( Real& qAq, Real qPq ) const
             {
+                assert( impl_ );
                 impl_->apply( qAq, std::move( qPq ) );
             }
 
@@ -107,6 +109,7 @@ namespace Spacy
             /// the preconditioner
             void update( Real qAq, Real qPq )
             {
+                assert( impl_ );
                 impl_->update( std::move( qAq ), std::move( qPq ) );
             }
 
@@ -117,6 +120,7 @@ namespace Spacy
             ///@param r residual
             void adjustResidual( Real alpha, const Vector& Pq, Vector& r ) const
             {
+                assert( impl_ );
                 impl_->adjustResidual( std::move( alpha ), Pq, r );
             }
 

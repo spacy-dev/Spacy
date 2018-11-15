@@ -3,8 +3,8 @@
 #include <memory>
 #include <string>
 
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Mixins.h>
-#include <Spacy/operator.hh>
 
 #include "Regularization.h"
 #include "TerminationCriterion.h"

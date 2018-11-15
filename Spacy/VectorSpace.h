@@ -1,12 +1,12 @@
 #pragma once
 
+#include <Spacy/Norm.h>
+#include <Spacy/ScalarProduct.h>
+#include <Spacy/Util/Mixins/Eps.h>
+
 #include <memory>
 #include <vector>
 #include <functional>
-
-#include <Spacy/Norm.h>
-#include <Spacy/Util/Mixins/Eps.h>
-#include <Spacy/scalarProduct.hh>
 
 namespace Spacy
 {
@@ -48,9 +48,9 @@ namespace Spacy
          */
         VectorSpace( ZeroVectorCreator&& creator, Norm norm, bool defaultIndex = false );
 
-        VectorSpace(VectorSpace&& V );
+        VectorSpace( VectorSpace&& V );
 
-        VectorSpace& operator=(VectorSpace&& V );
+        VectorSpace& operator=( VectorSpace&& V );
 
         /// Vector spaces can not copied.
         VectorSpace( const VectorSpace& ) = delete;

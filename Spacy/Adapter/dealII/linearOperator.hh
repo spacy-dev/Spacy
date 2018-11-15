@@ -3,15 +3,15 @@
 #include <deal.II/lac/block_sparse_matrix.h>
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 
+#include <Spacy/LinearSolver.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/linearSolver.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "UMFPACKSolver.hh"
 #include "cgSolver.hh"

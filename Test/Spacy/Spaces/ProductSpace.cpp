@@ -1,7 +1,7 @@
 #include <Test/gtest.hh>
 
 //#include "Spacy/norm.hh"
-//#include "Spacy/scalarProduct.hh"
+//#include "Spacy/ScalarProduct.h"
 //#include "Spacy/Spaces/RealSpace.h"
 //#include "Spacy/Spaces/ProductSpace.h"
 //#include "Spacy/Util/Cast.h"

@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Spacy/vectorSpace.hh>
 #include <Spacy/Adaptivity/SpatialAdaptivity.h>
+#include <Spacy/VectorSpace.h>
 
 #include <boost/any.hpp>
 
-#include <functional>
 #include <set>
+#include <functional>
 #include <unordered_map>
 
 namespace Spacy
@@ -25,37 +25,38 @@ namespace Spacy
          * @param idx space for which adaptive grid adjustments are registered
          * @param adaptivity implementation of adaptive grid adjustments
          */
-        void add(SpaceIndex idx, SpatialAdaptivity adaptivity);
+        void add( SpaceIndex idx, SpatialAdaptivity adaptivity );
 
         /**
          * @brief Remove handling of adaptive grid adjustments for space idx
          * @param idx space for which adaptive grid adjustments are registered
          */
-        void remove(SpaceIndex idx);
+        void remove( SpaceIndex idx );
 
         /// Subscribe vector to automatic grid transfers of its underlying space.
-        void subscribe(Vector* v);
+        void subscribe( Vector* v );
 
         /// Unsubscribe vector from automatic grid transfers of its underlying space.
-        void unsubscribe(Vector* v);
+        void unsubscribe( Vector* v );
 
         /**
          * @brief Adjust the discretization of space idx according to the indicator errorIndicator
          * @param idx index of the space to be refined
-         * @param errorIndicator error indicator describing how the discretization should be adjusted
+         * @param errorIndicator error indicator describing how the discretization should be
+         * adjusted
          */
-        void adjustDiscretization(SpaceIndex idx, const ErrorIndicator& errorIndicator);
+        void adjustDiscretization( SpaceIndex idx, const ErrorIndicator& errorIndicator );
 
     private:
         struct AdaptivityAndVectors
         {
             SpatialAdaptivity adaptivity;
-            std::set<Vector*> vectors;
+            std::set< Vector* > vectors;
         };
-        using SubscribedVectors = std::unordered_map<SpaceIndex, AdaptivityAndVectors>;
+        using SubscribedVectors = std::unordered_map< SpaceIndex, AdaptivityAndVectors >;
         using SubscribedVectorsIterator = typename SubscribedVectors::iterator;
 
-        SubscribedVectorsIterator find(SpaceIndex spaceIndex);
+        SubscribedVectorsIterator find( SpaceIndex spaceIndex );
 
         SubscribedVectors subscribedVectors_;
     };

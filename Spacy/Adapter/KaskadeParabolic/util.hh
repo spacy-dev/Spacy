@@ -7,8 +7,8 @@
 #include <Spacy/Adapter/KaskadeParabolic/gridManager.hh>
 #include <Spacy/Adapter/KaskadeParabolic/l2Product.hh>
 #include <Spacy/Spaces/ProductSpace.h>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <fem/variables.hh>
 

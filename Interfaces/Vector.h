@@ -3,7 +3,7 @@
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/VectorSpace.h>
 #include <type_traits>
 #include <functional>
 

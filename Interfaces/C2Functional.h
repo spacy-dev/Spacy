@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Spacy/LinearOperator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/linearOperator.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 
 namespace Spacy
 {

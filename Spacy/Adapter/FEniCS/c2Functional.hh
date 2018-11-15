@@ -2,12 +2,12 @@
 
 #include <memory>
 
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Base/FunctionalBase.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/operator.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "assignXIfPresent.hh"
 #include "linearOperator.hh"

@@ -7,13 +7,13 @@
 #include <Spacy/Spaces/ScalarSpace/RealSpace.hh>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/VectorSpace.h>
 
+#include "VectorSpace.h"
 #include "assignXIfPresent.hh"
 #include "linearOperator.hh"
 #include "luSolver.hh"
 #include "util.hh"
-#include "vectorSpace.hh"
 
 #include "operatorSpace.hh"
 

@@ -1,9 +1,9 @@
 #include "TrustRegionSolver.h"
 
 #include <Spacy/HilbertSpaceNorm.h>
+#include <Spacy/InducedScalarProduct.h>
 #include <Spacy/Util/Log.h>
-#include <Spacy/inducedScalarProduct.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/ZeroVectorCreator.h>
 
 namespace Spacy
 {

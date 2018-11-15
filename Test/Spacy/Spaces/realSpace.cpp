@@ -2,8 +2,8 @@
 
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/vector.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 TEST( ScalarSpaceTest, DefaultIndex )
 {

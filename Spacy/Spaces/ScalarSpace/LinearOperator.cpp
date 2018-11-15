@@ -1,9 +1,9 @@
 #include "LinearOperator.h"
 
+#include <Spacy/LinearSolver.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/linearSolver.hh>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include "LinearSolver.h"
 

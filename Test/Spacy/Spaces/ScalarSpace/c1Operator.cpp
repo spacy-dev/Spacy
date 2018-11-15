@@ -3,7 +3,7 @@
 #include <Spacy/Spaces/ScalarSpace/C1Operator.h>
 #include <Spacy/Spaces/ScalarSpace/LinearOperator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include <Test/mockSetup.hh>
 

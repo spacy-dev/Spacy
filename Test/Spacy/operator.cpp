@@ -1,8 +1,8 @@
 #include <Test/gtest.hh>
 
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/operator.hh>
 #include <Test/mockSetup.hh>
 
 using namespace Spacy;

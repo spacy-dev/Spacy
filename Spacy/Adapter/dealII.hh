@@ -1,5 +1,6 @@
 #pragma once
 
+#include "dealII/VectorSpace.h"
 #include "dealII/c1FunGOperator.hh"
 #include "dealII/c2FunGFunctional.hh"
 #include "dealII/cgSolver.hh"
@@ -8,5 +9,4 @@
 #include "dealII/linearOperator.hh"
 #include "dealII/util.hh"
 #include "dealII/vector.hh"
-#include "dealII/vectorSpace.hh"
 #include "dealII/writeVTK.hh"

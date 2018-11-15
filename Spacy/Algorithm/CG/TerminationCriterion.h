@@ -4,7 +4,7 @@
 #pragma once
 
 #include <Spacy/Util/SmartPointerStorage.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 #include <memory>
 #include <type_traits>
 
@@ -118,47 +118,56 @@ namespace Spacy
 
             bool operator()() const
             {
+                assert( impl_ );
                 return impl_->call();
             }
 
             void clear()
             {
+                assert( impl_ );
                 impl_->clear();
             }
 
             void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& x )
             {
+                assert( impl_ );
                 impl_->update( std::move( alpha ), std::move( qAq ), std::move( qPq ),
                                std::move( rPINVr ), x );
             }
 
             bool vanishingStep() const
             {
+                assert( impl_ );
                 return impl_->vanishingStep();
             }
 
             bool minimalDecreaseAchieved() const
             {
+                assert( impl_ );
                 return impl_->minimalDecreaseAchieved();
             }
 
             void set_eps( double eps )
             {
+                assert( impl_ );
                 impl_->set_eps( std::move( eps ) );
             }
 
             void setAbsoluteAccuracy( double accuracy )
             {
+                assert( impl_ );
                 impl_->setAbsoluteAccuracy( std::move( accuracy ) );
             }
 
             void setMinimalAccuracy( double accuracy )
             {
+                assert( impl_ );
                 impl_->setMinimalAccuracy( std::move( accuracy ) );
             }
 
             void setRelativeAccuracy( double accuracy )
             {
+                assert( impl_ );
                 impl_->setRelativeAccuracy( std::move( accuracy ) );
             }
 

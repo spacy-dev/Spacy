@@ -4,7 +4,7 @@
 #pragma once
 
 #include <Spacy/Util/SmartPointerStorage.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 #include <memory>
 #include <type_traits>
 #include <functional>
@@ -75,11 +75,13 @@ namespace Spacy
 
         Vector operator()( const Vector& x ) const
         {
+            assert( impl_ );
             return impl_->call_const_Vector_ref( x );
         }
 
         bool isPositiveDefinite() const
         {
+            assert( impl_ );
             return impl_->isPositiveDefinite();
         }
 

@@ -2,9 +2,9 @@
 
 #include "RegularizeViaPreconditioner.h"
 
-#include <Spacy/operator.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Operator.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <utility>
 

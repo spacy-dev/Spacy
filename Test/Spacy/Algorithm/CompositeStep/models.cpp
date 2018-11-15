@@ -1,7 +1,7 @@
 #include <Test/gtest.hh>
 
 #include <Spacy/Algorithm/CompositeStep/QuadraticModel.h>
-#include <Spacy/c2Functional.hh>
+#include <Spacy/C2Functional.h>
 #include <Test/Mock/linearOperator.hh>
 #include <Test/mockSetup.hh>
 

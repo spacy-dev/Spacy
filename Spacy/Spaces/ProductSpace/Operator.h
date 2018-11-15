@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Base/OperatorBase.h>
-#include <Spacy/operator.hh>
 
 #include <vector>
 

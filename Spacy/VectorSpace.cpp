@@ -1,4 +1,4 @@
-#include "vectorSpace.hh"
+#include "VectorSpace.h"
 
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
@@ -6,7 +6,7 @@
 #include <Spacy/HilbertSpaceNorm.h>
 #include <Spacy/Spaces/ProductSpace/VectorSpace.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <stdexcept>
 #include <utility>

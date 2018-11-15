@@ -1,7 +1,7 @@
 #include "LinearOperator.h"
 
-#include <Spacy/vector.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "Copy.h"
 #include "LinearSolver.h"

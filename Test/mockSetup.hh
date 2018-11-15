@@ -9,12 +9,12 @@
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
+#include <Test/Mock/ScalarProduct.h>
 #include <Test/Mock/norm.hh>
-#include <Test/Mock/scalarProduct.hh>
 #include <Test/Mock/vector.hh>
 #include <Test/Mock/vectorCreator.hh>
 

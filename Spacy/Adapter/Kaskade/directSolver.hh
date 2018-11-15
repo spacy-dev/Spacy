@@ -2,10 +2,10 @@
 
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
+#include "VectorSpace.h"
 #include "util.hh"
-#include "vectorSpace.hh"
 
 #include "linalg/direct.hh"
 

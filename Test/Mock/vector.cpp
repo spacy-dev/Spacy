@@ -1,8 +1,8 @@
 #include "vector.hh"
 
 #include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 
 namespace Mock
 {

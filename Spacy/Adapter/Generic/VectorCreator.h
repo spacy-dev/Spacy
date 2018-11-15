@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Spacy/Util/Voider.h>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/VectorSpace.h>
 
 #include "Vector.h"
 

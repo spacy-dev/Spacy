@@ -2,10 +2,10 @@
 
 #include <utility>
 
+#include <Spacy/LinearSolver.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Base/VectorBase.h>
-#include <Spacy/linearSolver.hh>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Util/Base/AddArithmeticOperators.h>

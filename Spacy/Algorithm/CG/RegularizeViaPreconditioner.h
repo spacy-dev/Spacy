@@ -2,7 +2,7 @@
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Mixins/Eps.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include <iostream>
 #include <limits>

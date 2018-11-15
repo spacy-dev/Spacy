@@ -1,7 +1,7 @@
 #include "VectorCreator.h"
 
 #include <Spacy/Spaces/ProductSpace/VectorSpace.h>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "ScalarProduct.h"
 

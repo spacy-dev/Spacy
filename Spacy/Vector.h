@@ -7,8 +7,7 @@
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/Util/SmartPointerStorage.h>
-#include <Spacy/Adaptivity/SpaceManager.h>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/VectorSpace.h>
 #include <memory>
 #include <type_traits>
 #include <functional>
@@ -94,107 +93,65 @@ namespace Spacy
     public:
         Vector() noexcept = default;
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, Vector >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T, typename std::enable_if<
+                                !std::is_same< typename std::decay< T >::type, Vector >::value &&
+                                !std::is_base_of< Interface, typename std::decay< T >::type >::
+                                    value >::type* = nullptr >
         Vector( T&& value ) : impl_( std::forward< T >( value ) )
         {
-            globalSpaceManager().subscribe(this);
-        }
-
-        Vector(const Vector& v)
-            : impl_(v.impl_)
-        {
-            if(*this)
-                globalSpaceManager().subscribe(this);
-        }
-
-        Vector(Vector&& v) noexcept
-            : impl_(v.impl_)
-        {
-            if(v)
-                globalSpaceManager().unsubscribe(&v);
-            if(*this)
-                globalSpaceManager().subscribe(this);
-        }
-
-        Vector& operator=(const Vector& v)
-        {
-            if(*this)
-                globalSpaceManager().unsubscribe(this);
-            impl_ = v.impl_;
-            if(*this)
-                globalSpaceManager().subscribe(this);
-            return *this;
-        }
-
-        Vector& operator=(Vector&& v) noexcept
-        {
-            if(v)
-                globalSpaceManager().unsubscribe(&v);
-            if(*this)
-                globalSpaceManager().unsubscribe(this);
-            impl_ = std::move(v.impl_);
-            if(*this)
-                globalSpaceManager().subscribe(this);
-            return *this;
-        }
-
-        ~Vector()
-        {
-            if(*this)
-                globalSpaceManager().unsubscribe(this);
         }
 
         /// Apply as dual space element.
         Real operator()( const Vector& x ) const
         {
+            assert( impl_ );
             return impl_->call_const_Vector_ref( x );
         }
 
         Vector& operator+=( const Vector& y )
         {
+            assert( impl_ );
             impl_->add_const_Vector_ref( y );
             return *this;
         }
 
         Vector& operator-=( const Vector& y )
         {
+            assert( impl_ );
             impl_->subtract_const_Vector_ref( y );
             return *this;
         }
 
         Vector& operator*=( double a )
         {
+            assert( impl_ );
             impl_->multiply_double( std::move( a ) );
             return *this;
         }
 
         Vector operator-() const
         {
+            assert( impl_ );
             return impl_->negate();
         }
 
         bool operator==( const Vector& y ) const
         {
+            assert( impl_ );
             return impl_->compare_const_Vector_ref( y );
         }
 
         /// Access underlying space.
         const VectorSpace& space() const
         {
+            assert( impl_ );
             return impl_->space();
         }
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, Vector >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T, typename std::enable_if<
+                                !std::is_same< typename std::decay< T >::type, Vector >::value &&
+                                !std::is_base_of< Interface, typename std::decay< T >::type >::
+                                    value >::type* = nullptr >
         Vector& operator=( T&& value )
         {
             return *this = Vector( std::forward< T >( value ) );

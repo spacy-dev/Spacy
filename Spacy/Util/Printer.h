@@ -78,6 +78,7 @@ namespace Spacy
             void operator()( const char* tag, const char* name,
                              const std::function< void( std::ostream& ) >& printable )
             {
+                assert( impl_ );
                 impl_
                     ->call_const_char_ptr_const_char_ptr_const_std_function_void_std_ostream_ref_ref(
                         tag, name, printable );

@@ -2,7 +2,7 @@
 
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include "RegularizeViaPreconditioner.h"
 #include "TerminationCriteria.h"

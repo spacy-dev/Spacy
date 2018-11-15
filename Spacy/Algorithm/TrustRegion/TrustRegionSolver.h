@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Spacy/C2Functional.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Mixins.h>
-#include <Spacy/c2Functional.hh>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include <utility>
 #include <functional>

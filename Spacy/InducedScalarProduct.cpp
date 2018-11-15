@@ -1,4 +1,4 @@
-#include "inducedScalarProduct.hh"
+#include "InducedScalarProduct.h"
 
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Cast.h>

@@ -2,10 +2,10 @@
 
 #include <gtest/gtest.h>
 
+#include <Spacy/C1Operator.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/c1Operator.hh>
 
 struct Linear
 {

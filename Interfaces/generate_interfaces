@@ -24,7 +24,7 @@ generate_interface         Functional.h Spacy "$SMALL_SBO_ARGS"
 generate_interface       C1Functional.h Spacy "$SMALL_SBO_ARGS"
 generate_interface       C2Functional.h Spacy "$SMALL_SBO_ARGS"
 generate_interface             Vector.h Spacy "$SMALL_SBO_ARGS"
-generate_interface linearSolver.hh Spacy ""
+generate_interface       LinearSolver.h Spacy ""
 }
 
 function generate_cg_interfaces {

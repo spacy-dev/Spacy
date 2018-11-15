@@ -3,7 +3,7 @@
 #include <Spacy/Norm.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include "Vector.h"
 #include "VectorSpace.h"

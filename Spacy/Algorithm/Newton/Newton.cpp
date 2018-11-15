@@ -3,13 +3,13 @@
 #include "DampingStrategies.h"
 #include "TerminationCriteria.h"
 
+#include <Spacy/C1Operator.h>
 #include <Spacy/Derivative.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Log.h>
-#include <Spacy/c1Operator.hh>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 namespace Spacy
 {

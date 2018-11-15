@@ -7,13 +7,13 @@
 #include "fem/variables.hh"
 
 #include "Spacy/Adapter/Kaskade/util.hh"
+#include "Spacy/C2Functional.h"
+#include "Spacy/LinearSolver.h"
+#include "Spacy/Operator.h"
 #include "Spacy/Spaces/ProductSpace/vector.hh"
 #include "Spacy/Util/Base/OperatorBase.h"
-#include "Spacy/c2Functional.hh"
-#include "Spacy/linearSolver.hh"
-#include "Spacy/operator.hh"
-#include "Spacy/vector.hh"
-#include <Spacy/zeroVectorCreator.hh>
+#include "Spacy/Vector.h"
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <iostream>
 

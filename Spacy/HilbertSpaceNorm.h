@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/scalarProduct.hh>
+#include <Spacy/ScalarProduct.h>
 
 namespace Spacy
 {

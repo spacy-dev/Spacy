@@ -1,9 +1,9 @@
 #include "GenericRothe.h"
 
 #include <Spacy/DynamicOperator.h>
-#include <Spacy/linearOperator.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/LinearOperator.h>
+#include <Spacy/Vector.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <utility>
 

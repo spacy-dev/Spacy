@@ -1,12 +1,12 @@
 #include <Test/gtest.hh>
 
+#include <Spacy/C2Functional.h>
+#include <Spacy/LinearOperator.h>
+#include <Spacy/Operator.h>
+#include <Spacy/Spaces/RealSpace.h>
 #include <Test/Mock/c2Functional.hh>
 #include <Test/Mock/linearOperator.hh>
 #include <Test/mockSetup.hh>
-#include <Spacy/Spaces/RealSpace.h>
-#include <Spacy/c2Functional.hh>
-#include <Spacy/linearOperator.hh>
-#include <Spacy/operator.hh>
 
 using namespace Spacy;
 

@@ -8,7 +8,7 @@
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/VectorSpace.h>
 
 namespace Spacy
 {

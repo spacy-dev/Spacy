@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Spacy/linearOperator.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/LinearOperator.h>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 #include <functional>
 
 namespace Spacy

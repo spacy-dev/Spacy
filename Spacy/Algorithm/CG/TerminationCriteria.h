@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Spacy/Util/Mixins.h>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 #include <string>
 #include <vector>

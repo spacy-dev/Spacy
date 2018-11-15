@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Spacy/LinearSolver.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Mixins/Index.h>
-#include <Spacy/linearSolver.hh>
-#include <Spacy/operator.hh>
-#include <Spacy/vector.hh>
+#include <Spacy/Vector.h>
 
 namespace Spacy
 {

@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Spacy/LinearSolver.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/linearSolver.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 #include <functional>
 
 namespace Spacy

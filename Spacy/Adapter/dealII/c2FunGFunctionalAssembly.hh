@@ -13,15 +13,15 @@
 #include <Spacy/Util/Base/FunctionalBase.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 #include <deal.II/numerics/matrix_tools.h>
 
+#include "VectorSpace.h"
 #include "copy.hh"
 #include "linearOperator.hh"
 #include "util.hh"
 #include "vector.hh"
-#include "vectorSpace.hh"
 
 #include <algorithm>
 #include <memory>

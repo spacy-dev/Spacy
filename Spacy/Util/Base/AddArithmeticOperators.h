@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/VectorSpace.h>
 
 #include <algorithm>
 

@@ -1,7 +1,7 @@
 #include "Operator.h"
 
 #include <Spacy/Util/Cast.h>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "Vector.h"
 #include "VectorSpace.h"

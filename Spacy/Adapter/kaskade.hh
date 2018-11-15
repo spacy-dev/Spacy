@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Kaskade/directSolver.hh"
+#include "Kaskade/VectorSpace.h"
+#include "Kaskade/c1Operator.hh"
 #include "Kaskade/c2Functional.hh"
+#include "Kaskade/directSolver.hh"
 #include "Kaskade/dly.hh"
 #include "Kaskade/dynamicC1Operator.hh"
 #include "Kaskade/l2Product.hh"
@@ -9,7 +11,5 @@
 #include "Kaskade/linearOperator.hh"
 #include "Kaskade/operator.hh"
 #include "Kaskade/operatorSpace.hh"
-#include "Kaskade/c1Operator.hh"
 #include "Kaskade/vector.hh"
-#include "Kaskade/vectorSpace.hh"
 #include "Kaskade/writeVTK.hh"

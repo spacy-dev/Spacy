@@ -4,7 +4,7 @@
 
 #include "Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h"
 #include "Spacy/Algorithm/CG/linearSolver.hh"
-#include "Spacy/linearSolver.hh"
+#include "Spacy/LinearSolver.h"
 #include <Spacy/Util/Mixins.h>
 
 #include "linearOperator.hh"

@@ -7,11 +7,11 @@
 #include <deal.II/lac/vector.h>
 
 #include <Spacy/Spaces/ProductSpace.h>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
+#include "VectorSpace.h"
 #include "util.hh"
-#include "vectorSpace.hh"
 
 namespace Spacy
 {

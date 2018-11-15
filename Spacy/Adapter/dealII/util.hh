@@ -13,9 +13,9 @@
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Invoke.h>
-#include <Spacy/vectorSpace.hh>
-#include <Spacy/zeroVectorCreator.hh>
-#include "vectorSpace.hh"
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
+#include "VectorSpace.h"
 
 #include <type_traits>
 

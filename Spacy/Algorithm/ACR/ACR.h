@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Spacy/C2Functional.h>
+#include <Spacy/LinearSolver.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Mixins.h>
-#include <Spacy/c2Functional.hh>
-#include <Spacy/linearSolver.hh>
-#include <Spacy/vector.hh>
-#include <Spacy/vectorSpace.hh>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 
 namespace Spacy
 {
