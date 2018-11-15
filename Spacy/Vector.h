@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <Spacy/Adaptivity/SpaceManager.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
@@ -99,6 +100,45 @@ namespace Spacy
                                     value >::type* = nullptr >
         Vector( T&& value ) : impl_( std::forward< T >( value ) )
         {
+            globalSpaceManager().subscribe( this );
+        }
+
+        Vector( const Vector& v ) : impl_( v.impl_ )
+        {
+            if ( impl_ )
+                globalSpaceManager().subscribe( this );
+        }
+
+        Vector( Vector&& v ) : impl_( std::move( v ).impl_ )
+        {
+            if ( impl_ )
+                globalSpaceManager().subscribe( this );
+        }
+
+        Vector& operator=( const Vector& v )
+        {
+            if ( impl_ )
+                globalSpaceManager().unsubscribe( this );
+            impl_ = v.impl_;
+            if ( impl_ )
+                globalSpaceManager().subscribe( this );
+            return *this;
+        }
+
+        Vector& operator=( Vector&& v )
+        {
+            if ( impl_ )
+                globalSpaceManager().unsubscribe( this );
+            impl_ = std::move( v ).impl_;
+            if ( impl_ )
+                globalSpaceManager().subscribe( this );
+            return *this;
+        }
+
+        ~Vector()
+        {
+            if ( impl_ )
+                globalSpaceManager().unsubscribe( this );
         }
 
         /// Apply as dual space element.

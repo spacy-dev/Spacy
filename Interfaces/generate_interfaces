@@ -1,49 +1,49 @@
 #!/bin/bash
 
+ADAPTIVITY_DIR=Spacy/Adaptivity
 UTIL_DIR=Spacy/Util
+CG_DIR=Spacy/Algorithm/CG
 DETAIL_DIR=Detail
 BUFFER_SIZE=16
 INCLUDE_DIR=$1
+CUSTOM_FUNCTION_TABLE=""
 
 COMMAND=/home/lars/Libraries/build-llvm2/bin/clang-type-erase
-COMMON_ARGS="-detail-dir=$DETAIL_DIR -include-dir=$INCLUDE_DIR -util-dir=$UTIL_DIR -util-include-dir=<$UTIL_DIR/type_erasure_util.h>"
+COMMON_ARGS="-detail-dir=$DETAIL_DIR -include-dir=$INCLUDE_DIR -util-dir=$UTIL_DIR -util-include-dir=<$UTIL_DIR/type_erasure_util.h> $CUSTOM_FUNCTION_TABLE"
 SMALL_SBO_ARGS="-sbo -buffer-size=$BUFFER_SIZE"
 
 function generate_interface {
-echo "generate $1"
-$COMMAND $COMMON_ARGS $3 -target-dir=$2 $1 -std=c++14 -I.. -x c++-header
+  echo "generate $1"
+  $COMMAND $COMMON_ARGS $3 -target-dir=$2 $1 -std=c++14 -I.. -x c++-header
 }
 
 function generate_interfaces {
-generate_interface  ZeroVectorCreator.h Spacy ""
-generate_interface           Operator.h Spacy "$SMALL_SBO_ARGS"
-generate_interface     LinearOperator.h Spacy "$SMALL_SBO_ARGS"
-generate_interface         C1Operator.h Spacy "$SMALL_SBO_ARGS"
-generate_interface    DynamicOperator.h Spacy "$SMALL_SBO_ARGS"
-generate_interface         Functional.h Spacy "$SMALL_SBO_ARGS"
-generate_interface       C1Functional.h Spacy "$SMALL_SBO_ARGS"
-generate_interface       C2Functional.h Spacy "$SMALL_SBO_ARGS"
-generate_interface             Vector.h Spacy "$SMALL_SBO_ARGS"
-generate_interface       LinearSolver.h Spacy ""
+  generate_interface  ZeroVectorCreator.h Spacy ""
+  generate_interface           Operator.h Spacy "$SMALL_SBO_ARGS"
+  generate_interface     LinearOperator.h Spacy "$SMALL_SBO_ARGS"
+  generate_interface         C1Operator.h Spacy "$SMALL_SBO_ARGS"
+  generate_interface    DynamicOperator.h Spacy "$SMALL_SBO_ARGS"
+  generate_interface         Functional.h Spacy "$SMALL_SBO_ARGS"
+  generate_interface       C1Functional.h Spacy "$SMALL_SBO_ARGS"
+  generate_interface       C2Functional.h Spacy "$SMALL_SBO_ARGS"
+  generate_interface             Vector.h Spacy "$SMALL_SBO_ARGS"
+  generate_interface       LinearSolver.h Spacy ""
 }
 
 function generate_cg_interfaces {
-# generate interface for conjugate gradient methods
-echo "for CG: generate terminationCriterion.hh"
-CG_DIR=Spacy/Algorithm/CG
-mkdir -p $INCLUDE_DIR/$CG_DIR/$DETAIL_DIR
-generate_interface TerminationCriterion.h $CG_DIR ""
-generate_interface Regularization.h $CG_DIR ""
+  echo "for CG"
+  generate_interface TerminationCriterion.h $CG_DIR ""
+  generate_interface Regularization.h $CG_DIR ""
 }
 
-function generate_logger_interfaces {
-# generate interface for printer of logger
-echo "for logger: generate printer.hh"
-mkdir -p $INCLUDE_DIR/$UTIL_DIR/$DETAIL_DIR
-generate_interface Printer.h $UTIL_DIR ""
-}
+if [ "$CUSTOM_FUNCTION_TABLE" = "" ]; then
+  mkdir -p $INCLUDE_DIR/Spacy/$DETAIL_DIR
+  mkdir -p $INCLUDE_DIR/$ADAPTIVITY_DIR/$DETAIL_DIR
+  mkdir -p $INCLUDE_DIR/$CG_DIR/$DETAIL_DIR
+  mkdir -p $INCLUDE_DIR/$UTIL_DIR/$DETAIL_DIR
+fi
 
-mkdir -p $INCLUDE_DIR/Spacy/$DETAIL_DIR
 generate_interfaces
 generate_cg_interfaces
-generate_logger_interfaces
+generate_interface Printer.h $UTIL_DIR ""
+generate_interface ErrorEstimator.h $ADAPTIVITY_DIR ""
