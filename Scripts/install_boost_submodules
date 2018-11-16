@@ -20,3 +20,4 @@ cd ..
 ./bootstrap --prefix=$HOME
 ./b2 headers
 ./b2 install
+cd ..
