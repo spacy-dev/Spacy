@@ -4,8 +4,8 @@
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
 
-#include "VectorSpace.h"
 #include "util.hh"
+#include "vectorSpace.hh"
 
 #include "linalg/direct.hh"
 

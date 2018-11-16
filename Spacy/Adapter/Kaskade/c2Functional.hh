@@ -14,11 +14,11 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "VectorSpace.h"
 #include "directSolver.hh"
 #include "linearOperator.hh"
 #include "operatorSpace.hh"
 #include "vector.hh"
+#include "vectorSpace.hh"
 
 namespace Spacy
 {

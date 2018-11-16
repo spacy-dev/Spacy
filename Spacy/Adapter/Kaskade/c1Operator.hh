@@ -8,7 +8,7 @@
 #include <Spacy/VectorSpace.h>
 
 #include <Spacy/Util/Base/OperatorBase.h>
-#include <Spacy/Util/Mixins/numberOfThreads.hh>
+#include <Spacy/Util/Mixins/NumberOfThreads.h>
 
 #include "directSolver.hh"
 #include "linearOperator.hh"

@@ -1,55 +1,57 @@
-#ifndef SPACY_ADAPTER_KASKADE_OPERATOR_SPACE_HH
-#define SPACY_ADAPTER_KASKADE_OPERATOR_SPACE_HH
+#pragma once
 
 #include "vector.hh"
 
 namespace Spacy
 {
-  /// @cond
-  class VectorSpace;
-  /// @endcond
-
-  namespace Kaskade
-  {
     /// @cond
-    template <class,class> class LinearOperator;
+    class VectorSpace;
     /// @endcond
 
-    template <class AnsatzVariableSetDescription, class TestVariableSetDescription>
-    class LinearOperatorCreator
+    namespace Kaskade
     {
-      using Spaces = typename AnsatzVariableSetDescription::Spaces;
-      using Scalar = typename AnsatzVariableSetDescription::Scalar;
-      using Domain = typename AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::type;
-      using Range = typename TestVariableSetDescription::template CoefficientVectorRepresentation<>::type;
-      using Matrix = ::Kaskade::MatrixAsTriplet<Scalar>;
-      using OperatorImpl = ::Kaskade::MatrixRepresentedOperator<Matrix,Domain,Range>;
+        /// @cond
+        template < class, class >
+        class LinearOperator;
+        /// @endcond
 
-    public:
-      LinearOperatorCreator(const VectorSpace& domain, const VectorSpace& range)
-        : domain_(domain),
-          range_(range)
-      {}
+        template < class AnsatzVariableSetDescription, class TestVariableSetDescription >
+        class LinearOperatorCreator
+        {
+            using Spaces = typename AnsatzVariableSetDescription::Spaces;
+            using Scalar = typename AnsatzVariableSetDescription::Scalar;
+            using Domain = typename AnsatzVariableSetDescription::
+                template CoefficientVectorRepresentation<>::type;
+            using Range = typename TestVariableSetDescription::
+                template CoefficientVectorRepresentation<>::type;
+            using Matrix = ::Kaskade::MatrixAsTriplet< Scalar >;
+            using OperatorImpl = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
 
-      LinearOperator<AnsatzVariableSetDescription,TestVariableSetDescription> operator()(const VectorSpace* space) const
-      {
-        return LinearOperator<AnsatzVariableSetDescription,TestVariableSetDescription>{ OperatorImpl{ Matrix{} } , *space };
-      }
+        public:
+            LinearOperatorCreator( const VectorSpace& domain, const VectorSpace& range )
+                : domain_( domain ), range_( range )
+            {
+            }
 
-      const VectorSpace& domain() const
-      {
-        return domain_;
-      }
+            LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >
+            operator()( const VectorSpace* space ) const
+            {
+                return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >{
+                    OperatorImpl{Matrix{}}, *space};
+            }
 
-      const VectorSpace& range() const
-      {
-        return range_;
-      }
+            const VectorSpace& domain() const
+            {
+                return domain_;
+            }
 
-    private:
-      const VectorSpace &domain_, &range_;
-    };
-  }
+            const VectorSpace& range() const
+            {
+                return range_;
+            }
+
+        private:
+            const VectorSpace &domain_, &range_;
+        };
+    }
 }
-
-#endif // SPACY_ADAPTER_KASKADE_OPERATOR_SPACE_HH

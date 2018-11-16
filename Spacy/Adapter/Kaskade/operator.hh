@@ -1,5 +1,4 @@
-#ifndef SPACY_KASKADE_OPERATOR_HH
-#define SPACY_KASKADE_OPERATOR_HH
+#pragma once
 
 #include <utility>
 
@@ -7,7 +6,7 @@
 #include "fem/istlinterface.hh"
 
 #include "Spacy/Util/Base/OperatorBase.h"
-#include "Spacy/Util/Mixins/numberOfThreads.hh"
+#include "Spacy/Util/Mixins/NumberOfThreads.h"
 
 namespace Spacy
 {
@@ -165,5 +164,3 @@ namespace Spacy
         }
     }
 }
-
-#endif // SPACY_KASKADE_OPERATOR_HH
