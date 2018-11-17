@@ -44,7 +44,9 @@ endif()
 
 if(Dolfin)
   # Tell cmake where to find DOLFINConfig.cmake
+  find_package(UFC MODULE 2018.1 REQUIRED)
   find_package(DOLFIN CONFIG REQUIRED)
+  include_directories(PRIVATE ${UFC_INCLUDE_DIRS})
   include_directories(${DOLFIN_INCLUDE_DIRS})
   include_directories(SYSTEM ${DOLFIN_3RD_PARTY_INCLUDE_DIRS})
 endif()
