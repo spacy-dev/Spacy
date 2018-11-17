@@ -1,5 +1,6 @@
 #include "OperatorSpace.h"
 
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/VectorSpace.h>
 #include "LinearOperator.h"
 
@@ -18,7 +19,7 @@ namespace Spacy
 
         LinearOperator LinearOperatorCreator::operator()( const VectorSpace* space ) const
         {
-            //      return LinearOperator{ dolfin::Matrix{}.copy() , *space , dolfinSpace_ };
+            throw Exception::CallOfUndefinedFunction( __func__ );
         }
 
         const VectorSpace& LinearOperatorCreator::domain() const
