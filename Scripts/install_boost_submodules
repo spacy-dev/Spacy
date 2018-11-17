@@ -17,7 +17,7 @@ git submodule init $MODULES
 git submodule update $MODULES
 
 cd ..
-./bootstrap --prefix=$HOME
+./bootstrap.sh --prefix=$HOME
 ./b2 headers
 ./b2 install
 cd ..
