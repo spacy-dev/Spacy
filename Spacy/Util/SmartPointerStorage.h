@@ -122,6 +122,8 @@ namespace clang
             template < class Interface, template < class > class Wrapper >
             struct Storage : Accessor< Storage< Interface, Wrapper >, Interface, Wrapper >
             {
+                using Base = Accessor< Storage, Interface, Wrapper >;
+
                 Storage() = default;
 
                 template < class T, std::enable_if_t< !std::is_base_of<
@@ -129,7 +131,8 @@ namespace clang
                            std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
                                nullptr >
                 explicit Storage( T&& t )
-                    : interface_( std::make_unique< Wrapper< std::decay_t<T> > >( std::forward< T >( t ) ) )
+                    : Base(), interface_( std::make_unique< Wrapper< std::decay_t< T > > >(
+                                  std::forward< T >( t ) ) )
                 {
                 }
 
@@ -137,7 +140,7 @@ namespace clang
                 Storage& operator=( Storage&& ) = default;
 
                 Storage( const Storage& other )
-                    : interface_( other.interface_ ? other.interface_->clone() : nullptr )
+                    : Base(), interface_( other.interface_ ? other.interface_->clone() : nullptr )
                 {
                 }
 
@@ -166,6 +169,8 @@ namespace clang
             template < class Interface, template < class > class Wrapper >
             struct COWStorage : Accessor< COWStorage< Interface, Wrapper >, Interface, Wrapper >
             {
+                using Base = Accessor< COWStorage, Interface, Wrapper >;
+
                 COWStorage() = default;
 
                 template < class T, std::enable_if_t< !std::is_base_of<
@@ -173,7 +178,8 @@ namespace clang
                            std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
                                nullptr >
                 explicit COWStorage( T&& t )
-                    : interface_( std::make_shared< Wrapper< std::decay_t<T> > >( std::forward< T >( t ) ) )
+                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >(
+                                  std::forward< T >( t ) ) )
                 {
                 }
 
@@ -199,6 +205,8 @@ namespace clang
             struct SBOStorage
                 : Accessor< SBOStorage< Interface, Wrapper, Size >, Interface, Wrapper >
             {
+                using Base = Accessor< SBOStorage, Interface, Wrapper >;
+
                 SBOStorage() = default;
 
                 ~SBOStorage()
@@ -213,8 +221,8 @@ namespace clang
                            std::enable_if_t< std::greater<>()(
                                sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
                 explicit SBOStorage( T&& t )
-                    : interface_( std::make_shared< Wrapper< std::decay_t< T > > >(
-                          std::forward< T >( t ) ) )
+                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >(
+                                  std::forward< T >( t ) ) )
                 {
                 }
 
@@ -224,13 +232,13 @@ namespace clang
                                nullptr,
                            std::enable_if_t< std::less_equal<>()(
                                sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
-                explicit SBOStorage( T&& t )
+                explicit SBOStorage( T&& t ) : Base()
                 {
                     new ( &buffer_ ) Wrapper< std::decay_t< T > >( std::forward< T >( t ) );
                     interface_ = makeAlias();
                 }
 
-                SBOStorage( const SBOStorage& other )
+                SBOStorage( const SBOStorage& other ) : Base()
                 {
                     if ( !other.interface_ )
                         return;
@@ -324,6 +332,8 @@ namespace clang
             struct SBOCOWStorage
                 : Accessor< SBOCOWStorage< Interface, Wrapper, Size >, Interface, Wrapper >
             {
+                using Base = Accessor< SBOCOWStorage, Interface, Wrapper >;
+
                 SBOCOWStorage() = default;
 
                 ~SBOCOWStorage()
@@ -338,8 +348,8 @@ namespace clang
                            std::enable_if_t< std::greater<>()(
                                sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
                 explicit SBOCOWStorage( T&& t )
-                    : interface_( std::make_shared< Wrapper< std::decay_t< T > > >(
-                          std::forward< T >( t ) ) )
+                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >(
+                                  std::forward< T >( t ) ) )
                 {
                 }
 
@@ -349,13 +359,13 @@ namespace clang
                                nullptr,
                            std::enable_if_t< std::less_equal<>()(
                                sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
-                explicit SBOCOWStorage( T&& t )
+                explicit SBOCOWStorage( T&& t ) : Base()
                 {
                     new ( &buffer_ ) Wrapper< std::decay_t< T > >( std::forward< T >( t ) );
                     interface_ = makeAlias();
                 }
 
-                SBOCOWStorage( const SBOCOWStorage& other )
+                SBOCOWStorage( const SBOCOWStorage& other ) : Base()
                 {
                     if ( isHeapAllocated( other.interface_.get(), other.buffer_ ) )
                     {
@@ -383,7 +393,7 @@ namespace clang
                     return *this;
                 }
 
-                SBOCOWStorage( SBOCOWStorage&& other )
+                SBOCOWStorage( SBOCOWStorage&& other ) : Base()
                 {
                     if ( isHeapAllocated( other.interface_.get(), other.buffer_ ) )
                     {
