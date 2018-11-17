@@ -1,11 +1,11 @@
-#include "luSolver.hh"
+#include "LUSolver.h"
 
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
+#include "Copy.h"
 #include "VectorSpace.h"
-#include "util.hh"
 
 namespace Spacy
 {

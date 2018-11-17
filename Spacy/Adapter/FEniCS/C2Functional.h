@@ -9,11 +9,11 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "assignXIfPresent.hh"
-#include "linearOperator.hh"
-#include "operatorSpace.hh"
-#include "util.hh"
-#include "vector.hh"
+#include "AssignXIfPresent.h"
+#include "Copy.h"
+#include "LinearOperator.h"
+#include "OperatorSpace.h"
+#include "Vector.h"
 
 namespace Spacy
 {

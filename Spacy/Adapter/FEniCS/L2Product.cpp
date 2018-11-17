@@ -1,11 +1,11 @@
-#include "l2Product.hh"
+#include "L2Product.h"
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
 
-#include "vector.hh"
+#include "Vector.h"
 
 namespace Spacy
 {

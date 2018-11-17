@@ -1,4 +1,4 @@
-#include "linearOperator.hh"
+#include "LinearOperator.h"
 
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Exceptions.h>
@@ -6,9 +6,9 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
+#include "Copy.h"
+#include "OperatorSpace.h"
 #include "VectorSpace.h"
-#include "operatorSpace.hh"
-#include "util.hh" // copy
 
 #include <cassert>
 

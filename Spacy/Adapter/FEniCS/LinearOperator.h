@@ -9,7 +9,7 @@
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Base/VectorBase.h>
 
-#include "luSolver.hh"
+#include "LUSolver.h"
 
 namespace Spacy
 {

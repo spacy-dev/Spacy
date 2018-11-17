@@ -1,10 +1,10 @@
-#include "writeVTK.hh"
+#include "WriteVTK.h"
 
 #include <Spacy/Adapter/Generic/WriteVTK.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
 
-#include "vector.hh"
+#include "Vector.h"
 
 #include <dolfin.h>
 

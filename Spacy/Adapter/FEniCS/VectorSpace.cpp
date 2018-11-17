@@ -6,8 +6,8 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "l2Product.hh"
-#include "vector.hh"
+#include "L2Product.h"
+#include "Vector.h"
 
 namespace Spacy
 {

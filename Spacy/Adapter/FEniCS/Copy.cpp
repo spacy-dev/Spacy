@@ -1,14 +1,14 @@
-#include "util.hh"
+#include "Copy.h"
 
 #include <Spacy/Util/Cast.h>
-#include <Spacy/Util/copy.hh>
+#include <Spacy/Util/Copy.h>
 
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
+#include "Vector.h"
 #include "VectorSpace.h"
-#include "vector.hh"
 
 #include <dolfin.h>
 

@@ -4,18 +4,17 @@
 
 #include <dolfin.h>
 
-#include <Spacy/Spaces/ScalarSpace/RealSpace.hh>
+#include <Spacy/Spaces/ScalarSpace/RealSpace.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/VectorSpace.h>
 
+#include "AssignXIfPresent.h"
+#include "Copy.h"
+#include "LUSolver.h"
+#include "LinearOperator.h"
+#include "OperatorSpace.h"
 #include "VectorSpace.h"
-#include "assignXIfPresent.hh"
-#include "linearOperator.hh"
-#include "luSolver.hh"
-#include "util.hh"
-
-#include "operatorSpace.hh"
 
 namespace Spacy
 {
