@@ -68,6 +68,7 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
 )
 
+export(PACKAGE Spacy)
 export(EXPORT SpacyTargets
   FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/SpacyTargets.cmake"
   NAMESPACE Spacy::
