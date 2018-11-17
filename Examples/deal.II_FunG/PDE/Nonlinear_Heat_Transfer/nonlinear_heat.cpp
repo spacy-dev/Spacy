@@ -1,4 +1,4 @@
-#include <Spacy/Adapter/dealII.hh>
+#include <Spacy/Adapter/DealII.h>
 #include <Spacy/Spacy.h>
 
 #include <deal.II/base/tensor.h>

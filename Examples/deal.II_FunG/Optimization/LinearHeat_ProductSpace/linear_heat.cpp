@@ -1,5 +1,5 @@
-#include <Spacy/Adapter/dealII.hh>
-#include <Spacy/Algorithm/ACR/acr.hh>
+#include <Spacy/Adapter/DealII.h>
+#include <Spacy/Algorithm/ACR/ACR.h>
 #include <Spacy/Spacy.h>
 
 #include <deal.II/base/tensor.h>
