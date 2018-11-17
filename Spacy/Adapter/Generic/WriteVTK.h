@@ -3,7 +3,7 @@
 #include <cassert>
 #include <string>
 
-#include <Spacy/Spaces/ProductSpace/vector.hh>
+#include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Cast.h>
 
 namespace Spacy

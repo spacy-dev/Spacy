@@ -22,8 +22,8 @@ namespace Spacy
             std::function< LinearSolver( const LinearOperator& ) > solverCreator )
             : OperatorBase( creator< LinearOperatorCreator >( space ).domain(),
                             creator< LinearOperatorCreator >( space ).range() ),
-              VectorBase( space ), A_( A ), space_( dolfinSpace ),
-              solverCreator_( std::move( solverCreator ) )
+              VectorBase( space ), A_( A ), solverCreator_( std::move( solverCreator ) ),
+              space_( dolfinSpace )
         {
         }
 
@@ -85,7 +85,8 @@ namespace Spacy
 
         ::Spacy::Real LinearOperator::applyAsDualElement( const ::Spacy::Vector& x ) const
         {
-            throw CallOfUndefinedFunctionException( "FEniCS::LinearOperator::applyAsDualElement" );
+            throw Exception::CallOfUndefinedFunction( __func__ );
+            return ::Spacy::Real( 0 );
         }
     }
 }

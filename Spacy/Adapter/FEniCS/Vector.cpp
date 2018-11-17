@@ -1,4 +1,4 @@
-#include "vector.hh"
+#include "Vector.h"
 
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
