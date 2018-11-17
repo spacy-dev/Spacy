@@ -2,7 +2,7 @@
 
 INSTALL_PREFIX=$1
 
-MODULES="any assert config container_hash core exception mpl static_assert throw_exception type_index type_traits utility"
+MODULES="any assert config container_hash core exception mpl serialization static_assert throw_exception type_index type_traits utility"
 
 git clone https://github.com/boostorg/boost.git
 cd boost
