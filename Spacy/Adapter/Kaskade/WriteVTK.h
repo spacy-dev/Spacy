@@ -2,7 +2,7 @@
 
 #include <Spacy/Vector.h>
 
-#include "vector.hh"
+#include "Vector.h"
 
 namespace Spacy
 {
@@ -17,8 +17,7 @@ namespace Spacy
                                          ->gridManager()
                                          .grid()
                                          .leafGridView(),
-                                     y, fileName, ::Kaskade::IoOptions{},
-                                     1 ); // at_c<0>(spaces_)->mapper().getOrder());
+                                     y, fileName, ::Kaskade::IoOptions{}, 1 );
         }
 
         //    template <class Description>

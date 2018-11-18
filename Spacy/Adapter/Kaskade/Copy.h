@@ -7,7 +7,7 @@
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
-#include "l2Product.hh"
+#include "l2Product.h"
 
 #include <fem/variables.hh>
 

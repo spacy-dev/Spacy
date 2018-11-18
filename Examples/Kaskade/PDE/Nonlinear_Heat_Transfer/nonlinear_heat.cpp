@@ -4,7 +4,7 @@
 #include <dune/grid/uggrid.hh>
 
 #define SPACY_ENABLE_LOGGING
-#include <Spacy/Adapter/kaskade.hh>
+#include <Spacy/Adapter/Kaskade.h>
 #include <Spacy/Algorithm/Newton/newton.hh>
 #include <Spacy/InducedScalarProduct.h>
 #include <Spacy/Util/Cast.h>

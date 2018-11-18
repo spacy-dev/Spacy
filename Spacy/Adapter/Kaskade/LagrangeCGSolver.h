@@ -7,8 +7,8 @@
 #include "Spacy/LinearSolver.h"
 #include <Spacy/Util/Mixins.h>
 
-#include "linearOperator.hh"
-#include "util.hh"
+#include "Copy.h"
+#include "LinearOperator.h"
 
 namespace Spacy
 {

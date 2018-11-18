@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Spacy/Adapter/Kaskade/Definitions/error_distribution.hh>
-#include <Spacy/Adapter/Kaskade/Definitions/lumped.hh>
+#include <Spacy/Adapter/Kaskade/Definitions/ErrorDistribution.h>
+#include <Spacy/Adapter/Kaskade/Definitions/Lumped.h>
 #include <Spacy/Util/Mixins/Accuracy.h>
 
 namespace Spacy
