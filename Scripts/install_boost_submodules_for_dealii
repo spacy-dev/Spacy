@@ -1,0 +1,23 @@
+#!/bin/bash
+
+INSTALL_PREFIX=$1
+
+MODULES="any assert config container_hash core exception integer io mpl preprocessor serialization static_assert throw_exception type_index type_traits utility"
+
+git clone https://github.com/boostorg/boost.git
+cd boost
+git submodule init tools/build
+git submodule update tools/build
+cd tools/build
+./bootstraph.sh
+./b2 install -prefix=$INSTALL_PREFIX
+export PATH="$PATH:$INSTALL_PREFIX/bin"
+cd ../../libs
+git submodule init $MODULES
+git submodule update $MODULES
+
+cd ..
+./bootstrap.sh --prefix=$INSTALL_PREFIX
+./b2 headers
+./b2 install
+cd ..
