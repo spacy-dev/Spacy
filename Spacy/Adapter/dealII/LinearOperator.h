@@ -37,19 +37,16 @@ namespace Spacy
                                     dealii::BlockSparseMatrix< double > >;
 
             LinearOperator( const Matrix& A, const VectorSpace& operatorSpace,
-                            const Spacy::Vector& boundary_values, const VectorSpace& domain,
-                            const VectorSpace& range )
+                            const VectorSpace& domain, const VectorSpace& range )
                 : OperatorBase( domain, range ), VectorBase( operatorSpace ),
-                  Mixin::Get< Matrix >( A.get_sparsity_pattern() ),
-                  boundary_values_( boundary_values )
+                  Mixin::Get< Matrix >( A.get_sparsity_pattern() )
             {
                 this->get().copy_from( A );
             }
 
             LinearOperator( const LinearOperator& other )
                 : OperatorBase( other.domain(), other.range() ), VectorBase( other.space() ),
-                  Mixin::Get< Matrix >( other.get().get_sparsity_pattern() ),
-                  boundary_values_( other.boundary_values_ )
+                  Mixin::Get< Matrix >( other.get().get_sparsity_pattern() )
             {
                 checkSpaceCompatibility( domain(), other.domain() );
                 checkSpaceCompatibility( range(), other.range() );
@@ -63,7 +60,6 @@ namespace Spacy
                 checkSpaceCompatibility( range(), other.range() );
 
                 this->get().copy_from( other.get() );
-                boundary_values_ = other.boundary_values_;
                 return *this;
             }
 
@@ -82,15 +78,13 @@ namespace Spacy
 
             Real operator()( const LinearOperator& ) const
             {
-                throw CallOfUndefinedFunctionException(
-                    "dealII::LinearOperator::operator()(const LinearOperator&)" );
+                throw Exception::CallOfUndefinedFunction( __func__ );
             }
 
             LinearSolver solver() const
             {
-                return UMFPackSolver< VariableDims >( this->get(), boundary_values_, domain(),
-                                                      range() );
-                //                return CGSolver<dim>(get(), boundary_values_, domain(), range());
+                return UMFPackSolver< dim, VariableDims >( this->get(), domain(), range() );
+                // return CGSolver< dim, VariableDims >(this->get(), domain(), range());
             }
 
             /**
@@ -156,17 +150,15 @@ namespace Spacy
                 dx -= *this;
                 return dx( dx ).get() < max * y.space().eps() * y.space().eps();
             }
-
-        private:
-            Spacy::Vector boundary_values_;
         };
 
+        /// Dummy linear operator creator.
+        /// @warning Throws on invocation.
         struct LinearOperatorCreator
         {
             Vector operator()( const VectorSpace* ) const
             {
-                throw CallOfUndefinedFunctionException(
-                    "dealII::LinearOperatorCreator::operator()(const VectorSpace*)" );
+                throw Exception::CallOfUndefinedFunction( __func__ );
             }
         };
     }
