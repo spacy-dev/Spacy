@@ -1,17 +1,20 @@
 #pragma once
 
-#include <deal.II/lac/block_sparse_matrix.h>
 #include <deal.II/lac/precondition.h>
 #include <deal.II/lac/solver_cg.h>
+#include <deal.II/lac/sparse_matrix.h>
+// For boundary values
+#include <deal.II/numerics/matrix_tools.h>
 
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
-#include <Spacy/Util/Mixins/accuracy.hh>
-#include <Spacy/Util/Mixins/maxSteps.hh>
+#include <Spacy/Util/Mixins/Accuracy.h>
+#include <Spacy/Util/Mixins/MaxSteps.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
+#include "Util.h"
 #include "Vector.h"
 #include "VectorSpace.h"
 
@@ -20,22 +23,20 @@ namespace Spacy
     /** @addtogroup dealIIGroup @{ */
     namespace dealII
     {
-        template < int dim >
+        template < int dim, class VariableDims >
         class CGSolver : public OperatorBase, public Mixin::AbsoluteAccuracy, public Mixin::MaxSteps
         {
         public:
-            CGSolver( const dealii::BlockSparseMatrix< double >& A,
-                      const Spacy::Vector& boundary_values, const VectorSpace& domain,
+            CGSolver( const dealii::SparseMatrix< double >& A, const VectorSpace& domain,
                       const VectorSpace& range )
-                : OperatorBase( range, domain ), A_( A.get_sparsity_pattern() ),
-                  boundary_values_( boundary_values )
+                : OperatorBase( range, domain ), A_( A.get_sparsity_pattern() )
             {
                 A_.copy_from( A );
             }
 
             CGSolver( const CGSolver& other )
-                : OperatorBase( other ), A_( other.A_.get_sparsity_pattern() ),
-                  boundary_values_( other.boundary_values_ )
+                : OperatorBase( other ), Mixin::AbsoluteAccuracy(), Mixin::MaxSteps(),
+                  A_( other.A_.get_sparsity_pattern() )
             {
                 checkSpaceCompatibility( domain(), other.domain() );
                 checkSpaceCompatibility( range(), other.range() );
@@ -49,7 +50,6 @@ namespace Spacy
                 checkSpaceCompatibility( range(), other.range() );
 
                 A_.copy_from( other.A_ );
-                boundary_values_ = other.boundary_values_;
                 return *this;
             }
 
@@ -57,21 +57,23 @@ namespace Spacy
             {
                 auto& x_ = cast_ref< Vector >( x );
 
-                dealii::SolverControl params( getMaxSteps(), get( getAbsoluteAccuracy() ) );
-                dealii::SolverCG<> solver( params );
-
                 auto y = zero( range() );
                 auto& y_ = cast_ref< Vector >( y );
 
-                solver.solve( A_.block( 0, 0 ), get( y_ ), get( x_ ),
-                              dealii::PreconditionIdentity() );
+                const auto& creator =
+                    Spacy::creator< VectorCreator< dim, VariableDims::value > >( domain() );
+                dealii::MatrixTools::apply_boundary_values(
+                    get_boundary_map< dim, VariableDims >( domain(), creator.dofHandler() ), A_,
+                    get( y_ ), get( x_ ) );
 
-                return y + boundary_values_;
+                dealii::SolverControl params( getMaxSteps(), get( getAbsoluteAccuracy() ) );
+                dealii::SolverCG<> solver( params );
+                solver.solve( A_, get( y_ ), get( x_ ), dealii::PreconditionIdentity() );
+                return y;
             }
 
         private:
-            mutable dealii::BlockSparseMatrix< double > A_;
-            Spacy::Vector boundary_values_;
+            mutable dealii::SparseMatrix< double > A_;
         };
     }
     /** @} */

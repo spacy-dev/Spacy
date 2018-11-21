@@ -117,6 +117,11 @@ namespace Spacy
                 return *triangulation_;
             }
 
+            const std::vector< BoundaryPart< dim > >& boundaryValues() const
+            {
+                return boundary_values_;
+            }
+
         private:
             int fe_order_;
             std::shared_ptr< dealii::Triangulation< dim > > triangulation_ =
@@ -157,6 +162,25 @@ namespace Spacy
         {
             return Spacy::makeHilbertSpace(
                 VectorCreator< dim, variable_dim >{triangulation, fe_order, first_component},
+                []( const Spacy::Vector& x, const Spacy::Vector& y ) { return x( y ); } );
+        }
+
+        /**
+         * @brief Convenient generation of a single vector space from dealii::Triangulation<dim>.
+         * @param triangulation triangulation underlying the FE-space
+         * @param fe_order order of the finite elements
+         * @param variable_dim dimension of the variable
+         * @return @ref ::Spacy::makeHilbertSpace() "::Spacy::makeHilbertSpace(
+         * VectorCreator<dim>{triangulation, fe:order} , l2Product{} )"
+         */
+        template < int variable_dim, int dim >
+        VectorSpace makeHilbertSpace( const dealii::Triangulation< dim >& triangulation,
+                                      int fe_order, int first_component,
+                                      std::vector< BoundaryPart< dim > >&& boundary_values )
+        {
+            return Spacy::makeHilbertSpace(
+                VectorCreator< dim, variable_dim >{triangulation, fe_order, first_component,
+                                                   std::move( boundary_values )},
                 []( const Spacy::Vector& x, const Spacy::Vector& y ) { return x( y ); } );
         }
 

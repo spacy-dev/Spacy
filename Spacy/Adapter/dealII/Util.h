@@ -45,14 +45,16 @@ namespace Spacy
         template < int variable_dim, int... variable_dims >
         struct VariableDim< variable_dim, variable_dims... >
         {
-            static const constexpr int size = 1 + VariableDim< variable_dims... >::size;
+            static constexpr int value = variable_dim;
+            static constexpr int size = 1 + VariableDim< variable_dims... >::size;
             using Indices = std::make_integer_sequence< int, size >;
         };
 
         template < int variable_dim >
         struct VariableDim< variable_dim >
         {
-            static const constexpr int size = 1;
+            static constexpr int value = variable_dim;
+            static constexpr int size = 1;
             using Indices = std::make_integer_sequence< int, 1 >;
         };
 

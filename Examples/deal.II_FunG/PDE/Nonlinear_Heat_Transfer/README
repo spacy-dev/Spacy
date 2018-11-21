@@ -1,4 +1,4 @@
 # A nonlinear heat example using FunG and deal.II
 
 # Compile and run with
-mkdir build && cd build && cmake .. && make && ./run
+mkdir build && cd build && cmake .. && cmake --build . && ./run
