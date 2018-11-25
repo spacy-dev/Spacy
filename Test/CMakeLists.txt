@@ -1,8 +1,10 @@
 find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
+find_package(Threads REQUIRED)
 
 aux_source_directory(Mock MOCK_SRC_LIST)
 add_library(mocks ${MOCK_SRC_LIST})
+target_include_directories(mocks PRIVATE ${PROJECT_SOURCE_DIR})
+target_compile_options(mocks PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall -std=c++1y>)
 
 aux_source_directory(Spacy TEST_SRC_LIST)
 if(Eigen3_FOUND)
@@ -33,7 +35,9 @@ foreach(TEST ${TEST_SRC_LIST})
   string(REGEX REPLACE "/" "_" TEST_DIR ${TEST_DIR})
   set(TEST_UNIQUE_NAME "${TEST_DIR}_${TEST_NAME}")
   add_executable(${TEST_UNIQUE_NAME} ${TEST})
-  target_link_libraries(${TEST_UNIQUE_NAME} mocks spacy ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} pthread)
+  target_include_directories(${TEST_UNIQUE_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
+  target_link_libraries(${TEST_UNIQUE_NAME} mocks spacy GTest::GTest ${GMOCK_LIBRARIES} Threads::Threads)
+  target_compile_options(${TEST_UNIQUE_NAME} PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall -std=c++1y>)
   add_test(${TEST_UNIQUE_NAME} ${PROJECT_BINARY_DIR}/Test/${TEST_UNIQUE_NAME})
 endforeach()
 

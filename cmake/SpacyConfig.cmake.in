@@ -1,0 +1,12 @@
+get_filename_component(Spacy_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(CMakeFindDependencyMacro)
+
+list(APPEND CMAKE_MODULE_PATH ${Spacy_CMAKE_DIR})
+
+list(REMOVE_AT CMAKE_MODULE_PATH -1)
+
+if(NOT TARGET Spacy::Spacy)
+    include("${Spacy_CMAKE_DIR}/SpacyTargets.cmake")
+endif()
+
+set(Spacy_LIBRARIES Spacy::Spacy)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
@@ -12,20 +12,7 @@ option(Dolfin "Dolfin" OFF)
 option(dealII "dealII" OFF)
 option(Logging "Logging" ON)
 
-# The version number
-set (SPACY_MAJOR_VERSION 0)
-set (SPACY_MINOR_VERSION 3)
-set (SPACY_PATCH_VERSION 1)
-set (SPACY_VERSION ${SPACY_MAJOR_VERSION}.${SPACY_MINOR_VERSION}.${SPACY_PATCH_VERSION})
-
-# Set path to cmake scripts
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH}
-    ${CMAKE_SOURCE_DIR}/cmake
-    )
-
-# Do not allow in-source builds
-include(ConfigSafeGuards)
+list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
 
 if(dealII)
     find_package(deal.II 8.4 QUIET
@@ -36,7 +23,7 @@ if(dealII)
   DEAL_II_INITIALIZE_CACHED_VARIABLES()
 endif()
 
-project(Spacy)
+project(spacy VERSION 0.4.0 LANGUAGES CXX)
 
 if(Logging)
     add_definitions(-DSPACY_ENABLE_LOGGING)
@@ -53,22 +40,10 @@ if(Eigen3_FOUND)
   include_directories(${EIGEN3_INCLUDE_DIR})
 endif()
 
-set(DOC_DIR "doc" CACHE STRING "Output directory for the doxygen documentation")
-
 if(Coverage)
   set(CMAKE_BUILD_TYPE Debug)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -coverage")
 endif()
-  
-# Set compiler flags
-set(CMAKE_CXX_STANDARD 14)
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Woverloaded-virtual -Wwrite-strings -Wpedantic") #-Weffc++ ")
-endif()
- 
-# set up include-directories
-include_directories("${PROJECT_SOURCE_DIR}")
-include_directories(${PROJECT_SOURCE_DIR}/External/FGlue)
 
 add_subdirectory(Spacy)
 if(BuildTest)
@@ -78,10 +53,11 @@ endif()
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
-add_custom_target(doc
-${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-COMMENT "Generating API documentation with Doxygen" VERBATIM
-)
+    set(DOC_DIR "doc" CACHE STRING "Output directory for the doxygen documentation")
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    add_custom_target(doc
+        ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating API documentation with Doxygen" VERBATIM
+    )
 endif(DOXYGEN_FOUND)

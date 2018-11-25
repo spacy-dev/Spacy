@@ -44,55 +44,63 @@ foreach(HEADER ${HEADERS})
 endforeach(HEADER HEADERS)
 
 add_library(spacy ${SRC_LIST})
+target_include_directories(spacy PUBLIC
+    $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+)
+target_compile_options(spacy PUBLIC $<$<CXX_COMPILER_ID:GNU>:-Wall -std=c++1y>)
+#This is required so that the exported target has the name Spacy and not spacy
+set_target_properties(spacy PROPERTIES EXPORT_NAME Spacy)
+
 if(dealII)
     DEAL_II_SETUP_TARGET(spacy)
 endif()
 
-include(GenerateExportHeader)
+include(GNUInstallDirs)
+set(INSTALL_CONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/Spacy)
 
-set_property(TARGET spacy PROPERTY VERSION ${SPACY_VERSION})
-set_property(TARGET spacy PROPERTY SOVERSION ${SPACY_MAJOR_VERSION})
-set_property(TARGET spacy PROPERTY INTERFACE_spacy_MAJOR_VERSION ${SPACY_MAJOR_VERSION})
-set_property(TARGET spacy APPEND PROPERTY COMPATIBLE_INTERFACE_STRING spacy_MAJOR_VERSION)
-
-install (TARGETS spacy EXPORT SpacyTargets
-         LIBRARY DESTINATION lib
-         ARCHIVE DESTINATION lib
-         RUNTIME DESTINATION bin
-         INCLUDES DESTINATION include)
-
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake/SpacyConfigVersion.cmake"
-  VERSION ${SPACY_VERSION}
-  COMPATIBILITY AnyNewerVersion
+install(TARGETS spacy
+    EXPORT spacy-targets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
-export(PACKAGE Spacy)
-export(EXPORT SpacyTargets
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/cmake/SpacyTargets.cmake"
-  NAMESPACE Spacy::
-)
-
-configure_file(../cmake/SpacyConfig.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/cmake/SpacyConfig.cmake"
-)
-
-set(ConfigPackageLocation lib/cmake/Spacy)
-install(EXPORT SpacyTargets
+install(DIRECTORY . DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Spacy)
+install(EXPORT spacy-targets
   FILE
     SpacyTargets.cmake
   NAMESPACE
     Spacy::
   DESTINATION
-    ${ConfigPackageLocation}
+    ${CMAKE_INSTALL_LIBDIR}/cmake/Spacy
 )
-install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake/SpacyConfig.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake/SpacyConfigVersion.cmake"
-  DESTINATION
-    ${ConfigPackageLocation}
-  COMPONENT
-    Devel
+
+#Create a ConfigVersion.cmake file
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/SpacyConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
 )
+
+configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/SpacyConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/SpacyConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+#Install the config, configversion and custom find modules
+install(FILES
+    ${PROJECT_SOURCE_DIR}/cmake/FindSpacy.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/SpacyConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/SpacyConfigVersion.cmake
+    DESTINATION ${INSTALL_CONFIGDIR}
+)
+
+##############################################
+## Exporting from the build tree
+configure_file(${PROJECT_SOURCE_DIR}/cmake/FindSpacy.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/FindSpacy.cmake
+    COPYONLY)
+
+export(EXPORT spacy-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/SpacyTargets.cmake NAMESPACE Spacy::)
+#Register package in user's package registry
+export(PACKAGE Spacy)
