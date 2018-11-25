@@ -8,10 +8,13 @@
 #include <deal.II/lac/dynamic_sparsity_pattern.h>
 #include <deal.II/lac/full_matrix.h>
 #include <deal.II/lac/vector.h>
+// For boundary values
+#include <deal.II/numerics/matrix_tools.h>
 
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
+#include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
@@ -24,7 +27,6 @@
 #include "VectorSpace.h"
 
 #include <algorithm>
-#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -49,36 +51,33 @@ namespace Spacy
             C1FunGOperator( FunGOperator&& operator_impl, const VectorSpace& domain,
                             const VectorSpace& range )
                 : OperatorBase( domain, range ), operator_( std::move( operator_impl ) ),
-                  operator_space_( std::make_shared< VectorSpace >(
+                  operatorSpace_( std::make_shared< VectorSpace >(
                       LinearOperatorCreator(), []( const Spacy::Vector& ) { return Real( 0 ); },
                       true ) ),
-                  fe_system_( std::make_shared< dealii::FESystem< dim > >(
-                      get_finite_element_system< dim, VariableDims >( domain ) ) ),
-                  dof_handler_( std::make_shared< dealii::DoFHandler< dim > >(
-                      creator< VectorCreator< dim, GetDim< 0, VariableDims >::value > >(
-                          extractSubSpace( domain, 0 ) )
-                          .triangulation() ) ),
                   value_( VariableDims::size == 1 ? GetDim< 0, VariableDims >::value
                                                   : VariableDims::size )
             {
-                dof_handler_->distribute_dofs( *fe_system_ );
                 InitBlockVector< dim, VariableDims >::apply( domain, value_ );
-                InitSparsityPattern< dim, VariableDims >::apply( domain, *dof_handler_,
-                                                                 sparsity_pattern_ );
-                gradient_.reinit( sparsity_pattern_ );
+                InitSparsityPattern< dim, VariableDims >::apply(
+                    domain, Spacy::creator< VectorCreator< dim, VariableDims::value > >( domain )
+                                .dofHandler(),
+                    sparsityPattern_ );
+                gradient_.reinit( sparsityPattern_ );
             }
 
             C1FunGOperator( const C1FunGOperator& other )
                 : OperatorBase( other.domain(), other.range() ), operator_( other.operator_ ),
-                  operator_space_( other.operator_space_ ), fe_system_( other.fe_system_ ),
-                  dof_handler_( other.dof_handler_ ),
+                  operatorSpace_( other.operatorSpace_ ),
                   value_( VariableDims::size == 1 ? GetDim< 0, VariableDims >::value
                                                   : VariableDims::size )
             {
                 InitBlockVector< dim, VariableDims >::apply( domain(), value_ );
-                InitSparsityPattern< dim, VariableDims >::apply( domain(), *dof_handler_,
-                                                                 sparsity_pattern_ );
-                gradient_.reinit( sparsity_pattern_ );
+                InitSparsityPattern< dim, VariableDims >::apply(
+                    domain(),
+                    Spacy::creator< VectorCreator< dim, VariableDims::value > >( domain() )
+                        .dofHandler(),
+                    sparsityPattern_ );
+                gradient_.reinit( sparsityPattern_ );
             }
 
             /// Compute \f$A(x)\f$.
@@ -114,7 +113,7 @@ namespace Spacy
             auto linearization( const ::Spacy::Vector& x ) const
             {
                 assemble( x );
-                return LinearOperator< dim, VariableDims >{gradient_, *operator_space_, domain(),
+                return LinearOperator< dim, VariableDims >{gradient_, *operatorSpace_, domain(),
                                                            range()};
             }
 
@@ -130,33 +129,34 @@ namespace Spacy
                 auto x_ = value_;
                 copy( x, x_ );
 
+                const auto& space =
+                    Spacy::creator< VectorCreator< dim, VariableDims::value > >( domain() );
                 Detail::OperatorUpdate< dim, VariableDims > operator_update( domain(),
-                                                                             *fe_system_ );
-                std::for_each( dof_handler_->begin_active(), dof_handler_->end(),
-                               [this, &x_, &operator_update]( const auto& cell ) {
-                                   operator_update.reinit( cell );
-                                   operator_update.init_old_solution( x_ );
+                                                                             space.feSystem() );
+                const auto cend = space.dofHandler().end();
+                for ( auto cell = space.dofHandler().begin_active(); cell != cend; ++cell )
+                {
+                    operator_update.reinit( cell );
+                    operator_update.init_old_solution( x_ );
 
-                                   for ( auto q_index = 0u;
-                                         q_index < operator_update.impl_.n_q_points_; ++q_index )
-                                   {
-                                       operator_update.update_functional( operator_, q_index );
-                                       operator_update.update_gradient_and_hessian( operator_,
-                                                                                    q_index );
-                                   }
+                    for ( auto q_index = 0u; q_index < operator_update.impl_.n_q_points_;
+                          ++q_index )
+                    {
+                        operator_update.update_functional( operator_, q_index );
+                        operator_update.update_gradient_and_hessian( operator_, q_index );
+                    }
 
-                                   operator_update.transfer_local_data( value_, gradient_ );
-                               } );
+                    operator_update.transfer_local_data( value_, gradient_ );
+                }
 
                 oldX_ = x;
             }
 
             mutable FunGOperator operator_;
-            std::shared_ptr< VectorSpace > operator_space_;
-            std::shared_ptr< dealii::FESystem< dim > > fe_system_;
-            std::shared_ptr< dealii::DoFHandler< dim > > dof_handler_;
-            SparsityPattern sparsity_pattern_;
+            std::shared_ptr< VectorSpace > operatorSpace_;
+            SparsityPattern sparsityPattern_;
 
+        private:
             mutable Value value_;
             mutable Gradient gradient_;
 

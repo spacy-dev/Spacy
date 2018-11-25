@@ -91,8 +91,9 @@ template < class C1Operator >
 Spacy::LinearSolver createCGSolver( const C1Operator& A, const Spacy::Vector& x )
 {
     const auto& X = A.domain();
-    auto cg = Spacy::dealII::CGSolver< dim, VariableDims >( get( A.linearization( x ) ), X,
-                                                            X.dualSpace() );
+    const auto linearization = A.linearization( x );
+    auto cg =
+        Spacy::dealII::CGSolver< dim, VariableDims >( get( linearization ), X, X.dualSpace() );
     cg.setAbsoluteAccuracy( 1e-12 );
     return cg;
 }
@@ -112,7 +113,7 @@ int main()
     // dealii space setup
     dealii::Triangulation< dim > triangulation;
     dealii::GridGenerator::hyper_cube( triangulation, -1, 1 );
-    triangulation.refine_global( 4 );
+    triangulation.refine_global( 2 );
     const auto fe_order = 1;
     const auto boundaryConditions =
         Spacy::dealII::BoundaryPart< dim >( 0, std::make_shared< BoundaryValues< dim > >() );

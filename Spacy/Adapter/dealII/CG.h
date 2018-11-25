@@ -3,7 +3,6 @@
 #include <deal.II/lac/precondition.h>
 #include <deal.II/lac/solver_cg.h>
 #include <deal.II/lac/sparse_matrix.h>
-// For boundary values
 #include <deal.II/numerics/matrix_tools.h>
 
 #include <Spacy/Util/Base/OperatorBase.h>
@@ -60,12 +59,11 @@ namespace Spacy
                 auto y = zero( range() );
                 auto& y_ = cast_ref< Vector >( y );
 
-                const auto& creator =
-                    Spacy::creator< VectorCreator< dim, VariableDims::value > >( domain() );
                 dealii::MatrixTools::apply_boundary_values(
-                    get_boundary_map< dim, VariableDims >( domain(), creator.dofHandler() ), A_,
-                    get( y_ ), get( x_ ) );
-
+                    get_boundary_map< dim, VariableDims >(
+                        domain(), creator< VectorCreator< dim, VariableDims::value > >( domain() )
+                                      .dofHandler() ),
+                    A_, y_.get(), x_.get() );
                 dealii::SolverControl params( getMaxSteps(), get( getAbsoluteAccuracy() ) );
                 dealii::SolverCG<> solver( params );
                 solver.solve( A_, get( y_ ), get( x_ ), dealii::PreconditionIdentity() );

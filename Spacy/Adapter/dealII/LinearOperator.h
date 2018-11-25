@@ -24,29 +24,24 @@ namespace Spacy
     namespace dealII
     {
         template < int dim, class VariableDims >
-        class LinearOperator
-            : public OperatorBase,
-              public VectorBase,
-              public Mixin::Get<
-                  std::conditional_t< VariableDims::size == 1, dealii::SparseMatrix< double >,
-                                      dealii::BlockSparseMatrix< double > > >
+        class LinearOperator : public OperatorBase,
+                               public VectorBase,
+                               public Mixin::Get< typename Traits< VariableDims >::Matrix >
         {
         public:
-            using Matrix =
-                std::conditional_t< VariableDims::size == 1, dealii::SparseMatrix< double >,
-                                    dealii::BlockSparseMatrix< double > >;
+            using NativeMatrix = typename Traits< VariableDims >::Matrix;
 
-            LinearOperator( const Matrix& A, const VectorSpace& operatorSpace,
+            LinearOperator( const NativeMatrix& A, const VectorSpace& operatorSpace,
                             const VectorSpace& domain, const VectorSpace& range )
                 : OperatorBase( domain, range ), VectorBase( operatorSpace ),
-                  Mixin::Get< Matrix >( A.get_sparsity_pattern() )
+                  Mixin::Get< NativeMatrix >( A.get_sparsity_pattern() )
             {
                 this->get().copy_from( A );
             }
 
             LinearOperator( const LinearOperator& other )
                 : OperatorBase( other.domain(), other.range() ), VectorBase( other.space() ),
-                  Mixin::Get< Matrix >( other.get().get_sparsity_pattern() )
+                  Mixin::Get< NativeMatrix >( other.get().get_sparsity_pattern() )
             {
                 checkSpaceCompatibility( domain(), other.domain() );
                 checkSpaceCompatibility( range(), other.range() );
@@ -84,7 +79,8 @@ namespace Spacy
             LinearSolver solver() const
             {
                 return UMFPackSolver< dim, VariableDims >( this->get(), domain(), range() );
-                // return CGSolver< dim, VariableDims >(this->get(), domain(), range());
+                //                return CGSolver< dim, VariableDims >(this->get(), domain(),
+                //                range());
             }
 
             /**

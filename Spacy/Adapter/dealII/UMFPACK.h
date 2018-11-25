@@ -2,7 +2,6 @@
 
 #include <deal.II/lac/sparse_direct.h>
 #include <deal.II/lac/sparse_matrix.h>
-// For boundary values
 #include <deal.II/numerics/matrix_tools.h>
 
 #include <Spacy/Util/Base/OperatorBase.h>
@@ -17,6 +16,7 @@
 #include "Vector.h"
 #include "VectorSpace.h"
 
+#include <iostream>
 #include <map>
 #include <memory>
 
@@ -30,15 +30,14 @@ namespace Spacy
                               public Mixin::AbsoluteAccuracy,
                               public Mixin::MaxSteps
         {
+        public:
+            using NativeVector = typename Traits< VariableDims >::Vector;
             using Matrix = typename Traits< VariableDims >::Matrix;
 
-        public:
             UMFPackSolver( const Matrix& A, const VectorSpace& domain, const VectorSpace& range )
-                : OperatorBase( range, domain ), A_( A.get_sparsity_pattern() ),
-                  solver_( std::make_shared< dealii::SparseDirectUMFPACK >() )
+                : OperatorBase( range, domain ), A_( A.get_sparsity_pattern() )
             {
                 A_.copy_from( A );
-                solver_->initialize( A_ );
             }
 
             UMFPackSolver( const UMFPackSolver& other )
@@ -57,7 +56,6 @@ namespace Spacy
                 checkSpaceCompatibility( range(), other.range() );
 
                 A_.copy_from( other.A_ );
-                solver_ = other.solver_;
                 return *this;
             }
 
@@ -67,21 +65,22 @@ namespace Spacy
 
                 auto y = zero( range() );
                 auto& y_ = cast_ref< Vector >( y );
+                setBoundaryConditions< dim, VariableDims >( domain(), y_ );
 
-                const auto& creator =
-                    Spacy::creator< VectorCreator< dim, VariableDims::value > >( domain() );
-                dealii::MatrixTools::apply_boundary_values(
-                    get_boundary_map< dim, VariableDims >( domain(), creator.dofHandler() ), A_,
-                    get( y_ ), get( x_ ) );
+                auto boundaryMap = get_boundary_map< dim, VariableDims >(
+                    domain(),
+                    creator< VectorCreator< dim, VariableDims::value > >( domain() ).dofHandler() );
+                dealii::MatrixTools::apply_boundary_values( boundaryMap, A_, y_.get(), x_.get() );
 
-                solver_->vmult( get( y_ ), get( x_ ) );
+                dealii::SparseDirectUMFPACK solver;
+                solver.initialize( A_ );
+                solver.vmult( get( y_ ), get( x_ ) );
 
-                return y + ;
+                return y;
             }
 
         private:
             mutable Matrix A_;
-            std::shared_ptr< dealii::SparseDirectUMFPACK > solver_;
         };
     }
     /** @} */

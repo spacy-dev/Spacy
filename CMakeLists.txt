@@ -18,7 +18,6 @@ if(dealII)
     find_package(deal.II 8.4 QUIET
       HINTS ${deal.II_DIR} ${DEAL_II_DIR} ../ ../../ $ENV{DEAL_II_DIR}
       )
-  include_directories(${deal.II_INCLUDE_DIRS})
 
   DEAL_II_INITIALIZE_CACHED_VARIABLES()
 endif()

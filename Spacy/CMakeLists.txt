@@ -53,6 +53,7 @@ target_compile_options(spacy PUBLIC $<$<CXX_COMPILER_ID:GNU>:-Wall -std=c++1y>)
 set_target_properties(spacy PROPERTIES EXPORT_NAME Spacy)
 
 if(dealII)
+    target_include_directories(spacy PUBLIC ${deal.II_INCLUDE_DIRS})
     DEAL_II_SETUP_TARGET(spacy)
 endif()
 

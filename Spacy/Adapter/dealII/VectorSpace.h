@@ -92,6 +92,11 @@ namespace Spacy
                 return *fe_;
             }
 
+            const auto& feSystem() const
+            {
+                return *fe_system_;
+            }
+
             auto extractor() const
             {
                 return std::conditional_t< variable_dim == 1, dealii::FEValuesExtractors::Scalar,
@@ -106,9 +111,10 @@ namespace Spacy
             auto boundaryValues( const dealii::DoFHandler< dim >& dof_handler ) const
             {
                 std::map< dealii::types::global_dof_index, double > boundary_values;
-                for ( const auto& value : *boundary_values_ )
+                for ( const auto& boundaryCondition : *boundary_values_ )
                     dealii::VectorTools::interpolate_boundary_values(
-                        dof_handler, value.id, *value.function, boundary_values );
+                        dof_handler, boundaryCondition.id, *boundaryCondition.function,
+                        boundary_values );
                 return boundary_values;
             }
 

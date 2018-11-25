@@ -9,6 +9,7 @@
 #include <deal.II/lac/sparse_matrix.h>
 #include <deal.II/lac/vector.h>
 #include <deal.II/numerics/matrix_tools.h>
+#include <deal.II/numerics/vector_tools.h>
 
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/Util/Cast.h>
@@ -197,6 +198,16 @@ namespace Spacy
         auto get_finite_element_system( const VectorSpace& V )
         {
             return GetFiniteElementSystem< dim, VariableDims >::apply( V );
+        }
+
+        template < int dim, class VariableDims >
+        void setBoundaryConditions( const Spacy::VectorSpace& V, Vector& y )
+        {
+            const auto& creator = Spacy::creator< VectorCreator< dim, VariableDims::value > >( V );
+            const auto boundaryMap =
+                get_boundary_map< dim, VariableDims >( V, creator.dofHandler() );
+            for ( const auto& pair : boundaryMap )
+                get( y )( pair.first ) = pair.second;
         }
 
         namespace Detail

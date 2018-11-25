@@ -99,7 +99,7 @@ template < int dim >
 void Step4< dim >::make_grid()
 {
     GridGenerator::hyper_cube( triangulation, -1, 1 );
-    triangulation.refine_global( 4 );
+    triangulation.refine_global( 2 );
     std::cout << "   Number of active cells: " << triangulation.n_active_cells() << std::endl
               << "   Total number of cells: " << triangulation.n_cells() << std::endl;
 }
@@ -166,7 +166,6 @@ void Step4< dim >::solve()
 {
     SolverControl solver_control( 1000, 1e-12 );
     SolverCG<> solver( solver_control );
-
     solver.solve( system_matrix, solution, system_rhs, PreconditionIdentity() );
 
     std::cout << "   " << solver_control.last_step()
@@ -198,10 +197,6 @@ int main()
     {
         Step4< 2 > laplace_problem_2d;
         laplace_problem_2d.run();
-    }
-    {
-        Step4< 3 > laplace_problem_3d;
-        laplace_problem_3d.run();
     }
     return 0;
 }
