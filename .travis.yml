@@ -44,12 +44,6 @@ matrix:
       env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 COMPUTE_COVERAGE=true MAKE_DOC=true
       compiler: gcc
       
-    # OSX
-    # Xcode 6.4
-    - os: osx
-      env: COMPUTE_COVERAGE=false
-      osx_image: xcode6.4
-      
     # Xcode 7.3
     - os: osx
       env: COMPUTE_COVERAGE=false
