@@ -90,7 +90,7 @@ configure_package_config_file(${PROJECT_SOURCE_DIR}/cmake/SpacyConfig.cmake.in
 
 #Install the config, configversion and custom find modules
 install(FILES
-    ${PROJECT_SOURCE_DIR}/cmake/FindSpacy.cmake
+#    ${PROJECT_SOURCE_DIR}/cmake/FindSpacy.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/SpacyConfig.cmake
     ${CMAKE_CURRENT_BINARY_DIR}/SpacyConfigVersion.cmake
     DESTINATION ${INSTALL_CONFIGDIR}
@@ -98,9 +98,9 @@ install(FILES
 
 ##############################################
 ## Exporting from the build tree
-configure_file(${PROJECT_SOURCE_DIR}/cmake/FindSpacy.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/FindSpacy.cmake
-    COPYONLY)
+#configure_file(${PROJECT_SOURCE_DIR}/cmake/FindSpacy.cmake
+#    ${CMAKE_CURRENT_BINARY_DIR}/FindSpacy.cmake
+#    COPYONLY)
 
 export(EXPORT spacy-targets FILE ${CMAKE_CURRENT_BINARY_DIR}/SpacyTargets.cmake NAMESPACE Spacy::)
 #Register package in user's package registry
