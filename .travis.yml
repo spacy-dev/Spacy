@@ -13,16 +13,9 @@ addons:
     - g++-6
     - gcc-6
 
-
-services:
-  - docker
-
 cache:
   directories:
     - ${HOME}/.ccache
-    - ${TRAVIS_BUILD_DIR}/deps/llvm-3.6.2
-    - ${TRAVIS_BUILD_DIR}/deps/llvm-3.7.1
-    - ${TRAVIS_BUILD_DIR}/deps/llvm-3.8.0
 
 env:
   # Workaround for https://github.com/travis-ci/travis-ci/issues/4681
@@ -43,6 +36,12 @@ matrix:
     - os: linux
       env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 COMPUTE_COVERAGE=true MAKE_DOC=true
       compiler: gcc
+      
+    # OSX
+    # Xcode 6.4
+    - os: osx
+      env: COMPUTE_COVERAGE=false
+      osx_image: xcode6.4
       
     # Xcode 7.3
     - os: osx
@@ -71,6 +70,7 @@ install:
   ############################################################################
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      sudo apt install docker.io
       docker pull lubkoll/spacy-ci:base
     fi
 
