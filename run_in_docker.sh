@@ -15,14 +15,13 @@ mkdir -p $DEPS && cd $DEPS
 export CXX=$(which $CXX_COMPILER)
 export CC=$(which $C_COMPILER)
 
+cd $DEPS
+git clone https://github.com/google/googletest.git
 cd googletest
-mkdir -p build && cd build && cmake .. && cmake --build .
-cp -r ../googletest/include/gtest /usr/local/include/
-cp -r ../googlemock/include/gmock /usr/local/include/
-cp googlemock/gtest/lib*.a /usr/local/lib
+mkdir -p build && cd build && cmake .. && cmake --build . -DCMAKE_INSTALL_PREFIX=$DEPS && cmake --build . --target install
 
-cd ../..
-git clone https://github.com/eigenteam/eigen-git-mirror.git && cd eigen-git-mirror && mkdir build && cd build && cmake .. && sudo make install
+cd $DEPS
+git clone https://github.com/eigenteam/eigen-git-mirror.git && cd eigen-git-mirror && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$DEPS && sudo make install
 
 cd $SHARED
 git checkout master && git pull
