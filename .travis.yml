@@ -38,11 +38,6 @@ matrix:
       compiler: gcc
       
     # OSX
-    # Xcode 6.4
-    - os: osx
-      env: COMPUTE_COVERAGE=false
-      osx_image: xcode6.4
-      
     # Xcode 7.3
     - os: osx
       env: COMPUTE_COVERAGE=false
@@ -90,7 +85,7 @@ install:
       cd ${DEPS_DIR}
       git clone https://github.com/google/googletest.git && cd googletest
       mkdir -p build && cd build
-      cmake -DCMAKE_CXX_FLAGS="${CXXFLAGS} -std=c++11" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
+      cmake -DCMAKE_CXX_FLAGS="${CXXFLAGS} -std=c++11" ..
       cmake --build .
       sudo make install
     fi
@@ -103,7 +98,7 @@ script:
       docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN} ${COMPUTE_COVERAGE} ${MAKE_DOC}
     else
       mkdir build && cd build
-      cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="${CXXFLAGS}" -DCMAKE_SHARED_LINKER_FLAGS="${LDFLAGS}" ..
+      cmake -DBuildTest=ON ..
       cmake --build .
       cd Test && ctest
     fi
