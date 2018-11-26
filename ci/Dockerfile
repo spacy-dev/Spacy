@@ -7,5 +7,7 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt-get update
 RUN apt-get install -y cmake lcov doxygen graphviz git rbenv gcc-6 g++-6 gcc-5 g++-5 libboost-dev
 RUN gem install coveralls-lcov
+RUN apt-get update
+RUN apt-get install -y liblapack-dev
 
 WORKDIR /home
