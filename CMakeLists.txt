@@ -24,6 +24,7 @@ endif()
 
 project(spacy VERSION 0.4.0 LANGUAGES CXX)
 
+set(SPACY_COMPILE_OPTIONS "-Wall -std=c++1y")
 if(Logging)
     add_definitions(-DSPACY_ENABLE_LOGGING)
 endif()
