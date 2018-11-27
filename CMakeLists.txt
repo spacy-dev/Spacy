@@ -44,6 +44,7 @@ if(Coverage)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -coverage")
 endif()
 
+set(CMAKE_CXX_STANDARD 14)
 add_subdirectory(Spacy)
 if(BuildTest)
   add_subdirectory(Test)

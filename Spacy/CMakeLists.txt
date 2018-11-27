@@ -48,7 +48,7 @@ target_include_directories(spacy PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
 )
-target_compile_options(spacy PUBLIC $<$<CXX_COMPILER_ID:GNU>:-Wall -std=c++1y>)
+
 #This is required so that the exported target has the name Spacy and not spacy
 set_target_properties(spacy PROPERTIES EXPORT_NAME Spacy)
 
