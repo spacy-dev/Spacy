@@ -52,8 +52,7 @@ and type
     mkdir build
     cd build
     cmake .. (-DBuildTest=ON -DDolfin=ON -DKaskade=ON -DCoverage=ON)
-    make (-j n_threads)
-    make install
+    cmake --build . --target install
 
 ### Examples
 Currently there are examples for
@@ -63,11 +62,7 @@ Currently there are examples for
   - [FEniCS](https://fenicsproject.org) with and without [FunG](https://lubkoll.github.io/FunG),
   - [deal.II](http://dealii.org) with and without [FunG](https://lubkoll.github.io/FunG)
 
-These are located in
- - `Spacy/Examples/Kaskade`,
- - `Spacy/Examples/FEniCS`.
-
-Paths to Kaskade may need to be adjusted according to your setup.
+These are located in `Spacy/Examples`. Paths to Kaskade may need to be adjusted according to your setup.
 
 
 
