@@ -48,6 +48,8 @@ target_include_directories(spacy PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
 )
+target_compile_features(spacy PUBLIC cxx_std_14)
+set_target_properties(spacy PROPERTIES CXX_EXTENSIONS OFF)
 
 #This is required so that the exported target has the name Spacy and not spacy
 set_target_properties(spacy PROPERTIES EXPORT_NAME Spacy)
@@ -65,7 +67,8 @@ install(TARGETS spacy
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-install(DIRECTORY . DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Spacy)
+install(DIRECTORY . DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Spacy FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY . DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Spacy FILES_MATCHING PATTERN "*.hh")
 install(EXPORT spacy-targets
   FILE
     SpacyTargets.cmake

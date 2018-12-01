@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.8)
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
@@ -44,7 +44,6 @@ if(Coverage)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -coverage")
 endif()
 
-set(CMAKE_CXX_STANDARD 14)
 add_subdirectory(Spacy)
 if(BuildTest)
   add_subdirectory(Test)
