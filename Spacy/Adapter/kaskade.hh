@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Kaskade/VectorSpace.h"
+#include "Kaskade/vectorSpace.hh"
 #include "Kaskade/c1Operator.hh"
 #include "Kaskade/c2Functional.hh"
 #include "Kaskade/directSolver.hh"
