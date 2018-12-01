@@ -3,7 +3,8 @@ find_package(Threads REQUIRED)
 
 aux_source_directory(Mock MOCK_SRC_LIST)
 add_library(mocks ${MOCK_SRC_LIST})
-target_include_directories(mocks PRIVATE ${PROJECT_SOURCE_DIR})
+target_link_libraries(mocks PUBLIC Spacy::Spacy)
+
 
 aux_source_directory(Spacy TEST_SRC_LIST)
 if(Eigen3_FOUND)
@@ -30,8 +31,7 @@ foreach(TEST ${TEST_SRC_LIST})
   string(REGEX REPLACE "/" "_" TEST_DIR ${TEST_DIR})
   set(TEST_UNIQUE_NAME "${TEST_DIR}_${TEST_NAME}")
   add_executable(${TEST_UNIQUE_NAME} ${TEST})
-  target_include_directories(${TEST_UNIQUE_NAME} PRIVATE ${PROJECT_SOURCE_DIR})
-  target_link_libraries(${TEST_UNIQUE_NAME} mocks spacy GTest::GTest ${GMOCK_LIBRARIES} Threads::Threads)
+  target_link_libraries(${TEST_UNIQUE_NAME} mocks Spacy::Spacy GTest::GTest ${GMOCK_LIBRARIES} Threads::Threads)
   add_test(${TEST_UNIQUE_NAME} ${PROJECT_BINARY_DIR}/Test/${TEST_UNIQUE_NAME})
 endforeach()
 

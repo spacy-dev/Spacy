@@ -50,9 +50,9 @@ target_include_directories(spacy PUBLIC
 )
 target_compile_features(spacy PUBLIC cxx_std_14)
 set_target_properties(spacy PROPERTIES CXX_EXTENSIONS OFF)
-
 #This is required so that the exported target has the name Spacy and not spacy
 set_target_properties(spacy PROPERTIES EXPORT_NAME Spacy)
+add_library(Spacy::Spacy ALIAS spacy)
 
 if(dealII)
     target_include_directories(spacy PUBLIC ${deal.II_INCLUDE_DIRS})
