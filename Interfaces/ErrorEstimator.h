@@ -9,7 +9,7 @@ namespace Spacy
     class ErrorEstimator
     {
     public:
-        Vector estimateError( Operator A, const Vector& x );
+        bool estimateError( const Vector& x, const Vector& dx );
         ErrorIndicator getErrorIndicator( const Vector& errorEstimate );
     };
 }

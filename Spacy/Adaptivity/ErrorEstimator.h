@@ -18,7 +18,7 @@ namespace Spacy
         {
             virtual ~Interface() = default;
             virtual std::unique_ptr< Interface > clone() const = 0;
-            virtual Vector estimateError( Operator A, const Vector& x ) = 0;
+            virtual bool estimateError( const Vector& x, const Vector& dx ) = 0;
             virtual ErrorIndicator getErrorIndicator( const Vector& errorEstimate ) = 0;
         };
 
@@ -35,9 +35,9 @@ namespace Spacy
                 return std::make_unique< Wrapper< Impl > >( impl );
             }
 
-            Vector estimateError( Operator A, const Vector& x ) override
+            bool estimateError( const Vector& x, const Vector& dx ) override
             {
-                return impl.estimateError( std::move( A ), x );
+                return impl.estimateError( x, dx );
             }
 
             ErrorIndicator getErrorIndicator( const Vector& errorEstimate ) override
@@ -70,10 +70,10 @@ namespace Spacy
         {
         }
 
-        Vector estimateError( Operator A, const Vector& x )
+        bool estimateError( const Vector& x, const Vector& dx )
         {
             assert( impl_ );
-            return impl_->estimateError( std::move( A ), x );
+            return impl_->estimateError( x, dx );
         }
 
         ErrorIndicator getErrorIndicator( const Vector& errorEstimate )
