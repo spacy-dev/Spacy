@@ -16,6 +16,8 @@ export CXX=$(which $CXX_COMPILER)
 export CC=$(which $C_COMPILER)
 export PATH="$PATH:$DEPS"
 
+apt install wget
+
 cd $DEPS
 wget http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz
 tar xzf cmake-3.13.1.tar.gz && cd cmake-3.13.1 && ./bootstrap.sh --prefix=$DEPS && make && make install
