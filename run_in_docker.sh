@@ -17,6 +17,11 @@ export CC=$(which $C_COMPILER)
 export PATH="$PATH:$DEPS"
 
 cd $DEPS
+wget http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz
+tar xzf cmake-3.13.1.tar.gz && cd cmake-3.13.1 && ./bootstrap.sh --prefix=$DEPS && make && make install
+export PATH="${DEPS}/bin:${PATH}"
+
+cd $DEPS
 git clone https://github.com/google/googletest.git
 cd googletest
 mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$DEPS && cmake --build . && cmake --build . --target install
