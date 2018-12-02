@@ -109,7 +109,7 @@ script:
       docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN} ${COMPUTE_COVERAGE} ${MAKE_DOC}
     else
       mkdir build && cd build
-      cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="-std=c++" ..
+      cmake -DBuildTest=ON ..
       cmake --build .
       cd Test && ctest
     fi
