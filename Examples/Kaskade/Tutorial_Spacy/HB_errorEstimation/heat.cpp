@@ -86,9 +86,7 @@ int main(int argc, char *argv[])
     Spacy::globalSpaceManager().add(X.index(), Spacy::Kaskade::refineCells(gridManager));
 
     const auto A = Spacy::Kaskade::makeC1Operator( F, X, X.dualSpace() );
-
-    using SpacyEstimator = Spacy::Kaskade::HierarchicalErrorEstimator<Functional, GridManager<Grid>, VSD>;
-    SpacyEstimator estimator(F, gridManager, variableSetDescription);
+    auto estimator = Spacy::Kaskade::getHierarchicalErrorEstimator(F, gridManager, variableSetDescription);
 
     auto x = zero(X);
     for(auto refSteps = 0; refSteps <= maxAdaptSteps; ++refSteps)

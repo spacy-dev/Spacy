@@ -5,7 +5,7 @@
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 
 namespace Spacy
-
+{
   namespace Kaskade
   {
     /**

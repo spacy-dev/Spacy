@@ -6,8 +6,8 @@
 #include <fem/hierarchicspace.hh>
 #include <linalg/jacobiPreconditioner.hh>
 
-#include "util.hh"
-#include "vector.hh"
+#include "Copy.h"
+#include "Vector.h"
 
 #include <Spacy/Vector.h>
 #include <Spacy/Util/Cast.h>
@@ -18,7 +18,7 @@ namespace Spacy
 {
     namespace Kaskade
     {
-        template <class Functional, class GridManager, class Descriptions>
+        template <class Functional, class GridManager>
         class HierarchicalErrorEstimator
         {
             static constexpr int numberOfAnsatzVariables = Functional::AnsatzVars::noOfVariables;
@@ -26,6 +26,7 @@ namespace Spacy
             static constexpr int extensionSpaceIndex = 1;
             static constexpr int dimension = GridManager::Grid::dimension;
 
+            using Descriptions = typename Functional::AnsatzVars;
             using Variable = std::decay_t<typename boost::fusion::result_of::at_c<typename Descriptions::Variables, 0>::type>;
             using ExtensionVariable = ::Kaskade::Variable<::Kaskade::SpaceIndex<extensionSpaceIndex>,
                                                           ::Kaskade::Components<Variable::m>,
@@ -179,5 +180,16 @@ namespace Spacy
             std::vector<bool> errorIndicator{};
             Parameter p;
         };
+
+        template <class Functional, class GridManager>
+        HierarchicalErrorEstimator<Functional, GridManager>
+        getHierarchicalErrorEstimator(const Functional& F,
+                                   GridManager& gridManager,
+                                   const typename Functional::AnsatzVars& variableSetDescription,
+                                   typename HierarchicalErrorEstimator<Functional, GridManager>::Parameter p =
+                typename HierarchicalErrorEstimator<Functional, GridManager>::Parameter())
+        {
+            return HierarchicalErrorEstimator<Functional, GridManager>(F, gridManager, variableSetDescription, p);
+        }
     }
 }

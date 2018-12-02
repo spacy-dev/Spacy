@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Spacy/Adaptivity/SpatialAdaptivity.h>
-
 #include <algorithm>
 
 namespace Spacy
