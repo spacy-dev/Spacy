@@ -20,7 +20,7 @@ apt install wget
 
 cd $DEPS
 wget http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz
-tar xzf cmake-3.13.1.tar.gz && cd cmake-3.13.1 && ./bootstrap.sh --prefix=$DEPS && make && make install
+tar xzf cmake-3.13.1.tar.gz && cd cmake-3.13.1 && ./bootstrap --prefix=$DEPS && make && make install
 
 cd $DEPS
 git clone https://github.com/google/googletest.git

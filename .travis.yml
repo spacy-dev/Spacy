@@ -78,7 +78,7 @@ install:
       cd ${DEPS_DIR}/cmake
       curl http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz -o cmake-3.13.1.tar.gz
       gunzip -c cmake-3.13.1.tar.gz | tar xopf -
-      ./bootstrap.sh --prefix=${DEPS_DIR} && make && make install
+      ./bootstrap --prefix=${DEPS_DIR} && make && make install
       export PATH="${DEPS_DIR}/bin:${PATH}"
 
       ############################################################################
