@@ -34,17 +34,7 @@ matrix:
       env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 COMPUTE_COVERAGE=true MAKE_DOC=true
       compiler: gcc
       
-    # OSX
-    # Xcode 7.3
-    - os: osx
-      env: COMPUTE_COVERAGE=false
-      osx_image: xcode7.3
-      
-    # Xcode 8
-    - os: osx
-      env: COMPUTE_COVERAGE=false
-      osx_image: xcode8
-      
+    # OSX      
     # Xcode 9.4
     - os: osx
       env: COMPUTE_COVERAGE=false
@@ -81,15 +71,6 @@ install:
   ############################################################################
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      ############################################################################
-      # Install a recent CMake
-      ############################################################################
-      mkdir ${DEPS_DIR}/cmake
-      cd ${DEPS_DIR}/cmake
-      curl http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1-Darwin-x86_64.tar.gz -o cmake-3.13.1.tar.gz
-      gunzip -c cmake-3.13.1.tar.gz | tar xopf -
-      export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
-
       ############################################################################
       # Install gtest
       ############################################################################
