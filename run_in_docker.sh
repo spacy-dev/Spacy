@@ -19,7 +19,6 @@ export PATH="$PATH:$DEPS"
 cd $DEPS
 wget http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz
 tar xzf cmake-3.13.1.tar.gz && cd cmake-3.13.1 && ./bootstrap.sh --prefix=$DEPS && make && make install
-export PATH="${DEPS}/bin:${PATH}"
 
 cd $DEPS
 git clone https://github.com/google/googletest.git
@@ -32,11 +31,11 @@ git clone https://github.com/eigenteam/eigen-git-mirror.git && cd eigen-git-mirr
 cd $SHARED
 mkdir -p build && cd build && rm -rf *
 if [ "$COMPUTE_COVERAGE" == "true" ]; then
-  cmake -DBuildTest=ON -DCoverage=ON ..
+  $DEPS/bin/cmake -DBuildTest=ON -DCoverage=ON ..
 else
-  cmake -DBuildTest=ON ..
+  $DEPS/bin/cmake -DBuildTest=ON ..
 fi
-cmake --build .
+$DEPS/bin/cmake --build .
 cd Test && ctest
 
 if [ "$COMPUTE_COVERAGE" == "true" ]; then
@@ -47,6 +46,6 @@ fi
 
 if [ "$GENERATE_DOCUMENTATION" == "true" ]; then
   cd $SHARED/build
-  cmake --build . --target doc
+  $DEPS/bin/cmake --build . --target doc
   ../deploy_doc.sh
 fi
