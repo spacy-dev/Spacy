@@ -12,10 +12,7 @@ addons:
     - gcc-5
     - g++-6
     - gcc-6
-
-cache:
-  directories:
-    - ${HOME}/.ccache
+    - curl
 
 env:
   # Workaround for https://github.com/travis-ci/travis-ci/issues/4681
@@ -77,7 +74,11 @@ install:
       ############################################################################
       # Install a recent CMake
       ############################################################################
-      if ! brew ls --version cmake &>/dev/null; then brew install cmake; fi
+      mkdir ${DEPS_DIR}/cmake
+      curl http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz -o cmake.tar.gz
+      tar xzf cmake-3.13.1.tar.gz
+      cd cmake-3.13.1 && ./bootstrap.sh --prefix=${DEPS_DIR}/cmake && make && make install
+      export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
 
       ############################################################################
       # Install gtest
@@ -98,7 +99,7 @@ script:
       docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN} ${COMPUTE_COVERAGE} ${MAKE_DOC}
     else
       mkdir build && cd build
-      cmake -DBuildTest=ON ..
+      cmake -DBuildTest=ON -DCMAKE_CXX_FLAGS="-std=c++" ..
       cmake --build .
       cd Test && ctest
     fi
