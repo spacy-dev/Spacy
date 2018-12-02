@@ -44,6 +44,16 @@ matrix:
     - os: osx
       env: COMPUTE_COVERAGE=false
       osx_image: xcode8
+      
+    # Xcode 9.4
+    - os: osx
+      env: COMPUTE_COVERAGE=false
+      osx_image: xcode9.4
+      
+    # Xcode 10.1
+    - os: osx
+      env: COMPUTE_COVERAGE=false
+      osx_image: xcode10.1
      
 install:
   ############################################################################
@@ -76,10 +86,9 @@ install:
       ############################################################################
       mkdir ${DEPS_DIR}/cmake
       cd ${DEPS_DIR}/cmake
-      curl http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz -o cmake-3.13.1.tar.gz
+      curl http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1-Darwin-x86_64.tar.gz -o cmake-3.13.1.tar.gz
       gunzip -c cmake-3.13.1.tar.gz | tar xopf -
-      ./bootstrap --prefix=${DEPS_DIR} && make && make install
-      export PATH="${DEPS_DIR}/bin:${PATH}"
+      export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
 
       ############################################################################
       # Install gtest
