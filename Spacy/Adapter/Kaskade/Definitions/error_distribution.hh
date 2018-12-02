@@ -27,7 +27,7 @@ namespace Spacy
     namespace Kaskade
     {
         using namespace boost::fusion;
-        using namespace AssemblyDetail;
+        using namespace ::Kaskade::AssemblyDetail;
 
         enum class ErrorNorm
         {
@@ -59,9 +59,9 @@ namespace Spacy
             typedef typename OriginalAnsatzVars::Spaces OriginalSpaces;
             typedef typename ExtendedAnsatzVars::Spaces ExtendedSpaces;
             typedef typename result_of::as_vector< typename result_of::transform<
-                OriginalSpaces, GetEvaluators< SfCache > >::type >::type OriginalEvaluators;
+                OriginalSpaces, ::Kaskade::GetEvaluators< SfCache > >::type >::type OriginalEvaluators;
             typedef typename result_of::as_vector< typename result_of::transform<
-                ExtendedSpaces, GetEvaluators< SfCache2 > >::type >::type ExtendedEvaluators;
+                ExtendedSpaces, ::Kaskade::GetEvaluators< SfCache2 > >::type >::type ExtendedEvaluators;
             typedef typename Grid::ctype CoordType;
             typedef Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype,
                                           Functional::AnsatzVars::Grid::dimension >
@@ -73,10 +73,10 @@ namespace Spacy
         public:
             using Scalar = typename Functional::Scalar;
             using AnsatzSpace = ::Kaskade::FEFunctionSpace<
-                DiscontinuousLagrangeMapper< Scalar, typename Grid::LeafGridView > >;
+               ::Kaskade:: DiscontinuousLagrangeMapper< Scalar, typename Grid::LeafGridView > >;
             using AnsatzSpaces = boost::fusion::vector< AnsatzSpace const* >;
             using AnsatzVariableInformation =
-                ::Kaskade::Variable< SpaceIndex< 0 >, Components< 1 >, VariableId< 0 > >;
+                ::Kaskade::Variable< ::Kaskade::SpaceIndex< 0 >, ::Kaskade::Components< 1 >, ::Kaskade::VariableId< 0 > >;
             using VariableDescriptions = boost::fusion::vector< AnsatzVariableInformation >;
             using AnsatzVars =
                 ::Kaskade::VariableSetDescription< AnsatzSpaces, VariableDescriptions >;
@@ -87,7 +87,7 @@ namespace Spacy
             using Cell = typename AnsatzVars::Grid::template Codim< 0 >::Entity;
 
             static int const dim = Grid::dimension;
-            static ProblemType const type = Functional::type;
+            static ::Kaskade::ProblemType const type = Functional::type;
 
             static constexpr int yIdx = 0;
             static constexpr int spaceIndex =
@@ -123,7 +123,7 @@ namespace Spacy
                     ExtendedEvaluators extendedEvaluators(
                         transform( f.errorEstimateH.descriptions.spaces,
                                    ::Kaskade::GetEvaluators< SfCache >( &extendedSFCache ) ) );
-                    QuadRule qr = QuadratureTraits< QuadRule >().rule( e->type(), f.qOrder );
+                    QuadRule qr = ::Kaskade::QuadratureTraits< QuadRule >().rule( e->type(), f.qOrder );
                     moveEvaluatorsToCell( originalEvaluators, *e );
                     moveEvaluatorsToCell( extendedEvaluators, *e );
                     useQuadratureRuleInEvaluators( originalEvaluators, qr, 0 );
@@ -299,8 +299,8 @@ namespace Spacy
                 }
 
                 template < int row, int col, int dim >
-                Dune::FieldMatrix< Scalar, 1, 1 > d2( VariationalArg< Scalar, dim > const&,
-                                                      VariationalArg< Scalar, dim > const& ) const
+                Dune::FieldMatrix< Scalar, 1, 1 > d2( ::Kaskade::VariationalArg< Scalar, dim > const&,
+                                                      ::Kaskade::VariationalArg< Scalar, dim > const& ) const
                 {
                     return Dune::FieldMatrix< Scalar, 1, 1 >( 0 );
                 }
@@ -309,9 +309,9 @@ namespace Spacy
                 ErrorDistribution const& f;
                 typename Functional::BoundaryCache boundaryCache;
                 typename AnsatzVars::Grid::LeafGridView::IntersectionIterator const* e;
-                VariationalArg< Scalar, dim, OriginalAnsatzVars::template Components< yIdx >::m >
+                ::Kaskade::VariationalArg< Scalar, dim, OriginalAnsatzVars::template Components< yIdx >::m >
                     y_h;
-                VariationalArg< Scalar, dim, ExtendedAnsatzVars::template Components< yIdx >::m >
+                ::Kaskade::VariationalArg< Scalar, dim, ExtendedAnsatzVars::template Components< yIdx >::m >
                     y_e;
                 SfCache sfCache;
                 SfCache2 extendedSFCache;

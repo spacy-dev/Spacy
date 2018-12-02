@@ -6,6 +6,8 @@
 #include "Kaskade/directSolver.hh"
 #include "Kaskade/dly.hh"
 #include "Kaskade/dynamicC1Operator.hh"
+#include "Kaskade/GridRefinement.h"
+#include "Kaskade/HierarchicalErrorEstimator.h"
 #include "Kaskade/l2Product.hh"
 #include "Kaskade/lagrangeCGSolver.hh"
 #include "Kaskade/linearOperator.hh"

@@ -3,7 +3,7 @@
 #include <string>
 
 #include "Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h"
-#include "Spacy/Algorithm/CG/linearSolver.hh"
+#include "Spacy/Algorithm/CG/LinearSolver.h"
 #include "Spacy/LinearSolver.h"
 #include <Spacy/Util/Mixins.h>
 

@@ -163,6 +163,30 @@ namespace Spacy
                 }
             }
 
+            template < class Description, int i >
+            void copyFromVariableSetDescription( const ::Kaskade::VariableSet< Description >& x,
+                                                 ProductSpace::Vector& y, int j = 0 )
+            {
+                if ( is< Vector< ExtractDescription_t< Description, i > > >( y.component( j ) ) )
+                {
+                    boost::fusion::at_c< i >(
+                                cast_ref< Vector< ExtractDescription_t< Description, i > > >(
+                                    y.component( j ) )
+                                    .get()
+                                    .data ).coefficients() =
+                        boost::fusion::at_c< 0 >( x.data ).coefficients();
+                    return;
+                }
+
+                if ( is< ProductSpace::Vector >( y.component( j ) ) )
+                {
+                    auto& y_ = cast_ref< ProductSpace::Vector >( y.component( j ) );
+                    for ( auto k = 0u; k < y_.numberOfVariables(); ++k )
+                        copyFromVariableSetDescription< Description, i >( x, y_, k );
+                    return;
+                }
+            }
+
             template < class Description, int i, class CoeffVector >
             void copyToCoefficientVector( const ProductSpace::Vector& x, CoeffVector& y, int j = 0 )
             {
@@ -223,6 +247,15 @@ namespace Spacy
                     Copy< i + 1, n >::apply( x, y );
                 }
 
+                template < class Description >
+                static void apply( const ::Kaskade::VariableSet< Description >& x,
+                                   ProductSpace::Vector& y )
+                {
+                    for ( auto j = 0u; j < y.numberOfVariables(); ++j )
+                        copyFromVariableSetDescription< Description, i >( x, y, j );
+                    Copy< i + 1, n >::apply( x, y );
+                }
+
                 template < class Description, class CoeffVector >
                 static void toCoefficientVector( const ProductSpace::Vector& x, CoeffVector& y )
                 {
@@ -246,6 +279,12 @@ namespace Spacy
                 template < class Description >
                 static void apply( const ProductSpace::Vector&,
                                    ::Kaskade::VariableSet< Description >& )
+                {
+                }
+
+                template < class Description >
+                static void apply( const ::Kaskade::VariableSet< Description >&,
+                                   ProductSpace::Vector& )
                 {
                 }
 
@@ -323,6 +362,26 @@ namespace Spacy
             {
                 Detail::Copy< 0, Description::noOfVariables >::apply(
                     cast_ref< ProductSpace::Vector >( x ), y );
+                return;
+            }
+        }
+
+        /// Copy from ::Spacy::Vector to %Kaskade::VariableSet<Description>.
+        template < class Description >
+        void copy( const ::Kaskade::VariableSet< Description >& x, ::Spacy::Vector& y )
+        {
+            if ( is< Vector< Description > >( y ) )
+            {
+                boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( y ).get().data ).coefficients() =
+                    boost::fusion::at_c< 0 >( x.data )
+                        .coefficients();
+                return;
+            }
+
+            if ( is< ProductSpace::Vector >( y ) )
+            {
+                Detail::Copy< 0, Description::noOfVariables >::apply(
+                    x, cast_ref< ProductSpace::Vector >( y ) );
                 return;
             }
         }

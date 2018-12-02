@@ -4,12 +4,8 @@
 #include <dune/grid/uggrid.hh>
 
 #define SPACY_ENABLE_LOGGING
+#include <Spacy/Spacy.h>
 #include <Spacy/Adapter/kaskade.hh>
-#include <Spacy/Algorithm/Newton/newton.hh>
-#include <Spacy/InducedScalarProduct.h>
-#include <Spacy/Util/Cast.h>
-#include <Spacy/Util/Log.h>
-#include <Spacy/ZeroVectorCreator.h>
 
 #include <fem/gridmanager.hh>
 #include <fem/lagrangespace.hh>

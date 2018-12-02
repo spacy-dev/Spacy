@@ -9,6 +9,8 @@
 
 #include "io/vtk.hh"
 
+#include <string>
+
 namespace Spacy
 {
     namespace Kaskade
@@ -102,7 +104,7 @@ namespace Spacy
 
         private:
             template < class Desc >
-            friend void writeVTK( const Vector< Desc >& x, const char* fileName );
+            friend void writeVTK( const Vector< Desc >& x, const std::string& fileName );
             VariableSet variableSet_;
             std::shared_ptr< Description > description_;
             mutable VectorImpl v_;

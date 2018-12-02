@@ -4,12 +4,14 @@
 
 #include "vector.hh"
 
+#include <string>
+
 namespace Spacy
 {
     namespace Kaskade
     {
         template < class Description >
-        void writeVTK( const Vector< Description >& x, const char* fileName )
+        void writeVTK( const Vector< Description >& x, const std::string& fileName )
         {
             typename Description::VariableSet y( *x.description_ );
             copy( x, y );
