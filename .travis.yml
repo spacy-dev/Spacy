@@ -75,7 +75,7 @@ install:
       # Install a recent CMake
       ############################################################################
       mkdir ${DEPS_DIR}/cmake
-      curl http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz -o cmake.tar.gz
+      curl http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz -o cmake-3.13.1.tar.gz
       tar xzf cmake-3.13.1.tar.gz
       cd cmake-3.13.1 && ./bootstrap.sh --prefix=${DEPS_DIR}/cmake && make && make install
       export PATH="${DEPS_DIR}/cmake/bin:${PATH}"
