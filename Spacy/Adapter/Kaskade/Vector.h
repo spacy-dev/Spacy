@@ -5,9 +5,7 @@
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/VectorSpace.h>
 
-#include "util.hh"
-
-#include "io/vtk.hh"
+#include "Copy.h"
 
 #include <string>
 

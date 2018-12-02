@@ -7,9 +7,9 @@
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Vector.h>
 
-#include "directSolver.hh"
-#include "operatorSpace.hh"
-#include "util.hh" // copy
+#include "Copy.h"
+#include "DirectSolver.h"
+#include "OperatorSpace.h"
 
 namespace Spacy
 {

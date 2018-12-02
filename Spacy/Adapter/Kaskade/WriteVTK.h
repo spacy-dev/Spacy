@@ -2,7 +2,7 @@
 
 #include <Spacy/Vector.h>
 
-#include "vector.hh"
+#include "Vector.h"
 
 #include <string>
 

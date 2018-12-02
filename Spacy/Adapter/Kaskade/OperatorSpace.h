@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vector.hh"
+#include "Vector.h"
 
 namespace Spacy
 {

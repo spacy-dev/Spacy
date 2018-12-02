@@ -88,8 +88,9 @@ namespace Spacy
                     return false;
                 }
 
-                auto norm_x = norm(x + dx).get();
-                return updateErrorIndicator(estSol, norm_x);
+                updateErrorIndicator(estSol,
+                                     norm(x + dx).get());
+                return true;
             }
 
             std::vector<bool> getErrorIndicator() const
@@ -143,7 +144,7 @@ namespace Spacy
                 return std::min(baseErrLevel, 0.5*maxErr);
             }
 
-            bool updateErrorIndicator(const CoefficientVectors& estSol, double norm_x)
+            void updateErrorIndicator(const CoefficientVectors& estSol, double norm_x)
             {
                 std::vector<double> errorDistribution(gridManager.grid().leafIndexSet().size(0),0.0);
                 std::transform(gridManager.grid().leafGridView().template begin<0>(),
@@ -165,7 +166,7 @@ namespace Spacy
                 std::transform(begin(errorDistribution), end(errorDistribution),
                                begin(errorIndicator),
                               [errLevel](double error) { return error > errLevel; });
-                return std::any_of(begin(errorIndicator), end(errorIndicator), [](bool value) { return value; });
+                assert(std::any_of(begin(errorIndicator), end(errorIndicator), [](bool value) { return value; }););
             }
 
             const Functional& F;

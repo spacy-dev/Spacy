@@ -7,9 +7,9 @@
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
 
-#include "l2Product.hh"
-#include "util.hh"
-#include "vector.hh"
+#include "Copy.h"
+#include "L2Product.h"
+#include "Vector.h"
 
 namespace Spacy
 {

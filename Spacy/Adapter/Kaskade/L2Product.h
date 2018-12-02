@@ -1,12 +1,10 @@
 #pragma once
 
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
+
 namespace Spacy
-{
-  /// @cond
-  class Real;
-  class Vector;
-  class VectorSpace;
-  /// @endcond
 
   namespace Kaskade
   {
