@@ -2,6 +2,7 @@
 
 #include "Parameter.h"
 
+#include <Spacy/Adaptivity/SpatialAdaptivity.h>
 #include <Spacy/Vector.h>
 
 #include <functional>
@@ -36,7 +37,7 @@ namespace Spacy
                                                 const Vector&, const Vector& ) >& dampingStrategy,
             const std::function< bool( DampingFactor, const Vector&, const Vector& ) >&
                 terminationCriterion,
-            const std::function< bool( const Vector&, const Vector& ) >& errorEstimator,
+            const EstimateAndRefine& errorEstimator,
             const Parameter& p );
 
         /**
@@ -55,7 +56,7 @@ namespace Spacy
         template < class Damping, class Terminate >
         Vector
         newton( const C1Operator& F, const Vector& x0, const Parameter& p,
-                const std::function< bool( const Vector&, const Vector& ) >& errorEstimator = {} )
+                const EstimateAndRefine& errorEstimator = {} )
         {
             return newton( F, x0, Damping( F ), Terminate( F, p.getRelativeAccuracy(), p.eps() ),
                            errorEstimator, p );
@@ -68,6 +69,7 @@ namespace Spacy
      * @param F operator
      * @param x0 initial iterate
      * @param p parameter object holding algorithmic parameters
+     * @param errorEstimator spatial error estimator
      *
      * - Damping strategy: Newton::DampingStrategy::None
      * - Termination criterion: Newton::TerminationCriterion::AffineCovariant
@@ -75,20 +77,23 @@ namespace Spacy
      * @see Newton::Parameter
      */
     Vector localNewton( const C1Operator& F, const Vector& x0,
-                        const Newton::Parameter& p = Newton::Parameter() );
+                        const Newton::Parameter& p = Newton::Parameter(),
+                        const EstimateAndRefine& errorEstimator = {} );
 
     /**
      * @brief Local %Newton method with default initial iterate (x0=0).
      *
      * @param F operator
      * @param p parameter object holding algorithmic parameters
+     * @param errorEstimator spatial error estimator
      *
      * - Damping strategy: Newton::DampingStrategy::None
      * - Termination criterion: Newton::TerminationCriterion::AffineCovariant
      *
      * @see Newton::Parameter
      */
-    Vector localNewton( const C1Operator& F, const Newton::Parameter& p = Newton::Parameter() );
+    Vector localNewton( const C1Operator& F, const Newton::Parameter& p = Newton::Parameter(),
+                        const EstimateAndRefine& errorEstimator = {} );
 
     /**
      * @brief Affine covariant %Newton method.
@@ -96,6 +101,7 @@ namespace Spacy
      * @param F operator
      * @param x0 initial iterate
      * @param p parameter object holding algorithmic parameters
+     * @param errorEstimator spatial error estimator
      *
      * - Damping strategy: Newton::DampingStrategy::AffineCovariant
      * - Termination criterion: Newton::TerminationCriterion::AffineCovariant
@@ -104,22 +110,22 @@ namespace Spacy
      */
     Vector covariantNewton(
         const C1Operator& F, const Vector& x0, const Newton::Parameter& p = Newton::Parameter(),
-        const std::function< bool( const Vector&, const Vector& ) >& errorEstimator = {} );
+        const EstimateAndRefine& errorEstimator = {} );
 
     /**
      * @brief Affine covariant %Newton method.
      *
      * @param F operator
      * @param p parameter object holding algorithmic parameters
+     * @param errorEstimator spatial error estimator
      *
      * - Damping strategy: Newton::DampingStrategy::AffineCovariant
      * - Termination criterion: Newton::TerminationCriterion::AffineCovariant
      *
      * @see Newton::Parameter
      */
-    Vector covariantNewton(
-        const C1Operator& F, const Newton::Parameter& p = Newton::Parameter(),
-        const std::function< bool( const Vector&, const Vector& ) >& errorEstimator = {} );
+    Vector covariantNewton(const C1Operator& F, const Newton::Parameter& p = Newton::Parameter(),
+        const EstimateAndRefine& errorEstimator = {} );
 
     /**
      * @brief Affine contravariant %Newton method.
@@ -127,6 +133,7 @@ namespace Spacy
      * @param F operator
      * @param x0 initial iterate
      * @param p parameter object holding algorithmic parameters
+     * @param errorEstimator spatial error estimator
      *
      * - Damping strategy: Newton::DampingStrategy::AffineContravariant
      * - Termination criterion: Newton::TerminationCriterion::AffineContravariant
@@ -134,13 +141,15 @@ namespace Spacy
      * @see Newton::Parameter
      */
     Vector contravariantNewton( const C1Operator& F, const Vector& x0,
-                                const Newton::Parameter& p = Newton::Parameter() );
+                                const Newton::Parameter& p = Newton::Parameter(),
+                                const EstimateAndRefine& errorEstimator = {} );
 
     /**
      * @brief Affine contravariant %Newton method.
      *
      * @param F operator
      * @param p parameter object holding algorithmic parameters
+     * @param errorEstimator spatial error estimator
      *
      * - Damping strategy: Newton::DampingStrategy::AffineContravariant
      * - Termination criterion: Newton::TerminationCriterion::AffineContravariant
@@ -148,7 +157,8 @@ namespace Spacy
      * @see Newton::Parameter
      */
     Vector contravariantNewton( const C1Operator& F,
-                                const Newton::Parameter& p = Newton::Parameter() );
+                                const Newton::Parameter& p = Newton::Parameter(),
+                                const EstimateAndRefine& errorEstimator = {} );
 
     /** @} */
 }

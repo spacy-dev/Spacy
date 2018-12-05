@@ -86,24 +86,29 @@ int main(int argc, char *argv[])
     Spacy::globalSpaceManager().add(X.index(), Spacy::Kaskade::refineCells(gridManager));
 
     const auto A = Spacy::Kaskade::makeC1Operator( F, X, X.dualSpace() );
-    auto estimator = Spacy::Kaskade::getHierarchicalErrorEstimator(F, gridManager, variableSetDescription);
+    const auto minRefinementRatio = 0.2;
+    const auto gamma = 1;
+    const auto tolerance = std::sqrt(1-1.0/(dim*gamma))*1e-3;
+    auto estimator = Spacy::Kaskade::getHierarchicalErrorEstimator(F, gridManager, variableSetDescription,
+                                                                   minRefinementRatio, tolerance);
 
-    auto x = zero(X);
-    for(auto refSteps = 0; refSteps <= maxAdaptSteps; ++refSteps)
+    auto estimateAndRefine = [estimator = std::move(estimator)](const Spacy::Vector& x, const Spacy::Vector& dx) mutable
     {
-        const auto solver = A.linearization(x).solver();
-        const auto dx = solver(-A(x));
+        static auto refSteps = 0;
         const auto doRefine = estimator.estimateError(x, dx);
-        x += dx;
 
+        const_cast<Spacy::Vector&>(x) += dx;
         Spacy::Kaskade::writeVTK(Spacy::cast_ref<Spacy::Kaskade::Vector<VSD>>(x),
-                                 getSaveFileName(refSteps));
+                                 getSaveFileName(refSteps++));
         if(doRefine)
-            Spacy::globalSpaceManager().adjustDiscretization(X.index(),
+            Spacy::globalSpaceManager().adjustDiscretization(x.space().index(),
                                                              estimator.getErrorIndicator());
-        else
-            break;
-    }
+        return doRefine;
+    };
+
+    Spacy::Newton::Parameter p;
+    p.setMaxSteps(maxAdaptSteps + 1);
+    Spacy::localNewton(A, p, estimateAndRefine);
 
     std::cout << "total computing time: " << boost::timer::format(totalTimer.elapsed()) << "\n";
     std::cout << "End heat transfer (peak source) tutorial program" << std::endl;

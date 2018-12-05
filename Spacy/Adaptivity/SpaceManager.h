@@ -66,4 +66,24 @@ namespace Spacy
      * @return
      */
     SpaceManager& globalSpaceManager();
+
+    /**
+     * @brief Combine error estimation and grid refinement.
+     * @param estimator error estimator
+     * @param index index of the space that should be refined
+     */
+    template <class Estimator>
+    EstimateAndRefine makeEstimateAndRefine(Estimator&& estimator, VectorSpace::Index index)
+    {
+        return [estimator = std::forward<Estimator>(estimator), index](const Vector& x, const Vector& dx)
+        {
+            if(estimator.estimateError(x, dx))
+            {
+                globalSpaceManager().adjustDiscretization(index, estimator.getErrorIndicator());
+                return true;
+            }
+
+            return false;
+        };
+    }
 }

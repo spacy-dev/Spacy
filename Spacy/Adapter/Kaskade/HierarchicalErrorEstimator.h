@@ -40,32 +40,20 @@ namespace Spacy
             using ExtensionSpaces = boost::fusion::vector<ConstSpacePtr, ExtensionSpace const*>;
             using ExtensionVariableDescriptions = boost::fusion::vector<ExtensionVariable>;
             using ExtensionDescription = ::Kaskade::VariableSetDescription<ExtensionSpaces,ExtensionVariableDescriptions>;
+            using CoefficientVectors = typename ExtensionDescription::template CoefficientVectorRepresentation<0,numberOfAnsatzVariables>::type;
             using ErrorEstimator = ::Kaskade::HierarchicErrorEstimator<::Kaskade::LinearizationAt<Functional>,ExtensionDescription>;
             using EstimatorAssembler = ::Kaskade::VariationalFunctionalAssembler<ErrorEstimator>;
-            using CoefficientVectors = typename ExtensionDescription::template CoefficientVectorRepresentation<0,numberOfAnsatzVariables>::type;
             using EstimatorOperator = ::Kaskade::AssembledGalerkinOperator<EstimatorAssembler>;
 
             static constexpr int numberOfExtAnsatzVars = ErrorEstimator::AnsatzVars::noOfVariables;
             static constexpr int numberOfExtTestVars = ErrorEstimator::TestVars::noOfVariables;
 
         public:
-            struct Parameter
-            {
-                explicit Parameter(double minRefinementRatio = 0.2, double tolerance = 1e-3, double gamma = 1)
-                    : minRefine(minRefinementRatio)
-                    , tolX(tolerance)
-                    , requested(std::sqrt(1-1.0/(dimension*gamma))*tolX)
-                {}
-
-                double minRefine;
-                double tolX;
-                double requested;
-            };
-
             HierarchicalErrorEstimator(const Functional& F,
                                        GridManager& gridManager,
                                        const Descriptions& variableSetDescription,
-                                       Parameter p = Parameter())
+                                       double minRefinementRatio,
+                                       double tolerance)
                 : F(F)
                 , gridManager(gridManager)
                 , variableSetDescription(variableSetDescription)
@@ -73,7 +61,8 @@ namespace Spacy
                                  boost::fusion::at_c<Variable::spaceIndex>(variableSetDescription.spaces)->mapper().getOrder() + 1)
                 , spaces(boost::fusion::at_c<Variable::spaceIndex>(variableSetDescription.spaces),
                          &extensionSpace)
-                , p(p)
+                , minRefinementRatio(minRefinementRatio)
+                , tolerance(tolerance)
             {}
 
             bool estimateError( const Spacy::Vector& x,  const Spacy::Vector& dx )
@@ -83,7 +72,7 @@ namespace Spacy
                 std::vector<double> estSolVec(estRhs.size());
                 estSol.write(estSolVec.begin());
 
-                if (sqrt(innerProduct(estRhs, estSolVec)) < p.requested)
+                if (sqrt(innerProduct(estRhs, estSolVec)) < tolerance)
                 {
                     std::cout << "||estim. error|| is smaller than requested" << std::endl;
                     return false;
@@ -139,7 +128,7 @@ namespace Spacy
             double getErrorLevel(std::vector<double> errorDistribution, double maxErr, double norm_x)
             {
                 std::sort(begin(errorDistribution), end(errorDistribution), std::greater<>());
-                const auto minRefineIndex = p.minRefine*(errorDistribution.size()-1);
+                const auto minRefineIndex = minRefinementRatio*(errorDistribution.size()-1);
                 const auto baseErrLevel = std::max(errorDistribution[minRefineIndex],
                                                    norm_x * std::numeric_limits<double>::epsilon());
                 return std::min(baseErrLevel, 0.5*maxErr);
@@ -178,7 +167,8 @@ namespace Spacy
             ExtensionSpaces spaces;
 
             std::vector<bool> errorIndicator{};
-            Parameter p;
+            double minRefinementRatio ;
+            double tolerance;
         };
 
         template <class Functional, class GridManager>
@@ -186,10 +176,9 @@ namespace Spacy
         getHierarchicalErrorEstimator(const Functional& F,
                                    GridManager& gridManager,
                                    const typename Functional::AnsatzVars& variableSetDescription,
-                                   typename HierarchicalErrorEstimator<Functional, GridManager>::Parameter p =
-                typename HierarchicalErrorEstimator<Functional, GridManager>::Parameter())
+                                   double minRefinementRatio = 0.2, double tolerance = 1e-3)
         {
-            return HierarchicalErrorEstimator<Functional, GridManager>(F, gridManager, variableSetDescription, p);
+            return HierarchicalErrorEstimator<Functional, GridManager>(F, gridManager, variableSetDescription, minRefinementRatio, tolerance);
         }
     }
 }
