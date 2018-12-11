@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -41,9 +42,17 @@ namespace Spacy
     bool compareLookupTable( const std::string& lhsVTKFileName, const std::string& rhsVTKFileName )
     {
         auto lhsFile = std::ifstream( lhsVTKFileName );
-        auto rhsFile = std::ifstream( rhsVTKFileName );
-        if ( !lhsFile.is_open() !!!rhsFile.is_open() )
+        if ( !lhsFile.is_open() )
+        {
+            std::cout << "Could not open " << lhsVTKFileName << std::endl;
             return false;
+        }
+        auto rhsFile = std::ifstream( rhsVTKFileName );
+        if ( !rhsFile.is_open() )
+        {
+            std::cout << "Could not open " << rhsVTKFileName << std::endl;
+            return false;
+        }
         const auto lhsValues = extractLookupTable( lhsFile );
         const auto rhsValues = extractLookupTable( rhsFile );
 
