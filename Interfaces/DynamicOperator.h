@@ -3,6 +3,7 @@
 #include <Spacy/LinearOperator.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <functional>
 
 namespace Spacy
@@ -10,16 +11,14 @@ namespace Spacy
     /**
      * A time-dependent operator that does not know about domain and range spaces.
      */
-    using DynamicCallableOperator = std::function< Vector( double, const Vector& ) >;
+    using DynamicSimpleOperator = std::function< Vector( double, const Vector& ) >;
 
     /// Type-erased time-dependent operator \f$A:\ [0,T] \times X \to Y \f$.
     class DynamicOperator
     {
     public:
         /// Apply operator.
-        Vector operator()( const Vector& x ) const;
-
-        LinearOperator M() const;
+        Vector operator()( double t, const Vector& x ) const;
 
         /// Access domain space \f$X\f$.
         const VectorSpace& domain() const;

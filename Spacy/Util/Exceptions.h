@@ -88,6 +88,22 @@ namespace Spacy
 
         /**
          * @ingroup ExceptionGroup
+         * @brief Exception to be thrown if a part of a function is not implemented.
+         */
+        class NotImplemented : public std::runtime_error
+        {
+        public:
+            /**
+             * @brief Constructor.
+             * @param function name of function that throws
+             */
+            explicit NotImplemented(const std::string& function, const std::string& target)
+                : std::runtime_error("In " + function + ": Not implemented for " + target + ".")
+            {}
+        };
+
+        /**
+         * @ingroup ExceptionGroup
          * @brief Exception to be thrown if regularity test fails
          */
         class RegularityTestFailed : public std::runtime_error

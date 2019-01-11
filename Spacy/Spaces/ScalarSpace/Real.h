@@ -25,7 +25,7 @@ namespace Spacy
         explicit Real( const VectorSpace& space );
 
         /// Construction from double, is associated to Space::R;
-        Real( double x );
+        Real( double x = 0 );
 
         Real& operator=( double y );
 

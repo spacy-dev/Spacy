@@ -4,6 +4,7 @@
 #pragma once
 
 #include <Spacy/LinearOperator.h>
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
@@ -14,7 +15,7 @@
 namespace Spacy
 {
     /// A time-dependent operator that does not know about domain and range spaces.
-    using DynamicCallableOperator = std::function< Vector( double, const Vector& ) >;
+    using DynamicSimpleOperator = std::function< Vector( double, const Vector& ) >;
     /// Type-erased time-dependent operator \f$A:\ [0,T] \times X \to Y \f$.
     class DynamicOperator
     {
@@ -22,8 +23,7 @@ namespace Spacy
         {
             virtual ~Interface() = default;
             virtual std::shared_ptr< Interface > clone() const = 0;
-            virtual Vector call_const_Vector_ref( const Vector& x ) const = 0;
-            virtual LinearOperator M() const = 0;
+            virtual Vector call_double_const_Vector_ref( double t, const Vector& x ) const = 0;
             virtual const VectorSpace& domain() const = 0;
             virtual const VectorSpace& range() const = 0;
         };
@@ -41,14 +41,9 @@ namespace Spacy
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            Vector call_const_Vector_ref( const Vector& x ) const override
+            Vector call_double_const_Vector_ref( double t, const Vector& x ) const override
             {
-                return impl.operator()( x );
-            }
-
-            LinearOperator M() const override
-            {
-                return impl.M();
+                return impl.operator()( std::move( t ), x );
             }
 
             const VectorSpace& domain() const override
@@ -87,16 +82,10 @@ namespace Spacy
         }
 
         /// Apply operator.
-        Vector operator()( const Vector& x ) const
+        Vector operator()( double t, const Vector& x ) const
         {
             assert( impl_ );
-            return impl_->call_const_Vector_ref( x );
-        }
-
-        LinearOperator M() const
-        {
-            assert( impl_ );
-            return impl_->M();
+            return impl_->call_double_const_Vector_ref( std::move( t ), x );
         }
 
         /// Access domain space \f$X\f$.
