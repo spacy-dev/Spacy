@@ -27,6 +27,20 @@ namespace Eigen
     }
 }
 
+namespace boost
+{
+    namespace numeric
+    {
+        namespace odeint
+        {
+            template <>
+            struct is_resizeable<::Eigen::VectorXd > : true_type
+            {
+            };
+        }
+    }
+}
+
 namespace Spacy
 {
     class Vector;
@@ -35,22 +49,6 @@ namespace Spacy
     {
         namespace odeint
         {
-            std::vector< double > to_std( const ::Eigen::VectorXd& x )
-            {
-                using std::begin;
-                using std::end;
-                return std::vector< double >( begin( x ), end( x ) );
-            }
-
-            ::Eigen::VectorXd to_eigen( const std::vector< double >& x )
-            {
-                ::Eigen::VectorXd y( x.size() );
-                using Index = decltype( x.size() );
-                for ( Index i = 0; i < x.size(); ++i )
-                    y[ i ] = x[ i ];
-                return y;
-            }
-
             /// Compute \f$ x(t) = x_0 + \int_a^bA(t,x) dx\f$, with initial interval length dt0
             inline Vector integrate( DynamicSimpleOperator A, Vector x, double a, double b,
                                      double dt0 )
@@ -66,22 +64,18 @@ namespace Spacy
                     get( cast_ref< Real >( x ) ) = x0[ 0 ];
                     return x;
                 }
-
                 if ( is< Rn::Vector >( x ) )
                 {
-                    using state = std::vector< double >;
+                    using state = Eigen::VectorXd; // std::vector< double >;
                     auto& V = x.space();
                     const auto F = [&A, &V]( const state& x, state& y, const double t ) {
-                        auto x_ = zero( V );
-                        get( cast_ref< Rn::Vector >( x_ ) ) = to_eigen( x );
-                        auto y_ = A( t, x_ );
-                        y = to_std( get( cast_ref< Rn::Vector >( y_ ) ) );
+                        auto y_ = A( t, Rn::Vector( x, V ) );
+                        y = get( cast_ref< Rn::Vector >( y_ ) );
                     };
 
-                    auto x0 = to_std( get( cast_ref< Rn::Vector >( x ) ) );
+                    auto& x0 = get( cast_ref< Rn::Vector >( x ) );
                     boost::numeric::odeint::integrate( F, x0, a, b, dt0 );
 
-                    get( cast_ref< Rn::Vector >( x ) ) = to_eigen( x0 );
                     return x;
                 }
 
@@ -109,19 +103,16 @@ namespace Spacy
                 }
                 if ( is< Rn::Vector >( x ) )
                 {
-                    using state = std::vector< double >;
+                    using state = Eigen::VectorXd; // std::vector< double >;
                     auto& V = x.space();
                     const auto F = [&A, &V]( const state& x, state& y, const double t ) {
-                        auto x_ = zero( V );
-                        get( cast_ref< Rn::Vector >( x_ ) ) = to_eigen( x );
-                        auto y_ = A( t, x_ );
-                        y = to_std( get( cast_ref< Rn::Vector >( y_ ) ) );
+                        auto y_ = A( t, Rn::Vector( x, V ) );
+                        y = get( cast_ref< Rn::Vector >( y_ ) );
                     };
 
-                    auto x0 = to_std( get( cast_ref< Rn::Vector >( x ) ) );
+                    auto& x0 = get( cast_ref< Rn::Vector >( x ) );
                     boost::numeric::odeint::integrate( F, x0, a, b, dt0, observer );
 
-                    get( cast_ref< Rn::Vector >( x ) ) = to_eigen( x0 );
                     return x;
                 }
 
