@@ -10,7 +10,22 @@
 
 #include <boost/numeric/odeint.hpp>
 
+#include <type_traits>
 #include <vector>
+
+namespace Eigen
+{
+    auto begin( const VectorXd& x )
+    {
+        return &x[ 0 ];
+    }
+
+    auto end( const VectorXd& x )
+    {
+        using Value = std::decay_t< decltype( x[ 0 ] ) >;
+        return &x[ x.size() - 1 ] + sizeof( Value );
+    }
+}
 
 namespace Spacy
 {
@@ -22,7 +37,9 @@ namespace Spacy
         {
             std::vector< double > to_std( const ::Eigen::VectorXd& x )
             {
-                return std::vector< double >( std::begin( x ), std::end( x ) );
+                using std::begin;
+                using std::end;
+                return std::vector< double >( begin( x ), end( x ) );
             }
 
             ::Eigen::VectorXd to_eigen( const std::vector< double >& x )
