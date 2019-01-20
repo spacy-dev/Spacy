@@ -16,7 +16,7 @@ namespace Spacy
         ForwardIterator& operator++();
         ForwardIterator operator++( int );
         double& operator*() const;
-        bool operator!=( const ForwardIterator& other ) const;
+        bool operator==( const ForwardIterator& other ) const;
     };
 
     class ConstForwardIterator
@@ -31,6 +31,16 @@ namespace Spacy
         ConstForwardIterator& operator++();
         ConstForwardIterator operator++( int );
         const double& operator*() const;
-        bool operator!=( const ConstForwardIterator& other ) const;
+        bool operator==( const ConstForwardIterator& other ) const;
     };
+
+    inline bool operator!=( const ForwardIterator& lhs, const ForwardIterator& rhs )
+    {
+        return !( lhs == rhs );
+    }
+
+    inline bool operator!=( const ConstForwardIterator& lhs, const ConstForwardIterator& rhs )
+    {
+        return !( lhs == rhs );
+    }
 }

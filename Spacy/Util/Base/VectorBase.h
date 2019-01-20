@@ -65,9 +65,9 @@ namespace Spacy
             return *value;
         }
 
-        bool operator!=( const ContiguousIterator& other ) const
+        bool operator==( const ContiguousIterator& other ) const
         {
-            return value != other.value;
+            return value == other.value;
         }
 
     private:

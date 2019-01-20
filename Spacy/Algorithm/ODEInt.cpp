@@ -76,7 +76,7 @@ namespace Spacy
 
     bool SpacyIterator::equal( const SpacyIterator& other ) const
     {
-        return !( iterator != other.iterator );
+        return iterator == other.iterator;
     }
 
     double& SpacyIterator::dereference() const
@@ -105,12 +105,12 @@ namespace Spacy
 
     bool ConstSpacyIterator::equal( const ConstSpacyIterator& other ) const
     {
-        return !( iterator != other.iterator );
+        return iterator == other.iterator;
     }
 
     bool ConstSpacyIterator::equal( const SpacyIterator& other ) const
     {
-        return !( iterator != other.iterator );
+        return iterator == other.iterator;
     }
 
     const double& ConstSpacyIterator::dereference() const

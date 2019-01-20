@@ -4,6 +4,8 @@
 
 using namespace Spacy;
 
+using testing::Eq;
+
 TEST( ProductSpaceVector, Add )
 {
     auto V = makeProductHilbertSpace();
@@ -18,6 +20,19 @@ TEST( ProductSpaceVector, Add )
     z = w + v;
     ASSERT_EQ( valueOfComponent( z, 0 ), sumOfFirstComponent );
     ASSERT_EQ( valueOfComponent( z, 1 ), sumOfSecondComponent );
+}
+
+TEST( ProductSpaceVector, Iterator )
+{
+    const auto spaces = makeProductHilbertSpace();
+    const auto& V = std::get< 0 >( spaces );
+    auto v = createFirstTestVector( V );
+    auto iter = v.begin();
+    EXPECT_THAT( *iter, Eq( 1 ) );
+    ++iter;
+    EXPECT_THAT( *iter, Eq( 2 ) );
+    ++iter;
+    EXPECT_THAT( iter, Eq( v.end() ) );
 }
 
 TEST( ProductSpaceVector, AddThrow )

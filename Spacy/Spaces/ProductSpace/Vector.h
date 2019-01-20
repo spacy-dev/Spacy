@@ -1,13 +1,15 @@
 #pragma once
 
-#include <algorithm>
-#include <memory>
-#include <vector>
-
+#include <Spacy/ForwardIterator.h>
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Vector.h>
+
+#include <algorithm>
+#include <memory>
+#include <numeric>
+#include <vector>
 
 namespace Spacy
 {
@@ -25,6 +27,116 @@ namespace Spacy
         /// @cond
         class VectorCreator;
         /// @endcond
+
+        template < class T >
+        struct Range
+        {
+            T begin;
+            T end;
+        };
+
+        template < class T >
+        bool operator==( const Range< T >& lhs, const Range< T >& rhs )
+        {
+            return lhs.begin == rhs.begin && lhs.end == rhs.end;
+        }
+
+        template < class T >
+        bool operator!=( const Range< T >& lhs, const Range< T >& rhs )
+        {
+            return !( lhs == rhs );
+        }
+
+        template < class Iterator >
+        struct ProductIterator
+        {
+            using Iterators = std::vector< Range< Iterator > >;
+            using CurrentIterator = typename Iterators::iterator;
+            using Reference = decltype( *std::declval< Iterator >() );
+
+            explicit ProductIterator( const Iterators& iterators )
+                : iterators( iterators ), current( std::begin( this->iterators ) )
+            {
+            }
+
+            ProductIterator( const ProductIterator& other )
+                : iterators( other.iterators ),
+                  current( begin( iterators ) +
+                           distance( begin( other.iterators ), other.current ) )
+            {
+                if ( current == end( iterators ) )
+                    return;
+                const auto distToEnd = distance( other.current->begin, other.current->end );
+                while ( distance( current->begin, current->end ) > distToEnd )
+                    ++( *this );
+            }
+
+            ProductIterator& operator=( const ProductIterator& other )
+            {
+                iterators = other.iterators;
+                current = begin( iterators ) + distance( begin( other.iterators ), other.current );
+                if ( current == end( iterators ) )
+                    return *this;
+
+                const auto distToEnd = distance( other.current->begin, other.current->end );
+                while ( distance( current->begin, current->end ) > distToEnd )
+                    ++( *this );
+                return *this;
+            }
+
+            ProductIterator& operator++()
+            {
+                if ( ++( current->begin ) == current->end )
+                {
+                    ++current;
+                }
+                return *this;
+            }
+
+            ProductIterator operator++( int )
+            {
+                ProductIterator tmp( *this );
+                ++( *this );
+                return tmp;
+            }
+
+            Reference operator*() const
+            {
+                return *( current->begin );
+            }
+
+            bool operator==( const ProductIterator& other ) const
+            {
+                if ( end( iterators ) == current && end( other.iterators ) == other.current )
+                    return true;
+                if ( distance( begin( iterators ), current ) !=
+                     distance( begin( other.iterators ), other.current ) )
+                    return false;
+                if ( distance( current->begin, current->end ) !=
+                     distance( other.current->begin, other.current->end ) )
+                    return false;
+                return true;
+            }
+
+            ProductIterator& makeEnd()
+            {
+                current = end( iterators );
+                return *this;
+            }
+
+        private:
+            template < class Iter1, class Iter2 >
+            std::ptrdiff_t distance( Iter1 begin, Iter2 end ) const
+            {
+                std::ptrdiff_t dist{0};
+                while ( begin != end )
+                    ++dist, ++begin;
+                return dist;
+            }
+
+            Iterators iterators;
+            CurrentIterator current;
+        };
 
         /**
          * @brief Product space vector.
@@ -90,31 +202,75 @@ namespace Spacy
 
             iterator component_end();
 
-            const_iterator component_cbegin() const;
+            const_iterator component_begin() const;
 
-            const_iterator component_cend() const;
+            const_iterator component_end() const;
 
-            ContiguousIterator< double > begin()
+            ProductIterator< ForwardIterator > begin()
             {
-                return ContiguousIterator< double >();
+                return ProductIterator< ForwardIterator >( getBegin() );
             }
 
-            ContiguousIterator< double > end()
+            ProductIterator< ForwardIterator > end()
             {
-                return ContiguousIterator< double >();
+                return ProductIterator< ForwardIterator >( getEnd() ).makeEnd();
             }
 
-            ContiguousIterator< const double > begin() const
+            ProductIterator< ConstForwardIterator > begin() const
             {
-                return ContiguousIterator< const double >();
+                return ProductIterator< ConstForwardIterator >( getBegin() );
             }
 
-            ContiguousIterator< const double > end() const
+            ProductIterator< ConstForwardIterator > end() const
             {
-                return ContiguousIterator< const double >();
+                return ProductIterator< ConstForwardIterator >( getEnd() ).makeEnd();
             }
 
         private:
+            std::vector< Range< ForwardIterator > > getBegin()
+            {
+                std::vector< Range< ForwardIterator > > iterators( components_.size() );
+                std::transform(
+                    component_begin(), component_end(), std::begin( iterators ),
+                    []( Spacy::Vector& component ) {
+                        return Range< ForwardIterator >{component.begin(), component.end()};
+                    } );
+                return iterators;
+            }
+
+            std::vector< Range< ConstForwardIterator > > getBegin() const
+            {
+                std::vector< Range< ConstForwardIterator > > iterators( components_.size() );
+                std::transform(
+                    component_begin(), component_end(), std::begin( iterators ),
+                    []( const Spacy::Vector& component ) {
+                        return Range< ConstForwardIterator >{component.begin(), component.end()};
+                    } );
+                return iterators;
+            }
+
+            std::vector< Range< ForwardIterator > > getEnd()
+            {
+                std::vector< Range< ForwardIterator > > iterators( components_.size() );
+                std::transform(
+                    component_begin(), component_end(), std::begin( iterators ),
+                    []( Spacy::Vector& component ) {
+                        return Range< ForwardIterator >{component.end(), component.end()};
+                    } );
+                return iterators;
+            }
+
+            std::vector< Range< ConstForwardIterator > > getEnd() const
+            {
+                std::vector< Range< ConstForwardIterator > > iterators( components_.size() );
+                std::transform(
+                    component_begin(), component_end(), std::begin( iterators ),
+                    []( const Spacy::Vector& component ) {
+                        return Range< ConstForwardIterator >{component.end(), component.end()};
+                    } );
+                return iterators;
+            }
+
             std::vector<::Spacy::Vector > components_ = {};
         };
 
@@ -192,7 +348,7 @@ namespace Spacy
             if ( is< ProductSpace::Vector >( x ) )
             {
                 const auto& x_ = cast_ref< ProductSpace::Vector >( x );
-                std::for_each( x_.component_cbegin(), x_.component_cend(),
+                std::for_each( x_.component_begin(), x_.component_end(),
                                [&components]( const auto& x ) {
                                    extractConstSingleSpaceVectors( x, components );
                                } );

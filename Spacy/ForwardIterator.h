@@ -20,7 +20,7 @@ namespace Spacy
             virtual ForwardIterator increment_int() = 0;
             virtual double& dereference() const = 0;
             virtual bool
-            not_equal_const_ForwardIterator_ref( const ForwardIterator& other ) const = 0;
+            compare_const_ForwardIterator_ref( const ForwardIterator& other ) const = 0;
         };
 
         template < class Impl >
@@ -51,9 +51,9 @@ namespace Spacy
                 return impl.operator*();
             }
 
-            bool not_equal_const_ForwardIterator_ref( const ForwardIterator& other ) const override
+            bool compare_const_ForwardIterator_ref( const ForwardIterator& other ) const override
             {
-                return impl.operator!=(
+                return impl.operator==(
                     *other.template target< typename std::decay< Impl >::type >() );
             }
 
@@ -107,10 +107,10 @@ namespace Spacy
             return impl_->dereference();
         }
 
-        bool operator!=( const ForwardIterator& other ) const
+        bool operator==( const ForwardIterator& other ) const
         {
             assert( impl_ );
-            return impl_->not_equal_const_ForwardIterator_ref( other );
+            return impl_->compare_const_ForwardIterator_ref( other );
         }
 
         template <
@@ -154,7 +154,7 @@ namespace Spacy
             virtual ConstForwardIterator increment_int() = 0;
             virtual const double& dereference() const = 0;
             virtual bool
-            not_equal_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const = 0;
+            compare_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const = 0;
         };
 
         template < class Impl >
@@ -185,10 +185,10 @@ namespace Spacy
                 return impl.operator*();
             }
 
-            bool not_equal_const_ConstForwardIterator_ref(
+            bool compare_const_ConstForwardIterator_ref(
                 const ConstForwardIterator& other ) const override
             {
-                return impl.operator!=(
+                return impl.operator==(
                     *other.template target< typename std::decay< Impl >::type >() );
             }
 
@@ -242,10 +242,10 @@ namespace Spacy
             return impl_->dereference();
         }
 
-        bool operator!=( const ConstForwardIterator& other ) const
+        bool operator==( const ConstForwardIterator& other ) const
         {
             assert( impl_ );
-            return impl_->not_equal_const_ConstForwardIterator_ref( other );
+            return impl_->compare_const_ConstForwardIterator_ref( other );
         }
 
         template <
@@ -279,4 +279,14 @@ namespace Spacy
     private:
         clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
     };
+
+    inline bool operator!=( const ForwardIterator& lhs, const ForwardIterator& rhs )
+    {
+        return !( lhs == rhs );
+    }
+
+    inline bool operator!=( const ConstForwardIterator& lhs, const ConstForwardIterator& rhs )
+    {
+        return !( lhs == rhs );
+    }
 }
