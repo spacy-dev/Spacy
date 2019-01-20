@@ -39,4 +39,38 @@ namespace Spacy
     private:
         const VectorSpace& space_;
     };
+
+    template < class T >
+    struct ContiguousIterator
+    {
+        explicit ContiguousIterator( T* value = nullptr ) : value( value )
+        {
+        }
+
+        ContiguousIterator operator++()
+        {
+            ++value;
+            return *this;
+        }
+
+        ContiguousIterator operator++( int )
+        {
+            ContiguousIterator tmp( value );
+            ++( *this );
+            return tmp;
+        }
+
+        T& operator*() const
+        {
+            return *value;
+        }
+
+        bool operator!=( const ContiguousIterator& other ) const
+        {
+            return value != other.value;
+        }
+
+    private:
+        T* value;
+    };
 }

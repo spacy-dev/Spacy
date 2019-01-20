@@ -78,6 +78,26 @@ namespace Spacy
         return std::abs( get() - Mixin::get( y ) ) < space().eps();
     }
 
+    ContiguousIterator< double > Real::begin()
+    {
+        return ContiguousIterator< double >( &get() );
+    }
+
+    ContiguousIterator< double > Real::end()
+    {
+        return ContiguousIterator< double >( &get() + 1 );
+    }
+
+    ContiguousIterator< const double > Real::begin() const
+    {
+        return ContiguousIterator< const double >( &get() );
+    }
+
+    ContiguousIterator< const double > Real::end() const
+    {
+        return ContiguousIterator< const double >( &get() + 1 );
+    }
+
     Real abs( Real x )
     {
         return ( x > 0 ) ? x : -x;

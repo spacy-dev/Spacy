@@ -86,13 +86,33 @@ namespace Spacy
             /// Apply as dual element.
             Real operator()( const Vector& y ) const;
 
-            iterator begin();
+            iterator component_begin();
 
-            iterator end();
+            iterator component_end();
 
-            const_iterator cbegin() const;
+            const_iterator component_cbegin() const;
 
-            const_iterator cend() const;
+            const_iterator component_cend() const;
+
+            ContiguousIterator< double > begin()
+            {
+                return ContiguousIterator< double >();
+            }
+
+            ContiguousIterator< double > end()
+            {
+                return ContiguousIterator< double >();
+            }
+
+            ContiguousIterator< const double > begin() const
+            {
+                return ContiguousIterator< const double >();
+            }
+
+            ContiguousIterator< const double > end() const
+            {
+                return ContiguousIterator< const double >();
+            }
 
         private:
             std::vector<::Spacy::Vector > components_ = {};
@@ -150,7 +170,7 @@ namespace Spacy
             if ( is< ProductSpace::Vector >( x ) )
             {
                 auto& x_ = cast_ref< ProductSpace::Vector >( x );
-                std::for_each( std::begin( x_ ), std::end( x_ ), [&components]( auto& x ) {
+                std::for_each( x_.component_begin(), x_.component_end(), [&components]( auto& x ) {
                     extractSingleSpaceVectors( x, components );
                 } );
                 return;
@@ -172,9 +192,10 @@ namespace Spacy
             if ( is< ProductSpace::Vector >( x ) )
             {
                 const auto& x_ = cast_ref< ProductSpace::Vector >( x );
-                std::for_each( x_.cbegin(), x_.cend(), [&components]( const auto& x ) {
-                    extractConstSingleSpaceVectors( x, components );
-                } );
+                std::for_each( x_.component_cbegin(), x_.component_cend(),
+                               [&components]( const auto& x ) {
+                                   extractConstSingleSpaceVectors( x, components );
+                               } );
                 return;
             }
 

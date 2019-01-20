@@ -18,6 +18,7 @@ function generate_interface {
 }
 
 function generate_interfaces {
+  generate_interface    ForwardIterator.h Spacy "$SMALL_SBO_ARGS"
   generate_interface  ZeroVectorCreator.h Spacy ""
   generate_interface           Operator.h Spacy "$SMALL_SBO_ARGS"
   generate_interface     LinearOperator.h Spacy "$SMALL_SBO_ARGS"

@@ -2,6 +2,7 @@
 #include <Spacy/Algorithm/ODEInt.h>
 #include <Spacy/Spaces/ScalarSpace/DynamicOperator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
+#include <Spacy/Util/Cast.h>
 #include <Spacy/ZeroVectorCreator.h>
 
 #include <Test/gtest.hh>
@@ -17,10 +18,33 @@ using Spacy::Real;
 using Spacy::Vector;
 using Spacy::Scalar::DynamicOperator;
 using Spacy::Algorithm::odeint::integrate;
-using Spacy::Algorithm::odeint::ExplicitEuler;
 
 const auto pi = 4 * std::atan( 1 );
 const auto tol = 1e-6;
+
+namespace
+{
+    struct ExplicitEuler
+    {
+        using stepper_category = boost::numeric::odeint::stepper_tag;
+
+        template < class System, class State, class Time >
+        void do_step( System sys, State& inout, Time t, Time dt )
+        {
+            State tmp( inout );
+            sys( inout, tmp, t );
+            inout += dt * tmp;
+        }
+
+        template < class System, class State, class Time >
+        void do_step( System sys, const State& in, Time t, State& out, Time dt )
+        {
+            State tmp( in );
+            sys( in, tmp, t );
+            out += dt * tmp;
+        }
+    };
+}
 
 TEST( ODEIntTest, CosinusWithObserver )
 {
@@ -29,8 +53,9 @@ TEST( ODEIntTest, CosinusWithObserver )
     Vector x = Real( 1 );
 
     int steps = -1;
-    x = integrate( A, x, 0, pi, 0.1, [&steps]( const auto& x, double t ) {
-        std::cout << t << "\t" << x[ 0 ] << std::endl;
+    x = integrate( A, x, 0, pi, 0.1, [&steps]( const Vector& y, double t ) {
+        auto& x_ = cast_ref< Real >( y );
+        std::cout << t << "\t" << x_ << std::endl;
         ++steps;
     } );
 
@@ -64,25 +89,21 @@ TEST( ODEIntTest, CosinusWithObserverAndExplicitStepper )
 
 TEST( ODEIntTest, SinusCosinus )
 {
-    const auto A = []( double, Vector x ) {
-        auto& x_ = get( cast_ref< Spacy::Rn::Vector >( x ) );
+    auto V = Spacy::Rn::makeHilbertSpace( 2 );
+    const auto A = [&V]( double, Vector x ) {
+        auto& x_ = cast_ref< Spacy::Rn::Vector >( x ).get();
         auto tmp = x_[ 1 ];
         x_[ 1 ] = -x_[ 0 ];
         x_[ 0 ] = tmp;
         return x;
     };
 
-    auto V = Spacy::Rn::makeHilbertSpace( 2 );
     Vector x = zero( V );
     get( cast_ref< Spacy::Rn::Vector >( x ) )[ 0 ] = 0;
     get( cast_ref< Spacy::Rn::Vector >( x ) )[ 1 ] = 1;
 
     int steps = -1;
-    x = integrate( A, x, 0, pi, 0.1, [&steps]( const auto& x, double t ) {
-        std::cout << std::scientific << std::setprecision( 2 ) << t << "   " << x[ 0 ] << "   "
-                  << x[ 1 ] << std::endl;
-        ++steps;
-    } );
+    x = integrate( A, x, 0, pi, 0.1, [&steps]( const auto&, double ) { ++steps; } );
 
     EXPECT_THAT( get( cast_ref< Spacy::Rn::Vector >( x ) )[ 0 ], DoubleNear( 0, steps * tol ) );
     EXPECT_THAT( get( cast_ref< Spacy::Rn::Vector >( x ) )[ 1 ], DoubleNear( -1, steps * tol ) );

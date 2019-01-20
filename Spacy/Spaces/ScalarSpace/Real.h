@@ -49,6 +49,12 @@ namespace Spacy
 
         /// Apply as dual element (i.e. compute \f$x*y\f$).
         Real operator()( const Real& y ) const;
+
+        ContiguousIterator< double > begin();
+        ContiguousIterator< double > end();
+
+        ContiguousIterator< const double > begin() const;
+        ContiguousIterator< const double > end() const;
     };
 
     /// Compute absolute value.

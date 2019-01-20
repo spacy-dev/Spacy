@@ -4,6 +4,7 @@
 #pragma once
 
 #include <Spacy/Adaptivity/SpaceManager.h>
+#include <Spacy/ForwardIterator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
@@ -29,6 +30,10 @@ namespace Spacy
             virtual Vector negate() const = 0;
             virtual bool compare_const_Vector_ref( const Vector& y ) const = 0;
             virtual const VectorSpace& space() const = 0;
+            virtual ForwardIterator begin() = 0;
+            virtual ForwardIterator end() = 0;
+            virtual ConstForwardIterator begin() const = 0;
+            virtual ConstForwardIterator end() const = 0;
         };
 
         template < class Impl >
@@ -77,6 +82,26 @@ namespace Spacy
             const VectorSpace& space() const override
             {
                 return impl.space();
+            }
+
+            ForwardIterator begin() override
+            {
+                return impl.begin();
+            }
+
+            ForwardIterator end() override
+            {
+                return impl.end();
+            }
+
+            ConstForwardIterator begin() const override
+            {
+                return impl.begin();
+            }
+
+            ConstForwardIterator end() const override
+            {
+                return impl.end();
             }
 
             Impl impl;
@@ -186,6 +211,30 @@ namespace Spacy
         {
             assert( impl_ );
             return impl_->space();
+        }
+
+        ForwardIterator begin()
+        {
+            assert( impl_ );
+            return impl_->begin();
+        }
+
+        ForwardIterator end()
+        {
+            assert( impl_ );
+            return impl_->end();
+        }
+
+        ConstForwardIterator begin() const
+        {
+            assert( impl_ );
+            return impl_->begin();
+        }
+
+        ConstForwardIterator end() const
+        {
+            assert( impl_ );
+            return impl_->end();
         }
 
         template < class T, typename std::enable_if<

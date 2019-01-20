@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Spacy/Adaptivity/SpaceManager.h>
+#include <Spacy/ForwardIterator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
@@ -28,6 +30,12 @@ namespace Spacy
 
         /// Access underlying space.
         const VectorSpace& space() const;
+
+        ForwardIterator begin();
+        ForwardIterator end();
+
+        ConstForwardIterator begin() const;
+        ConstForwardIterator end() const;
     };
 
     /// Multiplication with arithmetic types (double,float,int,...).

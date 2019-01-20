@@ -121,22 +121,22 @@ namespace Spacy
             return result;
         }
 
-        Vector::iterator Vector::begin()
+        Vector::iterator Vector::component_begin()
         {
             return components_.begin();
         }
 
-        Vector::iterator Vector::end()
+        Vector::iterator Vector::component_end()
         {
             return components_.end();
         }
 
-        Vector::const_iterator Vector::cbegin() const
+        Vector::const_iterator Vector::component_cbegin() const
         {
             return components_.cbegin();
         }
 
-        Vector::const_iterator Vector::cend() const
+        Vector::const_iterator Vector::component_cend() const
         {
             return components_.cend();
         }

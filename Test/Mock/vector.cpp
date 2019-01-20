@@ -54,4 +54,24 @@ namespace Mock
     void Vector::toFile( const std::string& ) const
     {
     }
+
+    Spacy::ContiguousIterator< double > Vector::begin()
+    {
+        return Spacy::ContiguousIterator< double >( &value_ );
+    }
+
+    Spacy::ContiguousIterator< double > Vector::end()
+    {
+        return Spacy::ContiguousIterator< double >( &value_ + sizeof( double ) );
+    }
+
+    Spacy::ContiguousIterator< const double > Vector::begin() const
+    {
+        return Spacy::ContiguousIterator< const double >( &value_ );
+    }
+
+    Spacy::ContiguousIterator< const double > Vector::end() const
+    {
+        return Spacy::ContiguousIterator< const double >( &value_ + sizeof( double ) );
+    }
 }

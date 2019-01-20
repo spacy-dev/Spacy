@@ -21,7 +21,7 @@ namespace Spacy
 
             template < class T >
             struct HasStaticMemFn_Zero< T, voider< TryStaticMemFn_Zero< T > > >
-                : std::is_same< T, TryStaticMemFn_Zero< T > >
+                : std::is_constructible< T, TryStaticMemFn_Zero< T > >
             {
             };
 
