@@ -9,9 +9,10 @@ target_link_libraries(mocks PUBLIC Spacy::Spacy)
 aux_source_directory(Spacy TEST_SRC_LIST)
 if(Eigen3_FOUND)
   aux_source_directory(Spacy/Adaptivity TEST_SRC_LIST)
-  aux_source_directory(Spacy/Algorithm/ODEInt TEST_SRC_LIST)
+  list(APPEND TEST_SRC_LIST
+      Spacy/Algorithm/ODEInt.cpp
+  )
 endif()
-aux_source_directory(Spacy/Algorithm TEST_SRC_LIST)
 aux_source_directory(Spacy/Algorithm/CompositeStep TEST_SRC_LIST)
 aux_source_directory(Spacy/Algorithm/Scalar TEST_SRC_LIST)
 aux_source_directory(Spacy/Algorithm/Generic TEST_SRC_LIST)
@@ -23,6 +24,11 @@ aux_source_directory(Spacy/Spaces/PrimalDualProductSpace TEST_SRC_LIST)
 aux_source_directory(Spacy/Util TEST_SRC_LIST)
 aux_source_directory(Spacy/Util/Base TEST_SRC_LIST)
 aux_source_directory(Spacy/Util/Mixins TEST_SRC_LIST)
+
+list(APPEND TEST_SRC_LIST
+    Spacy/Algorithm/dampingFactor.cpp
+    Spacy/Algorithm/lipschitzConstant.cpp
+)
 
 include(CTest)
 enable_testing()
