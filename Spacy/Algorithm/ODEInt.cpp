@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <iterator>
 
 namespace boost

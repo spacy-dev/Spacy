@@ -5,6 +5,7 @@
 
 #include <boost/numeric/odeint.hpp>
 
+/// Enable Spacy::Vectors in Boost.ODEInt
 namespace boost
 {
     namespace numeric
