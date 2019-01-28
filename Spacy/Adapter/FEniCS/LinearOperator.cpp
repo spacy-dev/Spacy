@@ -85,28 +85,32 @@ namespace Spacy
 
         ::Spacy::Real LinearOperator::applyAsDualElement( const ::Spacy::Vector& x ) const
         {
-            throw Exception::CallOfUndefinedFunction( __func__ );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
             return ::Spacy::Real( 0 );
         }
 
         ContiguousIterator< double > LinearOperator::begin()
         {
-            return ContiguousIterator< double >( this->get().data() );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
+            return ContiguousIterator< double >();
         }
 
         ContiguousIterator< double > LinearOperator::end()
         {
-            return ContiguousIterator< double >( this->get().data() + this->get().size() );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
+            return ContiguousIterator< double >();
         }
 
         ContiguousIterator< const double > LinearOperator::begin() const
         {
-            return ContiguousIterator< const double >( this->get().data() );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
+            return ContiguousIterator< const double >();
         }
 
         ContiguousIterator< const double > LinearOperator::end() const
         {
-            return ContiguousIterator< const double >( this->get().data() + this->get().size() );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
+            return ContiguousIterator< const double >();
         }
     }
 }
