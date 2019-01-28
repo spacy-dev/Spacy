@@ -41,6 +41,14 @@ namespace Spacy
             /// Apply as dual element.
             Real operator()( const Vector& y ) const;
 
+            ContiguousIterator< double > begin();
+
+            ContiguousIterator< double > end();
+
+            ContiguousIterator< const double > begin() const;
+
+            ContiguousIterator< const double > end() const;
+
         private:
             friend void writeVTK( const Vector&, const std::string& );
             dolfin::Function v_;
