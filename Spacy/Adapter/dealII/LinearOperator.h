@@ -146,6 +146,27 @@ namespace Spacy
                 dx -= *this;
                 return dx( dx ).get() < max * y.space().eps() * y.space().eps();
             }
+
+            ContiguousIterator< double > begin()
+            {
+                return ContiguousIterator< double >( this->get().data() );
+            }
+
+            ContiguousIterator< double > end()
+            {
+                return ContiguousIterator< double >( this->get().data() + this->get().size() );
+            }
+
+            ContiguousIterator< const double > begin() const
+            {
+                return ContiguousIterator< const double >( this->get().data() );
+            }
+
+            ContiguousIterator< const double > end() const
+            {
+                return ContiguousIterator< const double >( this->get().data() +
+                                                           this->get().size() );
+            }
         };
 
         /// Dummy linear operator creator.
