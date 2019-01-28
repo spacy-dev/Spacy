@@ -64,6 +64,14 @@ namespace Spacy
 
             bool symmetric() const;
 
+            ContiguousIterator< double > begin();
+
+            ContiguousIterator< double > end();
+
+            ContiguousIterator< const double > begin() const;
+
+            ContiguousIterator< const double > end() const;
+
         private:
             ::Spacy::Vector applyAsOperator( const ::Spacy::Vector& x ) const;
 

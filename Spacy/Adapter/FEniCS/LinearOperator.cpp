@@ -88,5 +88,25 @@ namespace Spacy
             throw Exception::CallOfUndefinedFunction( __func__ );
             return ::Spacy::Real( 0 );
         }
+
+        ContiguousIterator< double > LinearOperator::begin()
+        {
+            return ContiguousIterator< double >( this->get().data() );
+        }
+
+        ContiguousIterator< double > LinearOperator::end()
+        {
+            return ContiguousIterator< double >( this->get().data() + this->get().size() );
+        }
+
+        ContiguousIterator< const double > LinearOperator::begin() const
+        {
+            return ContiguousIterator< const double >( this->get().data() );
+        }
+
+        ContiguousIterator< const double > LinearOperator::end() const
+        {
+            return ContiguousIterator< const double >( this->get().data() + this->get().size() );
+        }
     }
 }
