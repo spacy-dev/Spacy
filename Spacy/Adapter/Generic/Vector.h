@@ -120,7 +120,8 @@ namespace Spacy
 
             template < class T >
             struct HasBegin< T, voider< TryBegin< T > > >
-                : std::integral_constant< bool, isForwardIterator< TryBegin< T > >() >
+                : std::true_type // std::integral_constant< bool, isForwardIterator< TryBegin< T >
+                                 // >() >
             {
             };
 
@@ -130,8 +131,9 @@ namespace Spacy
             };
 
             template < class T >
-            struct HasEnd< T, voider< TryEnd< T > > >
-                : std::integral_constant< bool, isForwardIterator< TryEnd< T > >() >
+            struct HasEnd< T, voider< TryEnd< T > > > : std::true_type // std::integral_constant<
+                                                                       // bool, isForwardIterator<
+                                                                       // TryEnd< T > >() >
             {
             };
 
