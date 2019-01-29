@@ -57,22 +57,22 @@ namespace Spacy
 
         Vector::Iterator Vector::begin()
         {
-            return Vector::Iterator( this->get() );
+            return Vector::Iterator( &this->get() );
         }
 
         Vector::Iterator Vector::end()
         {
-            return Vector::Iterator( this->get(), this->get().size() );
+            return Vector::Iterator( &this->get(), this->get().size() );
         }
 
         Vector::ConstIterator Vector::begin() const
         {
-            return Vector::ConstIterator( this->get() );
+            return Vector::ConstIterator( &this->get() );
         }
 
         Vector::ConstIterator Vector::end() const
         {
-            return Vector::ConstIterator( this->get(), this->get().size() );
+            return Vector::ConstIterator( &this->get(), this->get().size() );
         }
     }
 }
