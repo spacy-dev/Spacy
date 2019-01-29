@@ -55,24 +55,28 @@ namespace Spacy
             return get().inner( y.get() );
         }
 
-        Vector::Iterator Vector::begin()
+        ContiguousIterator< double > Vector::begin()
         {
-            return Vector::Iterator( &this->get() );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
+            return ContiguousIterator< double >();
         }
 
-        Vector::Iterator Vector::end()
+        ContiguousIterator< double > Vector::end()
         {
-            return Vector::Iterator( &this->get(), this->get().size() );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
+            return ContiguousIterator< double >();
         }
 
-        Vector::ConstIterator Vector::begin() const
+        ContiguousIterator< const double > Vector::begin() const
         {
-            return Vector::ConstIterator( &this->get() );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
+            return ContiguousIterator< const double >();
         }
 
-        Vector::ConstIterator Vector::end() const
+        ContiguousIterator< const double > Vector::end() const
         {
-            return Vector::ConstIterator( &this->get(), this->get().size() );
+            throw Exception::NotImplemented( __func__, "FEniCS::LinearOperator" );
+            return ContiguousIterator< const double >();
         }
     }
 }
