@@ -74,6 +74,124 @@ namespace Spacy
                     return x.get().inner( y.get() );
                 }
             };
+
+            template < class T >
+            using TryIncrement = decltype( ++std::declval< T >() );
+
+            template < class T >
+            using TryDereference = decltype( *std::declval< T >() );
+
+            template < class T, class = void >
+            struct HasIncrement : std::false_type
+            {
+            };
+
+            template < class T >
+            struct HasIncrement< T, voider< TryIncrement< T > > > : std::true_type
+            {
+            };
+
+            template < class T, class = void >
+            struct HasDereference : std::false_type
+            {
+            };
+
+            template < class T >
+            struct HasDereference< T, voider< TryDereference< T > > > : std::true_type
+            {
+            };
+
+            template < class T >
+            constexpr bool isForwardIterator()
+            {
+                return HasIncrement< T >::value && HasDereference< T >::value;
+            }
+
+            template < class T >
+            using TryBegin = decltype( std::declval< T >().begin() );
+
+            template < class T >
+            using TryEnd = decltype( std::declval< T >().end() );
+
+            template < class T, class = void >
+            struct HasBegin : std::false_type
+            {
+            };
+
+            template < class T >
+            struct HasBegin< T, voider< TryBegin< T > > >
+                : std::integral_constant< bool, isForwardIterator< TryBegin< T > >() >
+            {
+            };
+
+            template < class T, class = void >
+            struct HasEnd : std::false_type
+            {
+            };
+
+            template < class T >
+            struct HasEnd< T, voider< TryEnd< T > > >
+                : std::integral_constant< bool, isForwardIterator< TryEnd< T > >() >
+            {
+            };
+
+            template < class T >
+            constexpr bool hasForwardIterator()
+            {
+                return HasBegin< T >::value && HasEnd< T >::value;
+            }
+
+            template < class Derived, class VectorImpl, bool = hasForwardIterator< VectorImpl >() >
+            struct IteratorBase
+            {
+                auto begin()
+                {
+                    return static_cast< Derived* >( this )->get().begin();
+                }
+
+                auto end()
+                {
+                    return static_cast< Derived* >( this )->get().end();
+                }
+
+                auto begin() const
+                {
+                    return static_cast< const Derived* >( this )->get().begin();
+                }
+
+                auto end() const
+                {
+                    return static_cast< const Derived* >( this )->get().end();
+                }
+            };
+
+            template < class Derived, class VectorImpl >
+            struct IteratorBase< Derived, VectorImpl, false >
+            {
+                ContiguousIterator< double > begin()
+                {
+                    return ContiguousIterator< double >(
+                        static_cast< Derived* >( this )->get().data() );
+                }
+
+                ContiguousIterator< double > end()
+                {
+                    auto& v = static_cast< Derived* >( this )->get();
+                    return ContiguousIterator< double >( v.data() + v.size() );
+                }
+
+                ContiguousIterator< const double > begin() const
+                {
+                    return ContiguousIterator< const double >(
+                        static_cast< const Derived* >( this )->get().data() );
+                }
+
+                ContiguousIterator< const double > end() const
+                {
+                    auto& v = static_cast< const Derived* >( this )->get();
+                    return ContiguousIterator< const double >( v.data() + v.size() );
+                }
+            };
         }
         /// @endcond
 
@@ -84,7 +202,8 @@ namespace Spacy
         template < class VectorImpl >
         class Vector : public Mixin::Get< VectorImpl >,
                        public VectorBase,
-                       public AddArithmeticOperators< Vector< VectorImpl > >
+                       public AddArithmeticOperators< Vector< VectorImpl > >,
+                       public Detail::IteratorBase< Vector< VectorImpl >, VectorImpl >
         {
         public:
             /**
@@ -115,27 +234,6 @@ namespace Spacy
             Spacy::Real operator()( const Vector& y ) const
             {
                 return Detail::DualPairingImpl< VectorImpl >::apply( *this, y );
-            }
-
-            ContiguousIterator< double > begin()
-            {
-                return ContiguousIterator< double >( this->get().data() );
-            }
-
-            ContiguousIterator< double > end()
-            {
-                return ContiguousIterator< double >( this->get().data() + this->get().size() );
-            }
-
-            ContiguousIterator< const double > begin() const
-            {
-                return ContiguousIterator< const double >( this->get().data() );
-            }
-
-            ContiguousIterator< const double > end() const
-            {
-                return ContiguousIterator< const double >( this->get().data() +
-                                                           this->get().size() );
             }
         };
     }
