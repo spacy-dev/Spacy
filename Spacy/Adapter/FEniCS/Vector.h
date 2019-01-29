@@ -22,6 +22,9 @@ namespace Spacy
         class Vector : public VectorBase, public AddArithmeticOperators< Vector >
         {
         public:
+            using Iterator = VectorIterator< dolfin::GenericVector, dolfin::la_index >;
+            using ConstIterator = VectorIterator< const dolfin::GenericVector, dolfin::la_index >;
+
             /// Construct zero vector \f$x=0\f$ from underlying vector space.
             explicit Vector( const VectorSpace& V );
 
@@ -41,13 +44,13 @@ namespace Spacy
             /// Apply as dual element.
             Real operator()( const Vector& y ) const;
 
-            ContiguousIterator< double > begin();
+            Iterator begin();
 
-            ContiguousIterator< double > end();
+            Iterator end();
 
-            ContiguousIterator< const double > begin() const;
+            ConstIterator begin() const;
 
-            ContiguousIterator< const double > end() const;
+            ConstIterator end() const;
 
         private:
             friend void writeVTK( const Vector&, const std::string& );

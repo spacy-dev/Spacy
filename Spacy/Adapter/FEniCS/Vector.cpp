@@ -55,24 +55,24 @@ namespace Spacy
             return get().inner( y.get() );
         }
 
-        ContiguousIterator< double > Vector::begin()
+        Vector::Iterator Vector::begin()
         {
-            return ContiguousIterator< double >( this->get().data() );
+            return Vector::Iterator( this->get() );
         }
 
-        ContiguousIterator< double > Vector::end()
+        Vector::Iterator Vector::end()
         {
-            return ContiguousIterator< double >( this->get().data() + this->get().size() );
+            return Vector::Iterator( this->get(), this->get().size() );
         }
 
-        ContiguousIterator< const double > Vector::begin() const
+        Vector::ConstIterator Vector::begin() const
         {
-            return ContiguousIterator< const double >( this->get().data() );
+            return Vector::ConstIterator( this->get() );
         }
 
-        ContiguousIterator< const double > Vector::end() const
+        Vector::ConstIterator Vector::end() const
         {
-            return ContiguousIterator< const double >( this->get().data() + this->get().size() );
+            return Vector::ConstIterator( this->get(), this->get().size() );
         }
     }
 }

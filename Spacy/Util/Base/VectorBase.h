@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 namespace Spacy
 {
     /// @cond
@@ -72,5 +74,43 @@ namespace Spacy
 
     private:
         T* value;
+    };
+
+    template < class Vector, class Index = std::size_t >
+    struct VectorIterator
+    {
+        using Value = decltype( std::declval< Vector >()[ std::declval< Index >() ] );
+
+        explicit VectorIterator( Vector* value = nullptr, Index i = Index{0} )
+            : value( value ), i( i )
+        {
+        }
+
+        VectorIterator operator++()
+        {
+            ++i;
+            return *this;
+        }
+
+        VectorIterator operator++( int )
+        {
+            VectorIterator tmp( value, i );
+            ++( *this );
+            return tmp;
+        }
+
+        Value& operator*() const
+        {
+            return ( *value )[ i ];
+        }
+
+        bool operator==( const VectorIterator& other ) const
+        {
+            return value == other.value && i == other.i;
+        }
+
+    private:
+        Vector* value;
+        Index i;
     };
 }
