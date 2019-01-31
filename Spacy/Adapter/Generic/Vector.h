@@ -113,37 +113,62 @@ namespace Spacy
             template < class T >
             using TryEnd = decltype( std::declval< T >().end() );
 
+            template < class T, class S, class = void >
+            struct HasBegin_Ptr : std::false_type
+            {
+            };
+
+            template < class T, class S >
+            struct HasBegin_Ptr< T, S, voider< TryBegin< T > > > : std::is_same< S*, TryBegin< T > >
+            {
+            };
+
+            template < class T, class S, class = void >
+            struct HasEnd_Ptr : std::false_type
+            {
+            };
+
+            template < class T, class S >
+            struct HasEnd_Ptr< T, S, voider< TryEnd< T > > > : std::is_same< S*, TryEnd< T > >
+            {
+            };
+
             template < class T, class = void >
-            struct HasBegin : std::false_type
+            struct HasBegin_ForwardIterator : std::false_type
             {
             };
 
             template < class T >
-            struct HasBegin< T, voider< TryBegin< T > > >
-                : std::true_type // std::integral_constant< bool, isForwardIterator< TryBegin< T >
-                                 // >() >
+            struct HasBegin_ForwardIterator< T, voider< TryBegin< T > > >
+                : std::integral_constant< bool, isForwardIterator< TryBegin< T > >() >
             {
             };
 
             template < class T, class = void >
-            struct HasEnd : std::false_type
+            struct HasEnd_ForwardIterator : std::false_type
             {
             };
 
             template < class T >
-            struct HasEnd< T, voider< TryEnd< T > > > : std::true_type // std::integral_constant<
-                                                                       // bool, isForwardIterator<
-                                                                       // TryEnd< T > >() >
+            struct HasEnd_ForwardIterator< T, voider< TryEnd< T > > >
+                : std::integral_constant< bool, isForwardIterator< TryEnd< T > >() >
             {
             };
+
+            template < class T >
+            constexpr bool hasPtrAsIterator()
+            {
+                return HasBegin_Ptr< T, double >::value && HasEnd_Ptr< T, double >::value;
+            }
 
             template < class T >
             constexpr bool hasForwardIterator()
             {
-                return HasBegin< T >::value && HasEnd< T >::value;
+                return HasBegin_ForwardIterator< T >::value && HasEnd_ForwardIterator< T >::value;
             }
 
-            template < class Derived, class VectorImpl, bool = hasForwardIterator< VectorImpl >() >
+            template < class Derived, class VectorImpl, bool = hasPtrAsIterator< VectorImpl >(),
+                       bool = hasForwardIterator< VectorImpl >() >
             struct IteratorBase
             {
                 auto begin()
@@ -168,7 +193,35 @@ namespace Spacy
             };
 
             template < class Derived, class VectorImpl >
-            struct IteratorBase< Derived, VectorImpl, false >
+            struct IteratorBase< Derived, VectorImpl, true, false >
+            {
+                ContiguousIterator< double > begin()
+                {
+                    return ContiguousIterator< double >(
+                        static_cast< Derived* >( this )->get().begin() );
+                }
+
+                ContiguousIterator< double > end()
+                {
+                    return ContiguousIterator< double >(
+                        static_cast< Derived* >( this )->get().end() );
+                }
+
+                ContiguousIterator< const double > begin() const
+                {
+                    return ContiguousIterator< const double >(
+                        static_cast< const Derived* >( this )->get().begin() );
+                }
+
+                ContiguousIterator< const double > end() const
+                {
+                    return ContiguousIterator< const double >(
+                        static_cast< const Derived* >( this )->get().end() );
+                }
+            };
+
+            template < class Derived, class VectorImpl >
+            struct IteratorBase< Derived, VectorImpl, false, false >
             {
                 ContiguousIterator< double > begin()
                 {
