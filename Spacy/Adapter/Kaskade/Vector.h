@@ -100,6 +100,26 @@ namespace Spacy
             //        return *this;
             //      }
 
+            Spacy::ContiguousIterator< double > begin()
+            {
+                return Spacy::ContiguousIterator< double >{};
+            }
+
+            Spacy::ContiguousIterator< const double > begin() const
+            {
+                return Spacy::ContiguousIterator< const double >{};
+            }
+
+            Spacy::ContiguousIterator< double > end()
+            {
+                return Spacy::ContiguousIterator< double >{};
+            }
+
+            Spacy::ContiguousIterator< const double > end() const
+            {
+                return Spacy::ContiguousIterator< const double >{};
+            }
+
         private:
             template < class Desc >
             friend void writeVTK( const Vector< Desc >& x, const std::string& fileName );
