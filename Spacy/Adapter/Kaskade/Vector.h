@@ -7,6 +7,9 @@
 
 #include "Copy.h"
 
+#include <boost/fusion/include/size.hpp>
+#include <boost/fusion/mpl/at.hpp>
+
 #include <string>
 
 namespace Spacy
@@ -17,6 +20,120 @@ namespace Spacy
         template < class >
         class VectorCreator;
         /// \endcond
+
+        /// Range [begin, end)
+        template < class T >
+        struct Range
+        {
+            T begin;
+            T end;
+        };
+
+        template < class T >
+        bool operator<( const Range< T >& lhs, const Range< T >& rhs ) noexcept
+        {
+            return lhs.end <= rhs.begin;
+        }
+
+        template < class ValueRef >
+        using Accessors = std::vector< std::pair< std::size_t, std::function< ValueRef( int ) > > >;
+
+        template < int N, int I = 0 >
+        struct AddAccessors
+        {
+            template < class Accessors, class Container >
+            AddAccessors( Accessors& accessors, Container& container )
+            {
+                const auto size = boost::fusion::at_c< I >( container ).size();
+                accessors.emplace_back( size, [&container]( int i ) {
+                    return boost::fusion::at_c< I >( container )[ i ];
+                } );
+                AddAccessors< N, I + 1 >( accessors, container );
+            }
+        };
+
+        template < int N >
+        struct AddAccessors< N, N >
+        {
+            template < class Accessors, class Container >
+            AddAccessors( Accessors&, Container& )
+            {
+            }
+        };
+
+        template < template < class... > class Container, class... Args >
+        Accessors< double& > getAccessors( Container< Args... >& container )
+        {
+            Accessors< double& > accessors;
+            AddAccessors< sizeof...( Args ) >( accessors, container );
+            return accessors;
+        }
+
+        template < template < class... > class Container, class... Args >
+        Accessors< const double& > getAccessors( const Container< Args... >& container )
+        {
+            Accessors< const double& > accessors;
+            AddAccessors< sizeof...( Args ) >( accessors, container );
+            return accessors;
+        }
+
+        template < class Vector >
+        struct ContiguousIterator
+        {
+            static constexpr auto N = boost::fusion::result_of::size< Vector >::type::value;
+            using ValueRef = typename std::conditional< std::is_const< Vector >::value,
+                                                        const double&, double& >::type;
+            using Accessor = Accessors< ValueRef >;
+
+            explicit ContiguousIterator( Vector* v = nullptr, int i = 0 )
+                : v( v ), i( i ), accessors( v ? getAccessors( *v ) : Accessor{} )
+            {
+            }
+
+            ContiguousIterator operator++()
+            {
+                ++i;
+                adjustIndices();
+                return *this;
+            }
+
+            ContiguousIterator operator++( int )
+            {
+                ContiguousIterator tmp( v, i );
+                ++( *this );
+                return tmp;
+            }
+
+            ValueRef operator*() const
+            {
+                return accessors[ j ].second( i );
+            }
+
+            bool operator==( const ContiguousIterator& other ) const noexcept
+            {
+                return isAtEnd( other ) || ( v == other.v && i == other.i && j == other.j );
+            }
+
+        private:
+            bool isAtEnd( const ContiguousIterator& other ) const noexcept
+            {
+                return ( other.v == nullptr && j == N ) || ( v == nullptr && other.j == N );
+            }
+
+            void adjustIndices()
+            {
+                if ( i == accessors[ j ].first )
+                {
+                    ++j;
+                    i = 0;
+                }
+            }
+
+            Vector* v;
+            int i;
+            Accessor accessors;
+            std::size_t j{0};
+        };
 
         /**
          * @ingroup KaskadeGroup VectorSpaceGroup
@@ -63,16 +180,12 @@ namespace Spacy
             /// Access coefficient vector.
             VariableSet& get()
             {
-                //        v_ = VectorImpl(variableSet_);
-                //        return v_;
                 return variableSet_;
             }
 
             /// Access coefficient vector.
             const VariableSet& get() const
             {
-                //        v_ = VectorImpl(variableSet_);
-                //        return v_;
                 return variableSet_;
             }
 
@@ -100,24 +213,24 @@ namespace Spacy
             //        return *this;
             //      }
 
-            Spacy::ContiguousIterator< double > begin()
+            ContiguousIterator< typename VectorImpl::Sequence > begin()
             {
-                return Spacy::ContiguousIterator< double >{};
+                return ContiguousIterator< typename VectorImpl::Sequence >{&v_.data};
             }
 
-            Spacy::ContiguousIterator< const double > begin() const
+            ContiguousIterator< const typename VectorImpl::Sequence > begin() const
             {
-                return Spacy::ContiguousIterator< const double >{};
+                return ContiguousIterator< const typename VectorImpl::Sequence >{&v_.data};
             }
 
-            Spacy::ContiguousIterator< double > end()
+            ContiguousIterator< typename VectorImpl::Sequence > end()
             {
-                return Spacy::ContiguousIterator< double >{};
+                return ContiguousIterator< typename VectorImpl::Sequence >{};
             }
 
-            Spacy::ContiguousIterator< const double > end() const
+            ContiguousIterator< const typename VectorImpl::Sequence > end() const
             {
-                return Spacy::ContiguousIterator< const double >{};
+                return ContiguousIterator< const typename VectorImpl::Sequence >{};
             }
 
         private:

@@ -42,19 +42,23 @@ namespace Spacy
         const VectorSpace& space_;
     };
 
+    /// Forward iterator over contiguous memory.
     template < class T >
     struct ContiguousIterator
     {
+        /// Constructor.
         explicit ContiguousIterator( T* value = nullptr ) : value( value )
         {
         }
 
+        /// Pre-increment.
         ContiguousIterator operator++()
         {
             ++value;
             return *this;
         }
 
+        /// Post-increment.
         ContiguousIterator operator++( int )
         {
             ContiguousIterator tmp( value );
@@ -62,11 +66,13 @@ namespace Spacy
             return tmp;
         }
 
+        /// Access to value.
         T& operator*() const
         {
             return *value;
         }
 
+        /// Comparison.
         bool operator==( const ContiguousIterator& other ) const
         {
             return value == other.value;
@@ -76,22 +82,27 @@ namespace Spacy
         T* value;
     };
 
+    /// Forward iterator for vectors. Only use this if the vector implementation does not provide a
+    /// forward iterator itself.
     template < class Vector, class Index = std::size_t >
     struct VectorIterator
     {
         using Value = decltype( std::declval< Vector >()[ std::declval< Index >() ] );
 
+        /// Constructor.
         explicit VectorIterator( Vector* value = nullptr, Index i = Index{0} )
             : value( value ), i( i )
         {
         }
 
+        /// Pre-increment.
         VectorIterator operator++()
         {
             ++i;
             return *this;
         }
 
+        /// Post-increment.
         VectorIterator operator++( int )
         {
             VectorIterator tmp( value, i );
@@ -99,11 +110,13 @@ namespace Spacy
             return tmp;
         }
 
+        /// Access to value.
         Value& operator*() const
         {
             return ( *value )[ i ];
         }
 
+        /// Comparison.
         bool operator==( const VectorIterator& other ) const
         {
             return value == other.value && i == other.i;
