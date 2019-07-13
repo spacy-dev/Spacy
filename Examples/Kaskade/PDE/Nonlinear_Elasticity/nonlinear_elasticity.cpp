@@ -5,10 +5,7 @@
 
 #define SPACY_ENABLE_LOGGING
 #include <Spacy/Adapter/kaskade.hh>
-#include <Spacy/Algorithm/Newton/newton.hh>
-#include <Spacy/InducedScalarProduct.h>
-#include <Spacy/Util/Cast.h>
-#include <Spacy/ZeroVectorCreator.h>
+#include <Spacy/Spacy.h>
 
 #include <fem/gridmanager.hh>
 #include <fem/lagrangespace.hh>
@@ -65,7 +62,6 @@ int main()
     domain.setScalarProduct( Spacy::InducedScalarProduct( A.linearization( zero( domain ) ) ) );
 
     auto p = Spacy::Newton::Parameter{};
-    p.setVerbosity( true );
     p.setRelativeAccuracy( 1e-6 );
 
     auto x = covariantNewton( A, p );

@@ -1,7 +1,7 @@
 include /home/lars/Libraries/Kaskade7.3/Makefile.Local
 include /home/lars/Libraries/Kaskade7.3/Makefile.Rules
 
-INCLUDE = $(DUNEINC) $(UGINC) $(BOOSTINC) $(KASKADEINC) $(UMFPACKINC) $(SPACYINC) -I/home/lars/Projects/FunG
+INCLUDE = $(DUNEINC) $(UGINC) $(BOOSTINC) $(KASKADEINC) $(UMFPACKINC) $(SPACYINC) -I$(HOME)/.local/include
 FLAGS = $(WFLAGS) $(OPTFLAGS)
 
 run: nonlinear_elasticity.o Makefile $(KASKADE7)/libs/libkaskade.a 
