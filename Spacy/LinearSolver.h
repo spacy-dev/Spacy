@@ -20,7 +20,7 @@ namespace Spacy
         struct Interface
         {
             virtual ~Interface() = default;
-            virtual std::unique_ptr< Interface > clone() const = 0;
+            virtual std::shared_ptr< Interface > clone() const = 0;
             virtual Vector call_const_Vector_ref( const Vector& x ) const = 0;
             virtual bool isPositiveDefinite() const = 0;
         };
@@ -33,9 +33,9 @@ namespace Spacy
             {
             }
 
-            std::unique_ptr< Interface > clone() const override
+            std::shared_ptr< Interface > clone() const override
             {
-                return std::make_unique< Wrapper< Impl > >( impl );
+                return std::make_shared< Wrapper< Impl > >( impl );
             }
 
             Vector call_const_Vector_ref( const Vector& x ) const override
@@ -114,6 +114,6 @@ namespace Spacy
         }
 
     private:
-        clang::type_erasure::polymorphic::Storage< Interface, Wrapper > impl_;
+        clang::type_erasure::polymorphic::COWStorage< Interface, Wrapper > impl_;
     };
-}
+} // namespace Spacy

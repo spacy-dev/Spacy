@@ -131,7 +131,7 @@ namespace Spacy
         }
 
     private:
-        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
+        clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
     /// Type-erased time-dependent linear operator \f$A:\ [0,T] \times X \to Y \f$.
     class DynamicLinearOperator
@@ -339,7 +339,7 @@ namespace Spacy
         }
 
     private:
-        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
+        clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
     /// Type-erased time-dependent differentiable operator \f$A:\ [0,T] \times X \to Y \f$.
     class DynamicC1Operator
@@ -494,6 +494,6 @@ namespace Spacy
         }
 
     private:
-        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
+        clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
-}
+} // namespace Spacy

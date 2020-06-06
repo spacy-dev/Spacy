@@ -153,7 +153,7 @@ namespace Spacy
         }
 
     private:
-        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
+        clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
     /// @brief For an operator \f$ A: X\to Y \f$, compute \f$A'\f$ at \f$x\in X\f$ as linear
     /// operator
@@ -165,9 +165,9 @@ namespace Spacy
     ///@param x point of linearization
     ///@return \f$A'(x)\f$, i.e. A.linearization(x).
     ///@see @ref C1OperatorAnchor "C1Operator", @ref LinearOperatorAnchor "LinearOperator"
-    ///
     inline LinearOperator d1( const C1Operator& A, const Vector& x )
     {
         return A.linearization( x );
     }
-}
+
+} // namespace Spacy

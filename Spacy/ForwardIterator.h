@@ -151,7 +151,7 @@ namespace Spacy
             virtual ~Interface() = default;
             virtual std::shared_ptr< Interface > clone() const = 0;
             virtual void increment() = 0;
-            virtual ConstForwardIterator increment_int() = 0;
+            virtual ConstForwardIterator increment_int( int offset ) = 0;
             virtual const double& dereference() const = 0;
             virtual bool
             compare_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const = 0;
@@ -172,12 +172,12 @@ namespace Spacy
 
             void increment() override
             {
-                ++impl;
+                impl.operator++();
             }
 
-            ConstForwardIterator increment_int() override
+            ConstForwardIterator increment_int( int offset ) override
             {
-                return impl++;
+                return impl.operator++( std::move( offset ) );
             }
 
             const double& dereference() const override
@@ -230,10 +230,10 @@ namespace Spacy
             return *this;
         }
 
-        ConstForwardIterator operator++( int )
+        ConstForwardIterator operator++( int offset )
         {
             assert( impl_ );
-            return impl_->increment_int();
+            return impl_->increment_int( std::move( offset ) );
         }
 
         const double& operator*() const
@@ -279,7 +279,6 @@ namespace Spacy
     private:
         clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
     };
-
     inline bool operator!=( const ForwardIterator& lhs, const ForwardIterator& rhs )
     {
         return !( lhs == rhs );
@@ -289,4 +288,5 @@ namespace Spacy
     {
         return !( lhs == rhs );
     }
-}
+
+} // namespace Spacy
