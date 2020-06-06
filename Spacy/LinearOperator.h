@@ -230,9 +230,8 @@ namespace Spacy
         }
 
     private:
-        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
+        clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
-
     /// Access solver via A^-1. Throws for k!=-1.
     inline LinearSolver operator^( const LinearOperator& A, int k )
     {
@@ -255,4 +254,5 @@ namespace Spacy
     {
         return A += ( B *= a );
     }
-}
+
+} // namespace Spacy

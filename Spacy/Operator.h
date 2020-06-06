@@ -126,6 +126,6 @@ namespace Spacy
         }
 
     private:
-        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
+        clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
-}
+} // namespace Spacy
