@@ -154,7 +154,7 @@ namespace Spacy
         }
 
     private:
-        clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
+        clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
     /// @brief For a functional \f$ f: X\to \mathbb{R} \f$, compute \f$f'\f$ at \f$x\in X\f$ as dual
     /// element \f$ f'(x) \in X^\f$.
@@ -183,4 +183,5 @@ namespace Spacy
     {
         return f.hessian( x );
     }
-}
+
+} // namespace Spacy

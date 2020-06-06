@@ -14,7 +14,7 @@ namespace Spacy
         using iterator_category = std::forward_iterator_tag;
 
         ForwardIterator& operator++();
-        ForwardIterator operator++( int );
+        ForwardIterator operator++( int offset );
         double& operator*() const;
         bool operator==( const ForwardIterator& other ) const;
     };
@@ -29,7 +29,7 @@ namespace Spacy
         using iterator_category = std::forward_iterator_tag;
 
         ConstForwardIterator& operator++();
-        ConstForwardIterator operator++( int );
+        ConstForwardIterator operator++( int offset );
         const double& operator*() const;
         bool operator==( const ConstForwardIterator& other ) const;
     };
