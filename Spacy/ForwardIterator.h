@@ -279,7 +279,6 @@ namespace Spacy
     private:
         clang::type_erasure::polymorphic::SBOStorage< Interface, Wrapper, 16 > impl_;
     };
-
     inline bool operator!=( const ForwardIterator& lhs, const ForwardIterator& rhs )
     {
         return !( lhs == rhs );
@@ -289,4 +288,5 @@ namespace Spacy
     {
         return !( lhs == rhs );
     }
-}
+
+} // namespace Spacy

@@ -102,6 +102,7 @@ namespace Spacy
     private:
         clang::type_erasure::polymorphic::Storage< Interface, Wrapper > impl_;
     };
+
     template < class T >
     T& creator( VectorSpace& space )
     {
@@ -119,4 +120,5 @@ namespace Spacy
     {
         return space.creator()( &space );
     }
-}
+
+} // namespace Spacy

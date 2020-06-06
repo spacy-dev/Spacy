@@ -115,5 +115,5 @@ namespace Spacy
         private:
             clang::type_erasure::polymorphic::Storage< Interface, Wrapper > impl_;
         };
-    }
-}
+    } // namespace Log
+} // namespace Spacy

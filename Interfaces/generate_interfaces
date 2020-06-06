@@ -8,7 +8,7 @@ BUFFER_SIZE=16
 INCLUDE_DIR=$1
 CUSTOM_FUNCTION_TABLE=""
 
-COMMAND=/home/lars/Libraries/build-llvm2/bin/clang-type-erase
+COMMAND=/home/lars/.local/bin/clang-type-erase
 COMMON_ARGS="-detail-dir=$DETAIL_DIR -include-dir=$INCLUDE_DIR -util-dir=$UTIL_DIR -util-include-dir=<$UTIL_DIR/type_erasure_util.h> $CUSTOM_FUNCTION_TABLE"
 SMALL_SBO_ARGS="-sbo -buffer-size=$BUFFER_SIZE"
 
@@ -20,15 +20,15 @@ function generate_interface {
 function generate_interfaces {
   generate_interface    ForwardIterator.h Spacy "$SMALL_SBO_ARGS"
   generate_interface  ZeroVectorCreator.h Spacy ""
-  generate_interface           Operator.h Spacy "$SMALL_SBO_ARGS"
-  generate_interface     LinearOperator.h Spacy "$SMALL_SBO_ARGS"
-  generate_interface         C1Operator.h Spacy "$SMALL_SBO_ARGS"
-  generate_interface    DynamicOperator.h Spacy "$SMALL_SBO_ARGS"
-  generate_interface         Functional.h Spacy "$SMALL_SBO_ARGS"
-  generate_interface       C1Functional.h Spacy "$SMALL_SBO_ARGS"
-  generate_interface       C2Functional.h Spacy "$SMALL_SBO_ARGS"
-  generate_interface             Vector.h Spacy "$SMALL_SBO_ARGS"
-  generate_interface       LinearSolver.h Spacy ""
+  generate_interface           Operator.h Spacy "$SMALL_SBO_ARGS -cow"
+  generate_interface     LinearOperator.h Spacy "$SMALL_SBO_ARGS -cow"
+  generate_interface         C1Operator.h Spacy "$SMALL_SBO_ARGS -cow"
+  generate_interface    DynamicOperator.h Spacy "$SMALL_SBO_ARGS -cow"
+  generate_interface         Functional.h Spacy "$SMALL_SBO_ARGS -cow"
+  generate_interface       C1Functional.h Spacy "$SMALL_SBO_ARGS -cow"
+  generate_interface       C2Functional.h Spacy "$SMALL_SBO_ARGS -cow"
+  generate_interface             Vector.h Spacy "$SMALL_SBO_ARGS -cow"
+  generate_interface       LinearSolver.h Spacy "-cow"
 }
 
 function generate_cg_interfaces {
