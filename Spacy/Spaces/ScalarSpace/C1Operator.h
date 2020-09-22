@@ -20,7 +20,7 @@ namespace Spacy
         class LinearOperator;
         /// @endcond
 
-        class C1Operator : public Spacy::OperatorBase
+        class C1Operator : public ::Spacy::OperatorBase
         {
         public:
             C1Operator( std::function< double( double ) > value,
@@ -30,9 +30,9 @@ namespace Spacy
                         std::function< double( double ) > derivative, const VectorSpace& domain,
                         const VectorSpace& range );
 
-            Spacy::Vector operator()( const ::Spacy::Vector& x ) const;
+            ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const;
 
-            Spacy::Vector d1( const ::Spacy::Vector& x, const ::Spacy::Vector& dx ) const;
+            ::Spacy::Vector d1( const ::Spacy::Vector& x, const ::Spacy::Vector& dx ) const;
 
             LinearOperator linearization( const ::Spacy::Vector& x ) const;
 
