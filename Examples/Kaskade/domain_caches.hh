@@ -42,7 +42,7 @@ namespace Kaskade
 
             f_.template update<state_index>( std::make_tuple(
                                                  at_c<state_index>(x_.data).value(at_c<state_space_index>(evaluators)),
-                                                 at_c<state_index>(x_.data).gradient(at_c<state_space_index>(evaluators))
+                                                 at_c<state_index>(x_.data).derivative(at_c<state_space_index>(evaluators))
                                                  ) );
         }
 
@@ -55,13 +55,13 @@ namespace Kaskade
         template<int row>
         Scalar d1_impl (const TestVarArg<row>& arg) const
         {
-            return sp( f_(), arg.gradient ) - sp( g_, arg.value );
+            return sp( f_(), arg.derivative ) - sp( g_, arg.value );
         }
 
         template<int row, int col>
         Scalar d2_impl (const TestVarArg<row>& arg1, const AnsatzVarArg<col>& arg2) const
         {
-            return sp( f_.template d1<state_index>( std::make_tuple(arg2.value, arg2.gradient) ), arg1.gradient );
+            return sp( f_.template d1<state_index>( std::make_tuple(arg2.value, arg2.derivative) ), arg1.derivative );
         }
 
     private:
@@ -105,7 +105,7 @@ namespace Kaskade
             using boost::fusion::at_c;
 
             y_ = at_c<state_index>(x_.data).value(at_c<state_space_index>(evaluators));
-            f_.update( at_c<state_index>(x_.data).gradient(at_c<state_space_index>(evaluators)) );
+            f_.update( at_c<state_index>(x_.data).derivative(at_c<state_space_index>(evaluators)) );
         }
 
         Scalar
@@ -117,13 +117,13 @@ namespace Kaskade
         template<int row>
         Scalar d1_impl (const TestVarArg<row>& arg) const
         {
-            return f_.d1( arg.gradient ) - sp( g_, arg.value );
+            return f_.d1( arg.derivative ) - sp( g_, arg.value );
         }
 
         template<int row, int col>
         Scalar d2_impl (const TestVarArg<row>& arg1, const AnsatzVarArg<col>& arg2) const
         {
-            return f_.d2( arg1.gradient, arg2.gradient );
+            return f_.d2( arg1.derivative, arg2.derivative );
         }
 
     private:
