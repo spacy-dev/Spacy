@@ -102,7 +102,7 @@ namespace Spacy
 
                 VectorImpl v( assembler_.rhs() );
 
-                auto y = range().zeroVector();
+               auto y = zero(range());
                 copyFromCoefficientVector< TestVariableSetDescription >( v, y );
                 return y;
             }
