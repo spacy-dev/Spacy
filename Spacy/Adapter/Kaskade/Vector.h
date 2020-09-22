@@ -45,9 +45,18 @@ namespace Spacy
             AddAccessors( Accessors& accessors, Container& container )
             {
                 const auto size = boost::fusion::at_c< I >( container ).size();
+
+// This is a bad hack and has to be revised. However, it compiles now                
+
+                accessors.emplace_back( size, [&container]( int i )->double& {
+                    return const_cast<double&>((boost::fusion::at_c< I >( container )[ i ])[0]);
+                } );
+/* Previous version:
                 accessors.emplace_back( size, [&container]( int i ) {
                     return boost::fusion::at_c< I >( container )[ i ];
-                } );
+                } );*/
+
+
                 AddAccessors< N, I + 1 >( accessors, container );
             }
         };
