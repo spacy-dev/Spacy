@@ -69,5 +69,5 @@ int main()
     //  auto x = Spacy::localNewton(A,p);
 
     // construct Galerkin representation
-    writeVTK( Spacy::cast_ref< Spacy::Kaskade::Vector< VariableSetDesc > >( x ), "displacement" );
+ //   writeVTK( Spacy::cast_ref< Spacy::Kaskade::Vector< VariableSetDesc > >( x ), "displacement" );
 }
