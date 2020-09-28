@@ -12,19 +12,20 @@
 #include <Spacy/Util/Mixins.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
+#include <Spacy/Spaces/ProductSpace/Operator_V2.h>
 
 namespace Spacy
 {
-    /// \cond
-    namespace CompositeStep
-    {
-        class CubicModel;
-    }
-    /// \endcond
+/// \cond
+namespace CompositeStep
+{
+class CubicModel;
+}
+/// \endcond
 
-    namespace CompositeStep
-    {
-        /**
+namespace CompositeStep
+{
+/**
      * @ingroup CSGroup
      * @brief The affine covariant step method described in @cite Lubkoll2015, @cite Lubkoll2015a
      * for the solution of equality constraint optimization problems.
@@ -33,121 +34,173 @@ namespace Spacy
      * \f[\min f(x)\quad \text{s.t.}\quad c(x)=0\f], based on the corresponding Lagrange functional
      * \f[L(x,p) = f(x)+pc(x)\f].
      */
-        class AffineCovariantSolver : public Mixin::RegularityTest,
-                                      public Mixin::Timer< std::chrono::milliseconds >,
-                                      public Mixin::AdjointIndex,
-                                      public Mixin::ControlIndex,
-                                      public Mixin::StateIndex,
-                                      public Mixin::ContractionRate,
-                                      public Mixin::DecreaseCondition,
-                                      public Mixin::Eps,
-                                      public Mixin::MaxSteps,
-                                      public Mixin::DampingAccuracy,
-                                      public Mixin::MinimalAccuracy,
-                                      public Mixin::RelativeAccuracy,
-                                      public Mixin::Verbosity,
-                                      public Mixin::IterativeRefinements,
-                                      public Mixin::NormalAccuracy,
-                                      public Mixin::TangentialAccuracy,
-                                      public Mixin::FallBackTangentialAccuracy
-        {
-            enum class StepMonitor
-            {
-                Rejected,
-                Accepted
-            };
-            enum class AcceptanceTest;
+class AffineCovariantSolver : public Mixin::RegularityTest,
+        public Mixin::Timer< std::chrono::milliseconds >,
+        public Mixin::AdjointIndex,
+        public Mixin::ControlIndex,
+        public Mixin::StateIndex,
+        public Mixin::ContractionRate,
+        public Mixin::DecreaseCondition,
+        public Mixin::Eps,
+        public Mixin::MaxSteps,
+        public Mixin::DampingAccuracy,
+        public Mixin::MinimalAccuracy,
+        public Mixin::RelativeAccuracy,
+        public Mixin::Verbosity,
+        public Mixin::IterativeRefinements,
+        public Mixin::NormalAccuracy,
+        public Mixin::TangentialAccuracy,
+        public Mixin::FallBackTangentialAccuracy
+{
+    enum class StepMonitor
+    {
+        Rejected,
+        Accepted
+    };
+    enum class AcceptanceTest;
 
-        public:
-            /**
+public:
+    /**
        * @brief Constructor.
        * @param N Lagrange functional for the problem \f[\min \|\delta x_k\| \quad \text{s.t.}
        * c'(x_k)\delta x_k + c(x_k)=0\f]
        * @param L Lagrange functional
        * @param domain domain space \f$X=\{Y,U,P\}\f$
        */
-            AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain );
+    AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain );
 
-            AffineCovariantSolver(
-                C2Functional N, C2Functional L, VectorSpace& domain,
-                std::function< Vector( const Vector&, const Vector& ) > retraction );
+    AffineCovariantSolver(
+            C2Functional N, C2Functional L, VectorSpace& domain,
+            std::function< Vector( const Vector&, const Vector& ) > retraction );
 
-            AffineCovariantSolver(
-                C2Functional N, C2Functional L, VectorSpace& totalSpace, VectorSpace& chartSpace,
-                std::function< Vector( const Vector&, const Vector& ) > retraction,
-                std::function< Vector( const Vector&, const Vector& ) > dualUpdate );
+    AffineCovariantSolver(
+            C2Functional N, C2Functional L, VectorSpace& totalSpace, VectorSpace& chartSpace,
+            std::function< Vector( const Vector&, const Vector& ) > retraction,
+            std::function< Vector( const Vector&, const Vector& ) > dualUpdate );
 
-            /// Compute solution.
-            Vector operator()();
+    /// Compute solution.
+    Vector operator()();
 
-            /**
+    /**
        * @brief Compute solution.
        * @param x0 initial iterate
        */
-            Vector operator()( const Vector& x0 );
+    Vector operator()( const Vector& x0 );
 
-        private:
-            Vector computeNormalStep( const Vector& x ) const;
-            Vector computeSimplifiedNormalStep( const Vector& x, const Vector& dx ) const;
-            Vector computeMinimumNormCorrection( const Vector& x ) const;
-            Vector computeTangentialStep( DampingFactor nu, const Vector& x, const Vector& dn,
-                                          bool lastStepWasUndamped ) const;
+    std::function<
+    std::tuple<::Spacy::ProductSpace::Operator_V2,
+    std::function<::Spacy::Vector(const ::Spacy::Vector&)>,
+    std::function<::Spacy::Vector(const ::Spacy::Vector&)>,
+    std::function<void(int,char,char,int,double*,double*,double,double,int,int,double,int*,double*,double*,int,int*)>,
+    std::function<::Spacy::Vector(const ::Spacy::Vector&)>,
+    std::function<::Spacy::Vector(const ::Spacy::Vector&)>>
+                                                            (const ::Spacy::C2Functional&, const ::Spacy::Vector&)> getOperators;
 
-            std::tuple< Vector, Vector, Vector >
-            updateLagrangeMultiplier( const Vector& x, const DampingFactor nu ) const;
 
-            IndefiniteLinearSolver makeTangentialSolver( DampingFactor nu, const Vector& x,
-                                                         bool lastStepWasUndamped ) const;
+    C2Functional RegRHS_;
 
-            bool convergenceTest( DampingFactor nu, DampingFactor tau, Real norm_x, Real norm_dx );
+    C2Functional & getNormalFunctional();
+    C2Functional & getTangentialFunctional();
+    C2Functional & getRegRHSFunctional();
 
-            std::function< Vector( const Vector&, const Vector& ) > linearRetraction =
-                []( const Vector& origin, const Vector& increment ) { return origin + increment; };
 
-            std::tuple< DampingFactor, Vector, Vector, Real, Real >
-            computeCompositeStep( DampingFactor& nu, Real norm_Dn, const Vector& x,
-                                  const Vector& Dn, const Vector& Dt, const Vector& res_p,
-                                  const Vector& v );
+    void setPPCG(bool use_ppcg);
+    void setICG(bool use_icg);
+    std::function<void(const ::Spacy::Vector& x)> output;
+    std::function<void(const ::Spacy::Vector& x)> outputP;
+    std::function<void(const ::Spacy::Vector& x)> outputY;
+    std::function<::Spacy::Vector(::Spacy::Vector,::Spacy::Vector)> transfer = [](::Spacy::Vector src, ::Spacy::Vector res){ return src;};
+    std::function<bool(bool setSignal, bool isConvex)> signalConvex_ = [](bool setSignal, bool isConvex){ return true; };
+    std::function<double(bool,double)> updateRegularization_ = [](bool setGamma, double gamma){ return 0.0; };
+    std::function<void()> reset_ = [](){return;};
+    std::function<void(const Vector & x)> plotEntireStep = [](const Vector & x){return;};
+    std::function<void(const Vector & x)> plotProjectedSolution = [](const Vector & x){return;};
 
-            void updateOmegaC( Real norm_x, Real norm_dx, Real norm_ds );
-            Real updateOmegaL( const Vector& soc, Real q_tau, DampingFactor tau, Real norm_x,
-                               Real norm_dx, const CompositeStep::CubicModel& cubic,
-                               Real errorterm );
+    // Used for pathFollowing to obtain number of iterations
+    std::function<void(bool converged, int step)> callbackFunction_ = [](bool converged, int step){return;};
 
-            DampingFactor computeNormalStepDampingFactor( Real norm_Dn ) const;
-            DampingFactor
-            computeTangentialStepDampingFactor( Real norm_dn, Real norm_Dt, Real scalprod_dnDt,
-                                                const CompositeStep::CubicModel& cubic ) const;
+    std::function<Vector(const Vector & x, const Vector & dx)> nonlinUpdate_ = [](const Vector & x, const Vector & dx){throw Exception::RegularityTestFailed(
+                "Nonlinear update not set", 0 ); return x;};
 
-            void regularityTest( DampingFactor nu, DampingFactor tau ) const;
-            AcceptanceTest acceptedSteps( Real norm_x, Real normDx, Real eta );
 
-            Vector retractPrimal( const Vector& origin, const Vector& increment ) const;
+    bool useNonlinUpdate_ = false;
 
-            std::function< Vector( const Vector&, const Vector& ) > retraction_;
-            std::function< Vector( const Vector&, const Vector& ) > dualUpdate_;
-            C2Functional N_, L_;
-            VectorSpace& domain_;
-            VectorSpace& chartSpace_;
+    mutable double stateAcc_ = 1e-8;
+    mutable double adjointAcc_ = 1e-8;
+    mutable double inexactCGAcc_ = 1e-3;
+    mutable double chebyshevAcc_ = 1e-2;
 
-            LipschitzConstant omegaL{1e-6}, omegaC{1e-6};
+private:
+    mutable bool use_ppcg_ = false;
+    mutable bool use_icg_ = false;
 
-            mutable LinearSolver normalSolver = {};
-            mutable IndefiniteLinearSolver tangentialSolver = {};
+    Vector computeNormalStep( const Vector& x ) const;
+    Vector computeSimplifiedNormalStep( const Vector& x, const Vector& dx ) const;
+    Vector computeMinimumNormCorrection( const Vector& x ) const;
+    Vector computeTangentialStep( DampingFactor nu, const Vector& x, const Vector& dn,
+                                  bool lastStepWasUndamped ) const;
 
-            std::string spacing = "  ", spacing2 = "    ";
+    std::tuple< Vector, Vector, Vector >
+    updateLagrangeMultiplier( const Vector& x, const DampingFactor nu ) const;
 
-            StepMonitor normalStepMonitor = StepMonitor::Accepted;
-            StepMonitor tangentialStepMonitor = StepMonitor::Accepted;
+    IndefiniteLinearSolver makeTangentialSolver( DampingFactor nu, const Vector& x,
+                                                 bool lastStepWasUndamped ) const;
 
-            Real norm_dx_old = -1;
+    bool convergenceTest( DampingFactor nu, DampingFactor tau, Real norm_x, Real norm_dx );
 
-            // for suggesting a regularization parameter for the TRCG
-            mutable Real theta_sugg = Real{0.};
-            // for tangential step accuracy control
-            Real previous_step_contraction = 0;
-            // for logging purposes
-            mutable unsigned ds_it_counter;
-        };
-    }
+    std::function< Vector( const Vector&, const Vector& ) > linearRetraction =
+            []( const Vector& origin, const Vector& increment ) { return origin + increment; };
+
+    std::tuple< DampingFactor, Vector, Vector, Real, Real >
+    computeCompositeStep( DampingFactor& nu, Real norm_Dn, const Vector& x,
+                          const Vector& Dn, const Vector& Dt, const Vector& res_p,
+                          const Vector& v );
+
+    void updateOmegaC( Real norm_x, Real norm_dx, Real norm_ds );
+    Real updateOmegaL( const Vector& soc, Real q_tau, DampingFactor tau, Real norm_x,
+                       Real norm_dx, const CompositeStep::CubicModel& cubic,
+                       Real errorterm );
+
+    DampingFactor computeNormalStepDampingFactor( Real norm_Dn ) const;
+    DampingFactor
+    computeTangentialStepDampingFactor( Real norm_dn, Real norm_Dt, Real scalprod_dnDt,
+                                        const CompositeStep::CubicModel& cubic ) const;
+
+    void regularityTest( DampingFactor nu, DampingFactor tau ) const;
+    AcceptanceTest acceptedSteps( Real norm_x, Real normDx, Real eta );
+
+    Vector retractPrimal( const Vector& origin, const Vector& increment ) const;
+
+    std::function< Vector( const Vector&, const Vector& ) > retraction_;
+    std::function< Vector( const Vector&, const Vector& ) > dualUpdate_;
+    C2Functional N_, L_;
+    VectorSpace& domain_;
+    VectorSpace& chartSpace_;
+
+    LipschitzConstant omegaL{1e-6}, omegaC{1e-6};
+
+    mutable LinearSolver normalSolver = {};
+    mutable IndefiniteLinearSolver tangentialSolver = {};
+
+    std::string spacing = "  ", spacing2 = "    ";
+
+    StepMonitor normalStepMonitor = StepMonitor::Accepted;
+    StepMonitor tangentialStepMonitor = StepMonitor::Accepted;
+
+    Real norm_dx_old = -1;
+
+    int step_ = 1;
+
+    // for suggesting a regularization parameter for the TRCG
+    mutable Real theta_sugg = Real{0.};
+    // for tangential step accuracy control
+    Real previous_step_contraction = 0;
+    // for logging purposes
+    mutable unsigned ds_it_counter;
+    mutable unsigned ds_it_icg_counter;
+    mutable unsigned ds_it_cheb_counter;
+    mutable unsigned ds_it_chebT_counter;
+    mutable bool logEnergyIsConvex_ = true;
+};
+}
 }
