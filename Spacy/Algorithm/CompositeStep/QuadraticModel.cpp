@@ -5,6 +5,7 @@
 #include <Spacy/Util/Invoke.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
+#include <Spacy/Spaces/ProductSpace.h>
 
 #include <cmath>
 #include <tuple>
@@ -18,8 +19,12 @@ namespace Spacy
             auto quadraticCoefficients( DampingFactor nu, const Vector& dn, const Vector& dt,
                                         const C2Functional& L, const Vector& x )
             {
-                auto constant = L( x ) + nu * L.d1( x )( dn ) + 0.5 * nu * nu * L.d2( x, dn )( dn );
-                auto linear = L.d1( x )( dt ) + nu * L.d2( x, dn )( dt );
+                auto xd = x;
+                auto& w_ = cast_ref< ::Spacy::ProductSpace::Vector >( xd );
+                w_.component( 1 ) *= 0;
+
+                auto constant = L( x ) + nu * L.d1( w_ )( dn ) + 0.5 * nu * nu * L.d2( x, dn )( dn );
+                auto linear = L.d1( w_ )( dt ) + nu * L.d2( x, dn )( dt );
                 auto quadratic = 0.5 * L.d2( x, dt )( dt );
                 return std::make_tuple( constant, linear, quadratic );
             }
