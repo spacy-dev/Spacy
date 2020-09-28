@@ -69,7 +69,7 @@ namespace Spacy
             {
                 return cg.getIterations();
             }
-
+		
         private:
             mutable Solver cg;
         };

@@ -12,6 +12,9 @@
 #include <cmath>
 #include <iostream>
 #include <utility>
+//#include "/home/bt304332/svn-repos/Kaskade7.3/linalg/lapack/lapacke.h"
+
+#define LAPACK_COL_MAJOR 102
 
 namespace Spacy
 {
@@ -48,6 +51,12 @@ namespace Spacy
             }
         }
 
+	Vector Solver::operator()( const Vector& b ) const
+        {
+            auto x = 0 * P_(b);
+            return solve(x,b);
+        }
+
         CG::TerminationCriterion& Solver::terminationCriterion() noexcept
         {
             return terminate_;
@@ -75,6 +84,9 @@ namespace Spacy
 
         Vector Solver::cgLoop( Vector x, Vector r ) const
         {
+            std::vector<Spacy::Real> alpha_vec;
+            std::vector<Spacy::Real> beta_vec;
+
             terminate_.clear();
             result = Result::Failed;
 
@@ -92,15 +104,35 @@ namespace Spacy
             auto q = Qr;
             auto Rq = r; // required only for regularized or hybrid conjugate gradient methods with
                          // precond as regularization
+            auto Qr_copy = transfer(Qr,r);
+            auto sigma = abs( r( Qr_copy ) );
 
-            auto sigma = abs( r( Qr ) ); // preconditioned residual norm squared
+            if(r( Qr_copy ) < 0.)
+            {
+                definiteness_ = DefiniteNess::Indefinite;
+                result = Result::TruncatedAtNonConvexity;
+                std::cout << "Fail: Preconditioner Indefinit" << std::endl;
+                std::cout << r( Qr_copy ) << std::endl;
+                return x;
+            }
+            //auto sigma = abs( r( Qr ) ); // preconditioned residual norm squared
 
+
+            auto qLast = q;
             // the conjugate gradient iteration
             for ( unsigned step = 1; true; step++ )
             {
                 // if( getVerbosityLevel() > 1 ) std::cout << "Iteration: " << step << std::endl;
                 const auto Aq = A_( q );
-                Real qAq = Aq( q );
+                auto Aq_copy = transfer(Aq,q);
+                Real qAq = Aq_copy( q );
+
+
+              //  std::cout << "Cg qAq: " << qAq << std::endl << std::endl;
+
+               // std::cout << "qLast(Aq):  " << Aq_copy(qLast) << std::endl;
+                qLast = q;
+                //Real qAq = Aq( q );
 
                 // in the case of arbitrary Regularization, we have to compute Rq
                 if ( is< RegularizeViaCallableOperator >( regularization_ ) )
@@ -108,11 +140,14 @@ namespace Spacy
                     auto& regimpl = cast_ref< RegularizeViaCallableOperator >( regularization_ );
                     Rq = regimpl.getRegularization()( q );
                 }
-                Real qRq = Rq( q );
+                auto Rq_copy = transfer(Rq,q);
+                Real qRq = Rq_copy( q );
+                //Real qRq = Rq( q );
 
                 regularization_.apply( qAq, qRq );
 
                 const auto alpha = sigma / qAq;
+                alpha_vec.push_back(alpha);
 
                 terminate_.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ), x );
                 //  don't trust small numbers
@@ -124,6 +159,8 @@ namespace Spacy
                     iterations_ = step;
                     break;
                 }
+
+              //  std::cout << "Cg alpha " << alpha << std::endl;
 
                 if ( terminateOnNonconvexity( qAq, qRq, x, q, step ) )
                 {
@@ -150,10 +187,24 @@ namespace Spacy
                 Qr = Q( r );
 
                 // determine new search direction
-                const auto sigmaNew = abs( r( Qr ) ); // sigma = <Qr,r>
+                Qr_copy = transfer(Qr,r);
+                const auto sigmaNew = abs( r( Qr_copy ) );
+                if(r( Qr_copy ) < 0.)
+                {
+                    std::cout << "Fail: Preconditioner Indefinit" << std::endl;
+                    std::cout << r( Qr_copy )  << std::endl;
+                   // result = Result::Failed;
+                    definiteness_ = DefiniteNess::Indefinite;
+                    result = Result::TruncatedAtNonConvexity;
+                    return x;
+                }
+
+                //const auto sigmaNew = abs( r( Qr ) ); // sigma = <Qr,r>
                 const auto beta = sigmaNew / sigma;
+                beta_vec.push_back(beta);
                 sigma = sigmaNew;
 
+            //    std::cout << "sigmaNew: " << sigmaNew << std::endl << std::endl;
                 q *= get( beta );
                 q += Qr; //  q = Qr + beta*q
 
@@ -164,6 +215,42 @@ namespace Spacy
                 Rq *= get( beta );
                 Rq += r; // Pq = r + beta*Pq
             }
+
+            callback(alpha_vec,beta_vec);
+
+
+//            auto a_size = alpha_vec.size();
+//            double * eig = new double[a_size];
+//            double * diagonal = new double[a_size];
+//            double * subDiagonal = new double[a_size-1];
+//            double * z_vec = new double[a_size];
+//            int * isuppz_vec = new int[2*a_size];
+//            int * m = new int[a_size];
+
+//            for(auto i=0u; i<a_size; ++i)
+//            {
+//                eig[i] = 0.0;
+//                if(i==0)
+//                    diagonal[i] = 1./alpha_vec[i].get();
+//                else
+//                    diagonal[i] = 1./alpha_vec[i].get() + beta_vec[i-1].get()/alpha_vec[i-1].get();
+//                if(i!=0)
+//                    subDiagonal[i-1] = sqrt(beta_vec[i-1].get()).get()/alpha_vec[i-1].get();
+//                z_vec[i] = 0.0;
+//                isuppz_vec[i] = 0;
+//                isuppz_vec[i+a_size] = 0;
+//                m[i] = 0;
+//            }
+
+//            LAPACKE_dstevr(LAPACK_COL_MAJOR,'N','A',a_size,diagonal,subDiagonal,0.0,0.0,0,0,1e-8,m,eig,z_vec,a_size,isuppz_vec);
+
+//            std::cout << "EigMin: " <<  eig[0] << "   EigMax: " << eig[a_size-1] << std::endl;
+        //    delete[] eig;
+         //   delete[] diagonal;
+         //   delete[] subDiagonal;
+         //   delete[] z_vec;
+         //   delete[] isuppz_vec;
+         //   delete[] m;
 
             return x;
         }
@@ -196,7 +283,7 @@ namespace Spacy
         {
             if ( qAq > 0 )
                 return false;
-            if ( verbose() )
+           // if ( verbose() )
                 std::cout << "    "
                           << ": Negative curvature: " << qAq << std::endl;
 
