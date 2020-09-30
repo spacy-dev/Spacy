@@ -5,6 +5,7 @@
 
 #include <Spacy/Operator.h>
 #include <Spacy/Util/Mixins.h>
+#include <Spacy/Spaces/RealSpace.h>
 
 #include "Regularization.h"
 #include "TerminationCriterion.h"
@@ -160,7 +161,7 @@ namespace Spacy
             }
 
             //Used for computation of eigenvalues in ppcg
-            std::function<void(const std::vector<Spacy::Real>& , const std::vector<Spacy::Real>&)> callback = [](const std::vector<Spacy::Real>& vec1, const std::vector<Spacy::Real>& vec2){};
+            std::function<void(const std::vector<::Spacy::Real>& , const std::vector<::Spacy::Real>&)> callback = [](const std::vector<::Spacy::Real>& vec1, const std::vector<::Spacy::Real>& vec2){};
             std::function<void(const ::Spacy::Vector& x)> outputY;
             std::function<void(const ::Spacy::Vector& x)> outputP;
             std::function<::Spacy::Vector(::Spacy::Vector,::Spacy::Vector)> transfer = [](::Spacy::Vector src, ::Spacy::Vector res){ return src;};

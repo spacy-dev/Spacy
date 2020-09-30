@@ -21,19 +21,19 @@ namespace Spacy
     {
         /**
          * @brief Linear operator interface for operators in %Kaskade 7.
-         * @tparam OperatorImpl %Kaskade 7 operator, i.e. %Kaskade::AssembledGalerkinOperator or
+         * @tparam OperatorMatrixRepresentation %Kaskade 7 operator, i.e. %Kaskade::AssembledGalerkinOperator or
          * %Kaskade::MatrixRepresentedOperator.
          * @tparam AnsatzVariableSetDescription %Kaskade::VariableSetDescription for ansatz
          * variables
          * @tparam TestVariableSetDescription %Kaskade::VariableSetDescription for test variables
          * @see ::Spacy::LinearOperator
          */
-        template < class AnsatzVariableSetDescription, class TestVariableSetDescription >
+        template < class AnsatzVariableSetDescription, class TestVariableSetDescription>
         class LinearOperator
             : public OperatorBase,
               public VectorBase,
               public AddArithmeticOperators<
-                  LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription > >
+                  LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription> >
         {
             using Spaces = typename AnsatzVariableSetDescription::Spaces;
             using Variables = typename AnsatzVariableSetDescription::Variables;
@@ -42,7 +42,7 @@ namespace Spacy
             using Range = typename TestVariableSetDescription::
                 template CoefficientVectorRepresentation<>::type;
             using Matrix = ::Kaskade::MatrixAsTriplet< double >;
-            using OperatorImpl = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
+            using OperatorMatrixRepresentation = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
             using OperatorCreator =
                 LinearOperatorCreator< AnsatzVariableSetDescription, TestVariableSetDescription >;
 
@@ -53,7 +53,7 @@ namespace Spacy
              * @param domain domain space
              * @param range range space
              */
-            LinearOperator( OperatorImpl A, const VectorSpace& space )
+            LinearOperator(OperatorMatrixRepresentation A, const VectorSpace& space )
                 : OperatorBase( cast_ref< OperatorCreator >( space.creator() ).domain(),
                                 cast_ref< OperatorCreator >( space.creator() ).range() ),
                   VectorBase( space ), A_( std::move( A ) ),
@@ -69,7 +69,7 @@ namespace Spacy
              * @param range range space
              * @param solverCreator function/functor implementing the creation of a linear solver
              */
-            LinearOperator( OperatorImpl A, const VectorSpace& space,
+            LinearOperator(OperatorMatrixRepresentation A, const VectorSpace& space,
                             std::function< LinearSolver( const LinearOperator& ) > solverCreator )
                 : OperatorBase( cast_ref< OperatorCreator >( space.creator() ).domain(),
                                 cast_ref< OperatorCreator >( space.creator() ).range() ),
@@ -109,7 +109,7 @@ namespace Spacy
             {
                 return solverCreator_( *this );
                 //        return
-                //        DirectSolver<OperatorImpl,AnsatzVariableSetDescription,TestVariableSetDescription>(
+                //        DirectSolver<OperatorMatrixRepresentation,AnsatzVariableSetDescription,TestVariableSetDescription>(
                 //        A_ , spaces_, range() , domain() );
             }
 
@@ -162,7 +162,7 @@ namespace Spacy
             }
 
         private:
-            OperatorImpl A_;
+            OperatorMatrixRepresentation A_;
             Spaces spaces_;
             std::function< LinearSolver( const LinearOperator& ) > solverCreator_ = [](
                 const LinearOperator& M ) {
@@ -178,22 +178,22 @@ namespace Spacy
          * @param A operator from %Kaskade 7
          * @param domain domain space
          * @param range range space
-         * @tparam OperatorImpl %Kaskade 7 operator, i.e. %Kaskade::AssembledGalerkinOperator or
+         * @tparam OperatorMatrixRepresentation %Kaskade 7 operator, i.e. %Kaskade::AssembledGalerkinOperator or
          * %Kaskade::MatrixRepresentedOperator.
          * @tparam AnsatzVariableSetDescription %Kaskade::VariableSetDescription for ansatz
          * variables
          * @tparam TestVariableSetDescription %Kaskade::VariableSetDescription for test variables
-         * @return LinearOperator<OperatorImpl, AnsatzVariableSetDescription,
+         * @return LinearOperator<OperatorMatrixRepresentation, AnsatzVariableSetDescription,
          * TestVariableSetDescription>( A , domain , range )
          */
-        template < class AnsatzVariableSetDescription, class TestVariableSetDescription,
-                   class OperatorImpl >
-        auto makeLinearOperator( const OperatorImpl& A, const VectorSpace& domain,
-                                 const VectorSpace& range )
-        {
-            return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >(
-                A, domain, range );
-        }
+//         template < class AnsatzVariableSetDescription, class TestVariableSetDescription,
+//                    class OperatorMatrixRepresentation >
+//         auto makeLinearOperator( const OperatorMatrixRepresentation& A, const VectorSpace& domain,
+//                                  const VectorSpace& range )
+//         {
+//             return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >(
+//                 A, domain, range );
+//         }
     }
     /** @} */
 }

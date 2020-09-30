@@ -33,10 +33,10 @@ namespace Spacy
             {
             }
 
-            LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >
+            LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription>
             operator()( const VectorSpace* space ) const
             {
-                return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >{
+                return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription>{
                     OperatorImpl{Matrix{}}, *space};
             }
 

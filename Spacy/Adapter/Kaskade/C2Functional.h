@@ -54,7 +54,9 @@ namespace Spacy
             using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, CoefficientVector,
                                                                           CoefficientVector >;
 
-            using Linearization = LinearOperator< VariableSetDescription, VariableSetDescription >;
+            using Linearization = LinearOperator< VariableSetDescription, VariableSetDescription>;
+            
+            using SKVector = typename ::Spacy::Kaskade::Vector< VariableSetDescription > ;
 
             /**
              * @brief Construct a twice differentiable functional \f$f: X\rightarrow \mathbb{R}\f$
@@ -75,10 +77,11 @@ namespace Spacy
                           int cbegin = 0, int cend = FunctionalDefinition::TestVars::noOfVariables )
                 : FunctionalBase( domain ), f_( f ),
                   spaces_( extractSpaces< VariableSetDescription >( domain ) ),
+                  assembler_(spaces_), Aa_(assembler_),
                   rhs_( zero( domain.dualSpace() ) ), rbegin_( rbegin ), rend_( rend ),
                   cbegin_( cbegin ), cend_( cend ),
                   operatorSpace_( std::make_shared< VectorSpace >(
-                      LinearOperatorCreator< VariableSetDescription, VariableSetDescription >(
+                      LinearOperatorCreator< VariableSetDescription, VariableSetDescription>(
                           domain, domain.dualSpace() ),
                       []( const ::Spacy::Vector& v ) {
                           using std::begin;
@@ -100,9 +103,9 @@ namespace Spacy
              */
             C2Functional( const C2Functional& g )
                 : FunctionalBase( g.domain() ), NumberOfThreads( g ), f_( g.f_ ),
-                  spaces_( g.spaces_ ), A_( g.A_ ), value_( g.value_ ), old_X_f_( g.old_X_f_ ),
+                  spaces_( g.spaces_ ), assembler_(spaces_), Aa_(assembler_), A_( g.A_ ), value_( g.value_ ), old_X_f_( g.old_X_f_ ),
                   old_X_df_( g.old_X_df_ ), old_X_ddf_( g.old_X_ddf_ ), rhs_( g.rhs_ ),
-                  onlyLowerTriangle_( g.onlyLowerTriangle_ ), rbegin_( g.rbegin_ ),
+                  onlyLowerTriangle_(g.onlyLowerTriangle_ ), rbegin_( g.rbegin_ ),
                   rend_( g.rend_ ), cbegin_( g.cbegin_ ), cend_( g.cend_ ),
                   solverCreator_( g.solverCreator_ ), operatorSpace_( g.operatorSpace_ )
             {
@@ -117,6 +120,8 @@ namespace Spacy
                 setNumberOfThreads( g.getNumberOfThreads() );
                 f_ = g.f_;
                 spaces_ = g.spaces_;
+                assembler_(g.spaces_);
+                Aa_(assembler_);
                 A_ = g.A_;
                 value_ = g.value_;
                 old_X_f_ = g.old_X_f_;
@@ -188,9 +193,17 @@ namespace Spacy
                     VariableSetDescription::template CoefficientVectorRepresentation<>::init(
                         spaces_ ) );
 
-                A_.apply( dx_, y_ );
+                VariableSetDescription variableSet( spaces_ );
+                typename VariableSetDescription::VariableSet u( variableSet );
 
+                copy( dx, u );
                 auto y = zero( domain().dualSpace() );
+//                Aa_.apply(u, 
+                auto xx = zero( domain());
+//                    cast_ref<::Spacy::Kaskade::Vector< VariableSetDescription > >(y).get() );
+                Aa_.apply( cast_ref<typename SKVector::VariableSet::LinearSpace>(cast_ref< SKVector >(xx).get()), 
+                    cast_ref< SKVector >(y).get() );
+
                 copyFromCoefficientVector< VariableSetDescription >( y_, y );
 
                 return y;
@@ -250,10 +263,9 @@ namespace Spacy
 
                 copy( x, u );
 
-                Assembler assembler( spaces_ );
-                assembler.assemble(::Kaskade::linearization( f_, u ), Assembler::VALUE,
+                assembler_.assemble(::Kaskade::linearization( f_, u ), Assembler::VALUE,
                                    getNumberOfThreads() );
-                value_ = assembler.functional();
+                value_ = assembler_.functional();
 
                 old_X_f_ = x;
             }
@@ -270,11 +282,10 @@ namespace Spacy
 
                 copy( x, u );
 
-                Assembler assembler( spaces_ );
-                assembler.assemble(::Kaskade::linearization( f_, u ), Assembler::RHS,
+                assembler_.assemble(::Kaskade::linearization( f_, u ), Assembler::RHS,
                                    getNumberOfThreads() );
                 copyFromCoefficientVector< VariableSetDescription >(
-                    CoefficientVector( assembler.rhs() ), rhs_ );
+                    CoefficientVector( assembler_.rhs() ), rhs_ );
 
                 old_X_df_ = x;
             }
@@ -290,10 +301,9 @@ namespace Spacy
 
                 copy( x, u );
 
-                Assembler assembler( spaces_ );
-                assembler.assemble(::Kaskade::linearization( f_, u ), Assembler::MATRIX,
+                assembler_.assemble(::Kaskade::linearization( f_, u ), Assembler::MATRIX,
                                    getNumberOfThreads() );
-                A_ = KaskadeOperator( assembler.template get< Matrix >( onlyLowerTriangle_, rbegin_,
+                A_ = KaskadeOperator( assembler_.template get< Matrix >( onlyLowerTriangle_, rbegin_,
                                                                         rend_, cbegin_, cend_ ) );
 
                 old_X_ddf_ = x;
@@ -301,7 +311,9 @@ namespace Spacy
 
             FunctionalDefinition f_;
             Spaces spaces_;
+            mutable Assembler assembler_;
             mutable KaskadeOperator A_ = {};
+            mutable ::Kaskade::AssembledGalerkinOperator<Assembler>  Aa_;
             mutable double value_ = 0;
             mutable ::Spacy::Vector old_X_f_{}, old_X_df_{}, old_X_ddf_{}, rhs_{};
             bool onlyLowerTriangle_ = false;
@@ -310,9 +322,8 @@ namespace Spacy
             std::function< LinearSolver( const Linearization& ) > solverCreator_ =
                 []( const Linearization& f ) {
                     return makeDirectSolver< VariableSetDescription, VariableSetDescription >(
-                        f.A(), f.range(), f.domain() /*,
-                                                                                                                                                             DirectType::MUMPS ,
-                                                                                                                                                             MatrixProperties::GENERAL */ );
+                        f.A(), f.range(), f.domain() 
+/*, DirectType::MUMPS , MatrixProperties::GENERAL */ );
 
                 };
             std::shared_ptr< VectorSpace > operatorSpace_ = nullptr;

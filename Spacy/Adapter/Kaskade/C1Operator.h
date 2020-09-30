@@ -48,7 +48,7 @@ namespace Spacy
             using Matrix = ::Kaskade::MatrixAsTriplet< double >;
             using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
             using Linearization =
-                LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >;
+                LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription>;
 
         public:
             /**

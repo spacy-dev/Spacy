@@ -163,7 +163,7 @@ Vector ACRSolver::operator()(const Vector& x0)
 
             lambda = Scalar::findLogGlobalMinimizer(cubicModel, 1e-12, 100, 0.01);
 
-            if(lambda >= 0.95 && lambda <= 1.0 )
+            if(lambda >= 0.95 && lambda <= 1.05 )
                 lambda = 1.0;
 
 
