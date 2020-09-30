@@ -1,0 +1,74 @@
+ #Parameters for Nonlinear Elasticity
+
+order             = 1
+refinements       = 2
+numberOfCubes = 7
+
+
+obstacle = -0.52
+
+onlyLowerTriangle = false
+
+# without obstacle regularization = 1e0  nice pictures
+# works regularization = 5e0 referenceNormalComplianceParameter = 100
+
+regularization = 0.0001
+#maybe change back
+#regularization = 1e0
+
+
+
+
+
+useNonlinearUpdate = false
+usePPCG = true
+useDirectBlockPreconditioner = false
+
+
+#boundary force in z direction
+
+initial_boundary_force  = 0
+reference_boundary_force = -0.03
+
+referenceNormalComplianceParameter = 0
+initialNormalComplianceParameter = 0
+maxNormalComplianceParameter =     0
+
+initialStepSize = 5.0
+
+minStepSize = 0.0000000000001
+minTheta = 1e-4
+
+stepsizeUpdate = 9
+
+# Too high
+ desiredAccuracy = 1e-6
+ eps = 1e-14
+ alpha = 1e-6
+    
+ maxSteps = 10000
+ iterativeRefinements =  0
+ FEorder = 1
+ verbose = 2
+    
+ desContr =  0.5
+# relDesContr =  desContr+0.1
+ relDesContr = 0.6
+ maxContr =  0.75
+
+#Material Parameters
+
+lambda = 7.76e5
+mu = 8.62e4
+d = 10e5
+
+stateAcc = 5e-1
+adjointAcc = 5e-1
+inexactCGAcc = 5e-1
+chebyshevAcc = 5e-1
+
+numberOfThreads = 1
+
+
+
+
