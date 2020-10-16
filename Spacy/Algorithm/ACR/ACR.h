@@ -65,7 +65,7 @@ public:
              * @brief Constructor.
              * @param f functional to minimize
              */
-    ACRSolver(C2Functional f, VectorSpace & domain, double omega=1, double eta1 = 0.25, double eta2 = 0.5, double epsilon = 1e-8, double relativeAccuracy = 1e-4, double omegaMax = 1e25,  double lambdaMin = 1e-10);
+    ACRSolver(C2Functional f, VectorSpace & domain, VectorSpace & tangentSpace, double omega=1, double relativeAccuracy = 1e-4);
 
     /// Compute solution starting at \f$x_0=0\f$.
     Vector operator()();
@@ -157,10 +157,11 @@ private:
     C2Functional f_temp;
     mutable C2Functional f_;
     VectorSpace& domain_;
+    VectorSpace& tangentSpace_;
     StepMonitor stepMonitor = StepMonitor::Accepted;
 
     // epsilon_ termination criterion
-    const double eta1_, eta2_, epsilon_, omegaMax_,  lambdaMin_;
+    const double eta1_=0.25, eta2_=0.5, epsilon_=1e-8, omegaMax_=1e10,  lambdaMin_=1e-6;
     Real rho_ = 1.0;
     Real omega_ = 5.0;
     std::function<void(Vector & x,  Vector& dx, unsigned int step)>  nonlinUpdate_ = [](Vector & x,  Vector& dx, unsigned int step){return;};

@@ -91,10 +91,9 @@ CompositeStep::CubicModel makeCubicModel(const Vector& dx,
                                                       dx), omega);
 }
 
-ACRSolver::ACRSolver(C2Functional f, VectorSpace &domain, double omega, double eta1, double eta2, double epsilon,
-                     double relativeAccuracy, double omegaMax, double lambdaMax) :
-    Mixin::RelativeAccuracy(relativeAccuracy), f_(std::move(f)), domain_(domain), omega_(omega), eta1_(eta1), eta2_(eta2), epsilon_(epsilon), omegaMax_(
-                                                                                                                                   omegaMax), lambdaMin_(lambdaMax)
+ACRSolver::ACRSolver(C2Functional f, VectorSpace &domain, VectorSpace &tangentSpace, double omega,
+                     double relativeAccuracy) :
+    Mixin::RelativeAccuracy(relativeAccuracy), f_(std::move(f)), domain_(domain), tangentSpace_(tangentSpace), omega_(omega)
 {
 }
 
@@ -108,7 +107,7 @@ Vector ACRSolver::operator()(const Vector& x0)
     LOG_INFO(log_tag, "Starting ACR-Solver.");
 
     auto x = x0;
-    auto dx = x;
+    auto dx = zero(tangentSpace_);
     Real dxQNorm = 10.0;
     Real lambda = 1.0;
 
@@ -122,15 +121,17 @@ Vector ACRSolver::operator()(const Vector& x0)
     for (unsigned step = 1; step <= getMaxSteps(); ++step)
     {
 
-        LOG_SEPARATOR(log_tag);
+        LOG_SEPARATOR(log_tag,"");
         LOG(log_tag, "Iteration", step);
         stepMonitor = StepMonitor::Accepted;
 
         energyRegularization_ = 0.0;
 
 
+        
         std::tie(dx,dxQNorm) = computeStep(x,dxQNorm);
 
+        
 
         LOG(log_tag, "f(x)", f_(x));
         LOG(log_tag, "TestDirection of Descent: f_.d1(x)(dx): ", f_.d1(x)(dx));
@@ -174,9 +175,9 @@ Vector ACRSolver::operator()(const Vector& x0)
 
             LOG(log_tag, "FunctionValueBeforeNonlinearUpdate: f_(x+dx): ", flin);
 
-
+            
             auto adx = get(lambda)*dx;
-
+            
             nonlinUpdate_(x, adx, step);
 
             auto fnonlin = f_(x + adx);
@@ -195,7 +196,14 @@ Vector ACRSolver::operator()(const Vector& x0)
                 logOmega( get(omega_) );
                 logLambda( get(lambda ));
                 logFunctionalDecrease(get(f_(x) -f_(x+adx)) );
+              std::cout << x.space().name() << " " << adx.space().name() << std::endl;
                 x += adx;
+               std::cout << x.space().name() << std::endl;
+               
+               auto y=zero(x.space());
+               std::cout << y.space().name() << std::endl;
+               y=adx;
+               std::cout << y.space().name() << std::endl;
                 output_(x,adx);
                 plot_(x);
             }
@@ -216,7 +224,7 @@ Vector ACRSolver::operator()(const Vector& x0)
             std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Max Omega reached" << std::endl;
             return x;
         }
-        LOG_SEPARATOR(log_tag);
+        LOG_SEPARATOR(log_tag,"");
 
         f_ = f_temp_;
     }
@@ -492,9 +500,9 @@ Vector ElasticityACRSolver::operator()(const Vector & x0)
 
     for (unsigned step = 1; step <= getMaxSteps(); ++step)
     {
-        LOG_SEPARATOR(log_tag);
+        LOG_SEPARATOR(log_tag,"");
         LOG(log_tag, "Iteration", step);
-
+        
         auto dx = computeStep(x,normDx);
         normDx = norm(dx);
         auto normX = norm(x);
@@ -560,7 +568,7 @@ Vector ElasticityACRSolver::operator()(const Vector & x0)
         x += dx;
 
         LOG(log_tag,  " omega: ", omega_, "|dx|: " , normDx, "lambda: ", lambda, "|x|: ", normX );
-        LOG_SEPARATOR(log_tag);
+        LOG_SEPARATOR(log_tag,"");
 
         if(terminate(normX,normDx,lambda))
         {
