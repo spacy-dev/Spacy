@@ -7,12 +7,15 @@ endif()
 
 option(BuildTest "BuildTest" OFF)
 option(Coverage "Coverage" OFF)
-option(Kaskade "Kaskade" OFF)
+option(Kaskade "Kaskade" ON)
 option(Dolfin "Dolfin" OFF)
 option(dealII "dealII" OFF)
 option(Logging "Logging" ON)
 
 list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake)
+
+set(CMAKE_CXX_FLAGS " -g -O0 -DDEBUG")
+
 
 if(dealII)
     find_package(deal.II 8.4 QUIET
