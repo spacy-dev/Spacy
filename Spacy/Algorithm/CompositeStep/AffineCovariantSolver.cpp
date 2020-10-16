@@ -5,9 +5,6 @@
 #include <Spacy/Algorithm/CG/LinearSolver.h>
 #include <Spacy/Algorithm/CG/RegularizeViaPreconditioner.h>
 #include <Spacy/Algorithm/CG/TerminationCriteria.h>
-#include <Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h>
-#include <Spacy/Algorithm/PPCG/ppcg.hh>
-#include <Spacy/Algorithm/ICG/solver.hh>
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Algorithm/Scalar/FindGlobalMinimizer.h>
 #include <Spacy/InducedScalarProduct.h>
@@ -374,10 +371,10 @@ Vector AffineCovariantSolver::computeTangentialStep( DampingFactor nu, const Vec
         logChebIterationsDt( cast_ref< PPCG::Solver >( tangentialSolver ).getChebIterations() );
         logChebTIterationsDt( cast_ref< PPCG::Solver >( tangentialSolver ).getChebTIterations() );
     }
-    if ( is< ICG::Solver >( tangentialSolver ) )
-    {
-        logIcgIterationsDt( cast_ref< ICG::Solver >( tangentialSolver ).getIcgIterations() );
-    }
+//    if ( is< ICG::Solver >( tangentialSolver ) )
+//    {
+//        logIcgIterationsDt( cast_ref< ICG::Solver >( tangentialSolver ).getIcgIterations() );
+//    }
 
     return y;
 }
@@ -496,30 +493,30 @@ AffineCovariantSolver::makeTangentialSolver( DampingFactor nu, const Vector& x,
         return IndefiniteLinearSolver(t_Solver);
     }
 
-    if( is<ICG::Solver>(normalSolver) )
-    {
-        auto& icgSolver = cast_ref<ICG::Solver>(normalSolver);
-        icgSolver.signalConvex_ = signalConvex_;
-        ::Spacy::ProductSpace::Operator_V2 H = icgSolver.H();
-        std::function<Vector(const Vector&)> My = H(0,0);
-        std::function<Vector(const Vector&)> Mu = H(1,1);
+ //   if( is<ICG::Solver>(normalSolver) )
+ //   {
+ //       auto& icgSolver = cast_ref<ICG::Solver>(normalSolver);
+ //       icgSolver.signalConvex_ = signalConvex_;
+ //       ::Spacy::ProductSpace::Operator_V2 H = icgSolver.H();
+ //       std::function<Vector(const Vector&)> My = H(0,0);
+ //       std::function<Vector(const Vector&)> Mu = H(1,1);
 
         //TODO: controlSolver für Tangentialschritt aktuell Luu (--> std::get<4>(op_tuple)) statt Muu (--> ppcgSolver.controlSolver())
-        auto op_tuple = getOperators(L_,x);
-        auto t_Solver = ::Spacy::ICG::Solver(std::get<0>(op_tuple),std::get<1>(op_tuple),std::get<2>(op_tuple),
-                                             std::get<4>(op_tuple),My,Mu,std::get<5>(op_tuple));
+ //       auto op_tuple = getOperators(L_,x);
+ //       auto t_Solver = ::Spacy::ICG::Solver(std::get<0>(op_tuple),std::get<1>(op_tuple),std::get<2>(op_tuple),
+    //                                         std::get<4>(op_tuple),My,Mu,std::get<5>(op_tuple));
 
-        t_Solver.setNorm(My,Mu);
-        t_Solver.signalConvex_ = signalConvex_;
+  //      t_Solver.setNorm(My,Mu);
+  //      t_Solver.signalConvex_ = signalConvex_;
 
 
-        Real relativeAccuracy = getTangentialAccuracy();
+  //      Real relativeAccuracy = getTangentialAccuracy();
         //            Real trcgRelativeAccuracy = 1e-10;
-        if ( nu < 1 )
-            relativeAccuracy = getFallBackTangentialAccuracy();
+  //      if ( nu < 1 )
+//            relativeAccuracy = getFallBackTangentialAccuracy();
 
-        else if ( previous_step_contraction > 0 )
-            relativeAccuracy = min( trcgRelativeAccuracy, previous_step_contraction );
+  //      else if ( previous_step_contraction > 0 )
+//            relativeAccuracy = min( trcgRelativeAccuracy, previous_step_contraction );
 
 
         //        if(step_ > 14)
@@ -527,14 +524,14 @@ AffineCovariantSolver::makeTangentialSolver( DampingFactor nu, const Vector& x,
 
         //    std::cout << "relativeAccuracy: " << relativeAccuracy << std::endl;
 
-        t_Solver.set_eps(eps());
-        t_Solver.setMaxSteps(getMaxSteps());
-        t_Solver.setRelativeAccuracy(relativeAccuracy);
-        t_Solver.output2 = output;
-        t_Solver.transfer = transfer;
+ //       t_Solver.set_eps(eps());
+ //       t_Solver.setMaxSteps(getMaxSteps());
+ //       t_Solver.setRelativeAccuracy(relativeAccuracy);
+ //       t_Solver.output2 = output;
+ //       t_Solver.transfer = transfer;
 
-        return IndefiniteLinearSolver(t_Solver);
-    }
+ //       return IndefiniteLinearSolver(t_Solver);
+ //   }
 
     //    if( trcg == nullptr )
     //auto trcg = makeTCGSolver( L_.hessian( x ), normalSolver, get( trcgRelativeAccuracy ),
@@ -589,23 +586,23 @@ Vector AffineCovariantSolver::computeNormalStep( const Vector& x ) const
         normalSolver = ppcg;
 
     }
-    else if(use_icg_) {
+ //   else if(use_icg_) {
         //rufe std::Funktion getOperators(N_) auf (die außerhalb gesetzt wurde) und greife auf Komp. des Rückgabewertes tuple zu, um normalSolver zu setzen (sprich ICG erzeugen ...)
-        auto op_tuple = getOperators(N_,x);
-        ::Spacy::ProductSpace::Operator_V2 H = std::get<0>(op_tuple);
-        std::function<Vector(const Vector&)> Myy = H(0,0);
-        std::function<Vector(const Vector&)> Muu = H(1,1);
+ //       auto op_tuple = getOperators(N_,x);
+ //       ::Spacy::ProductSpace::Operator_V2 H = std::get<0>(op_tuple);
+ //       std::function<Vector(const Vector&)> Myy = H(0,0);
+ //       std::function<Vector(const Vector&)> Muu = H(1,1);
 
         //                normalSolver = ::Spacy::ICG::Solver(std::get<0>(op_tuple),std::get<1>(op_tuple),std::get<2>(op_tuple),   std::get<3>(op_tuple),std::get<4>(op_tuple), Myy, Muu);
 
-        auto icg = ::Spacy::ICG::Solver(std::get<0>(op_tuple),std::get<1>(op_tuple),std::get<2>(op_tuple),
-                                        std::get<4>(op_tuple),Myy,Muu,std::get<5>(op_tuple));
+ //       auto icg = ::Spacy::ICG::Solver(std::get<0>(op_tuple),std::get<1>(op_tuple),std::get<2>(op_tuple),
+ //                                       std::get<4>(op_tuple),Myy,Muu,std::get<5>(op_tuple));
 
-        icg.setNorm(Myy, Muu);
-        icg.signalConvex_ = signalConvex_;
-        normalSolver = icg;
+ //       icg.setNorm(Myy, Muu);
+ //       icg.signalConvex_ = signalConvex_;
+//        normalSolver = icg;
 
-    }
+//    }
     else {
         std::cout << "Set normal solver: " << std::endl << std::endl;
         normalSolver = N_.hessian(primalProjection(x))^-1;
@@ -693,7 +690,7 @@ Vector AffineCovariantSolver::computeNormalStep( const Vector& x ) const
         //std::cout << "rhs:" << std::endl;
         //output(rhs);
     }
-    if( is<ICG::Solver>(normalSolver) )
+/*    if( is<ICG::Solver>(normalSolver) )
     {
         std::cout << "Apply ICG in normal step: " << std::endl << std::endl;
         auto& icgSolver = cast_ref<ICG::Solver>(normalSolver);
@@ -743,7 +740,7 @@ Vector AffineCovariantSolver::computeNormalStep( const Vector& x ) const
         //output(dn0);
         //std::cout << "rhs:" << std::endl;
         //output(rhs);
-    }
+    }*/
     auto sol = primalProjection( normalSolver( rhs ) );
 
     std::cout << "Norm Solution Normal Step: " << norm(sol) << std::endl;
@@ -769,10 +766,10 @@ Vector AffineCovariantSolver::computeNormalStep( const Vector& x ) const
         logChebIterationsDn( ppcgSolver.getChebIterations() );
         logChebTIterationsDn( ppcgSolver.getChebTIterations() );
     }
-    if ( is< ICG::Solver >( normalSolver ) )
+ /*   if ( is< ICG::Solver >( normalSolver ) )
     {
         logIcgIterationsDn( cast_ref< ICG::Solver >( normalSolver ).getIcgIterations() );
-    }
+    }*/
     return dn0 + sol;
 }
 
@@ -873,7 +870,7 @@ Vector AffineCovariantSolver::computeSimplifiedNormalStep( const Vector& x,
         //std::cout << "rhs:" << std::endl;
         //output(rhs);
     }
-    else if( is<ICG::Solver>(normalSolver) )
+  /*  else if( is<ICG::Solver>(normalSolver) )
     {
         // std::cout << "Apply ICG in simplified normal step: " << std::endl << std::endl;
         auto& icgSolver = cast_ref<ICG::Solver>(normalSolver);
@@ -923,7 +920,7 @@ Vector AffineCovariantSolver::computeSimplifiedNormalStep( const Vector& x,
         //output(dn0);
         //std::cout << "rhs:" << std::endl;
         //output(rhs);
-    }
+    }*/
 
 
 
@@ -954,11 +951,11 @@ Vector AffineCovariantSolver::computeSimplifiedNormalStep( const Vector& x,
         //logChebTIterationsDs( ppcgSolver.getChebTIterations() );
         ds_it_chebT_counter += ppcgSolver.getChebTIterations();
     }
-    if ( is< ICG::Solver >( normalSolver ) )
+ /*   if ( is< ICG::Solver >( normalSolver ) )
     {
         auto& icgSolver = cast_ref<ICG::Solver>(normalSolver);
         ds_it_icg_counter += icgSolver.getIcgIterations();
-    }
+    }*/
 
     return dn0 + sol;
 }
@@ -1015,22 +1012,22 @@ AffineCovariantSolver::updateLagrangeMultiplier( const Vector& x,
         // cgSolver.setTerminationCriterion( CG::Termination::StrakosTichyEnergyError() );
         tmp = normalSolver( primalProjection( -d1( L_, x ) ) );
     }
-    else if( is<ICG::Solver>(normalSolver) )
-    {
-        std::cout << "Apply ICG in update Lagrange multiplier: " << std::endl << std::endl;
-        auto& icgSolver = cast_ref<ICG::Solver>(normalSolver);
+//    else if( is<ICG::Solver>(normalSolver) )
+//    {
+//        std::cout << "Apply ICG in update Lagrange multiplier: " << std::endl << std::endl;
+//        auto& icgSolver = cast_ref<ICG::Solver>(normalSolver);
 
-        Real relAcc = getTangentialAccuracy();
-        if ( nu < 1 )
-            relAcc = getFallBackTangentialAccuracy(); // if normal step damped, we compute
+//        Real relAcc = getTangentialAccuracy();
+//        if ( nu < 1 )
+//            relAcc = getFallBackTangentialAccuracy(); // if normal step damped, we compute
         // lagrangemult step even less
         // accurate
-        icgSolver.setRelativeAccuracy( relAcc );
-        icgSolver.set_eps(eps());
-        icgSolver.signalConvex_ = signalConvex_;
+//        icgSolver.setRelativeAccuracy( relAcc );
+//        icgSolver.set_eps(eps());
+//        icgSolver.signalConvex_ = signalConvex_;
         // cgSolver.setTerminationCriterion( CG::Termination::StrakosTichyEnergyError() );
-        tmp = normalSolver( primalProjection( -d1( L_, x ) ) );
-    }
+//        tmp = normalSolver( primalProjection( -d1( L_, x ) ) );
+//    }
     else
     {
         tmp = normalSolver( primalProjection( -d1( L_, x ) ) );
