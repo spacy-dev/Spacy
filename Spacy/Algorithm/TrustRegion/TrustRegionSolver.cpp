@@ -46,7 +46,7 @@ namespace Spacy
 
         Vector TrustRegionSolver::operator()( Vector x )
         {
-            LOG_SEPARATOR( log_tag );
+            LOG_SEPARATOR( log_tag, "" );
 
             auto trust_region_radius = Real( 1 );
             for ( auto i = 0u; i < getMaxSteps(); ++i )
@@ -71,7 +71,7 @@ namespace Spacy
                     return x;
                 }
 
-                LOG_SEPARATOR( log_tag );
+                LOG_SEPARATOR( log_tag, "" );
             }
 
             LOG_INFO( log_tag, "Failed" );
