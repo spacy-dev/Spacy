@@ -20,7 +20,7 @@
 #define LOG_INFO_F( text )
 #define LOG( tag, ... )
 #define LOG_F( ... )
-#define LOG_SEPARATOR( tag )
+#define LOG_SEPARATOR( tag, value )
 #define LOG_SEPARATOR_F
 #else
 #define SET_LOG_PRINTER( printer ) ::Spacy::Log::Logger::get().setPrinter( printer );
@@ -32,10 +32,8 @@
 #define LOG_INFO_F( text ) ::Spacy::Log::log_f( __FILE__, text, "" );
 #define LOG( tag, ... ) ::Spacy::Log::log( tag, __VA_ARGS__ );
 #define LOG_F( ... ) ::Spacy::Log::log_f( __FILE__, __VA_ARGS__ );
-#define LOG_SEPARATOR( tag )                                                                       \
-    ::Spacy::Log::log( tag, "", "" );                                                              \
-    ::Spacy::Log::log( tag, "--------------------------------------------------", "" );            \
-    ::Spacy::Log::log( tag, "", "" )
+#define LOG_SEPARATOR( tag , value )                                                                       \
+    ::Spacy::Log::log( tag, "---------------------- Iteration:", value );            
 #define LOG_SEPARATOR_F                                                                            \
     ::Spacy::Log::log_f( __FILE__, "", "" );                                                       \
     ::Spacy::Log::log_f( __FILE__, "--------------------------------------------------", "" );     \
