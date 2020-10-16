@@ -22,11 +22,11 @@ aux_source_directory(Adapter/Generic SRC_LIST)
 aux_source_directory(Algorithm SRC_LIST)
 aux_source_directory(Algorithm/ACR SRC_LIST)
 aux_source_directory(Algorithm/CG SRC_LIST)
-aux_source_directory(Algorithm/PPCG SRC_LIST)
-aux_source_directory(Algorithm/ICG SRC_LIST)
-aux_source_directory(Algorithm/CompositeStep SRC_LIST)
+aux_source_directory(Algorithm/PrimalDualProjection SRC_LIST)
+#aux_source_directory(Algorithm/CompositeStep SRC_LIST)
 aux_source_directory(Algorithm/Newton SRC_LIST)
 aux_source_directory(Algorithm/MINRES SRC_LIST)
+aux_source_directory(Algorithm/Chebyshev SRC_LIST)
 aux_source_directory(Algorithm/PathFollowing SRC_LIST)
 aux_source_directory(Algorithm/Rothe SRC_LIST)
 aux_source_directory(Algorithm/Scalar SRC_LIST)
@@ -48,6 +48,7 @@ foreach(HEADER ${HEADERS})
 endforeach(HEADER HEADERS)
 
 add_library(spacy ${SRC_LIST})
+include_directories($ENV{HOME}/svn-repos//Kaskade7.4)
 target_include_directories(spacy PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
