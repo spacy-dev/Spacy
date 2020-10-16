@@ -10,7 +10,7 @@
 
 namespace Spacy
 {
-    class Spacy;
+//    class Spacy;
 
     namespace Kaskade
     {

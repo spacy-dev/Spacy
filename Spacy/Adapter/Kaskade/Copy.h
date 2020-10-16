@@ -59,6 +59,23 @@ namespace Spacy
                 }
             };
 
+            template < class Description, int i >
+            struct ExtractDescriptionAndSpace
+            {
+                using Variables = typename Description::Variables;
+                using Spaces = typename Description::Spaces;
+                using Variable = std::decay_t<
+                    typename boost::fusion::result_of::value_at_c< Variables, i >::type >;
+                using NewVariable=::Kaskade::VariableDescription<0,Variable::m,0>;
+                using Space = std::decay_t<
+                 typename boost::fusion::result_of::value_at_c<Spaces,Variable::spaceIndex>::type >;
+                using type =
+                    ::Kaskade::VariableSetDescription< boost::fusion::vector<Space>, boost::fusion::vector< NewVariable > >;
+            };
+
+            template < class Description, int i >
+            using ExtractDescriptionAndSpace_t = typename ExtractDescriptionAndSpace< Description, i >::type;
+
             template < class Description, int n >
             struct MakeSpaces< Description, n, n >
             {
@@ -144,13 +161,13 @@ namespace Spacy
             {
                 if ( is< Vector< ExtractDescription_t< Description, i > > >( x.component( j ) ) )
                 {
+                    std::cout << "Warning: single component only!" << std::endl;
                     boost::fusion::at_c< i >( y.data ).coefficients() =
                         boost::fusion::at_c< 0 >(
                             cast_ref< Vector< ExtractDescription_t< Description, i > > >(
                                 x.component( j ) )
                                 .get()
-                                .data )
-                            .coefficients();
+                                .data );
                     return;
                 }
 
@@ -169,11 +186,12 @@ namespace Spacy
             {
                 if ( is< Vector< ExtractDescription_t< Description, i > > >( y.component( j ) ) )
                 {
+                    std::cout << "Warning: single component only!" << std::endl;
                     boost::fusion::at_c< i >(
                                 cast_ref< Vector< ExtractDescription_t< Description, i > > >(
                                     y.component( j ) )
                                     .get()
-                                    .data ).coefficients() =
+                                    .data ) =
                         boost::fusion::at_c< 0 >( x.data ).coefficients();
                     return;
                 }
@@ -192,13 +210,13 @@ namespace Spacy
             {
                 if ( is< Vector< ExtractDescription_t< Description, i > > >( x.component( j ) ) )
                 {
+                    std::cout << "Warning: single component only!" << std::endl;
                     boost::fusion::at_c< i >( y.data ) =
                         boost::fusion::at_c< 0 >(
                             cast_ref< Vector< ExtractDescription_t< Description, i > > >(
                                 x.component( j ) )
                                 .get()
-                                .data )
-                            .coefficients();
+                                .data );
                     return;
                 }
 
@@ -217,12 +235,13 @@ namespace Spacy
             {
                 if ( is< Vector< ExtractDescription_t< Description, i > > >( y.component( j ) ) )
                 {
+                    std::cout << "Warning: single component only!" << std::endl;
                     boost::fusion::at_c< 0 >(
                         cast_ref< Vector< ExtractDescription_t< Description, i > > >(
                             y.component( j ) )
                             .get()
                             .data )
-                        .coefficients() = boost::fusion::at_c< i >( x.data );
+                        = boost::fusion::at_c< i >( x.data );
                     return;
                 }
 
@@ -350,11 +369,10 @@ namespace Spacy
         template < class Description >
         void copy( const ::Spacy::Vector& x, ::Kaskade::VariableSet< Description >& y )
         {
+            std::cout << "StV ";
             if ( is< Vector< Description > >( x ) )
-            {
-                boost::fusion::at_c< 0 >( y.data ).coefficients() =
-                    boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( x ).get().data )
-                        .coefficients();
+            {                    
+                y=cast_ref< Vector< Description > >( x ).get();
                 return;
             }
 
@@ -364,17 +382,21 @@ namespace Spacy
                     cast_ref< ProductSpace::Vector >( x ), y );
                 return;
             }
+            std::cout << "copy: Spacy::Vector and Description do not fit" << std::endl;
+            auto yy = cast_ref< Vector< Description > >( x );
+
         }
 
         /// Copy from ::Spacy::Vector to %Kaskade::VariableSet<Description>.
         template < class Description >
         void copy( const ::Kaskade::VariableSet< Description >& x, ::Spacy::Vector& y )
         {
+            std::cout << "VtS ";
             if ( is< Vector< Description > >( y ) )
             {
-                boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( y ).get().data ).coefficients() =
-                    boost::fusion::at_c< 0 >( x.data )
-                        .coefficients();
+
+                 cast_ref< Vector< Description > >( y ).get()=x;
+                
                 return;
             }
 
@@ -384,6 +406,8 @@ namespace Spacy
                     x, cast_ref< ProductSpace::Vector >( y ) );
                 return;
             }
+            std::cout << "copy: Spacy::Vector and Description do not fit" << std::endl;
+            auto yy = cast_ref< Vector< Description > >( y );
         }
 
         /// Copy from ::Spacy::Vector to coefficient vector of %Kaskade 7.
@@ -392,20 +416,21 @@ namespace Spacy
             const ::Spacy::Vector& x,
             typename Description::template CoefficientVectorRepresentation<>::type& y )
         {
+           // std::cout << "StC ";
             if ( is< Vector< Description > >( x ) )
             {
-                boost::fusion::at_c< 0 >( y.data ) =
-                    boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( x ).get().data )
-                        .coefficients();
+                y.data = cast_ref< Vector< Description > >( x ).get().data;
                 return;
             }
 
             if ( is< ProductSpace::Vector >( x ) )
             {
-                Detail::Copy< 0, Description::noOfVariables >::template toCoefficientVector<
+                    Detail::Copy< 0, Description::noOfVariables >::template toCoefficientVector<
                     Description >( cast_ref< ProductSpace::Vector >( x ), y );
                 return;
             }
+            std::cout << "copyToCoefficientVector: Spacy::Vector and Description do not fit" << std::endl;
+            auto yy = cast_ref< Vector< Description > >( x );
         }
 
         ///  Copy coefficient vector of %Kaskade 7 to ::Spacy::Vector.
@@ -414,10 +439,10 @@ namespace Spacy
             const typename Description::template CoefficientVectorRepresentation<>::type& x,
             ::Spacy::Vector& y )
         {
+           // std::cout << "CtS ";
             if ( is< Vector< Description > >( y ) )
             {
-                boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( y ).get().data )
-                    .coefficients() = boost::fusion::at_c< 0 >( x.data );
+                 cast_ref< Vector< Description > >( y ).get().data=x.data;
                 return;
             }
 
@@ -427,6 +452,8 @@ namespace Spacy
                     Description >( x, cast_ref< ProductSpace::Vector >( y ) );
                 return;
             }
+            std::cout << "copyFromCoefficientVector: Spacy::Vector and Description do not fit" << std::endl;
+            auto yy = cast_ref< Vector< Description > >( y );
         }
 
         template < int n >
@@ -463,23 +490,25 @@ namespace Spacy
         template <>
         struct VariableSetToCoefficients< -1 >
         {
-            template < class VariableSet, class CoefficientVector >
-            static void apply( const VariableSet& x, CoefficientVector& y )
+            template < class Descriptions, class CoefficientVector >
+            static void apply( const ::Kaskade::VariableSet<Descriptions>& x, CoefficientVector& y )
             {
             }
         };
 
-        template < class CoefficientVector, class VariableSet >
-        void coefficientsToVariableSet( const CoefficientVector& x, VariableSet& y )
+        template < class CoefficientVector, class Descriptions >
+        void coefficientsToVariableSet( const CoefficientVector& x, ::Kaskade::VariableSet<Descriptions>& y )
         {
-            CoefficientsToVariableSet< VariableSet::Descriptions::noOfVariables - 1 >::apply( x,
+            std::cout << "CtV ";
+            CoefficientsToVariableSet< Descriptions::noOfVariables - 1 >::apply( x,
                                                                                               y );
         }
 
-        template < class VariableSet, class CoefficientVector >
-        void variableSetToCoefficients( const VariableSet& x, CoefficientVector& y )
+        template < class Descriptions, class CoefficientVector >
+        void variableSetToCoefficients( const ::Kaskade::VariableSet<Descriptions>& x, CoefficientVector& y )
         {
-            VariableSetToCoefficients< VariableSet::Descriptions::noOfVariables - 1 >::apply( x,
+            std::cout << "VtC ";
+            VariableSetToCoefficients< Descriptions::noOfVariables - 1 >::apply( x,
                                                                                               y );
         }
     }
