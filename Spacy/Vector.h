@@ -1,5 +1,7 @@
 // This file was automatically generated using clang-type-erase.
 // Please do not modify.
+// TODO: This file WAS modified by hand. Interface has to be re-written to accomodate for these changes
+// Also added a Vector.cpp file
 
 #pragma once
 
@@ -13,9 +15,11 @@
 #include <memory>
 #include <type_traits>
 #include <functional>
+#include <iostream>
 
 namespace Spacy
 {
+    class IdEmbedding;
     /// Type-erased vector.
     class Vector
     {
@@ -34,6 +38,7 @@ namespace Spacy
             virtual ForwardIterator end() = 0;
             virtual ConstForwardIterator begin() const = 0;
             virtual ConstForwardIterator end() const = 0;
+            virtual void changeSpace(const VectorSpace& V) = 0;
         };
 
         template < class Impl >
@@ -54,15 +59,31 @@ namespace Spacy
                 return impl.operator()( *x.template target< typename std::decay< Impl >::type >() );
             }
 
+            ///TODO: Was modified by hand, how to do this in the "Interface" definition?
             void add_const_Vector_ref( const Vector& y ) override
             {
-                impl.operator+=( *y.template target< typename std::decay< Impl >::type >() );
+                /// Check, if an embedding for the added vector is available, if yes, apply 
+                if(this->space().index() != y.space().index())
+                {
+                  impl.operator+=( *(y.space().getEmbedding(this->space()).apply(y)).template target< typename std::decay< Impl >::type >() );
+                } else
+                {
+                  impl.operator+=( *y.template target< typename std::decay< Impl >::type >() );
+                }
             }
 
+            ///TODO: Was modified by hand, how to do this in the "Interface" definition?
             void subtract_const_Vector_ref( const Vector& y ) override
             {
-                impl.operator-=( *y.template target< typename std::decay< Impl >::type >() );
-            }
+                /// Check, if an embedding for the subtracted vector is available, if yes, apply 
+                if(this->space().index() != y.space().index())
+                {
+                  impl.operator-=( *(y.space().getEmbedding(this->space()).apply(y)).template target< typename std::decay< Impl >::type >() );
+                } else
+                {
+                  impl.operator-=( *y.template target< typename std::decay< Impl >::type >() );
+                }
+          }
 
             void multiply_double( double a ) override
             {
@@ -74,10 +95,15 @@ namespace Spacy
                 return impl.operator-();
             }
 
+            ///TODO: Was modified by hand, how to do this in the "Interface" definition?
             bool compare_const_Vector_ref( const Vector& y ) const override
             {
-                return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
-            }
+                /// Check, if an embedding for the to be compared vector is available, if yes, apply 
+                if(this->space().index() == y.space().index())
+                  return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
+                return impl.operator==( *(y.space().getEmbedding(this->space()).apply(y)).template target< typename std::decay< Impl >::type >() );
+                return false;
+	    }
 
             const VectorSpace& space() const override
             {
@@ -104,6 +130,11 @@ namespace Spacy
                 return impl.end();
             }
 
+            void changeSpace(const VectorSpace& V) override
+            {
+            impl.changeSpace(V);
+            }
+            
             Impl impl;
         };
 
@@ -140,25 +171,9 @@ namespace Spacy
                 globalSpaceManager().subscribe( this );
         }
 
-        Vector& operator=( const Vector& v )
-        {
-            if ( impl_ )
-                globalSpaceManager().unsubscribe( this );
-            impl_ = v.impl_;
-            if ( impl_ )
-                globalSpaceManager().subscribe( this );
-            return *this;
-        }
+        Vector& operator=( const Vector& v );
 
-        Vector& operator=( Vector&& v )
-        {
-            if ( impl_ )
-                globalSpaceManager().unsubscribe( this );
-            impl_ = std::move( v ).impl_;
-            if ( impl_ )
-                globalSpaceManager().subscribe( this );
-            return *this;
-        }
+        Vector& operator=( Vector&& v );
 
         ~Vector()
         {
@@ -203,7 +218,12 @@ namespace Spacy
         bool operator==( const Vector& y ) const
         {
             assert( impl_ );
-            return impl_->compare_const_Vector_ref( y );
+            if(y.space().isEmbeddedIn(this->space()))
+              return impl_->compare_const_Vector_ref( y );
+             else 
+            if(this->space().isEmbeddedIn(y.space()))
+               return (y==*this);
+            return false;
         }
 
         /// Access underlying space.
@@ -264,6 +284,13 @@ namespace Spacy
         }
 
     private:
+        friend IdEmbedding;
+        
+        void changeSpace(const VectorSpace& V)
+        {
+            impl_->changeSpace(V);
+        }
+        
         clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
     /// Multiplication with arithmetic types (double,float,int,...).
