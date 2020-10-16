@@ -8,44 +8,29 @@ struct ProblemParameters
 {
     unsigned order;
     unsigned refinements;
-    unsigned numberOfCubes;
-    double obstacle;
+    
+    
+    unsigned numberOfCubesX;
+    unsigned numberOfCubesY;
+    unsigned numberOfCubesZ;
 
 
-    bool onlyLowerTriangle;
 
     double regularization;
-    double lambda;
-    double mu;
-    double d;
 
-    double initial_boundary_force;
-    double reference_boundary_force;
+    double ref_deformationX;
+    double ref_deformationY;
+    double ref_deformationZ;
 
-    double referenceNormalComplianceParameter;
-    double initialNormalComplianceParameter;
-    double maxNormalComplianceParameter;
-    double initialStepSize;
-    double minStepSize;
-    double minTheta;
-
-
-    bool useNonlinearUpdate;
+    bool usePDP;
+    bool useMINRES;
     bool useDirectBlockPreconditioner;
-    bool usePPCG;
+    bool useSchurPreconditioner;
 
     double desiredAccuracy;
     double eps;
-    double alpha;
 
-    int maxSteps;
-    int iterativeRefinements;
-    int FEorder;
     int verbose;
-
-    double desContr;
-    double relDesContr;
-    double maxContr;
 
     unsigned numberOfThreads;
 
@@ -68,46 +53,25 @@ ProblemParameters readParameters(const std::string & filename)
 
     par.order = parTree.get<unsigned>("order");
     par.refinements = parTree.get<unsigned>("refinements");
-    par.numberOfCubes = parTree.get<unsigned>("numberOfCubes");
-    par.obstacle = parTree.get<double>("obstacle");
-
-    par.onlyLowerTriangle = parTree.get<bool>("onlyLowerTriangle");
+    par.numberOfCubesX = parTree.get<unsigned>("numberOfCubesX");
+    par.numberOfCubesY = parTree.get<unsigned>("numberOfCubesY");
+    par.numberOfCubesZ = parTree.get<unsigned>("numberOfCubesZ");
 
     par.regularization = parTree.get<double>("regularization");
 
-    par.useNonlinearUpdate = parTree.get<bool>("useNonlinearUpdate");
-    par.usePPCG = parTree.get<bool>("usePPCG");
+    par.usePDP = parTree.get<bool>("usePDP");
+    par.useMINRES = parTree.get<bool>("useMINRES");
     par.useDirectBlockPreconditioner = parTree.get<bool>("useDirectBlockPreconditioner");
+    par.useSchurPreconditioner = parTree.get<bool>("useSchurPreconditioner");
 
-    par.lambda = parTree.get<double>("lambda");
-    par.mu = parTree.get<double>("mu");
-    par.d = parTree.get<double>("d");
-
-    par.initial_boundary_force = parTree.get<double>("initial_boundary_force");
-    par.reference_boundary_force = parTree.get<double>("reference_boundary_force");
-
-
-    par.referenceNormalComplianceParameter = parTree.get<double>("referenceNormalComplianceParameter");
-    par.initialNormalComplianceParameter = parTree.get<double>("initialNormalComplianceParameter");
-    par.maxNormalComplianceParameter = parTree.get<double>("maxNormalComplianceParameter");
-    par.initialStepSize = parTree.get<double>("initialStepSize");
-    par.minStepSize = parTree.get<double>("minStepSize");
-    par.minTheta = parTree.get<double>("minTheta");
-
-
+    par.ref_deformationX = parTree.get<double>("ref_deformationX");
+    par.ref_deformationY = parTree.get<double>("ref_deformationY");
+    par.ref_deformationZ = parTree.get<double>("ref_deformationZ");
 
     par.desiredAccuracy = parTree.get<double>("desiredAccuracy");
     par.eps = parTree.get<double>("eps");
-    par.alpha = parTree.get<double>("alpha");
 
-    par.maxSteps = parTree.get<int>("maxSteps");
-    par.iterativeRefinements = parTree.get<int>("iterativeRefinements");
-    par.FEorder = parTree.get<int>("FEorder");
     par.verbose = parTree.get<int>("verbose");
-
-    par.desContr = parTree.get<double>("desContr");
-    par.relDesContr = parTree.get<double>("relDesContr");
-    par.maxContr = parTree.get<double>("maxContr");
 
     par.numberOfThreads = parTree.get<unsigned>("numberOfThreads");
 

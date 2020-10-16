@@ -96,7 +96,7 @@ namespace Kaskade
         FunctionalWithConstantSource(const Functional& F,
                               typename AnsatzVars::VariableSet const& x,
                               int):
-            f_(F.f_), x_(x), y_(0), g_(1)
+            f_(F.f_), x_(x), y_(0), g_(0)
         {}
 
         template <class Position, class Evaluators>

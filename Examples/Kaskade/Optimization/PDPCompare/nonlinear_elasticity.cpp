@@ -170,123 +170,6 @@ int main(int argc, char *argv[])
     GridManager<Grid> gridManager(std::move(grid));
     gridManager.globalRefine(refinements);
 
-    // Create particle cloud for the nonlinear update
-    ParticleCloud<dim, Grid, decltype(gridManager.grid().leafGridView().indexSet())> cloud( gridManager.grid());
-    cloud.setNumberOfThreads(numberOfThreads);
-
-    // exponential map for nonlinear update
-//    auto expMap0 = [](std::array<Vector,4> & x, const std::array<Vector,4> & dx )
-//    {
-//        using Matrix = Eigen::Matrix4d;
-
-//        Matrix Mx;
-//        Matrix Mdx;
-//        Matrix Mxnew;
-
-//        for(int i = 0; i < 4; i++)
-//            for(int j = 0; j < 4; j++)
-//            {
-//                if(i == 3)
-//                {
-//                    Mx(i,j) = 1.0;
-//                    Mdx(i,j) = 0.0;
-//                }
-//                else
-//                {
-//                    Mx(i,j) = x[j][i];
-//                    Mdx(i,j) = dx[j][i];
-//                }
-//            }
-
-//        Mdx = Mx*((Mx.inverse()*Mdx).exp());
-//        //    Mxnew = (Mdx*Mx.inverse()).exp()*Mx;
-
-//        // Check this again
-//        for(int cols = 0; cols < 4; cols++)
-//            for(int rows = 0; rows < 3; rows++)
-//                x[cols][rows] = Mxnew(rows,cols);
-
-//    };
-
-    auto expMap0 = [](std::array<Vector,4> & x, const std::array<Vector,4> & dx )
-    {
-        using Matrix = Eigen::Matrix4d;
-
-        Matrix Mx;
-        Matrix Mdx;
-        Matrix Mxnew;
-
-        for(int i = 0; i < 4; i++)
-            for(int j = 0; j < 4; j++)
-            {
-                if(i == 3)
-                {
-                    Mx(i,j) = 1.0;
-                    Mdx(i,j) = 0.0;
-                }
-                else
-                {
-                    Mx(i,j) = x[j][i];
-                    Mdx(i,j) = dx[j][i];
-                }
-            }
-
-      //  Mdx = Mx*((Mx.inverse()*Mdx).exp());
-          Mxnew = (Mdx*Mx.inverse()).exp()*Mx;
-
-        // Check this again
-        for(int cols = 0; cols < 4; cols++)
-            for(int rows = 0; rows < 3; rows++)
-                x[cols][rows] = Mxnew(rows,cols);
-
-    };
-
-
-
-
-    // exponential map for nonlinear update
-    auto expMap1 = [](std::array<Vector,4> & x, const std::array<Vector,4> & dx )
-    {
-        using Matrix = Eigen::Matrix4d;
-
-        Matrix Mx;
-        Matrix Mdx;
-        Matrix Mxnew;
-
-        for(int i = 0; i < 4; i++)
-            for(int j = 0; j < 4; j++)
-            {
-                if(i == 3)
-                {
-                    Mx(i,j) = 1.0;
-                    Mdx(i,j) = 0.0;
-                }
-                else
-                {
-                    Mx(i,j) = x[j][i];
-                    Mdx(i,j) = dx[j][i];
-                }
-            }
-
-        //  Mdx = Mx*((Mx.inverse()*Mdx).exp());
-        Mxnew = (Mdx*Mx.inverse()).exp()*Mx;
-
-        // Check this again
-        for(int cols = 0; cols < 4; cols++)
-            for(int rows = 0; rows < 3; rows++)
-                x[cols][rows] = Mxnew(rows,cols);
-
-
-        if(  (((Mdx*Mx.inverse()).exp()).determinant() - exp(((Mdx*Mx.inverse()).trace())))  > 1e-6)
-        {
-            std::cout << "Test Exponential:" << ((Mdx*Mx.inverse()).exp()).determinant() << "  " <<  exp(((Mdx*Mx.inverse()).trace()))   << std::endl;
-        }
-    };
-
-
-    //cloud.setExpMap(expMap1);
-    cloud.setExpMap(expMap0);
-
 
     // Setting for computing reference solution
     using H1SpaceRef = FEFunctionSpace<ContinuousLagrangeMapper<double,typename Grid::LeafGridView> >;
@@ -325,49 +208,6 @@ int main(int argc, char *argv[])
     { 1 };
 
 
-
-   // !!!!!!!!!!!!!!!!!!!!!!!! Changes with the underlying problem
-    // Plot MaxConstraint Violation
-    std::vector<bool> contactIndexSet(gridManager.grid().size(3),false);
-
-    {
-        const auto & gv = gridManager.grid().leafGridView();
-
-        std::size_t numberOfBoundaryFaces = 0;
-
-        forEachBoundaryFace(gv, [&numberOfBoundaryFaces](const auto & face)
-        {	numberOfBoundaryFaces++;});
-        totalIndexSet.resize(numberOfBoundaryFaces, 0);
-
-        // write more compact with lambda
-        const Vector up
-        { 0., 0., 1.0 };
-
-        forEachBoundaryFace(gv, [&up, &totalIndexSet] (const auto & face)
-        {
-            if(face.centerUnitOuterNormal()*up > 0.5)
-            {
-                // const auto boundarySegmentId = face.boundarySegmentIndex();
-                totalIndexSet.at(face.boundarySegmentIndex()) = 1;
-            }
-        });
-
-        const auto & indexSet = gridManager.grid().leafGridView().indexSet();
-
-        auto counter = 0;
-        for(const auto & vertex : vertices(gv))
-        {
-            if(counter != indexSet.index(vertex))
-                std::cout << "FailIndexCount: " << std::endl;
-
-            if(fabs(vertex.geometry().center().operator[](2)) <= 1e-9 || fabs(vertex.geometry().center().operator[](0) -1) <= 1e-9 || fabs(vertex.geometry().center().operator[](1) - 0.5) <= 1e-9)
-            {
-                contactIndexSet[indexSet.index(vertex)] = true;
-                // contactIndexSet.push_back(indexSet.index(vertex));
-            }
-            counter++;
-        }
-    }
 
     L2Space l2Space(gridManager, gridManager.grid().leafGridView(), order,
                     totalIndexSet, partialIndexSetId);
@@ -429,13 +269,11 @@ int main(int argc, char *argv[])
 
     auto domainRef =
             Spacy::Kaskade::makeHilbertSpace<RefVariableSetDescription>(
-                spacesRef,
-    { 0u });
+                spacesRef);
 
     auto rangeRef =
             Spacy::Kaskade::makeHilbertSpace<RefVariableSetDescription>(
-                spacesRef,
-    { 0u });
+                spacesRef);
 
     auto f = Spacy::Kaskade::makeC2Functional(FRef, domainRef);
 
@@ -606,7 +444,7 @@ int main(int argc, char *argv[])
     auto My = H(0,0);
     auto Mu = H(1,1);
 
-    auto solverCIPPCG = ::Spacy::PPCG::Solver(H,BPXA,BPXAT,LAPACKE,controlSolver,My,Mu,diagMu);
+    auto solverPDP = ::Spacy::PPCG::Solver(H,BPXA,BPXAT,LAPACKE,controlSolver,My,Mu,diagMu);
     auto rhs = fL.d1(zero(domain));
 
 
@@ -700,22 +538,22 @@ int main(int argc, char *argv[])
         };
 
 
-    solverCIPPCG.setNorm(My,Mu);
+    solverPDP.setNorm(My,Mu);
 
-    solverCIPPCG.transfer = transfer;
+    solverPDP.transfer = transfer;
 
-    solverCIPPCG.set_eps(eps);
+    solverPDP.set_eps(eps);
 
-    solverCIPPCG.setRelativeAccuracy(desiredAccuracy);
+    solverPDP.setRelativeAccuracy(desiredAccuracy);
 
 
 
-    solverCIPPCG.setStateAcc(stateAcc);
-    solverCIPPCG.setAdjointIndex(adjointAcc);
-    solverCIPPCG.setInexactCGAcc(inexactCGAcc);
-    solverCIPPCG.setChebyshevAcc(chebyshevAcc);
+    solverPDP.setStateAcc(stateAcc);
+    solverPDP.setAdjointIndex(adjointAcc);
+    solverPDP.setInexactCGAcc(inexactCGAcc);
+    solverPDP.setChebyshevAcc(chebyshevAcc);
 
-    auto solution = solverCIPPCG(rhs);
+    auto solution = solverPDP(rhs);
 
 
 

@@ -673,7 +673,7 @@ public:
                     ( row == pIdx && col == pIdx ) ||
                     ( row == yIdx && col == uIdx ) ||
                     ( row == uIdx && col == yIdx ) );
-        static bool const symmetric = row==col;
+        static bool const symmetric = (row==col) || (row==pIdx && col == yIdx) || (row == yIdx && col == pIdx);
     };
 
     template <class Cell>

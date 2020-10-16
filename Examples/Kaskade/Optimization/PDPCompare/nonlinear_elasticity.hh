@@ -175,7 +175,7 @@ public:
 
             else if (scalarProdSide < -0.5)
             {
-                gamma = dirichlet_penalty;
+                gamma = 0; //dirichlet_penalty;
                 beta  = 0.0;
                 localPenalty_ = 0.0;
             }
@@ -296,8 +296,9 @@ public:
         static bool const present = !( ( row == pIdx && col == pIdx ) ||
                                        ( row == yIdx && col == uIdx ) ||
                                        ( row == uIdx && col == yIdx ) );
-        static bool const symmetric = row==col;
-   //     static bool const lumped =  (row==uIdx && col==uIdx && role==RoleOfFunctional::PRECONDITIONING );
+       static bool const symmetric = row==col;
+//       static bool const symmetric = (row==col || ( row == pIdx && col == yIdx ) || ( row == yIdx && col == pIdx ));
+   ///    static bool const lumped =  (row==uIdx && col==uIdx && role==RoleOfFunctional::PRECONDITIONING );
        static bool const lumped = false;
     };
 

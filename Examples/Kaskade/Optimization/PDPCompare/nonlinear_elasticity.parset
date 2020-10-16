@@ -1,71 +1,36 @@
+
  #Parameters for Nonlinear Elasticity
 
 order             = 1
-refinements       = 2
-numberOfCubes = 7
+refinements       = 4
+
+numberOfCubesX = 4
+numberOfCubesY = 4
+numberOfCubesZ = 1
 
 
-obstacle = -0.52
+regularization = 1e-3
 
-onlyLowerTriangle = false
-
-# without obstacle regularization = 1e0  nice pictures
-# works regularization = 5e0 referenceNormalComplianceParameter = 100
-
-regularization = 1e-4
-#maybe change back
-#regularization = 1e0
+usePDP = true
+useMINRES = false
+useDirectBlockPreconditioner = true
+useSchurPreconditioner = true
 
 
+ref_deformationX = 0.1
+ref_deformationY = 0.1
+ref_deformationZ = 0.1
 
 
+desiredAccuracy = 1e-8
+eps = 1e-14
 
-useNonlinearUpdate = false
-usePPCG = true
-useDirectBlockPreconditioner = false
+verbose = 2
 
-
-#boundary force in z direction
-
-initial_boundary_force  = 0
-reference_boundary_force = -0.03
-
-referenceNormalComplianceParameter = 0
-initialNormalComplianceParameter = 0
-maxNormalComplianceParameter =     0
-
-initialStepSize = 5.0
-
-minStepSize = 0.0000000000001
-minTheta = 1e-4
-
-stepsizeUpdate = 9
-
-# Too high
- desiredAccuracy = 1e-8
- eps = 1e-14
- alpha = 1e-6
-    
- maxSteps = 10000
- iterativeRefinements =  0
- FEorder = 1
- verbose = 2
-    
- desContr =  0.5
-# relDesContr =  desContr+0.1
- relDesContr = 0.6
- maxContr =  0.75
-
-#Material Parameters
-
-lambda = 7.76e5
-mu = 8.62e4
-d = 10e5
-
-stateAcc = 1e-1
-adjointAcc = 1e-1
-inexactCGAcc = 1e-1
-chebyshevAcc = 1e-1
+stateAcc = 1e-2
+adjointAcc = 1e-2
+inexactCGAcc = 1e-2
+chebyshevAcc = 1e-2
 
 numberOfThreads = 1
 
