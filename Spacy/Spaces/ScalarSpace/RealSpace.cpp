@@ -15,6 +15,6 @@ namespace Spacy
                                      return Real(
                                          get( cast_ref< Real >( x ) * cast_ref< Real >( y ) ) );
                                  },
-                                 defaultIndex );
+                                 defaultIndex, "Real" );
     }
 }
