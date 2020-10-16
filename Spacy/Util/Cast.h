@@ -4,6 +4,9 @@
 #ifndef SPACYS_UTIL_CAST_TO_HH
 #define SPACYS_UTIL_CAST_TO_HH
 
+#include<typeinfo>
+#include <iostream>
+
 namespace Spacy
 {
     /// Check if x can be cast to a reference of type ToType.
@@ -17,6 +20,19 @@ namespace Spacy
     template < class ToType, class FromType >
     ToType& cast_ref( FromType& x )
     {
+        if(!is<ToType>(x)) 
+        {
+            std::cout << " wrong cast:";
+        std::cout << typeid(FromType).name();
+        std::cout << "-> " << typeid(ToType).name();
+        std::cout << std::endl;
+        }
+//         else
+//         {            std::cout << " successful cast:";
+//         std::cout << typeid(FromType).name();
+//         std::cout << "-> " << typeid(ToType).name();
+//         std::cout << std::endl;
+//         }
         return *x.template target< ToType >();
     }
 
@@ -24,6 +40,19 @@ namespace Spacy
     template < class ToType, class FromType >
     const ToType& cast_ref( const FromType& x )
     {
+        if(!is<ToType>(x)) 
+        {
+            std::cout << " wrong cast:";
+        std::cout << typeid(FromType).name();
+        std::cout << "-> " << typeid(ToType).name();
+        std::cout << std::endl;
+        }
+//         else
+//         {            std::cout << " successful cast:";
+//         std::cout << typeid(FromType).name();
+//         std::cout << "-> " << typeid(ToType).name();
+//         std::cout << std::endl;
+//         }
         return *x.template target< ToType >();
     }
 }
