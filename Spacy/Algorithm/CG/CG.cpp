@@ -3,8 +3,10 @@
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Vector.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include "RegularizeViaPreconditioner.h"
+#include "TerminationCriterion.h"
 #include "TerminationCriteria.h"
 
 #include <algorithm>
@@ -22,7 +24,7 @@ namespace Spacy
     {
         Solver::Solver( CallableOperator A, CallableOperator P, Regularization regularization,
                         bool truncated )
-            : A_( std::move( A ) ), P_( std::move( P ) ),
+            : A_( std::move(A)  ), P_( std::move(P)  ),
               terminate_( CG::Termination::StrakosTichyEnergyError{} ), truncated_( truncated ),
               regularization_( std::move( regularization ) )
         {
@@ -53,7 +55,13 @@ namespace Spacy
 
 	Vector Solver::operator()( const Vector& b ) const
         {
-            auto x = 0 * P_(b);
+            auto x = 0.0*P_(b);
+            return solve(x,b);
+        }
+
+        Vector Solver::operator()( const Vector& b, const VectorSpace& domain ) const
+        {
+            auto x = zero(domain);
             return solve(x,b);
         }
 
@@ -84,6 +92,7 @@ namespace Spacy
 
         Vector Solver::cgLoop( Vector x, Vector r ) const
         {
+            iterations_=0;
             std::vector<Spacy::Real> alpha_vec;
             std::vector<Spacy::Real> beta_vec;
 
@@ -100,6 +109,7 @@ namespace Spacy
             auto Ax = A_( x );
             r -= Ax;
             auto Qr = Q( r );
+            iterations_++;
 
             auto q = Qr;
             auto Rq = r; // required only for regularized or hybrid conjugate gradient methods with
@@ -164,7 +174,6 @@ namespace Spacy
 
                 if ( terminateOnNonconvexity( qAq, qRq, x, q, step ) )
                 {
-                    iterations_ = step;
                     break;
                 }
                 x += ( get( alpha ) * q );
@@ -176,7 +185,6 @@ namespace Spacy
                         std::cout << "    "
                                   << ": Terminating in iteration " << step << ".\n";
                     result = ( step == getMaxSteps() ) ? Result::Failed : Result::Converged;
-                    iterations_ = step;
                     break;
                 }
 
@@ -185,6 +193,7 @@ namespace Spacy
                 regularization_.adjustResidual( alpha, Rq, r );
 
                 Qr = Q( r );
+                iterations_++;
 
                 // determine new search direction
                 Qr_copy = transfer(Qr,r);
@@ -219,38 +228,6 @@ namespace Spacy
             callback(alpha_vec,beta_vec);
 
 
-//            auto a_size = alpha_vec.size();
-//            double * eig = new double[a_size];
-//            double * diagonal = new double[a_size];
-//            double * subDiagonal = new double[a_size-1];
-//            double * z_vec = new double[a_size];
-//            int * isuppz_vec = new int[2*a_size];
-//            int * m = new int[a_size];
-
-//            for(auto i=0u; i<a_size; ++i)
-//            {
-//                eig[i] = 0.0;
-//                if(i==0)
-//                    diagonal[i] = 1./alpha_vec[i].get();
-//                else
-//                    diagonal[i] = 1./alpha_vec[i].get() + beta_vec[i-1].get()/alpha_vec[i-1].get();
-//                if(i!=0)
-//                    subDiagonal[i-1] = sqrt(beta_vec[i-1].get()).get()/alpha_vec[i-1].get();
-//                z_vec[i] = 0.0;
-//                isuppz_vec[i] = 0;
-//                isuppz_vec[i+a_size] = 0;
-//                m[i] = 0;
-//            }
-
-//            LAPACKE_dstevr(LAPACK_COL_MAJOR,'N','A',a_size,diagonal,subDiagonal,0.0,0.0,0,0,1e-8,m,eig,z_vec,a_size,isuppz_vec);
-
-//            std::cout << "EigMin: " <<  eig[0] << "   EigMax: " << eig[a_size-1] << std::endl;
-        //    delete[] eig;
-         //   delete[] diagonal;
-         //   delete[] subDiagonal;
-         //   delete[] z_vec;
-         //   delete[] isuppz_vec;
-         //   delete[] m;
 
             return x;
         }

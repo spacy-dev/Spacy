@@ -13,7 +13,7 @@ namespace Spacy
     namespace CG
     {
         /// Type-erased termination criterion for conjugate gradient methods.
-        class TerminationCriterion
+        class TerminationCriterion : public Mixin::Verbosity
         {
             struct Interface
             {

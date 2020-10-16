@@ -99,6 +99,7 @@ namespace Spacy
 	     */
 	    Vector operator()(const Vector& b) const;
 
+	    Vector operator()(const Vector& b, const VectorSpace& domain) const;
             /**
              * @brief Set a new termination criterion which must satisfy the @ref
              * CG_TerminationCriterionConceptAnchor "TerminationCriterionConcept".
@@ -187,7 +188,8 @@ namespace Spacy
             bool terminateOnNonconvexity( Real qAq, Real qPq, Vector& x, const Vector& q,
                                           unsigned step ) const;
 
-            CallableOperator A_, P_;
+            const CallableOperator A_;
+            const CallableOperator P_;
             mutable CG::TerminationCriterion terminate_;
             mutable Result result = Result::Failed; ///< information about reason for termination
             mutable DefiniteNess definiteness_ = DefiniteNess::PositiveDefinite;
@@ -198,5 +200,24 @@ namespace Spacy
             mutable Regularization regularization_;
             mutable unsigned iterations_;
         };
+
+       class NoRegularization
+        {
+        public:
+            void init()
+            {
+            }
+            void apply( Real&, Real ) const
+            {
+            }
+            void update( Real, Real )
+            {
+            }
+            void adjustResidual( Real, const Vector&, Vector& ) const
+            {
+            }
+        };
+
+
     }
 }

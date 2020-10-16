@@ -60,23 +60,6 @@ namespace Spacy
             double minIncrease_, maxIncrease_;
         };
 
-        class NoRegularization
-        {
-        public:
-            void init()
-            {
-            }
-            void apply( Real&, Real ) const
-            {
-            }
-            void update( Real, Real )
-            {
-            }
-            void adjustResidual( Real, const Vector&, Vector& ) const
-            {
-            }
-        };
-
         class RegularizeViaCallableOperator : Mixin::Eps
         {
         public:

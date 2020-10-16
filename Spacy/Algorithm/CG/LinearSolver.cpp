@@ -15,7 +15,7 @@ namespace Spacy
         LinearSolver::LinearSolver( Operator A_, CallableOperator P_, bool truncated,
                                     Regularization regularization )
             : OperatorBase( A_.range(), A_.domain() ),
-              cg( std::move( A_ ), std::move( P_ ), std::move( regularization ), truncated )
+              cg( A_ ,  P_ , std::move( regularization ), truncated )
         {
             using namespace Mixin;
             cast_and_attach< Eps >( *this, cg );
