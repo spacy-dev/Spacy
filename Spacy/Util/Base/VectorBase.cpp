@@ -4,7 +4,7 @@
 
 namespace Spacy
 {
-    VectorBase::VectorBase( const VectorSpace& space ) : space_( space )
+    VectorBase::VectorBase( const VectorSpace& space ) : space_( &space )
     {
     }
 
@@ -30,6 +30,13 @@ namespace Spacy
 
     const VectorSpace& VectorBase::space() const
     {
-        return space_;
+        return *space_;
     }
+
+        void VectorBase::changeSpace(const VectorSpace& newspace) 
+    {
+        space_=&newspace;
+    }
+
+    
 }

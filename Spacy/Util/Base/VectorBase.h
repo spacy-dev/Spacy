@@ -38,8 +38,12 @@ namespace Spacy
         /// Access underlying vector space.
         const VectorSpace& space() const;
 
+        /// Change underlying vector space. Do not by hand!
+        void changeSpace(const VectorSpace& );
+
+        
     private:
-        const VectorSpace& space_;
+         const VectorSpace* space_;
     };
 
     /// Forward iterator over contiguous memory.
