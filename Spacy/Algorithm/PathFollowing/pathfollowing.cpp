@@ -111,12 +111,12 @@ Vector SimplePath::solve(const Vector & x0) const
             plot_(x,lambda, step);
             sumOfIterations += iterations;
 
-            LOG_SEPARATOR(log_tag);
+            LOG_SEPARATOR(log_tag,"");
             LOG(log_tag, "Iteration", step);
             LOG(log_tag, "lambda", lambda);
             LOG(log_tag, "|dx|", normDx);
             LOG(log_tag, "|x|", norm(x));
-            LOG_SEPARATOR(log_tag);
+            LOG_SEPARATOR(log_tag,"");
 
         }
 
@@ -125,14 +125,14 @@ Vector SimplePath::solve(const Vector & x0) const
 
         converged = testResult(converged, step, lambda,  x);
 
-        LOG_SEPARATOR(log_tag);
+        LOG_SEPARATOR(log_tag,"");
 
         if(converged)
         {
             printElapsedTime();
 
             std::cout << "Time in hours: " << ((elapsedTime()/1000.0)/3600.0) << std::endl;
-            LOG_SEPARATOR(log_tag);
+            LOG_SEPARATOR(log_tag,"");
             LOG(log_tag, "PathFollowing converged:" , "True");
             LOG(log_tag, "Number of inner iterations:", sumOfIterations);
             return x;
@@ -170,11 +170,11 @@ void SimplePath::testSetup( Vector & x) const
         throw Exception::NotConverged("Computation of initial iterate for path following");
     }
 
-    LOG_SEPARATOR(log_tag);
+    LOG_SEPARATOR(log_tag,"");
     LOG(log_tag, "Inner solver converged for initial guess", "True");
     LOG(log_tag, "lambdaInit", lambdaInit_);
     LOG(log_tag, "|x|", norm(x));
-    LOG_SEPARATOR(log_tag);
+    LOG_SEPARATOR(log_tag,"");
 
     logLambda(get(lambdaInit_));
     logIterations(iterations);
