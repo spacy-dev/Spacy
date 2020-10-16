@@ -6,4 +6,5 @@ namespace Spacy
         : Mixin::Domain( domain ), Mixin::Range( range )
     {
     }
+    
 }
