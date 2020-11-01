@@ -1,6 +1,8 @@
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
 
+set(CMAKE_CXX_CLANG_TIDY "")
+
 aux_source_directory(Mock MOCK_SRC_LIST)
 add_library(mocks ${MOCK_SRC_LIST})
 target_link_libraries(mocks PUBLIC Spacy::Spacy)
@@ -38,7 +40,7 @@ foreach(TEST ${TEST_SRC_LIST})
   string(REGEX REPLACE "/" "_" TEST_DIR ${TEST_DIR})
   set(TEST_UNIQUE_NAME "${TEST_DIR}_${TEST_NAME}")
   add_executable(${TEST_UNIQUE_NAME} ${TEST})
-  target_link_libraries(${TEST_UNIQUE_NAME} mocks Spacy::Spacy GTest::GTest ${GMOCK_LIBRARIES} Threads::Threads)
+  target_link_libraries(${TEST_UNIQUE_NAME} mocks Spacy::Spacy GTest::GTest GTest::Main Threads::Threads)
   add_test(${TEST_UNIQUE_NAME} ${PROJECT_BINARY_DIR}/Test/${TEST_UNIQUE_NAME})
 endforeach()
 

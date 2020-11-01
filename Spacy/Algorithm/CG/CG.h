@@ -1,13 +1,13 @@
 #pragma once
 
-#include <memory>
-#include <string>
+#include "Regularization.h"
+#include "TerminationCriterion.h"
 
 #include <Spacy/Operator.h>
 #include <Spacy/Util/Mixins.h>
 
-#include "Regularization.h"
-#include "TerminationCriterion.h"
+#include <memory>
+#include <string>
 
 namespace Spacy
 {
@@ -84,8 +84,7 @@ namespace Spacy
              * \param regularization regularization for the treatment of nonconvexities
              * \param truncated set to true if the algorithm should terminate on nonconvexities
              */
-            Solver( CallableOperator A, CallableOperator P, Regularization regularization,
-                    bool truncated = false );
+            Solver( CallableOperator A, CallableOperator P, Regularization regularization, bool truncated = false );
 
             /**
              * @param x initial guess
@@ -172,8 +171,7 @@ namespace Spacy
              *
              * @return true if iteration should terminate.
              */
-            bool terminateOnNonconvexity( Real qAq, Real qPq, Vector& x, const Vector& q,
-                                          unsigned step ) const;
+            bool terminateOnNonconvexity( Real qAq, Real qRq, Vector& x, const Vector& q, unsigned step ) const;
 
             CallableOperator A_, P_;
             mutable CG::TerminationCriterion terminate_;
@@ -186,5 +184,5 @@ namespace Spacy
             mutable Regularization regularization_;
             mutable unsigned iterations_;
         };
-    }
-}
+    } // namespace CG
+} // namespace Spacy

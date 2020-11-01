@@ -1,14 +1,14 @@
 #pragma once
 
-#include <memory>
 #include <functional>
 
 #include <Spacy/Util/Base/OperatorBase.h>
 
+#include <memory>
+
 namespace Spacy
 {
     /// @cond
-    class LinearOperator;
     class Real;
     class Vector;
     /// @endcond
@@ -20,19 +20,17 @@ namespace Spacy
         class LinearOperator;
         /// @endcond
 
-        class C1Operator : public Spacy::OperatorBase
+        class C1Operator : public ::Spacy::OperatorBase
         {
         public:
-            C1Operator( std::function< double( double ) > value,
-                        std::function< double( double ) > derivative );
+            C1Operator( std::function< double( double ) > value, std::function< double( double ) > derivative );
 
-            C1Operator( std::function< double( double ) > value,
-                        std::function< double( double ) > derivative, const VectorSpace& domain,
+            C1Operator( std::function< double( double ) > value, std::function< double( double ) > derivative, const VectorSpace& domain,
                         const VectorSpace& range );
 
-            Spacy::Vector operator()( const ::Spacy::Vector& x ) const;
+            ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const;
 
-            Spacy::Vector d1( const ::Spacy::Vector& x, const ::Spacy::Vector& dx ) const;
+            ::Spacy::Vector d1( const ::Spacy::Vector& x, const ::Spacy::Vector& dx ) const;
 
             LinearOperator linearization( const ::Spacy::Vector& x ) const;
 
@@ -41,6 +39,6 @@ namespace Spacy
             std::function< double( double ) > derivative_;
             std::shared_ptr< VectorSpace > operatorSpace_ = nullptr;
         };
-    }
+    } // namespace Scalar
     /** @} */
-}
+} // namespace Spacy

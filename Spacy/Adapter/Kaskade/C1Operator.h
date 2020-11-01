@@ -1,23 +1,21 @@
 #pragma once
 
-#include <utility>
-
-#include <Spacy/C1Operator.h>
-#include <Spacy/LinearOperator.h>
-#include <Spacy/Vector.h>
-#include <Spacy/VectorSpace.h>
-
-#include <Spacy/Util/Base/OperatorBase.h>
-#include <Spacy/Util/Mixins/NumberOfThreads.h>
-
 #include "Copy.h"
 #include "DirectSolver.h"
 #include "LinearOperator.h"
 #include "OperatorSpace.h"
-
 #include <fem/assemble.hh>
 #include <fem/istlinterface.hh>
 #include <linalg/triplet.hh>
+
+#include <Spacy/C1Operator.h>
+#include <Spacy/LinearOperator.h>
+#include <Spacy/Util/Base/OperatorBase.h>
+#include <Spacy/Util/Mixins/NumberOfThreads.h>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+
+#include <utility>
 
 namespace Spacy
 {
@@ -36,19 +34,14 @@ namespace Spacy
         {
             using AnsatzVariableSetDescription = typename OperatorDefinition::AnsatzVars;
             using TestVariableSetDescription = typename OperatorDefinition::TestVars;
-            using VectorImpl = typename AnsatzVariableSetDescription::
-                template CoefficientVectorRepresentation<>::type;
+            using VectorImpl = typename AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::type;
             using Spaces = typename AnsatzVariableSetDescription::Spaces;
-            using Assembler = ::Kaskade::VariationalFunctionalAssembler<
-                ::Kaskade::LinearizationAt< OperatorDefinition > >;
-            using Domain = typename Assembler::AnsatzVariableSetDescription::
-                template CoefficientVectorRepresentation<>::type;
-            using Range = typename Assembler::TestVariableSetDescription::
-                template CoefficientVectorRepresentation<>::type;
+            using Assembler = ::Kaskade::VariationalFunctionalAssembler< ::Kaskade::LinearizationAt< OperatorDefinition > >;
+            using Domain = typename Assembler::AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::type;
+            using Range = typename Assembler::TestVariableSetDescription::template CoefficientVectorRepresentation<>::type;
             using Matrix = ::Kaskade::MatrixAsTriplet< double >;
             using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
-            using Linearization =
-                LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >;
+            using Linearization = LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >;
 
         public:
             /**
@@ -65,16 +58,13 @@ namespace Spacy
              * that correspond to parts of
              * a system of equation.
              */
-            C1Operator( const OperatorDefinition& f, const VectorSpace& domain,
-                        const VectorSpace& range, int rbegin = 0,
+            C1Operator( const OperatorDefinition& f, const VectorSpace& domain, const VectorSpace& range, int rbegin = 0,
                         int rend = OperatorDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
                         int cend = OperatorDefinition::TestVars::noOfVariables )
-                : OperatorBase( domain, range ), f_( f ),
-                  spaces_( extractSpaces< AnsatzVariableSetDescription >( domain ) ),
+                : OperatorBase( domain, range ), f_( f ), spaces_( extractSpaces< AnsatzVariableSetDescription >( domain ) ),
                   rbegin_( rbegin ), rend_( rend ), cbegin_( cbegin ), cend_( cend ),
                   operatorSpace_( std::make_shared< VectorSpace >(
-                      LinearOperatorCreator< AnsatzVariableSetDescription,
-                                             TestVariableSetDescription >( domain, range ),
+                      LinearOperatorCreator< AnsatzVariableSetDescription, TestVariableSetDescription >( domain, range ),
                       []( const ::Spacy::Vector& v ) {
                           using std::begin;
                           using std::end;
@@ -83,7 +73,7 @@ namespace Spacy
                           auto result = 0.;
                           for ( auto iter = begin( m ); iter != iend; ++iter )
                               result += ( *iter ) * ( *iter );
-                          return Real{sqrt( result )};
+                          return Real{ sqrt( result ) };
                       },
                       true ) )
             {
@@ -94,11 +84,10 @@ namespace Spacy
              * @param B object to copy from
              */
             C1Operator( const C1Operator& B )
-                : OperatorBase( B ), NumberOfThreads( B ), f_( B.f_ ), spaces_( B.spaces_ ),
-                  A_( B.A_ ), rhs_( B.rhs_ ), old_X_A_( B.old_X_A_ ), old_X_dA_( B.old_X_dA_ ),
-                  onlyLowerTriangle_( B.onlyLowerTriangle_ ), rbegin_( B.rbegin_ ),
-                  rend_( B.rend_ ), cbegin_( B.cbegin_ ), cend_( B.cend_ ),
-                  solverCreator_( B.solverCreator_ ), operatorSpace_( B.operatorSpace_ )
+                : OperatorBase( B ), NumberOfThreads( B ), f_( B.f_ ), spaces_( B.spaces_ ), A_( B.A_ ), rhs_( B.rhs_ ),
+                  old_X_A_( B.old_X_A_ ), old_X_dA_( B.old_X_dA_ ), onlyLowerTriangle_( B.onlyLowerTriangle_ ), rbegin_( B.rbegin_ ),
+                  rend_( B.rend_ ), cbegin_( B.cbegin_ ), cend_( B.cend_ ), solverCreator_( B.solverCreator_ ),
+                  operatorSpace_( B.operatorSpace_ )
             {
             }
 
@@ -157,13 +146,9 @@ namespace Spacy
             {
                 assembleGradient( x );
 
-                VectorImpl dx_(
-                    AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::init(
-                        spaces_ ) );
+                VectorImpl dx_( AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
                 copyToCoefficientVector< AnsatzVariableSetDescription >( dx, dx_ );
-                VectorImpl y_(
-                    TestVariableSetDescription::template CoefficientVectorRepresentation<>::init(
-                        spaces_ ) );
+                VectorImpl y_( TestVariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
 
                 A_.apply( dx_, y_ );
 
@@ -221,12 +206,10 @@ namespace Spacy
                 copy( x, u );
 
                 Assembler assembler_( spaces_ );
-                assembler_.assemble(::Kaskade::linearization( f_, u ), Assembler::RHS,
-                                    getNumberOfThreads() );
+                assembler_.assemble( ::Kaskade::linearization( f_, u ), Assembler::RHS, getNumberOfThreads() );
 
                 rhs_ = zero( range() );
-                copyFromCoefficientVector< TestVariableSetDescription >(
-                    VectorImpl( assembler_.rhs() ), rhs_ );
+                copyFromCoefficientVector< TestVariableSetDescription >( VectorImpl( assembler_.rhs() ), rhs_ );
 
                 old_X_A_ = x;
             }
@@ -243,10 +226,8 @@ namespace Spacy
                 copy( x, u );
 
                 Assembler assembler_( spaces_ );
-                assembler_.assemble(::Kaskade::linearization( f_, u ), Assembler::MATRIX,
-                                    getNumberOfThreads() );
-                A_ = assembler_.template get< Matrix >( onlyLowerTriangle_, rbegin_, rend_, cbegin_,
-                                                        cend_ );
+                assembler_.assemble( ::Kaskade::linearization( f_, u ), Assembler::MATRIX, getNumberOfThreads() );
+                A_ = assembler_.template get< Matrix >( onlyLowerTriangle_, rbegin_, rend_, cbegin_, cend_ );
                 old_X_dA_ = x;
             }
 
@@ -258,13 +239,11 @@ namespace Spacy
             bool onlyLowerTriangle_ = false;
             int rbegin_ = 0, rend_ = OperatorDefinition::AnsatzVars::noOfVariables;
             int cbegin_ = 0, cend_ = OperatorDefinition::TestVars::noOfVariables;
-            std::function< LinearSolver( const Linearization& ) > solverCreator_ = [](
-                const Linearization& M ) {
+            std::function< LinearSolver( const Linearization& ) > solverCreator_ = []( const Linearization& M ) {
                 return makeDirectSolver< TestVariableSetDescription, AnsatzVariableSetDescription >(
                     M.A(), M.range(), M.domain() /*,
                                                                                                                                                                                 DirectType::MUMPS ,
                                                                                                                                                                                 MatrixProperties::GENERAL*/ );
-
             };
             std::shared_ptr< VectorSpace > operatorSpace_ = nullptr;
         };
@@ -287,11 +266,9 @@ namespace Spacy
          * a system of equation.
          */
         template < class OperatorDefinition >
-        ::Spacy::C1Operator
-        makeC1Operator( const OperatorDefinition& f, const VectorSpace& domain,
-                        const VectorSpace& range, int rbegin = 0,
-                        int rend = OperatorDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
-                        int cend = OperatorDefinition::TestVars::noOfVariables )
+        ::Spacy::C1Operator makeC1Operator( const OperatorDefinition& f, const VectorSpace& domain, const VectorSpace& range,
+                                            int rbegin = 0, int rend = OperatorDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
+                                            int cend = OperatorDefinition::TestVars::noOfVariables )
         {
             return C1Operator< OperatorDefinition >( f, domain, range, rbegin, rend, cbegin, cend );
         }
@@ -314,13 +291,11 @@ namespace Spacy
          */
         template < class OperatorDefinition >
         auto makeC1Operator( const OperatorDefinition& f, const VectorSpace& domain, int rbegin = 0,
-                             int rend = OperatorDefinition::AnsatzVars::noOfVariables,
-                             int cbegin = 0,
+                             int rend = OperatorDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
                              int cend = OperatorDefinition::TestVars::noOfVariables )
         {
-            return C1Operator< OperatorDefinition >( f, domain, domain.dualSpace(), rbegin, rend,
-                                                     cbegin, cend );
+            return C1Operator< OperatorDefinition >( f, domain, domain.dualSpace(), rbegin, rend, cbegin, cend );
         }
-    }
+    } // namespace Kaskade
     /** @} */
-}
+} // namespace Spacy

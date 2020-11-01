@@ -1,11 +1,10 @@
 #include "VectorSpace.h"
 
-#include <Spacy/Util/Cast.h>
-#include <Spacy/Util/Exceptions.h>
-
 #include <Spacy/HilbertSpaceNorm.h>
 #include <Spacy/Spaces/ProductSpace/VectorSpace.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
+#include <Spacy/Util/Cast.h>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/ZeroVectorCreator.h>
 
 #include <stdexcept>
@@ -18,16 +17,15 @@ namespace Spacy
     VectorSpace::~VectorSpace() = default;
 
     VectorSpace::VectorSpace( ZeroVectorCreator&& creator, Norm norm, bool defaultIndex )
-        : creator_( new ZeroVectorCreator( std::move( creator ) ) ), norm_{norm}
+        : creator_( new ZeroVectorCreator( std::move( creator ) ) ), norm_{ norm }
     {
         if ( defaultIndex )
             index_ = 0;
     }
 
     VectorSpace::VectorSpace( VectorSpace&& V )
-        : creator_{std::move( V ).creator_}, norm_{std::move( V ).norm_}, sp_{std::move( V ).sp_},
-          index_{std::move( V ).index_}, primalSpaces_{std::move( V ).primalSpaces_},
-          dualSpaces_{std::move( V ).dualSpaces_}
+        : creator_{ std::move( V ).creator_ }, norm_{ std::move( V ).norm_ }, sp_{ std::move( V ).sp_ }, index_{ std::move( V ).index_ },
+          primalSpaces_{ std::move( V ).primalSpaces_ }, dualSpaces_{ std::move( V ).dualSpaces_ }
     {
         if ( &V == V.dualSpace_ )
             setDualSpace( this );
@@ -68,15 +66,13 @@ namespace Spacy
     void VectorSpace::setScalarProduct( ScalarProduct sp )
     {
         sp_ = std::move( sp );
-        setNorm( HilbertSpaceNorm{sp_} );
+        setNorm( HilbertSpaceNorm{ sp_ } );
     }
 
     const ScalarProduct& VectorSpace::scalarProduct() const
     {
         if ( !sp_ )
-            throw std::runtime_error( ( std::string( "No scalar product defined in space " ) +
-                                        std::to_string( index() ) + "!" )
-                                          .c_str() );
+            throw std::runtime_error( ( std::string( "No scalar product defined in space " ) + std::to_string( index() ) + "!" ).c_str() );
         return sp_;
     }
 
@@ -109,9 +105,7 @@ namespace Spacy
 
     bool VectorSpace::isHilbertSpace() const
     {
-        if ( sp_ )
-            return true;
-        return false;
+        return bool( sp_ );
     }
 
     bool VectorSpace::isAdmissible( const Vector& x ) const
@@ -136,7 +130,7 @@ namespace Spacy
 
     VectorSpace makeBanachSpace( ZeroVectorCreator&& creator, Norm norm )
     {
-        return VectorSpace{std::move( creator ), std::move( norm )};
+        return VectorSpace{ std::move( creator ), std::move( norm ) };
     }
 
     namespace
@@ -168,12 +162,11 @@ namespace Spacy
         {
             connectSubSpacesIfConsistent< ProductSpace::VectorCreator >( creator );
         }
-    }
+    } // namespace
 
-    VectorSpace makeHilbertSpace( ZeroVectorCreator&& creator, ScalarProduct scalarProduct,
-                                  bool defaultIndex )
+    VectorSpace makeHilbertSpace( ZeroVectorCreator&& creator, ScalarProduct scalarProduct, bool defaultIndex )
     {
-        auto V = VectorSpace{std::move( creator ), HilbertSpaceNorm{scalarProduct}, defaultIndex};
+        auto V = VectorSpace{ std::move( creator ), HilbertSpaceNorm{ scalarProduct }, defaultIndex };
         V.setScalarProduct( std::move( scalarProduct ) );
         V.setDualSpace( &V );
         V.addDualSpace( V );
@@ -193,4 +186,4 @@ namespace Spacy
         if ( V.index() != W.index() )
             throw Exception::IncompatibleSpace( V.index(), W.index() );
     }
-}
+} // namespace Spacy

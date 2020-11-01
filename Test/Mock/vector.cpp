@@ -62,7 +62,7 @@ namespace Mock
 
     Spacy::ContiguousIterator< double > Vector::end()
     {
-        return Spacy::ContiguousIterator< double >( &value_ + 1 );
+        return Spacy::ContiguousIterator< double >( &value_ + 1 ); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 
     Spacy::ContiguousIterator< const double > Vector::begin() const
@@ -72,6 +72,6 @@ namespace Mock
 
     Spacy::ContiguousIterator< const double > Vector::end() const
     {
-        return Spacy::ContiguousIterator< const double >( &value_ + 1 );
+        return Spacy::ContiguousIterator< const double >( &value_ + 1 ); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
-}
+} // namespace Mock

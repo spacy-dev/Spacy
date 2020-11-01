@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <fstream>
 #include <tuple>
 
@@ -12,6 +11,8 @@
 #include <Spacy/Util/Mixins.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
+
+#include <string>
 
 namespace Spacy
 {
@@ -25,14 +26,14 @@ namespace Spacy
     namespace CompositeStep
     {
         /**
-     * @ingroup CSGroup
-     * @brief The affine covariant step method described in @cite Lubkoll2015, @cite Lubkoll2015a
-     * for the solution of equality constraint optimization problems.
-     *
-     * An affine covariant composite step method for the solution of problems of the form
-     * \f[\min f(x)\quad \text{s.t.}\quad c(x)=0\f], based on the corresponding Lagrange functional
-     * \f[L(x,p) = f(x)+pc(x)\f].
-     */
+         * @ingroup CSGroup
+         * @brief The affine covariant step method described in @cite Lubkoll2015, @cite Lubkoll2015a
+         * for the solution of equality constraint optimization problems.
+         *
+         * An affine covariant composite step method for the solution of problems of the form
+         * \f[\min f(x)\quad \text{s.t.}\quad c(x)=0\f], based on the corresponding Lagrange functional
+         * \f[L(x,p) = f(x)+pc(x)\f].
+         */
         class AffineCovariantSolver : public Mixin::RegularityTest,
                                       public Mixin::Timer< std::chrono::milliseconds >,
                                       public Mixin::AdjointIndex,
@@ -60,67 +61,60 @@ namespace Spacy
 
         public:
             /**
-       * @brief Constructor.
-       * @param N Lagrange functional for the problem \f[\min \|\delta x_k\| \quad \text{s.t.}
-       * c'(x_k)\delta x_k + c(x_k)=0\f]
-       * @param L Lagrange functional
-       * @param domain domain space \f$X=\{Y,U,P\}\f$
-       */
+             * @brief Constructor.
+             * @param N Lagrange functional for the problem \f[\min \|\delta x_k\| \quad \text{s.t.}
+             * c'(x_k)\delta x_k + c(x_k)=0\f]
+             * @param L Lagrange functional
+             * @param domain domain space \f$X=\{Y,U,P\}\f$
+             */
             AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain );
 
-            AffineCovariantSolver(
-                C2Functional N, C2Functional L, VectorSpace& domain,
-                std::function< Vector( const Vector&, const Vector& ) > retraction );
+            AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain,
+                                   std::function< Vector( const Vector&, const Vector& ) > retraction );
 
-            AffineCovariantSolver(
-                C2Functional N, C2Functional L, VectorSpace& totalSpace, VectorSpace& chartSpace,
-                std::function< Vector( const Vector&, const Vector& ) > retraction,
-                std::function< Vector( const Vector&, const Vector& ) > dualUpdate );
+            AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& totalSpace, VectorSpace& chartSpace,
+                                   std::function< Vector( const Vector&, const Vector& ) > retraction,
+                                   std::function< Vector( const Vector&, const Vector& ) > dualUpdate );
 
             /// Compute solution.
             Vector operator()();
 
             /**
-       * @brief Compute solution.
-       * @param x0 initial iterate
-       */
+             * @brief Compute solution.
+             * @param x0 initial iterate
+             */
             Vector operator()( const Vector& x0 );
 
         private:
             Vector computeNormalStep( const Vector& x ) const;
             Vector computeSimplifiedNormalStep( const Vector& x, const Vector& dx ) const;
             Vector computeMinimumNormCorrection( const Vector& x ) const;
-            Vector computeTangentialStep( DampingFactor nu, const Vector& x, const Vector& dn,
-                                          bool lastStepWasUndamped ) const;
+            Vector computeTangentialStep( DampingFactor nu, const Vector& x, const Vector& dn, bool lastStepWasUndamped ) const;
 
-            std::tuple< Vector, Vector, Vector >
-            updateLagrangeMultiplier( const Vector& x, const DampingFactor nu ) const;
+            std::tuple< Vector, Vector, Vector > updateLagrangeMultiplier( const Vector& x, const DampingFactor nu ) const;
 
-            IndefiniteLinearSolver makeTangentialSolver( DampingFactor nu, const Vector& x,
-                                                         bool lastStepWasUndamped ) const;
+            IndefiniteLinearSolver makeTangentialSolver( DampingFactor nu, const Vector& x, bool lastStepWasUndamped ) const;
 
             bool convergenceTest( DampingFactor nu, DampingFactor tau, Real norm_x, Real norm_dx );
 
-            std::function< Vector( const Vector&, const Vector& ) > linearRetraction =
-                []( const Vector& origin, const Vector& increment ) { return origin + increment; };
+            std::function< Vector( const Vector&, const Vector& ) > linearRetraction = []( const Vector& origin, const Vector& increment ) {
+                return origin + increment;
+            };
 
-            std::tuple< DampingFactor, Vector, Vector, Real, Real >
-            computeCompositeStep( DampingFactor& nu, Real norm_Dn, const Vector& x,
-                                  const Vector& Dn, const Vector& Dt, const Vector& res_p,
-                                  const Vector& v );
+            std::tuple< DampingFactor, Vector, Vector, Real, Real > computeCompositeStep( DampingFactor& nu, Real norm_Dn, const Vector& x,
+                                                                                          const Vector& Dn, const Vector& Dt,
+                                                                                          const Vector& res_p, const Vector& v );
 
             void updateOmegaC( Real norm_x, Real norm_dx, Real norm_ds );
-            Real updateOmegaL( const Vector& soc, Real q_tau, DampingFactor tau, Real norm_x,
-                               Real norm_dx, const CompositeStep::CubicModel& cubic,
-                               Real errorterm );
+            Real updateOmegaL( const Vector& soc, Real q_tau, DampingFactor tau, Real norm_x, Real norm_dx,
+                               const CompositeStep::CubicModel& cubic, Real errorterm );
 
             DampingFactor computeNormalStepDampingFactor( Real norm_Dn ) const;
-            DampingFactor
-            computeTangentialStepDampingFactor( Real norm_dn, Real norm_Dt, Real scalprod_dnDt,
-                                                const CompositeStep::CubicModel& cubic ) const;
+            DampingFactor computeTangentialStepDampingFactor( Real norm_dn, Real norm_Dt, Real scalprod_dnDt,
+                                                              const CompositeStep::CubicModel& cubic ) const;
 
             void regularityTest( DampingFactor nu, DampingFactor tau ) const;
-            AcceptanceTest acceptedSteps( Real norm_x, Real normDx, Real eta );
+            AcceptanceTest acceptedSteps( Real norm_x, Real norm_Dx, Real eta );
 
             Vector retractPrimal( const Vector& origin, const Vector& increment ) const;
 
@@ -130,7 +124,7 @@ namespace Spacy
             VectorSpace& domain_;
             VectorSpace& chartSpace_;
 
-            LipschitzConstant omegaL{1e-6}, omegaC{1e-6};
+            LipschitzConstant omegaL{ 1e-6 }, omegaC{ 1e-6 };
 
             mutable LinearSolver normalSolver = {};
             mutable IndefiniteLinearSolver tangentialSolver = {};
@@ -143,11 +137,11 @@ namespace Spacy
             Real norm_dx_old = -1;
 
             // for suggesting a regularization parameter for the TRCG
-            mutable Real theta_sugg = Real{0.};
+            mutable Real theta_sugg = Real{ 0. };
             // for tangential step accuracy control
             Real previous_step_contraction = 0;
             // for logging purposes
             mutable unsigned ds_it_counter;
         };
-    }
-}
+    } // namespace CompositeStep
+} // namespace Spacy

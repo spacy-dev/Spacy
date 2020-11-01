@@ -9,7 +9,7 @@ namespace Spacy
     class Real;
     class Vector;
     class VectorSpace;
-}
+} // namespace Spacy
 
 namespace Mock
 {
@@ -28,7 +28,7 @@ namespace Mock
 
         Vector operator-() const;
 
-        bool operator==( const Vector y ) const;
+        bool operator==( Vector y ) const;
 
         Spacy::Real operator()( const Vector& y ) const;
 
@@ -54,4 +54,4 @@ namespace Mock
         double value_ = testValue;
         const Spacy::VectorSpace* space_ = nullptr;
     };
-}
+} // namespace Mock

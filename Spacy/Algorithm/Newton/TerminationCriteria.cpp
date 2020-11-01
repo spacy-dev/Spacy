@@ -15,8 +15,7 @@ namespace Spacy
             {
             }
 
-            bool AffineCovariant::operator()( DampingFactor nu, const Vector& x,
-                                              const Vector& dx ) const
+            bool AffineCovariant::operator()( DampingFactor nu, const Vector& x, const Vector& dx ) const
             {
                 if ( beforeFirstIteration_ )
                 {
@@ -26,28 +25,26 @@ namespace Spacy
                 if ( abs( get( nu - 1 ) ) > eps() )
                     return false;
 
-                auto norm_x = norm( x ), norm_dx = norm( dx );
+                const auto norm_x = norm( x );
+                const auto norm_dx = norm( dx );
                 if ( norm_x == 0 && norm_dx == 0 )
                     return true;
 
                 if ( norm_dx < getRelativeAccuracy() * norm_x )
                 {
-                    LOG( covariant_log_tag, "Terminating -- relative accuracy: ",
-                         norm_dx / norm_x );
+                    LOG( covariant_log_tag, "Terminating -- relative accuracy: ", norm_dx / norm_x );
                     return true;
                 }
 
                 return false;
             }
 
-            AffineContravariant::AffineContravariant( const C1Operator& F, Real relativeAccuracy,
-                                                      Real eps )
+            AffineContravariant::AffineContravariant( const C1Operator& F, Real relativeAccuracy, Real eps )
                 : Mixin::RelativeAccuracy( relativeAccuracy ), Mixin::Eps( eps ), F_( F )
             {
             }
 
-            bool AffineContravariant::operator()( DampingFactor nu, const Vector& x,
-                                                  const Vector& ) const
+            bool AffineContravariant::operator()( DampingFactor nu, const Vector& x, const Vector& ) const
             {
                 if ( initialResidual < 0 )
                 {
@@ -65,13 +62,12 @@ namespace Spacy
 
                 if ( norm( F_( x ) ) < getRelativeAccuracy() * initialResidual )
                 {
-                    LOG( contravariant_log_tag, "Terminating -- relative accuracy: ",
-                         norm( F_( x ) ) / initialResidual );
+                    LOG( contravariant_log_tag, "Terminating -- relative accuracy: ", norm( F_( x ) ) / initialResidual );
                     return true;
                 }
 
                 return false;
             }
-        }
-    }
-}
+        } // namespace Termination
+    }     // namespace Newton
+} // namespace Spacy

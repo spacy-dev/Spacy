@@ -116,8 +116,7 @@ namespace Spacy
                  * \param eta_tau loss in tangential damping due to inaccuracy in normal step
                  * (smaller than one)
                  */
-                PreemptiveNormalStepTermination( const Vector& dn0, const Real& Gamma,
-                                                 const Real& rho_elbow, const Real& eta_tau );
+                PreemptiveNormalStepTermination( const Vector& dn0, const Real& Gamma, const Real& rho_elbow, const Real& eta_tau );
                 /**
                  * \brief constructor for simplified normal step criterion
                  *
@@ -148,8 +147,7 @@ namespace Spacy
                  * \param SquaredSolutionNormEstimate squared norm of the solution estimate of the
                  * cg error estimator
                  */
-                bool terminate( const Vector& cg_iterate, Real SquaredErrorNormEstimate,
-                                Real SquaredSolutionNormEstimate ) const;
+                bool terminate( const Vector& cg_iterate, Real SquaredErrorNormEstimate, Real SquaredSolutionNormEstimate ) const;
 
             protected:
                 Type type_;
@@ -228,8 +226,7 @@ namespace Spacy
                  * @param rPINVr squared \f$P^{-1}\f$-norm of the residual
                  * @param cg_iterate_ current cg_iterate
                  */
-                void update( double alpha, double qAq, double qPq, double rPINVr,
-                             const Vector& cg_iterate_ );
+                void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& cg_iterate_ );
 
                 /**
                  * @brief supplies algorithmic quantities to the termination criterion
@@ -248,7 +245,10 @@ namespace Spacy
                  * the iterate \f$\varepsilon_{max}\|x\|_A\f$.
                  * \return true if \f$\|q\|<\varepsilon_{max}\|x\|_A\f$, else false
                  */
-                bool vanishingStep() const noexcept;
+                static bool vanishingStep() noexcept
+                {
+                    return false;
+                }
 
                 /// re-initializes the termination criterion for a new CG run
                 void clear() noexcept;
@@ -306,6 +306,6 @@ namespace Spacy
                 PreemptiveNormalStepTermination st_ = PreemptiveNormalStepTermination();
                 mutable std::string termination_status_;
             };
-        }
-    }
-}
+        } // namespace Termination
+    }     // namespace CG
+} // namespace Spacy

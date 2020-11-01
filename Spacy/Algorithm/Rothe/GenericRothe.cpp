@@ -14,8 +14,7 @@ namespace Spacy
         class TimeDependentAxpy
         {
         public:
-            TimeDependentAxpy( LinearOperator M, LinearOperator J )
-                : M_( std::move( M ) ), J_( std::move( J ) )
+            TimeDependentAxpy( LinearOperator M, LinearOperator J ) : M_( std::move( M ) ), J_( std::move( J ) )
             {
             }
 
@@ -35,12 +34,11 @@ namespace Spacy
         {
             unsigned maxSteps = 100;
 
-            auto t = t0, dt = ( t1 - t0 ) / maxSteps;
+            auto t = t0;
+            auto dt = ( t1 - t0 ) / maxSteps;
 
-            auto integrator = [&A, &dt]( Real t, const Vector& x ) -> Vector {
-                return (
-                    ( TimeDependentAxpy( A.linearization( get( t ), x ), A.M() )( get( dt ) ) ) ^
-                    -1 )( -A( get( t ), x ) );
+            auto integrator = [ &A, &dt ]( Real t, const Vector& x ) -> Vector {
+                return ( ( TimeDependentAxpy( A.linearization( get( t ), x ), A.M() )( get( dt ) ) ) ^ -1 )( -A( get( t ), x ) );
             };
 
             auto x = zero( A.domain() );
@@ -49,5 +47,5 @@ namespace Spacy
 
             return x;
         }
-    }
-}
+    } // namespace Rothe
+} // namespace Spacy

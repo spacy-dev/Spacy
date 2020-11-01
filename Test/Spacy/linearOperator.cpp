@@ -1,12 +1,12 @@
+#include <Test/Mock/linearOperator.hh>
+#include <Test/Mock/linearSolver.hh>
 #include <Test/gtest.hh>
+#include <Test/mockSetup.hh>
 
 #include <Spacy/LinearOperator.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
-#include <Test/Mock/linearOperator.hh>
-#include <Test/Mock/linearSolver.hh>
-#include <Test/mockSetup.hh>
 
 using namespace Spacy;
 
@@ -22,7 +22,7 @@ namespace
         auto expected = is< Mock::IndefiniteLinearSolver >( L );
         EXPECT_TRUE( expected );
     }
-}
+} // namespace
 
 #ifndef NDEBUG
 TEST( LinearOperator, Assert )
@@ -92,14 +92,16 @@ TEST( LinearOperator, StoreCopy )
 
 TEST( LinearOperator, Add )
 {
-    LinearOperator f = Mock::LinearOperator( 1 ), g = Mock::LinearOperator( 2 );
+    LinearOperator f = Mock::LinearOperator( 1 );
+    LinearOperator g = Mock::LinearOperator( 2 );
     f += g;
     test( f, 3 );
 }
 
 TEST( LinearOperator, Subtract )
 {
-    LinearOperator f = Mock::LinearOperator( 1 ), g = Mock::LinearOperator( 2 );
+    LinearOperator f = Mock::LinearOperator( 1 );
+    LinearOperator g = Mock::LinearOperator( 2 );
     f -= g;
     test( f, -1 );
 }
@@ -123,10 +125,8 @@ TEST( LinearOperator, Move )
     LinearOperator g = Mock::LinearOperator( 1 );
     bool is_empty_before_move = !g;
     LinearOperator f = std::move( g );
-    bool is_empty_after_move = !g;
 
     EXPECT_FALSE( is_empty_before_move );
-    EXPECT_TRUE( is_empty_after_move );
 
     test( f, 1 );
 }

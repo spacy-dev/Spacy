@@ -4,7 +4,7 @@
 
 TEST( LipschitzConstant, Assignment )
 {
-    auto L = Spacy::LipschitzConstant{5.};
+    auto L = Spacy::LipschitzConstant{ 5. };
     EXPECT_EQ( L, 5. );
 
     L.setMinFactor( 1e-3 );
@@ -23,7 +23,7 @@ TEST( LipschitzConstant, Assignment )
 
 TEST( LipschitzConstant, Previous )
 {
-    auto L = Spacy::LipschitzConstant{2.2};
+    auto L = Spacy::LipschitzConstant{ 2.2 };
 
     L = 1.;
     EXPECT_EQ( L.previous(), 2.2 );

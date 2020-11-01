@@ -1,11 +1,11 @@
 #include "CG.h"
 
+#include "RegularizeViaPreconditioner.h"
+#include "TerminationCriteria.h"
+
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Vector.h>
-
-#include "RegularizeViaPreconditioner.h"
-#include "TerminationCriteria.h"
 
 #include <algorithm>
 #include <cassert>
@@ -17,10 +17,8 @@ namespace Spacy
 {
     namespace CG
     {
-        Solver::Solver( CallableOperator A, CallableOperator P, Regularization regularization,
-                        bool truncated )
-            : A_( std::move( A ) ), P_( std::move( P ) ),
-              terminate_( CG::Termination::StrakosTichyEnergyError{} ), truncated_( truncated ),
+        Solver::Solver( CallableOperator A, CallableOperator P, Regularization regularization, bool truncated )
+            : A_( std::move( A ) ), P_( std::move( P ) ), terminate_( CG::Termination::StrakosTichyEnergyError{} ), truncated_( truncated ),
               regularization_( std::move( regularization ) )
         {
             if ( !::Spacy::is< NoRegularization >( regularization_ ) )
@@ -39,13 +37,11 @@ namespace Spacy
 
             if ( !regularization_ )
                 return cgLoop( x, b );
-            else
-            {
-                Vector y = x;
-                while ( result != Result::Converged && result != Result::TruncatedAtNonConvexity )
-                    y = cgLoop( x, b );
-                return y;
-            }
+
+            Vector y = x;
+            while ( result != Result::Converged && result != Result::TruncatedAtNonConvexity )
+                y = cgLoop( x, b );
+            return y;
         }
 
         CG::TerminationCriterion& Solver::terminationCriterion() noexcept
@@ -181,18 +177,15 @@ namespace Spacy
             if ( terminate_.vanishingStep() )
             {
                 if ( verbose() )
-                    std::cout
-                        << "    "
-                        << ": Terminating due to numerically almost vanishing step in iteration "
-                        << step << "." << std::endl;
+                    std::cout << "    "
+                              << ": Terminating due to numerically almost vanishing step in iteration " << step << "." << std::endl;
                 result = Result::Converged;
                 return true;
             }
             return false;
         }
 
-        bool Solver::terminateOnNonconvexity( Real qAq, Real qRq, Vector& x, const Vector& q,
-                                              unsigned step ) const
+        bool Solver::terminateOnNonconvexity( Real qAq, Real qRq, Vector& x, const Vector& q, unsigned step ) const
         {
             if ( qAq > 0 )
                 return false;
@@ -227,8 +220,7 @@ namespace Spacy
                     x += q;
                 if ( verbose() )
                     std::cout << "    "
-                              << ": Truncating at nonconvexity in iteration " << step << ": " << qAq
-                              << std::endl;
+                              << ": Truncating at nonconvexity in iteration " << step << ": " << qAq << std::endl;
                 definiteness_ = DefiniteNess::Indefinite;
                 result = Result::TruncatedAtNonConvexity;
                 return true;
@@ -238,11 +230,10 @@ namespace Spacy
 
             if ( verbose() )
                 std::cout << "    "
-                          << ": Regularizing at nonconvexity in iteration " << step << "."
-                          << std::endl;
+                          << ": Regularizing at nonconvexity in iteration " << step << "." << std::endl;
             definiteness_ = DefiniteNess::Indefinite;
             result = Result::EncounteredNonConvexity;
             return true;
         }
-    }
-}
+    } // namespace CG
+} // namespace Spacy

@@ -1,15 +1,14 @@
 #pragma once
 
-#include <string>
-
-#include <boost/fusion/include/as_vector.hpp>
-#include <boost/utility.hpp>
-
 #include "fem/assemble.hh"
 #include "fem/functionspace.hh"
 #include "fem/lagrangespace.hh"
 #include "fem/shapefunctioncache.hh"
 #include "utilities/linalg/scalarproducts.hh"
+#include <boost/fusion/include/as_vector.hpp>
+#include <boost/utility.hpp>
+
+#include <string>
 
 // forward declarations
 namespace Dune
@@ -20,7 +19,7 @@ namespace Dune
     class FieldMatrix;
     template < class, int >
     class QuadratureRule;
-}
+} // namespace Dune
 
 namespace Spacy
 {
@@ -58,50 +57,40 @@ namespace Spacy
             typedef ::Kaskade::ShapeFunctionCache< Grid, typename Functional::Scalar > SfCache2;
             typedef typename OriginalAnsatzVars::Spaces OriginalSpaces;
             typedef typename ExtendedAnsatzVars::Spaces ExtendedSpaces;
-            typedef typename result_of::as_vector< typename result_of::transform<
-                OriginalSpaces, ::Kaskade::GetEvaluators< SfCache > >::type >::type OriginalEvaluators;
-            typedef typename result_of::as_vector< typename result_of::transform<
-                ExtendedSpaces, ::Kaskade::GetEvaluators< SfCache2 > >::type >::type ExtendedEvaluators;
+            typedef typename result_of::as_vector<
+                typename result_of::transform< OriginalSpaces, ::Kaskade::GetEvaluators< SfCache > >::type >::type OriginalEvaluators;
+            typedef typename result_of::as_vector<
+                typename result_of::transform< ExtendedSpaces, ::Kaskade::GetEvaluators< SfCache2 > >::type >::type ExtendedEvaluators;
             typedef typename Grid::ctype CoordType;
-            typedef Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype,
-                                          Functional::AnsatzVars::Grid::dimension >
-                QuadRule;
-            typedef Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype,
-                                          Functional::AnsatzVars::Grid::dimension - 1 >
+            typedef Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype, Functional::AnsatzVars::Grid::dimension > QuadRule;
+            typedef Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype, Functional::AnsatzVars::Grid::dimension - 1 >
                 FaceQuadRule;
 
         public:
             using Scalar = typename Functional::Scalar;
-            using AnsatzSpace = ::Kaskade::FEFunctionSpace<
-               ::Kaskade:: DiscontinuousLagrangeMapper< Scalar, typename Grid::LeafGridView > >;
+            using AnsatzSpace = ::Kaskade::FEFunctionSpace< ::Kaskade::DiscontinuousLagrangeMapper< Scalar, typename Grid::LeafGridView > >;
             using AnsatzSpaces = boost::fusion::vector< AnsatzSpace const* >;
             using AnsatzVariableInformation =
                 ::Kaskade::Variable< ::Kaskade::SpaceIndex< 0 >, ::Kaskade::Components< 1 >, ::Kaskade::VariableId< 0 > >;
             using VariableDescriptions = boost::fusion::vector< AnsatzVariableInformation >;
-            using AnsatzVars =
-                ::Kaskade::VariableSetDescription< AnsatzSpaces, VariableDescriptions >;
+            using AnsatzVars = ::Kaskade::VariableSetDescription< AnsatzSpaces, VariableDescriptions >;
             using TestVars = AnsatzVars;
             using OriginVars = AnsatzVars;
-            using ErrorVector =
-                typename AnsatzVars::template CoefficientVectorRepresentation<>::type;
+            using ErrorVector = typename AnsatzVars::template CoefficientVectorRepresentation<>::type;
             using Cell = typename AnsatzVars::Grid::template Codim< 0 >::Entity;
 
             static int const dim = Grid::dimension;
             static ::Kaskade::ProblemType const type = Functional::type;
 
             static constexpr int yIdx = 0;
-            static constexpr int spaceIndex =
-                result_of::value_at_c< typename OriginalAnsatzVars::Variables,
-                                       yIdx >::type::spaceIndex;
+            static constexpr int spaceIndex = result_of::value_at_c< typename OriginalAnsatzVars::Variables, yIdx >::type::spaceIndex;
             static constexpr int extensionSpaceIndex =
-                result_of::value_at_c< typename ExtendedAnsatzVars::Variables,
-                                       yIdx >::type::spaceIndex;
+                result_of::value_at_c< typename ExtendedAnsatzVars::Variables, yIdx >::type::spaceIndex;
 
             class DomainCache
             {
             public:
-                DomainCache( ErrorDistribution const& f_,
-                             typename OriginVars::VariableSet const& /*vars*/, int flags = 7 )
+                DomainCache( ErrorDistribution const& f_, typename OriginVars::VariableSet const& /*vars*/, int flags = 7 )
                     : f( f_ ), domainCache( f.functional, f.iterate, flags )
                 {
                 }
@@ -118,11 +107,9 @@ namespace Spacy
                 {
                     x = x_;
                     OriginalEvaluators originalEvaluators(
-                        transform( f.iterate.descriptions.spaces,
-                                   ::Kaskade::GetEvaluators< SfCache >( &sfCache ) ) );
+                        transform( f.iterate.descriptions.spaces, ::Kaskade::GetEvaluators< SfCache >( &sfCache ) ) );
                     ExtendedEvaluators extendedEvaluators(
-                        transform( f.errorEstimateH.descriptions.spaces,
-                                   ::Kaskade::GetEvaluators< SfCache >( &extendedSFCache ) ) );
+                        transform( f.errorEstimateH.descriptions.spaces, ::Kaskade::GetEvaluators< SfCache >( &extendedSFCache ) ) );
                     QuadRule qr = ::Kaskade::QuadratureTraits< QuadRule >().rule( e->type(), f.qOrder );
                     moveEvaluatorsToCell( originalEvaluators, *e );
                     moveEvaluatorsToCell( extendedEvaluators, *e );
@@ -143,20 +130,11 @@ namespace Spacy
                         // prepare evaluation of functional
                         domainCache.evaluateAt( qr[ g ].position(), originalEvaluators );
 
-                        y_e.value +=
-                            w *
-                            at_c< yIdx >( f.errorEstimateH.data )
-                                .value( at_c< extensionSpaceIndex >( extendedEvaluators ) );
-                        y_h.value += w *
-                                     at_c< yIdx >( f.errorEstimateL.data )
-                                         .value( at_c< spaceIndex >( originalEvaluators ) );
+                        y_e.value += w * at_c< yIdx >( f.errorEstimateH.data ).value( at_c< extensionSpaceIndex >( extendedEvaluators ) );
+                        y_h.value += w * at_c< yIdx >( f.errorEstimateL.data ).value( at_c< spaceIndex >( originalEvaluators ) );
                         y_e.gradient +=
-                            w *
-                            at_c< yIdx >( f.errorEstimateH.data )
-                                .gradient( at_c< extensionSpaceIndex >( extendedEvaluators ) );
-                        y_h.gradient += w *
-                                        at_c< yIdx >( f.errorEstimateL.data )
-                                            .gradient( at_c< spaceIndex >( originalEvaluators ) );
+                            w * at_c< yIdx >( f.errorEstimateH.data ).gradient( at_c< extensionSpaceIndex >( extendedEvaluators ) );
+                        y_h.gradient += w * at_c< yIdx >( f.errorEstimateL.data ).gradient( at_c< spaceIndex >( originalEvaluators ) );
                     }
                 }
 
@@ -167,11 +145,9 @@ namespace Spacy
 
                 template < int row, int dim >
                 Dune::FieldVector< Scalar, TestVars::template Components< row >::m >
-                d1(::Kaskade::VariationalArg< Scalar, dim > const& arg ) const
+                d1( ::Kaskade::VariationalArg< Scalar, dim > const& arg ) const
                 {
-                    ::Kaskade::VariationalArg< Scalar, dim,
-                                               OriginalAnsatzVars::template Components< yIdx >::m >
-                        y( y_e );
+                    ::Kaskade::VariationalArg< Scalar, dim, OriginalAnsatzVars::template Components< yIdx >::m > y( y_e );
 
                     if ( !f.onlyExtension )
                     {
@@ -186,15 +162,12 @@ namespace Spacy
                     if ( f.errorNorm == ErrorNorm::H1 )
                         return computeL2Error( y ) + computeH1HalfError( y );
 
-                    return ( Functional::template D2< yIdx, yIdx >::present
-                                 ? domainCache.template d2_impl< yIdx, yIdx >( y, y )
-                                 : 0. ) *
+                    return ( Functional::template D2< yIdx, yIdx >::present ? domainCache.template d2_impl< yIdx, yIdx >( y, y ) : 0. ) *
                            arg.value[ 0 ];
                 }
 
                 template < int row, int col, int dim >
-                auto d2(::Kaskade::VariationalArg< Scalar, dim > const&,
-                        ::Kaskade::VariationalArg< Scalar, dim > const& ) const
+                auto d2( ::Kaskade::VariationalArg< Scalar, dim > const&, ::Kaskade::VariationalArg< Scalar, dim > const& ) const
                 {
                     return Dune::FieldMatrix< Scalar, 1, 1 >( 0 );
                 }
@@ -204,9 +177,7 @@ namespace Spacy
                 typename Functional::DomainCache domainCache;
                 const Cell* e;
                 Dune::FieldVector< Scalar, dim > x;
-                ::Kaskade::VariationalArg< Scalar, dim,
-                                           OriginalAnsatzVars::template Components< yIdx >::m >
-                    y_h, y_e;
+                ::Kaskade::VariationalArg< Scalar, dim, OriginalAnsatzVars::template Components< yIdx >::m > y_h, y_e;
                 SfCache sfCache;
                 SfCache2 extendedSFCache;
                 double value = 0;
@@ -215,8 +186,7 @@ namespace Spacy
             class BoundaryCache
             {
             public:
-                BoundaryCache( ErrorDistribution const& f_,
-                               typename OriginVars::VariableSet const& vars, int flags = 7 )
+                BoundaryCache( ErrorDistribution const& f_, typename OriginVars::VariableSet const& vars, int flags = 7 )
                     : f( f_ ), boundaryCache( f.functional, f.iterate, flags )
                 {
                 }
@@ -229,8 +199,7 @@ namespace Spacy
                 }
 
                 template < class Evaluators >
-                void evaluateAt( Dune::FieldVector< typename AnsatzVars::Grid::ctype,
-                                                    AnsatzVars::Grid::dimension - 1 > const& xlocal,
+                void evaluateAt( Dune::FieldVector< typename AnsatzVars::Grid::ctype, AnsatzVars::Grid::dimension - 1 > const& xlocal,
                                  Evaluators const& evaluators )
                 {
                     //          OriginalEvaluators
@@ -278,8 +247,7 @@ namespace Spacy
                 }
 
                 template < int row, int dim >
-                Dune::FieldVector< Scalar, 1 >
-                d1(::Kaskade::VariationalArg< Scalar, dim > const& arg ) const
+                Dune::FieldVector< Scalar, 1 > d1( ::Kaskade::VariationalArg< Scalar, dim > const& arg ) const
                 {
                     return Dune::FieldVector< Scalar, 1 >( 0 );
                     //          ::Kaskade::VariationalArg<Scalar,dim,OriginalAnsatzVars::template
@@ -309,25 +277,18 @@ namespace Spacy
                 ErrorDistribution const& f;
                 typename Functional::BoundaryCache boundaryCache;
                 typename AnsatzVars::Grid::LeafGridView::IntersectionIterator const* e;
-                ::Kaskade::VariationalArg< Scalar, dim, OriginalAnsatzVars::template Components< yIdx >::m >
-                    y_h;
-                ::Kaskade::VariationalArg< Scalar, dim, ExtendedAnsatzVars::template Components< yIdx >::m >
-                    y_e;
+                ::Kaskade::VariationalArg< Scalar, dim, OriginalAnsatzVars::template Components< yIdx >::m > y_h;
+                ::Kaskade::VariationalArg< Scalar, dim, ExtendedAnsatzVars::template Components< yIdx >::m > y_e;
                 SfCache sfCache;
                 SfCache2 extendedSFCache;
             };
 
-            ErrorDistribution( Functional const& functional_,
-                               typename OriginalAnsatzVars::VariableSet const& iterate_,
+            ErrorDistribution( Functional const& functional_, typename OriginalAnsatzVars::VariableSet const& iterate_,
                                typename OriginalAnsatzVars::VariableSet const& errorEstimateL_,
                                typename ExtendedAnsatzVars::VariableSet const& errorEstimateH_ )
-                : functional( functional_ ), iterate( iterate_ ), errorEstimateL( errorEstimateL_ ),
-                  errorEstimateH( errorEstimateH_ ),
-                  ansatzSpace(
-                      boost::fusion::at_c< 0 >( iterate.descriptions.spaces )->gridManager(),
-                      iterate.descriptions.gridView, 0 ),
-                  ansatzSpaces( &ansatzSpace ), varName( {"error"} ),
-                  ansatzVars( ansatzSpaces, varName )
+                : functional( functional_ ), iterate( iterate_ ), errorEstimateL( errorEstimateL_ ), errorEstimateH( errorEstimateH_ ),
+                  ansatzSpace( boost::fusion::at_c< 0 >( iterate.descriptions.spaces )->gridManager(), iterate.descriptions.gridView, 0 ),
+                  ansatzSpaces( &ansatzSpace ), varName{ "error" }, ansatzVars( ansatzSpaces, varName )
 
             {
             }
@@ -379,5 +340,5 @@ namespace Spacy
             bool onlyExtension = false;
             int qOrder = 6;
         };
-    }
-}
+    } // namespace Kaskade
+} // namespace Spacy

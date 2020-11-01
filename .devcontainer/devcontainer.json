@@ -1,0 +1,48 @@
+{
+	"name": "Spacy devcontainer",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"runArgs": [
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined"
+	],
+	"mounts": [
+		"source=vscode-zsh-history,target=/commandhistory,type=volume",
+		"source=vscode-ccache,target=/ccache,type=volume",
+		"source=vscode-conan-data,target=/home/vscode/.conan/data,type=volume"
+	],
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		"telemetry.enableTelemetry": false,
+		"terminal.integrated.shell.linux": "/usr/bin/zsh",
+		"editor.formatOnSave": true,
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": true,
+		"python.linting.lintOnSave": true,
+		"cmake.configureArgs": [
+			"-GNinja",
+			"-DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake",
+			"-DBuildTest=ON"
+		]
+	},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools",
+		"redhat.vscode-yaml",
+		"timonwong.shellcheck",
+		"aaron-bond.better-comments",
+		"eamodio.gitlens"
+	],
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": ".devcontainer/post-install.sh",
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	//"overrideCommand": false,
+	"remoteUser": "vscode"
+}

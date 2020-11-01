@@ -60,3 +60,7 @@ if(DOXYGEN_FOUND)
         COMMENT "Generating API documentation with Doxygen" VERBATIM
     )
 endif(DOXYGEN_FOUND)
+
+if(Kaskade)
+    add_subdirectory(Examples/Kaskade)
+endif()

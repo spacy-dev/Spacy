@@ -1,7 +1,11 @@
 #pragma once
 
-#include <memory>
-
+#include "Copy.h"
+#include "DirectSolver.h"
+#include "LinearOperator.h"
+#include "OperatorSpace.h"
+#include "Vector.h"
+#include "VectorSpace.h"
 #include "fem/assemble.hh"
 #include "fem/istlinterface.hh"
 #include "linalg/triplet.hh"
@@ -14,12 +18,7 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "Copy.h"
-#include "DirectSolver.h"
-#include "LinearOperator.h"
-#include "OperatorSpace.h"
-#include "Vector.h"
-#include "VectorSpace.h"
+#include <memory>
 
 namespace Spacy
 {
@@ -41,18 +40,15 @@ namespace Spacy
             /// %Kaskade::VariableSetDescription
             using VariableSetDescription = typename FunctionalDefinition::AnsatzVars;
             /// Coefficient vector type.
-            using CoefficientVector =
-                typename VariableSetDescription::template CoefficientVectorRepresentation<>::type;
+            using CoefficientVector = typename VariableSetDescription::template CoefficientVectorRepresentation<>::type;
             /// boost::fusion::vector<const Space0*,const Space1*,...>
             using Spaces = typename VariableSetDescription::Spaces;
             /// %Kaskade::VariationalFunctionalAssembler
-            using Assembler = ::Kaskade::VariationalFunctionalAssembler<
-                ::Kaskade::LinearizationAt< FunctionalDefinition > >;
+            using Assembler = ::Kaskade::VariationalFunctionalAssembler< ::Kaskade::LinearizationAt< FunctionalDefinition > >;
             /// Matrix type
             using Matrix = ::Kaskade::MatrixAsTriplet< double >;
             /// operator for the description of the second derivative
-            using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, CoefficientVector,
-                                                                          CoefficientVector >;
+            using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, CoefficientVector, CoefficientVector >;
 
             using Linearization = LinearOperator< VariableSetDescription, VariableSetDescription >;
 
@@ -71,15 +67,12 @@ namespace Spacy
              * a system of equation.
              */
             C2Functional( const FunctionalDefinition& f, const VectorSpace& domain, int rbegin = 0,
-                          int rend = FunctionalDefinition::AnsatzVars::noOfVariables,
-                          int cbegin = 0, int cend = FunctionalDefinition::TestVars::noOfVariables )
-                : FunctionalBase( domain ), f_( f ),
-                  spaces_( extractSpaces< VariableSetDescription >( domain ) ),
-                  rhs_( zero( domain.dualSpace() ) ), rbegin_( rbegin ), rend_( rend ),
-                  cbegin_( cbegin ), cend_( cend ),
+                          int rend = FunctionalDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
+                          int cend = FunctionalDefinition::TestVars::noOfVariables )
+                : FunctionalBase( domain ), f_( f ), spaces_( extractSpaces< VariableSetDescription >( domain ) ),
+                  rhs_( zero( domain.dualSpace() ) ), rbegin_( rbegin ), rend_( rend ), cbegin_( cbegin ), cend_( cend ),
                   operatorSpace_( std::make_shared< VectorSpace >(
-                      LinearOperatorCreator< VariableSetDescription, VariableSetDescription >(
-                          domain, domain.dualSpace() ),
+                      LinearOperatorCreator< VariableSetDescription, VariableSetDescription >( domain, domain.dualSpace() ),
                       []( const ::Spacy::Vector& v ) {
                           using std::begin;
                           using std::end;
@@ -88,7 +81,7 @@ namespace Spacy
                           auto result = 0.;
                           for ( auto iter = begin( m ); iter != iend; ++iter )
                               result += ( *iter ) * ( *iter );
-                          return Real{sqrt( result )};
+                          return Real{ sqrt( result ) };
                       },
                       true ) )
             {
@@ -99,12 +92,10 @@ namespace Spacy
              * @param g functional to copy from
              */
             C2Functional( const C2Functional& g )
-                : FunctionalBase( g.domain() ), NumberOfThreads( g ), f_( g.f_ ),
-                  spaces_( g.spaces_ ), A_( g.A_ ), value_( g.value_ ), old_X_f_( g.old_X_f_ ),
-                  old_X_df_( g.old_X_df_ ), old_X_ddf_( g.old_X_ddf_ ), rhs_( g.rhs_ ),
-                  onlyLowerTriangle_( g.onlyLowerTriangle_ ), rbegin_( g.rbegin_ ),
-                  rend_( g.rend_ ), cbegin_( g.cbegin_ ), cend_( g.cend_ ),
-                  solverCreator_( g.solverCreator_ ), operatorSpace_( g.operatorSpace_ )
+                : FunctionalBase( g.domain() ), NumberOfThreads( g ), f_( g.f_ ), spaces_( g.spaces_ ), A_( g.A_ ), value_( g.value_ ),
+                  old_X_f_( g.old_X_f_ ), old_X_df_( g.old_X_df_ ), old_X_ddf_( g.old_X_ddf_ ), rhs_( g.rhs_ ),
+                  onlyLowerTriangle_( g.onlyLowerTriangle_ ), rbegin_( g.rbegin_ ), rend_( g.rend_ ), cbegin_( g.cbegin_ ),
+                  cend_( g.cend_ ), solverCreator_( g.solverCreator_ ), operatorSpace_( g.operatorSpace_ )
             {
             }
 
@@ -180,13 +171,9 @@ namespace Spacy
             {
                 assembleHessian( x );
 
-                CoefficientVector dx_(
-                    VariableSetDescription::template CoefficientVectorRepresentation<>::init(
-                        spaces_ ) );
+                CoefficientVector dx_( VariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
                 copyToCoefficientVector< VariableSetDescription >( dx, dx_ );
-                CoefficientVector y_(
-                    VariableSetDescription::template CoefficientVectorRepresentation<>::init(
-                        spaces_ ) );
+                CoefficientVector y_( VariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
 
                 A_.apply( dx_, y_ );
 
@@ -204,7 +191,7 @@ namespace Spacy
             auto hessian( const ::Spacy::Vector& x ) const
             {
                 assembleHessian( x );
-                return Linearization{A_, *operatorSpace_, solverCreator_};
+                return Linearization{ A_, *operatorSpace_, solverCreator_ };
             }
 
             /// Access operator representing \f$f''\f$.
@@ -251,8 +238,7 @@ namespace Spacy
                 copy( x, u );
 
                 Assembler assembler( spaces_ );
-                assembler.assemble(::Kaskade::linearization( f_, u ), Assembler::VALUE,
-                                   getNumberOfThreads() );
+                assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::VALUE, getNumberOfThreads() );
                 value_ = assembler.functional();
 
                 old_X_f_ = x;
@@ -271,10 +257,8 @@ namespace Spacy
                 copy( x, u );
 
                 Assembler assembler( spaces_ );
-                assembler.assemble(::Kaskade::linearization( f_, u ), Assembler::RHS,
-                                   getNumberOfThreads() );
-                copyFromCoefficientVector< VariableSetDescription >(
-                    CoefficientVector( assembler.rhs() ), rhs_ );
+                assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::RHS, getNumberOfThreads() );
+                copyFromCoefficientVector< VariableSetDescription >( CoefficientVector( assembler.rhs() ), rhs_ );
 
                 old_X_df_ = x;
             }
@@ -291,10 +275,8 @@ namespace Spacy
                 copy( x, u );
 
                 Assembler assembler( spaces_ );
-                assembler.assemble(::Kaskade::linearization( f_, u ), Assembler::MATRIX,
-                                   getNumberOfThreads() );
-                A_ = KaskadeOperator( assembler.template get< Matrix >( onlyLowerTriangle_, rbegin_,
-                                                                        rend_, cbegin_, cend_ ) );
+                assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::MATRIX, getNumberOfThreads() );
+                A_ = KaskadeOperator( assembler.template get< Matrix >( onlyLowerTriangle_, rbegin_, rend_, cbegin_, cend_ ) );
 
                 old_X_ddf_ = x;
             }
@@ -307,14 +289,12 @@ namespace Spacy
             bool onlyLowerTriangle_ = false;
             int rbegin_ = 0, rend_ = FunctionalDefinition::AnsatzVars::noOfVariables;
             int cbegin_ = 0, cend_ = FunctionalDefinition::TestVars::noOfVariables;
-            std::function< LinearSolver( const Linearization& ) > solverCreator_ =
-                []( const Linearization& f ) {
-                    return makeDirectSolver< VariableSetDescription, VariableSetDescription >(
+            std::function< LinearSolver( const Linearization& ) > solverCreator_ = []( const Linearization& f ) {
+                return makeDirectSolver< VariableSetDescription, VariableSetDescription >(
                         f.A(), f.range(), f.domain() /*,
                                                                                                                                                              DirectType::MUMPS ,
                                                                                                                                                              MatrixProperties::GENERAL */ );
-
-                };
+            };
             std::shared_ptr< VectorSpace > operatorSpace_ = nullptr;
         };
 
@@ -335,13 +315,12 @@ namespace Spacy
          * a system of equation.
          */
         template < class FunctionalDefinition >
-        auto
-        makeC2Functional( const FunctionalDefinition& f, const VectorSpace& domain, int rbegin = 0,
-                          int rend = FunctionalDefinition::AnsatzVars::noOfVariables,
-                          int cbegin = 0, int cend = FunctionalDefinition::TestVars::noOfVariables )
+        auto makeC2Functional( const FunctionalDefinition& f, const VectorSpace& domain, int rbegin = 0,
+                               int rend = FunctionalDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
+                               int cend = FunctionalDefinition::TestVars::noOfVariables )
         {
             return C2Functional< FunctionalDefinition >( f, domain, rbegin, rend, cbegin, cend );
         }
-    }
+    } // namespace Kaskade
     /** @} */
-}
+} // namespace Spacy

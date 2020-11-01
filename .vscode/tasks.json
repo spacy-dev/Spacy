@@ -1,0 +1,21 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "conan",
+            "command": "conan",
+            "args": [
+                "install",
+                ".."
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build"
+        }
+    ],
+    "version": "2.0.0"
+}

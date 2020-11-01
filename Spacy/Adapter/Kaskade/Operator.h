@@ -1,12 +1,12 @@
 #pragma once
 
-#include <utility>
-
 #include "fem/assemble.hh"
 #include "fem/istlinterface.hh"
 
 #include "Spacy/Util/Base/OperatorBase.h"
 #include "Spacy/Util/Mixins/NumberOfThreads.h"
+
+#include <utility>
 
 namespace Spacy
 {
@@ -25,15 +25,11 @@ namespace Spacy
         {
             using AnsatzVariableSetDescription = typename OperatorDefinition::AnsatzVars;
             using TestVariableSetDescription = typename OperatorDefinition::TestVars;
-            using VectorImpl = typename AnsatzVariableSetDescription::
-                template CoefficientVectorRepresentation<>::type;
+            using VectorImpl = typename AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::type;
             using Spaces = typename AnsatzVariableSetDescription::Spaces;
-            using Assembler = ::Kaskade::VariationalFunctionalAssembler<
-                ::Kaskade::LinearizationAt< OperatorDefinition > >;
-            using Domain = typename Assembler::AnsatzVariableSetDescription::
-                template CoefficientVectorRepresentation<>::type;
-            using Range = typename Assembler::TestVariableSetDescription::
-                template CoefficientVectorRepresentation<>::type;
+            using Assembler = ::Kaskade::VariationalFunctionalAssembler< ::Kaskade::LinearizationAt< OperatorDefinition > >;
+            using Domain = typename Assembler::AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::type;
+            using Range = typename Assembler::TestVariableSetDescription::template CoefficientVectorRepresentation<>::type;
             using Matrix = ::Kaskade::MatrixAsTriplet< double >;
             using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
 
@@ -48,10 +44,8 @@ namespace Spacy
              * that correspond to parts of
              * a system of equation.
              */
-            Operator( const OperatorDefinition& f, const VectorSpace& domain,
-                      const VectorSpace& range )
-                : OperatorBase( domain, range ), f_( f ),
-                  spaces_( extractSpaces< AnsatzVariableSetDescription >( domain ) ),
+            Operator( const OperatorDefinition& f, const VectorSpace& domain, const VectorSpace& range )
+                : OperatorBase( domain, range ), f_( f ), spaces_( extractSpaces< AnsatzVariableSetDescription >( domain ) ),
                   assembler_( spaces_ )
             {
             }
@@ -61,8 +55,7 @@ namespace Spacy
              * @param B object to copy from
              */
             Operator( const Operator& B )
-                : OperatorBase( B ), NumberOfThreads( B ), f_( B.f_ ), spaces_( B.spaces_ ),
-                  assembler_( spaces_ ), old_X_A_( B.old_X_A_ )
+                : OperatorBase( B ), NumberOfThreads( B ), f_( B.f_ ), spaces_( B.spaces_ ), assembler_( spaces_ ), old_X_A_( B.old_X_A_ )
             {
             }
 
@@ -102,7 +95,7 @@ namespace Spacy
 
                 VectorImpl v( assembler_.rhs() );
 
-                auto y = range().zeroVector();
+                auto y = zero( range() );
                 copyFromCoefficientVector< TestVariableSetDescription >( v, y );
                 return y;
             }
@@ -119,8 +112,7 @@ namespace Spacy
 
                 copy( x, u );
 
-                assembler_.assemble(::Kaskade::linearization( f_, u ), Assembler::RHS,
-                                    getNumberOfThreads() );
+                assembler_.assemble( ::Kaskade::linearization( f_, u ), Assembler::RHS, getNumberOfThreads() );
 
                 old_X_A_ = x;
             }
@@ -142,8 +134,7 @@ namespace Spacy
          * )"
          */
         template < class OperatorDefinition >
-        auto makeOperator( const OperatorDefinition& f, const VectorSpace& domain,
-                           const VectorSpace& range )
+        auto makeOperator( const OperatorDefinition& f, const VectorSpace& domain, const VectorSpace& range )
         {
             return Operator< OperatorDefinition >( f, domain, range );
         }
@@ -162,5 +153,5 @@ namespace Spacy
         {
             return Operator< OperatorDefinition >( f, domain, domain.dualSpace() );
         }
-    }
-}
+    } // namespace Kaskade
+} // namespace Spacy

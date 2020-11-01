@@ -1,15 +1,14 @@
 #include "Real.h"
 
-#include <Spacy/Vector.h>
-
 #include "RealSpace.h"
+
+#include <Spacy/Vector.h>
 
 #include <cmath>
 
 namespace Spacy
 {
-    Real::Real( double x, const VectorSpace& space )
-        : VectorBase( space ), Mixin::Get< double >( x )
+    Real::Real( double x, const VectorSpace& space ) : VectorBase( space ), Mixin::Get< double >( x )
     {
     }
 
@@ -85,7 +84,7 @@ namespace Spacy
 
     ContiguousIterator< double > Real::end()
     {
-        return ContiguousIterator< double >( &get() + 1 );
+        return ContiguousIterator< double >( &get() + 1 ); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 
     ContiguousIterator< const double > Real::begin() const
@@ -95,7 +94,7 @@ namespace Spacy
 
     ContiguousIterator< const double > Real::end() const
     {
-        return ContiguousIterator< const double >( &get() + 1 );
+        return ContiguousIterator< const double >( &get() + 1 ); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     }
 
     Real abs( Real x )
@@ -127,4 +126,4 @@ namespace Spacy
     {
         return x *= get( y );
     }
-}
+} // namespace Spacy

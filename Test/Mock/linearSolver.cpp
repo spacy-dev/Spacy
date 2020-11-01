@@ -8,9 +8,4 @@ namespace Mock
     {
         return x;
     }
-
-    bool IndefiniteLinearSolver::isPositiveDefinite() const
-    {
-        return true;
-    }
-}
+} // namespace Mock

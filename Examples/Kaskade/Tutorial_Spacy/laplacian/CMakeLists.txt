@@ -1,14 +1,13 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.13)
 
 project(spacy-kaskade-tutorial-laplacian)
 
 find_package(Kaskade7 REQUIRED)
-find_package(Spacy REQUIRED)
-find_package(Boost REQUIRED system timer thread QUIET)
+if(NOT TARGET Spacy::Spacy)
+    find_package(Spacy REQUIRED)
+endif()
 
-add_executable(run laplace.cpp)
-target_link_libraries(run 
-    Spacy::Spacy 
-    Kaskade7::Kaskade7 Kaskade7::umfpack_solve
-    Boost::system Boost::timer Boost::thread
+add_executable(${PROJECT_NAME} laplace.cpp laplace.hh ${Kaskade7_UMFPACK_SRC})
+target_link_libraries(${PROJECT_NAME} 
+    Spacy::Spacy Kaskade7::Kaskade7 ${Kaskade7_UMFPACK_LIB}
 )

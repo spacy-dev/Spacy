@@ -1,10 +1,10 @@
 #include "C1Operator.h"
 
-#include <Spacy/Util/Cast.h>
-#include <Spacy/ZeroVectorCreator.h>
-
 #include "Vector.h"
 #include "VectorSpace.h"
+
+#include <Spacy/Util/Cast.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <cassert>
 #include <numeric>
@@ -13,9 +13,8 @@ namespace Spacy
 {
     namespace ProductSpace
     {
-        C1Operator::C1Operator(
-            const std::vector< std::vector< Spacy::C1Operator > >& blockOperators,
-            const Spacy::VectorSpace& domain, const Spacy::VectorSpace& range )
+        C1Operator::C1Operator( const std::vector< std::vector< Spacy::C1Operator > >& blockOperators, const Spacy::VectorSpace& domain,
+                                const Spacy::VectorSpace& range )
             : OperatorBase( domain, range ), blockOperators_( blockOperators )
         {
             assert( !blockOperators_.empty() );
@@ -86,15 +85,15 @@ namespace Spacy
                 auto& yp = cast_ref< Vector >( y );
                 for ( auto i = 0u; i < yp.numberOfVariables(); ++i )
                     for ( auto j = 0u; j < xp.numberOfVariables(); ++j )
-                        yp.component( i ) +=
-                            blockOperators_[ i ][ j ].d1( xp.component( j ), dxp.component( j ) );
+                        yp.component( i ) += blockOperators_[ i ][ j ].d1( xp.component( j ), dxp.component( j ) );
                 return y;
             }
 
             return blockOperators_[ 0 ][ 0 ]( x );
         }
 
-        Spacy::LinearOperator C1Operator::linearization( const Spacy::Vector& x ) const
+        Spacy::LinearOperator
+        C1Operator::linearization( const Spacy::Vector& x ) const // NOLINT(readability-convert-member-functions-to-static)
         {
             assert( false );
             return Spacy::LinearOperator();
@@ -110,10 +109,9 @@ namespace Spacy
             return blockOperators_[ row ][ col ];
         }
 
-        void
-        C1Operator::setLinearSolver( std::function< Spacy::Vector( const Spacy::Vector& ) > solver )
+        void C1Operator::setLinearSolver( std::function< Spacy::Vector( const Spacy::Vector& ) > solver )
         {
             solver_ = std::move( solver );
         }
-    }
-}
+    } // namespace ProductSpace
+} // namespace Spacy

@@ -12,10 +12,8 @@ namespace Spacy
 {
     namespace CG
     {
-        LinearSolver::LinearSolver( Operator A_, CallableOperator P_, bool truncated,
-                                    Regularization regularization )
-            : OperatorBase( A_.range(), A_.domain() ),
-              cg( std::move( A_ ), std::move( P_ ), std::move( regularization ), truncated )
+        LinearSolver::LinearSolver( Operator A_, CallableOperator P_, bool truncated, Regularization regularization )
+            : OperatorBase( A_.range(), A_.domain() ), cg( std::move( A_ ), std::move( P_ ), std::move( regularization ), truncated )
         {
             using namespace Mixin;
             cast_and_attach< Eps >( *this, cg );
@@ -27,11 +25,8 @@ namespace Spacy
         }
 
         LinearSolver::LinearSolver( const LinearSolver& other )
-            : OperatorBase( other ), Mixin::AbsoluteAccuracy( other.getAbsoluteAccuracy() ),
-              Mixin::RelativeAccuracy( other.getRelativeAccuracy() ), Mixin::Eps( other.eps() ),
-              Mixin::IterativeRefinements( other.getIterativeRefinements() ),
-              Mixin::MaxSteps( other.getMaxSteps() ), Mixin::Verbosity( other.getVerbosityLevel() ),
-              cg( other.cg )
+            : OperatorBase( other ), Mixin::AbsoluteAccuracy( other ), Mixin::RelativeAccuracy( other ), Mixin::Eps( other ),
+              Mixin::IterativeRefinements( other ), Mixin::MaxSteps( other ), Mixin::Verbosity( other ), cg( other.cg )
         {
             using namespace Mixin;
             cast_and_attach< Eps >( *this, cg );
@@ -71,62 +66,52 @@ namespace Spacy
         {
             return cg.R();
         }
-    }
+    } // namespace CG
 
-    CG::LinearSolver makeCGSolver( Operator A, CallableOperator P, Real relativeAccuracy, Real eps,
-                                   bool verbose )
+    CG::LinearSolver makeCGSolver( Operator A, CallableOperator P, Real relativeAccuracy, Real eps, bool verbose )
     {
-        auto solver =
-            CG::LinearSolver( std::move( A ), std::move( P ), false, CG::NoRegularization() );
+        auto solver = CG::LinearSolver( std::move( A ), std::move( P ), false, CG::NoRegularization() );
         solver.setRelativeAccuracy( relativeAccuracy );
         solver.set_eps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
 
-    CG::LinearSolver makeRCGSolver( Operator A, CallableOperator P, Real relativeAccuracy, Real eps,
-                                    bool verbose )
+    CG::LinearSolver makeRCGSolver( Operator A, CallableOperator P, Real relativeAccuracy, Real eps, bool verbose )
     {
-        auto solver = CG::LinearSolver( std::move( A ), std::move( P ), false,
-                                        CG::RegularizeViaPreconditioner() );
+        auto solver = CG::LinearSolver( std::move( A ), std::move( P ), false, CG::RegularizeViaPreconditioner() );
         solver.setRelativeAccuracy( relativeAccuracy );
         solver.set_eps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
 
-    CG::LinearSolver makeTCGSolver( Operator A, CallableOperator P, Real relativeAccuracy, Real eps,
-                                    bool verbose )
+    CG::LinearSolver makeTCGSolver( Operator A, CallableOperator P, Real relativeAccuracy, Real eps, bool verbose )
     {
-        auto solver =
-            CG::LinearSolver( std::move( A ), std::move( P ), true, CG::NoRegularization() );
+        auto solver = CG::LinearSolver( std::move( A ), std::move( P ), true, CG::NoRegularization() );
         solver.setRelativeAccuracy( relativeAccuracy );
         solver.set_eps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
 
-    CG::LinearSolver makeTRCGSolver( Operator A, CallableOperator P, Real relativeAccuracy,
-                                     Real eps, bool verbose )
+    CG::LinearSolver makeTRCGSolver( Operator A, CallableOperator P, Real relativeAccuracy, Real eps, bool verbose )
     {
-        auto solver = CG::LinearSolver( std::move( A ), std::move( P ), true,
-                                        CG::RegularizeViaPreconditioner() );
+        auto solver = CG::LinearSolver( std::move( A ), std::move( P ), true, CG::RegularizeViaPreconditioner() );
         solver.setRelativeAccuracy( relativeAccuracy );
         solver.set_eps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
 
-    CG::LinearSolver makeTRCGSolver( Operator A, CallableOperator P, CallableOperator R,
-                                     Real theta_sugg, Real relativeAccuracy, Real eps,
+    CG::LinearSolver makeTRCGSolver( Operator A, CallableOperator P, CallableOperator R, Real theta_sugg, Real relativeAccuracy, Real eps,
                                      bool verbose )
     {
         auto solver =
-            CG::LinearSolver( std::move( A ), std::move( P ), true,
-                              CG::RegularizeViaCallableOperator( std::move( R ), theta_sugg ) );
+            CG::LinearSolver( std::move( A ), std::move( P ), true, CG::RegularizeViaCallableOperator( std::move( R ), theta_sugg ) );
         solver.setRelativeAccuracy( relativeAccuracy );
         solver.set_eps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
-}
+} // namespace Spacy

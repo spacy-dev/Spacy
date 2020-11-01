@@ -1,15 +1,15 @@
 #pragma once
 
-#include <memory>
 #include <Eigen/Dense>
 #include <functional>
 
 #include <Spacy/Util/Base/FunctionalBase.h>
 
+#include <memory>
+
 namespace Spacy
 {
     /// @cond
-    class LinearOperator;
     class Real;
     class Vector;
     /// @endcond
@@ -25,9 +25,8 @@ namespace Spacy
         {
         public:
             C2Functional( std::function< double( const ::Eigen::VectorXd& ) > f,
-                          std::function<::Eigen::VectorXd( const ::Eigen::VectorXd& ) > df,
-                          std::function<::Eigen::MatrixXd( const ::Eigen::VectorXd& ) > ddf,
-                          const VectorSpace& domain );
+                          std::function< ::Eigen::VectorXd( const ::Eigen::VectorXd& ) > df,
+                          std::function< ::Eigen::MatrixXd( const ::Eigen::VectorXd& ) > ddf, const VectorSpace& domain );
 
             // Compute f(x).
             Spacy::Real operator()( const ::Spacy::Vector& x ) const;
@@ -44,16 +43,15 @@ namespace Spacy
         private:
             std::shared_ptr< VectorSpace > operatorSpace_ = nullptr;
             std::function< double( const ::Eigen::VectorXd& ) > f_;
-            std::function<::Eigen::VectorXd( const ::Eigen::VectorXd& ) > df_;
-            std::function<::Eigen::MatrixXd( const ::Eigen::VectorXd& ) > ddf_;
+            std::function< ::Eigen::VectorXd( const ::Eigen::VectorXd& ) > df_;
+            std::function< ::Eigen::MatrixXd( const ::Eigen::VectorXd& ) > ddf_;
         };
 
         template < class F, class DF, class DDF >
-        auto makeC2Functional( const F& f, const DF& df, const DDF& ddf,
-                               const Spacy::VectorSpace& domain )
+        auto makeC2Functional( const F& f, const DF& df, const DDF& ddf, const Spacy::VectorSpace& domain )
         {
             return C2Functional( f, df, ddf, domain );
         }
-    }
+    } // namespace Rn
     /** @} */
-}
+} // namespace Spacy

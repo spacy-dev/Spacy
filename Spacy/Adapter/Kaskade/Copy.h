@@ -1,21 +1,21 @@
 #pragma once
 
-#include <memory>
-#include <type_traits>
-#include <vector>
+#include "L2Product.h"
+#include <fem/variables.hh>
 
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
-#include "L2Product.h"
 
-#include <fem/variables.hh>
+#include <memory>
+#include <type_traits>
+#include <vector>
 
 namespace Spacy
 {
     /** @addtogroup KaskadeGroup
-   * @{
-   */
+     * @{
+     */
 
     namespace Kaskade
     {
@@ -32,10 +32,8 @@ namespace Spacy
             {
                 using Variables = typename Description::Variables;
                 using Spaces = typename Description::Spaces;
-                using Variable = std::decay_t<
-                    typename boost::fusion::result_of::value_at_c< Variables, i >::type >;
-                using type =
-                    ::Kaskade::VariableSetDescription< Spaces, boost::fusion::vector< Variable > >;
+                using Variable = std::decay_t< typename boost::fusion::result_of::value_at_c< Variables, i >::type >;
+                using type = ::Kaskade::VariableSetDescription< Spaces, boost::fusion::vector< Variable > >;
             };
 
             template < class Description, int i >
@@ -44,17 +42,14 @@ namespace Spacy
             template < class Description, int i, int n >
             struct MakeSpaces
             {
-                using Variable = std::decay_t< typename boost::fusion::result_of::at_c<
-                    typename Description::Variables, i >::type >;
+                using Variable = std::decay_t< typename boost::fusion::result_of::at_c< typename Description::Variables, i >::type >;
 
-                static void apply( const Description& descriptions,
-                                   std::vector< std::shared_ptr< VectorSpace > >& newSpaces )
+                static void apply( const Description& descriptions, std::vector< std::shared_ptr< VectorSpace > >& newSpaces )
                 {
-                    newSpaces[ i ] = std::make_shared< VectorSpace >(::Spacy::makeHilbertSpace(
-                        VectorCreator< ExtractDescription_t< Description, i > >(
-                            descriptions.spaces,
-                            std::vector< std::string >( 1, descriptions.names[ i ] ) ),
-                        l2Product< ExtractDescription_t< Description, i > >() ) );
+                    newSpaces[ i ] = std::make_shared< VectorSpace >(
+                        ::Spacy::makeHilbertSpace( VectorCreator< ExtractDescription_t< Description, i > >(
+                                                       descriptions.spaces, std::vector< std::string >( 1, descriptions.names[ i ] ) ),
+                                                   l2Product< ExtractDescription_t< Description, i > >() ) );
                     MakeSpaces< Description, i + 1, n >::apply( descriptions, newSpaces );
                 }
             };
@@ -62,25 +57,20 @@ namespace Spacy
             template < class Description, int n >
             struct MakeSpaces< Description, n, n >
             {
-                static void apply( const Description&,
-                                   std::vector< std::shared_ptr< VectorSpace > >& )
+                static void apply( const Description&, std::vector< std::shared_ptr< VectorSpace > >& )
                 {
                 }
             };
 
             template < class Description, unsigned i, unsigned j, unsigned n,
-                       bool doapply =
-                           ( i == std::decay_t< typename boost::fusion::result_of::at_c<
-                                      typename Description::Variables, j >::type >::spaceIndex ) >
+                       bool doapply = ( i == std::decay_t< typename boost::fusion::result_of::at_c< typename Description::Variables,
+                                                                                                    j >::type >::spaceIndex ) >
             struct ExtractSpace
             {
                 using Variables = typename Description::Variables;
                 static auto apply( const ProductSpace::VectorCreator& spaces )
                 {
-                    return creator< VectorCreator< ExtractDescription_t< Description, j > > >(
-                               spaces.subSpace( j ) )
-                        .get()
-                        .spaces;
+                    return creator< VectorCreator< ExtractDescription_t< Description, j > > >( spaces.subSpace( j ) ).get().spaces;
                 }
             };
 
@@ -126,30 +116,24 @@ namespace Spacy
             template < class Description, unsigned i >
             auto extractSpace( const ProductSpace::VectorCreator& spaces )
             {
-                return ExtractSpace< Description, i, 0,
-                                     boost::fusion::result_of::size<
-                                         typename Description::Spaces >::value >::apply( spaces );
+                return ExtractSpace< Description, i, 0, boost::fusion::result_of::size< typename Description::Spaces >::value >::apply(
+                    spaces );
             }
 
             template < class Description, unsigned... is >
-            auto extractSpaces( const ProductSpace::VectorCreator& spaces,
-                                std::integer_sequence< unsigned, is... > )
+            auto extractSpaces( const ProductSpace::VectorCreator& spaces, std::integer_sequence< unsigned, is... > )
             {
                 return extractSpace< Description, 0 >( spaces );
             }
 
             template < class Description, int i >
-            void copyToVariableSetDescription( const ProductSpace::Vector& x,
-                                               ::Kaskade::VariableSet< Description >& y, int j = 0 )
+            void copyToVariableSetDescription( const ProductSpace::Vector& x, ::Kaskade::VariableSet< Description >& y, int j = 0 )
             {
                 if ( is< Vector< ExtractDescription_t< Description, i > > >( x.component( j ) ) )
                 {
                     boost::fusion::at_c< i >( y.data ).coefficients() =
                         boost::fusion::at_c< 0 >(
-                            cast_ref< Vector< ExtractDescription_t< Description, i > > >(
-                                x.component( j ) )
-                                .get()
-                                .data )
+                            cast_ref< Vector< ExtractDescription_t< Description, i > > >( x.component( j ) ).get().data )
                             .coefficients();
                     return;
                 }
@@ -164,17 +148,12 @@ namespace Spacy
             }
 
             template < class Description, int i >
-            void copyFromVariableSetDescription( const ::Kaskade::VariableSet< Description >& x,
-                                                 ProductSpace::Vector& y, int j = 0 )
+            void copyFromVariableSetDescription( const ::Kaskade::VariableSet< Description >& x, ProductSpace::Vector& y, int j = 0 )
             {
                 if ( is< Vector< ExtractDescription_t< Description, i > > >( y.component( j ) ) )
                 {
-                    boost::fusion::at_c< i >(
-                                cast_ref< Vector< ExtractDescription_t< Description, i > > >(
-                                    y.component( j ) )
-                                    .get()
-                                    .data ).coefficients() =
-                        boost::fusion::at_c< 0 >( x.data ).coefficients();
+                    boost::fusion::at_c< i >( cast_ref< Vector< ExtractDescription_t< Description, i > > >( y.component( j ) ).get().data )
+                        .coefficients() = boost::fusion::at_c< 0 >( x.data ).coefficients();
                     return;
                 }
 
@@ -194,10 +173,7 @@ namespace Spacy
                 {
                     boost::fusion::at_c< i >( y.data ) =
                         boost::fusion::at_c< 0 >(
-                            cast_ref< Vector< ExtractDescription_t< Description, i > > >(
-                                x.component( j ) )
-                                .get()
-                                .data )
+                            cast_ref< Vector< ExtractDescription_t< Description, i > > >( x.component( j ) ).get().data )
                             .coefficients();
                     return;
                 }
@@ -212,16 +188,11 @@ namespace Spacy
             }
 
             template < class Description, int i, class CoeffVector >
-            void copyFromCoefficientVector( const CoeffVector& x, ProductSpace::Vector& y,
-                                            int j = 0 )
+            void copyFromCoefficientVector( const CoeffVector& x, ProductSpace::Vector& y, int j = 0 )
             {
                 if ( is< Vector< ExtractDescription_t< Description, i > > >( y.component( j ) ) )
                 {
-                    boost::fusion::at_c< 0 >(
-                        cast_ref< Vector< ExtractDescription_t< Description, i > > >(
-                            y.component( j ) )
-                            .get()
-                            .data )
+                    boost::fusion::at_c< 0 >( cast_ref< Vector< ExtractDescription_t< Description, i > > >( y.component( j ) ).get().data )
                         .coefficients() = boost::fusion::at_c< i >( x.data );
                     return;
                 }
@@ -239,8 +210,7 @@ namespace Spacy
             struct Copy
             {
                 template < class Description >
-                static void apply( const ProductSpace::Vector& x,
-                                   ::Kaskade::VariableSet< Description >& y )
+                static void apply( const ProductSpace::Vector& x, ::Kaskade::VariableSet< Description >& y )
                 {
                     for ( auto j = 0u; j < x.numberOfVariables(); ++j )
                         copyToVariableSetDescription< Description, i >( x, y, j );
@@ -248,8 +218,7 @@ namespace Spacy
                 }
 
                 template < class Description >
-                static void apply( const ::Kaskade::VariableSet< Description >& x,
-                                   ProductSpace::Vector& y )
+                static void apply( const ::Kaskade::VariableSet< Description >& x, ProductSpace::Vector& y )
                 {
                     for ( auto j = 0u; j < y.numberOfVariables(); ++j )
                         copyFromVariableSetDescription< Description, i >( x, y, j );
@@ -277,14 +246,12 @@ namespace Spacy
             struct Copy< n, n >
             {
                 template < class Description >
-                static void apply( const ProductSpace::Vector&,
-                                   ::Kaskade::VariableSet< Description >& )
+                static void apply( const ProductSpace::Vector&, ::Kaskade::VariableSet< Description >& )
                 {
                 }
 
                 template < class Description >
-                static void apply( const ::Kaskade::VariableSet< Description >&,
-                                   ProductSpace::Vector& )
+                static void apply( const ::Kaskade::VariableSet< Description >&, ProductSpace::Vector& )
                 {
                 }
 
@@ -298,35 +265,28 @@ namespace Spacy
                 {
                 }
             };
-        }
+        } // namespace Detail
         /// \endcond
 
         template < class Description >
         typename Description::Spaces extractSingleSpace( const VectorSpace& spaces )
         {
-            return Detail::ExtractSingleSpace< Description,
-                                               Description::noOfVariables != 1 >::apply( spaces );
+            return Detail::ExtractSingleSpace< Description, Description::noOfVariables != 1 >::apply( spaces );
         }
 
         template < class Description >
         typename Description::Spaces extractProductSpace( const VectorSpace& spaces )
         {
-            if ( is< ProductSpace::VectorCreator >(
-                     cast_ref< ProductSpace::VectorCreator >( spaces.creator() )
-                         .subSpace( 0 )
-                         .creator() ) )
+            if ( is< ProductSpace::VectorCreator >( cast_ref< ProductSpace::VectorCreator >( spaces.creator() ).subSpace( 0 ).creator() ) )
             {
-                const auto& productSpace =
-                    cast_ref< ProductSpace::VectorCreator >( spaces.creator() );
+                const auto& productSpace = cast_ref< ProductSpace::VectorCreator >( spaces.creator() );
                 //        for(auto i = 0u; productSpace.subSpaces().size(); ++i )
                 return extractProductSpace< Description >( productSpace.subSpace( 0 ) );
             }
             else
             {
                 const auto& spaces_ = cast_ref< ProductSpace::VectorCreator >( spaces.creator() );
-                using seq = std::make_integer_sequence<
-                    unsigned,
-                    boost::fusion::result_of::size< typename Description::Spaces >::value >;
+                using seq = std::make_integer_sequence< unsigned, boost::fusion::result_of::size< typename Description::Spaces >::value >;
                 return Detail::extractSpaces< Description >( spaces_, seq{} );
             }
         }
@@ -337,13 +297,10 @@ namespace Spacy
         {
             using Spaces = typename Description::Spaces;
 
-            if ( is< VectorCreator< Description > >( spaces.creator() ) )
-                return extractSingleSpace< Description >( spaces );
-
             if ( is< ProductSpace::VectorCreator >( spaces.creator() ) )
                 return extractProductSpace< Description >( spaces );
 
-            assert( false );
+            return extractSingleSpace< Description >( spaces );
         }
 
         /// Copy from ::Spacy::Vector to %Kaskade::VariableSet<Description>.
@@ -353,15 +310,13 @@ namespace Spacy
             if ( is< Vector< Description > >( x ) )
             {
                 boost::fusion::at_c< 0 >( y.data ).coefficients() =
-                    boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( x ).get().data )
-                        .coefficients();
+                    boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( x ).get().data ).coefficients();
                 return;
             }
 
             if ( is< ProductSpace::Vector >( x ) )
             {
-                Detail::Copy< 0, Description::noOfVariables >::apply(
-                    cast_ref< ProductSpace::Vector >( x ), y );
+                Detail::Copy< 0, Description::noOfVariables >::apply( cast_ref< ProductSpace::Vector >( x ), y );
                 return;
             }
         }
@@ -373,58 +328,52 @@ namespace Spacy
             if ( is< Vector< Description > >( y ) )
             {
                 boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( y ).get().data ).coefficients() =
-                    boost::fusion::at_c< 0 >( x.data )
-                        .coefficients();
+                    boost::fusion::at_c< 0 >( x.data ).coefficients();
                 return;
             }
 
             if ( is< ProductSpace::Vector >( y ) )
             {
-                Detail::Copy< 0, Description::noOfVariables >::apply(
-                    x, cast_ref< ProductSpace::Vector >( y ) );
+                Detail::Copy< 0, Description::noOfVariables >::apply( x, cast_ref< ProductSpace::Vector >( y ) );
                 return;
             }
         }
 
         /// Copy from ::Spacy::Vector to coefficient vector of %Kaskade 7.
         template < class Description >
-        void copyToCoefficientVector(
-            const ::Spacy::Vector& x,
-            typename Description::template CoefficientVectorRepresentation<>::type& y )
+        void copyToCoefficientVector( const ::Spacy::Vector& x, typename Description::template CoefficientVectorRepresentation<>::type& y )
         {
             if ( is< Vector< Description > >( x ) )
             {
                 boost::fusion::at_c< 0 >( y.data ) =
-                    boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( x ).get().data )
-                        .coefficients();
+                    boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( x ).get().data ).coefficients();
                 return;
             }
 
             if ( is< ProductSpace::Vector >( x ) )
             {
-                Detail::Copy< 0, Description::noOfVariables >::template toCoefficientVector<
-                    Description >( cast_ref< ProductSpace::Vector >( x ), y );
+                Detail::Copy< 0, Description::noOfVariables >::template toCoefficientVector< Description >(
+                    cast_ref< ProductSpace::Vector >( x ), y );
                 return;
             }
         }
 
         ///  Copy coefficient vector of %Kaskade 7 to ::Spacy::Vector.
         template < class Description >
-        void copyFromCoefficientVector(
-            const typename Description::template CoefficientVectorRepresentation<>::type& x,
-            ::Spacy::Vector& y )
+        void copyFromCoefficientVector( const typename Description::template CoefficientVectorRepresentation<>::type& x,
+                                        ::Spacy::Vector& y )
         {
             if ( is< Vector< Description > >( y ) )
             {
-                boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( y ).get().data )
-                    .coefficients() = boost::fusion::at_c< 0 >( x.data );
+                boost::fusion::at_c< 0 >( cast_ref< Vector< Description > >( y ).get().data ).coefficients() =
+                    boost::fusion::at_c< 0 >( x.data );
                 return;
             }
 
             if ( is< ProductSpace::Vector >( y ) )
             {
-                Detail::Copy< 0, Description::noOfVariables >::template fromCoefficientVector<
-                    Description >( x, cast_ref< ProductSpace::Vector >( y ) );
+                Detail::Copy< 0, Description::noOfVariables >::template fromCoefficientVector< Description >(
+                    x, cast_ref< ProductSpace::Vector >( y ) );
                 return;
             }
         }
@@ -435,8 +384,7 @@ namespace Spacy
             template < class CoefficientVector, class VariableSet >
             static void apply( const CoefficientVector& x, VariableSet& y )
             {
-                boost::fusion::at_c< n >( y.data ).coefficients() =
-                    boost::fusion::at_c< n >( x.data );
+                boost::fusion::at_c< n >( y.data ).coefficients() = boost::fusion::at_c< n >( x.data );
             }
         };
 
@@ -455,8 +403,7 @@ namespace Spacy
             template < class VariableSet, class CoefficientVector >
             static void apply( const VariableSet& x, CoefficientVector& y )
             {
-                boost::fusion::at_c< n >( y.data ) =
-                    boost::fusion::at_c< n >( x.data ).coefficients();
+                boost::fusion::at_c< n >( y.data ) = boost::fusion::at_c< n >( x.data ).coefficients();
             }
         };
 
@@ -472,16 +419,14 @@ namespace Spacy
         template < class CoefficientVector, class VariableSet >
         void coefficientsToVariableSet( const CoefficientVector& x, VariableSet& y )
         {
-            CoefficientsToVariableSet< VariableSet::Descriptions::noOfVariables - 1 >::apply( x,
-                                                                                              y );
+            CoefficientsToVariableSet< VariableSet::Descriptions::noOfVariables - 1 >::apply( x, y );
         }
 
         template < class VariableSet, class CoefficientVector >
         void variableSetToCoefficients( const VariableSet& x, CoefficientVector& y )
         {
-            VariableSetToCoefficients< VariableSet::Descriptions::noOfVariables - 1 >::apply( x,
-                                                                                              y );
+            VariableSetToCoefficients< VariableSet::Descriptions::noOfVariables - 1 >::apply( x, y );
         }
-    }
+    } // namespace Kaskade
     /** @} */
-}
+} // namespace Spacy
