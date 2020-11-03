@@ -38,6 +38,8 @@ namespace Spacy
         /// Negation \f$ -x\f$.
         Real operator-() const;
 
+        void axpy(const double& s, const Real& y) {  };
+
         /// Comparison operator \f$ x==y\f$.
         bool operator==( const Real& y ) const;
 

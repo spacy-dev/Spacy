@@ -163,6 +163,9 @@ namespace Spacy
             //    /// Axpy-operation \f$x = x + ay\f$.
             //    AbstractVector& axpy(double a, const AbstractVector& y);
 
+            void axpy(const double& s, const Vector& y) { assert(0); };
+
+
             /// @return \f$x-y\f$
             Vector& operator-=( const Vector& y );
 
