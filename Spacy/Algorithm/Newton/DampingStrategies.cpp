@@ -13,16 +13,14 @@ namespace Spacy
     {
         namespace Damping
         {
-            AffineCovariant::AffineCovariant( const C1Operator& F )
-                : F_( F ), oldDs( zero( F.domain() ) )
+            AffineCovariant::AffineCovariant( const C1Operator& F ) : F_( F ), oldDs( zero( F.domain() ) )
             {
             }
 
-            DampingFactor AffineCovariant::
-            operator()( const std::function< Vector( const Vector& ) >& DFInv_, const Vector& x,
-                        const Vector& dx ) const
+            DampingFactor AffineCovariant::operator()( const std::function< Vector( const Vector& ) >& DFInv_, const Vector& x,
+                                                       const Vector& dx ) const
             {
-                auto nu = DampingFactor{1};
+                auto nu = DampingFactor{ 1 };
                 auto mu = 1.;
                 auto normDx = norm( dx );
 
@@ -38,14 +36,13 @@ namespace Spacy
                 while ( true )
                 {
                     if ( regularityTestFailed( nu ) )
-                        throw Exception::RegularityTestFailed(
-                            "Newton::DampingStrategy::AffineCovariant", get( get( nu ) ) );
+                        throw Exception::RegularityTestFailed( "Newton::DampingStrategy::AffineCovariant", get( get( nu ) ) );
 
                     auto trial = x + nu * dx;
                     auto ds = DFInv_( -F_( trial ) ) - ( 1 - nu ) * dx;
                     auto normDs = norm( ds );
 
-                    auto muPrime = DampingFactor{0.5 * nu * nu / normDs};
+                    auto muPrime = DampingFactor{ 0.5 * nu * nu / normDs };
 
                     if ( normDs / normDx >= 1 )
                     {
@@ -77,9 +74,8 @@ namespace Spacy
             {
             }
 
-            DampingFactor AffineContravariant::
-            operator()( const std::function< Vector( const Vector& ) >&, const Vector& x,
-                        const Vector& dx ) const
+            DampingFactor AffineContravariant::operator()( const std::function< Vector( const Vector& ) >& /*unused*/, const Vector& x,
+                                                           const Vector& dx ) const
             {
                 auto nu = DampingFactor( 1 );
                 auto norm_F_x = norm( F_( x ) );
@@ -92,8 +88,7 @@ namespace Spacy
                 while ( true )
                 {
                     if ( !regularityTestPassed( nu ) )
-                        throw Exception::RegularityTestFailed(
-                            "Newton::DampingStrategy::AffineContravariant", get( get( nu ) ) );
+                        throw Exception::RegularityTestFailed( "Newton::DampingStrategy::AffineContravariant", get( get( nu ) ) );
 
                     auto trial = x + nu * dx;
 
@@ -123,15 +118,15 @@ namespace Spacy
                 return nu;
             }
 
-            None::None( const C1Operator& )
+            None::None( const C1Operator& /*unused*/ )
             {
             }
 
-            DampingFactor None::operator()( const std::function< Vector( const Vector& ) >&,
-                                            const Vector&, const Vector& ) const
+            DampingFactor None::operator()( const std::function< Vector( const Vector& ) >& /*unused*/, const Vector& /*unused*/,
+                                            const Vector& /*unused*/ ) const
             {
                 return DampingFactor( 1 );
             }
-        }
-    }
-}
+        } // namespace Damping
+    }     // namespace Newton
+} // namespace Spacy

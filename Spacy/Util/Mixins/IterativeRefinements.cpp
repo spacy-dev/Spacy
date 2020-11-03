@@ -1,7 +1,27 @@
 #include "IterativeRefinements.h"
 
-#include "Macros.h"
+namespace Spacy
+{
+    namespace Mixin
+    {
+        IterativeRefinements::IterativeRefinements( unsigned value ) noexcept : value_( value )
+        {
+        }
 
-GENERATE_MIXIN_SOURCE(unsigned,IterativeRefinements)
+        void IterativeRefinements::setIterativeRefinements( unsigned value )
+        {
+            value_ = value;
+            notify();
+        }
 
-#include "UndefMacros.h"
+        unsigned IterativeRefinements::getIterativeRefinements() const noexcept
+        {
+            return value_;
+        }
+
+        void IterativeRefinements::update( IterativeRefinements* changedSubject )
+        {
+            setIterativeRefinements( changedSubject->getIterativeRefinements() );
+        }
+    } // namespace Mixin
+} // namespace Spacy

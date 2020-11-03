@@ -1,7 +1,27 @@
 #include "MaxSteps.h"
 
-#include "Macros.h"
+namespace Spacy
+{
+    namespace Mixin
+    {
+        MaxSteps::MaxSteps( unsigned value ) noexcept : value_( value )
+        {
+        }
 
-GENERATE_MIXIN_SOURCE(unsigned,MaxSteps)
+        void MaxSteps::setMaxSteps( unsigned value )
+        {
+            value_ = value;
+            notify();
+        }
 
-#include "UndefMacros.h"
+        unsigned MaxSteps::getMaxSteps() const noexcept
+        {
+            return value_;
+        }
+
+        void MaxSteps::update( MaxSteps* changedSubject )
+        {
+            setMaxSteps( changedSubject->getMaxSteps() );
+        }
+    } // namespace Mixin
+} // namespace Spacy

@@ -1,15 +1,15 @@
 #pragma once
 
-#include <utility>
+#include "Copy.h"
+#include "DirectSolver.h"
+#include "OperatorSpace.h"
 
 #include <Spacy/LinearSolver.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Vector.h>
 
-#include "Copy.h"
-#include "DirectSolver.h"
-#include "OperatorSpace.h"
+#include <utility>
 
 namespace Spacy
 {
@@ -29,22 +29,17 @@ namespace Spacy
          * @see ::Spacy::LinearOperator
          */
         template < class AnsatzVariableSetDescription, class TestVariableSetDescription >
-        class LinearOperator
-            : public OperatorBase,
-              public VectorBase,
-              public AddArithmeticOperators<
-                  LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription > >
+        class LinearOperator : public OperatorBase,
+                               public VectorBase,
+                               public AddArithmeticOperators< LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription > >
         {
             using Spaces = typename AnsatzVariableSetDescription::Spaces;
             using Variables = typename AnsatzVariableSetDescription::Variables;
-            using Domain = typename AnsatzVariableSetDescription::
-                template CoefficientVectorRepresentation<>::type;
-            using Range = typename TestVariableSetDescription::
-                template CoefficientVectorRepresentation<>::type;
+            using Domain = typename AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::type;
+            using Range = typename TestVariableSetDescription::template CoefficientVectorRepresentation<>::type;
             using Matrix = ::Kaskade::MatrixAsTriplet< double >;
             using OperatorImpl = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
-            using OperatorCreator =
-                LinearOperatorCreator< AnsatzVariableSetDescription, TestVariableSetDescription >;
+            using OperatorCreator = LinearOperatorCreator< AnsatzVariableSetDescription, TestVariableSetDescription >;
 
         public:
             /**
@@ -57,8 +52,7 @@ namespace Spacy
                 : OperatorBase( cast_ref< OperatorCreator >( space.creator() ).domain(),
                                 cast_ref< OperatorCreator >( space.creator() ).range() ),
                   VectorBase( space ), A_( std::move( A ) ),
-                  spaces_( extractSpaces< AnsatzVariableSetDescription >(
-                      cast_ref< OperatorCreator >( space.creator() ).domain() ) )
+                  spaces_( extractSpaces< AnsatzVariableSetDescription >( cast_ref< OperatorCreator >( space.creator() ).domain() ) )
             {
             }
 
@@ -69,13 +63,11 @@ namespace Spacy
              * @param range range space
              * @param solverCreator function/functor implementing the creation of a linear solver
              */
-            LinearOperator( OperatorImpl A, const VectorSpace& space,
-                            std::function< LinearSolver( const LinearOperator& ) > solverCreator )
+            LinearOperator( OperatorImpl A, const VectorSpace& space, std::function< LinearSolver( const LinearOperator& ) > solverCreator )
                 : OperatorBase( cast_ref< OperatorCreator >( space.creator() ).domain(),
                                 cast_ref< OperatorCreator >( space.creator() ).range() ),
                   VectorBase( space ), A_( std::move( A ) ),
-                  spaces_( extractSpaces< AnsatzVariableSetDescription >(
-                      cast_ref< OperatorCreator >( space.creator() ).domain() ) ),
+                  spaces_( extractSpaces< AnsatzVariableSetDescription >( cast_ref< OperatorCreator >( space.creator() ).domain() ) ),
                   solverCreator_( std::move( solverCreator ) )
             {
             }
@@ -83,13 +75,9 @@ namespace Spacy
             /// Compute \f$A(x)\f$.
             ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const
             {
-                Domain x_(
-                    AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::init(
-                        spaces_ ) );
+                Domain x_( AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
                 copyToCoefficientVector< AnsatzVariableSetDescription >( x, x_ );
-                Range y_(
-                    TestVariableSetDescription::template CoefficientVectorRepresentation<>::init(
-                        spaces_ ) );
+                Range y_( TestVariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
 
                 A_.apply( x_, y_ );
 
@@ -99,7 +87,7 @@ namespace Spacy
                 return y;
             }
 
-            ::Spacy::Real operator()( const LinearOperator& ) const
+            ::Spacy::Real operator()( const LinearOperator& /*unused*/ ) const
             {
                 return Real( 0 );
             }
@@ -164,8 +152,7 @@ namespace Spacy
         private:
             OperatorImpl A_;
             Spaces spaces_;
-            std::function< LinearSolver( const LinearOperator& ) > solverCreator_ = [](
-                const LinearOperator& M ) {
+            std::function< LinearSolver( const LinearOperator& ) > solverCreator_ = []( const LinearOperator& M ) {
                 return makeDirectSolver< TestVariableSetDescription, AnsatzVariableSetDescription >(
                     M.A(), M.range(), M.domain() /*,
                                                                                               DirectType::MUMPS ,
@@ -186,14 +173,11 @@ namespace Spacy
          * @return LinearOperator<OperatorImpl, AnsatzVariableSetDescription,
          * TestVariableSetDescription>( A , domain , range )
          */
-        template < class AnsatzVariableSetDescription, class TestVariableSetDescription,
-                   class OperatorImpl >
-        auto makeLinearOperator( const OperatorImpl& A, const VectorSpace& domain,
-                                 const VectorSpace& range )
+        template < class AnsatzVariableSetDescription, class TestVariableSetDescription, class OperatorImpl >
+        auto makeLinearOperator( const OperatorImpl& A, const VectorSpace& domain, const VectorSpace& range )
         {
-            return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >(
-                A, domain, range );
+            return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >( A, domain, range );
         }
-    }
+    } // namespace Kaskade
     /** @} */
-}
+} // namespace Spacy

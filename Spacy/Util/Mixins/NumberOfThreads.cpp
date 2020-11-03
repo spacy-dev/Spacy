@@ -1,7 +1,27 @@
 #include "NumberOfThreads.h"
 
-#include "Macros.h"
+namespace Spacy
+{
+    namespace Mixin
+    {
+        NumberOfThreads::NumberOfThreads( unsigned value ) noexcept : value_( value )
+        {
+        }
 
-GENERATE_MIXIN_SOURCE(unsigned,NumberOfThreads)
+        void NumberOfThreads::setNumberOfThreads( unsigned value )
+        {
+            value_ = value;
+            notify();
+        }
 
-#include "UndefMacros.h"
+        unsigned NumberOfThreads::getNumberOfThreads() const noexcept
+        {
+            return value_;
+        }
+
+        void NumberOfThreads::update( NumberOfThreads* changedSubject )
+        {
+            setNumberOfThreads( changedSubject->getNumberOfThreads() );
+        }
+    } // namespace Mixin
+} // namespace Spacy

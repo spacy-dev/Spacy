@@ -1,12 +1,12 @@
 #pragma once
 
+#include <functional>
+
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Mixins/Eps.h>
 #include <Spacy/Util/Mixins/RegularityTest.h>
 #include <Spacy/Vector.h>
-
-#include <functional>
 
 namespace Spacy
 {
@@ -30,14 +30,13 @@ namespace Spacy
                 AffineCovariant( const C1Operator& F );
 
                 /// Compute damping factor.
-                DampingFactor operator()( const std::function< Vector( const Vector& ) >& DFInv_,
-                                          const Vector& x, const Vector& dx ) const;
+                DampingFactor operator()( const std::function< Vector( const Vector& ) >& DFInv_, const Vector& x, const Vector& dx ) const;
 
             private:
                 const C1Operator& F_;
 
-                mutable DampingFactor oldNu{-1};
-                mutable Real normOldDx = Real{-1}, normOldDs = Real{-1};
+                mutable DampingFactor oldNu{ -1 };
+                mutable Real normOldDx = Real{ -1 }, normOldDs = Real{ -1 };
                 mutable Vector oldDs;
             };
 
@@ -53,12 +52,12 @@ namespace Spacy
                 AffineContravariant( const C1Operator& F );
 
                 /// @copydoc AffineCovariant::operator()()
-                DampingFactor operator()( const std::function< Vector( const Vector& ) >&,
-                                          const Vector& x, const Vector& dx ) const;
+                DampingFactor operator()( const std::function< Vector( const Vector& ) >& /*unused*/, const Vector& x,
+                                          const Vector& dx ) const;
 
             private:
                 const C1Operator& F_;
-                mutable Real muPrime = Real{-1}, norm_F_x_old = Real{-1};
+                mutable Real muPrime = Real{ -1 }, norm_F_x_old = Real{ -1 };
             };
 
             /**
@@ -69,15 +68,15 @@ namespace Spacy
             {
             public:
                 /// Constructor.
-                None( const C1Operator& );
+                None( const C1Operator& /*unused*/ );
 
                 /**
                  * @brief Compute damping factor. Always returns 1.
                  * @return DampingFactor(1)
                  */
-                DampingFactor operator()( const std::function< Vector( const Vector& ) >&,
-                                          const Vector&, const Vector& ) const;
+                DampingFactor operator()( const std::function< Vector( const Vector& ) >& /*unused*/, const Vector& /*unused*/,
+                                          const Vector& /*unused*/ ) const;
             };
-        }
-    }
-}
+        } // namespace Damping
+    }     // namespace Newton
+} // namespace Spacy

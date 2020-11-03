@@ -27,7 +27,7 @@ namespace Spacy
                 return scaledGamma2.size() > getMaxSteps() || ( scaledGamma2.size() > lookAhead_ && squaredRelativeError() < tol * tol );
             }
 
-            void StrakosTichyEnergyError::update( double alpha, double qAq, double, double rPINVr, const Vector& )
+            void StrakosTichyEnergyError::update( double alpha, double qAq, double /*unused*/, double rPINVr, const Vector& /*unused*/ )
             {
                 scaledGamma2.push_back( alpha * rPINVr );
                 energyNorm2 += alpha * rPINVr;
@@ -235,7 +235,8 @@ namespace Spacy
                        ( scaledGamma2.size() > 2 * lookAhead_ && tau < 0.75 && ( squaredRelativeError() < tol * tol ) );
             }
 
-            void AdaptiveRelativeEnergyError::update( double alpha, double qAq, double, double rPINVr, const Vector& cg_iterate_ )
+            void AdaptiveRelativeEnergyError::update( double alpha, double qAq, double /*unused*/, double rPINVr,
+                                                      const Vector& cg_iterate_ )
             {
                 scaledGamma2.push_back( alpha * rPINVr );
                 energyNorm2 += alpha * rPINVr;

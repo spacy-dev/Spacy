@@ -91,7 +91,7 @@ namespace Spacy
             Vector computeMinimumNormCorrection( const Vector& x ) const;
             Vector computeTangentialStep( DampingFactor nu, const Vector& x, const Vector& dn, bool lastStepWasUndamped ) const;
 
-            std::tuple< Vector, Vector, Vector > updateLagrangeMultiplier( const Vector& x, const DampingFactor nu ) const;
+            std::tuple< Vector, Vector, Vector > updateLagrangeMultiplier( const Vector& x, DampingFactor nu ) const;
 
             IndefiniteLinearSolver makeTangentialSolver( DampingFactor nu, const Vector& x, bool lastStepWasUndamped ) const;
 

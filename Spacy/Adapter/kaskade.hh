@@ -2,8 +2,8 @@
 
 #include "Kaskade/C1Operator.h"
 #include "Kaskade/C2Functional.h"
-#include "Kaskade/DirectSolver.h"
 #include "Kaskade/DLY.h"
+#include "Kaskade/DirectSolver.h"
 #include "Kaskade/DynamicC1Operator.h"
 #include "Kaskade/GridRefinement.h"
 #include "Kaskade/HierarchicalErrorEstimator.h"

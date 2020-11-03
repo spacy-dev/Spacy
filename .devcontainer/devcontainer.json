@@ -24,7 +24,9 @@
 		"cmake.configureArgs": [
 			"-GNinja",
 			"-DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake",
-			"-DBuildTest=ON"
+			"-DCMAKE_CXX_CLANG_TIDY=clang-tidy",
+			"-DBuildTest=ON",
+			"-DKaskade=ON"
 		]
 	},
 	// Add the IDs of extensions you want installed when the container is created.

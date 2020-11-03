@@ -1,12 +1,13 @@
 #pragma once
 
+#include <functional>
+
 #include <Spacy/Norm.h>
 #include <Spacy/ScalarProduct.h>
 #include <Spacy/Util/Mixins/Eps.h>
 
 #include <memory>
 #include <vector>
-#include <functional>
 
 namespace Spacy
 {
@@ -113,19 +114,16 @@ namespace Spacy
         Norm norm_ = {};
         ScalarProduct sp_ = {};
         Index index_ = Detail::spaceIndex++;
-        std::vector< unsigned > primalSpaces_ = {},
-                                dualSpaces_ =
-                                    {}; ///< primal and dual spaces with respect to this space
+        std::vector< unsigned > primalSpaces_ = {}, dualSpaces_ = {}; ///< primal and dual spaces with respect to this space
         const VectorSpace* dualSpace_ = nullptr;
-        std::function< bool( const Vector& ) > restriction_ = []( const Vector& ) { return true; };
+        std::function< bool( const Vector& ) > restriction_ = []( const Vector& /*unused*/ ) { return true; };
     };
 
     /// Construct Banach space.
     VectorSpace makeBanachSpace( ZeroVectorCreator&& creator, Norm norm );
 
     /// Construct Hilbert space.
-    VectorSpace makeHilbertSpace( ZeroVectorCreator&& creator, ScalarProduct scalarProduct,
-                                  bool defaultIndex = false );
+    VectorSpace makeHilbertSpace( ZeroVectorCreator&& creator, ScalarProduct scalarProduct, bool defaultIndex = false );
 
     /**
      * @brief Relate function spaces.
@@ -143,4 +141,4 @@ namespace Spacy
      * @throws if `V.index() != W.index()` throws IncompatibleSpaceException
      */
     void checkSpaceCompatibility( const VectorSpace& V, const VectorSpace& W );
-}
+} // namespace Spacy

@@ -1,7 +1,23 @@
 #pragma once
 
-#include "Macros.h"
+#include <Spacy/Util/Mixins/MixinConnection.h>
 
-GENERATE_MIXIN_HEADER(unsigned,IterativeRefinements,0)
+namespace Spacy
+{
+    namespace Mixin
+    {
+        class IterativeRefinements : public MixinConnection< IterativeRefinements >
+        {
+            friend class MixinConnection< IterativeRefinements >;
 
-#include "UndefMacros.h"
+        public:
+            explicit IterativeRefinements( unsigned value = 1000 ) noexcept;
+            void setIterativeRefinements( unsigned value );
+            unsigned getIterativeRefinements() const noexcept;
+            void update( IterativeRefinements* changedSubject );
+
+        private:
+            unsigned value_;
+        };
+    } // namespace Mixin
+} // namespace Spacy

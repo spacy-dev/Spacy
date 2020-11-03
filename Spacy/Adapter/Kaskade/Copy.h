@@ -1,11 +1,12 @@
 #pragma once
 
 #include "L2Product.h"
-#include <fem/variables.hh>
 
 #include <Spacy/Spaces/ProductSpace.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
+
+#include <fem/variables.hh>
 
 #include <memory>
 #include <type_traits>
@@ -57,7 +58,7 @@ namespace Spacy
             template < class Description, int n >
             struct MakeSpaces< Description, n, n >
             {
-                static void apply( const Description&, std::vector< std::shared_ptr< VectorSpace > >& )
+                static void apply( const Description& /*unused*/, std::vector< std::shared_ptr< VectorSpace > >& /*unused*/ )
                 {
                 }
             };
@@ -86,7 +87,7 @@ namespace Spacy
             template < class Description, unsigned i, unsigned n, bool doApply >
             struct ExtractSpace< Description, i, n, n, doApply >
             {
-                static auto apply( const ProductSpace::VectorCreator& )
+                static auto apply( const ProductSpace::VectorCreator& /*unused*/ )
                 {
                 }
             };
@@ -107,7 +108,7 @@ namespace Spacy
             {
                 using Spaces = typename Description::Spaces;
 
-                static Spaces apply( const VectorSpace& )
+                static Spaces apply( const VectorSpace& /*unused*/ )
                 {
                     return Spaces{};
                 }
@@ -121,7 +122,7 @@ namespace Spacy
             }
 
             template < class Description, unsigned... is >
-            auto extractSpaces( const ProductSpace::VectorCreator& spaces, std::integer_sequence< unsigned, is... > )
+            auto extractSpaces( const ProductSpace::VectorCreator& spaces, std::integer_sequence< unsigned, is... > /*unused*/ )
             {
                 return extractSpace< Description, 0 >( spaces );
             }
@@ -246,22 +247,22 @@ namespace Spacy
             struct Copy< n, n >
             {
                 template < class Description >
-                static void apply( const ProductSpace::Vector&, ::Kaskade::VariableSet< Description >& )
+                static void apply( const ProductSpace::Vector& /*unused*/, ::Kaskade::VariableSet< Description >& /*unused*/ )
                 {
                 }
 
                 template < class Description >
-                static void apply( const ::Kaskade::VariableSet< Description >&, ProductSpace::Vector& )
+                static void apply( const ::Kaskade::VariableSet< Description >& /*unused*/, ProductSpace::Vector& /*unused*/ )
                 {
                 }
 
                 template < class Description, class CoeffVector >
-                static void toCoefficientVector( const ProductSpace::Vector&, CoeffVector& )
+                static void toCoefficientVector( const ProductSpace::Vector& /*unused*/, CoeffVector& /*unused*/ )
                 {
                 }
 
                 template < class Description, class CoeffVector >
-                static void fromCoefficientVector( const CoeffVector&, ProductSpace::Vector& )
+                static void fromCoefficientVector( const CoeffVector& /*unused*/, ProductSpace::Vector& /*unused*/ )
                 {
                 }
             };
@@ -283,12 +284,10 @@ namespace Spacy
                 //        for(auto i = 0u; productSpace.subSpaces().size(); ++i )
                 return extractProductSpace< Description >( productSpace.subSpace( 0 ) );
             }
-            else
-            {
-                const auto& spaces_ = cast_ref< ProductSpace::VectorCreator >( spaces.creator() );
-                using seq = std::make_integer_sequence< unsigned, boost::fusion::result_of::size< typename Description::Spaces >::value >;
-                return Detail::extractSpaces< Description >( spaces_, seq{} );
-            }
+
+            const auto& spaces_ = cast_ref< ProductSpace::VectorCreator >( spaces.creator() );
+            using seq = std::make_integer_sequence< unsigned, boost::fusion::result_of::size< typename Description::Spaces >::value >;
+            return Detail::extractSpaces< Description >( spaces_, seq{} );
         }
 
         /// Extract boost::fusion::vector< const Space0*, const Space1*, ... > from spaces.
@@ -392,7 +391,7 @@ namespace Spacy
         struct CoefficientsToVariableSet< -1 >
         {
             template < class CoefficientVector, class VariableSet >
-            static void apply( const CoefficientVector&, VariableSet& )
+            static void apply( const CoefficientVector& /*unused*/, VariableSet& /*unused*/ )
             {
             }
         };

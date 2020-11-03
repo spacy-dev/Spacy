@@ -1,7 +1,23 @@
 #pragma once
 
-#include "Macros.h"
+#include <Spacy/Util/Mixins/MixinConnection.h>
 
-GENERATE_MIXIN_HEADER(unsigned,MaxSteps,1000)
+namespace Spacy
+{
+    namespace Mixin
+    {
+        class MaxSteps : public MixinConnection< MaxSteps >
+        {
+            friend class MixinConnection< MaxSteps >;
 
-#include "UndefMacros.h"
+        public:
+            explicit MaxSteps( unsigned value = 1000 ) noexcept;
+            void setMaxSteps( unsigned value );
+            unsigned getMaxSteps() const noexcept;
+            void update( MaxSteps* changedSubject );
+
+        private:
+            unsigned value_;
+        };
+    } // namespace Mixin
+} // namespace Spacy

@@ -29,13 +29,11 @@ public:
     using AnsatzVars = VarSet;
     using TestVars = VarSet;
 
-    /// \class DomainCache
-    ///
-
     class DomainCache
     {
     public:
-        DomainCache( PoissonFunctional< RType, AnsatzVars > const&, typename AnsatzVars::VariableSet const& vars_, int flags = 7 )
+        DomainCache( PoissonFunctional< RType, AnsatzVars > const& /*unused*/, typename AnsatzVars::VariableSet const& vars_,
+                     int /*unused*/ = 7 )
             : data( vars_ )
         {
         }
@@ -59,39 +57,37 @@ public:
 
             if ( dim == 2 )
             {
-                double g, h, gX, hX, gXX, hXX, gY, hY, gYY, hYY, p;
-                p = 100.0;
-                g = xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 1 ] * ( xglob[ 1 ] - 1 );
-                gX = ( 2 * xglob[ 0 ] - 1 ) * xglob[ 1 ] * ( xglob[ 1 ] - 1 );
-                gXX = 2 * xglob[ 1 ] * ( xglob[ 1 ] - 1 );
-                gY = ( 2 * xglob[ 1 ] - 1 ) * xglob[ 0 ] * ( xglob[ 0 ] - 1 );
-                gYY = 2 * xglob[ 0 ] * ( xglob[ 0 ] - 1 );
-                h = exp( -p * ( ( xglob[ 0 ] - 0.5 ) * ( xglob[ 0 ] - 0.5 ) + ( xglob[ 1 ] - 0.5 ) * ( xglob[ 1 ] - 0.5 ) ) );
-                hX = -2 * p * ( xglob[ 0 ] - 0.5 ) * h;
-                hXX = -2 * p * h - 2 * p * ( xglob[ 0 ] - 0.5 ) * hX;
-                hY = -2 * p * ( xglob[ 1 ] - 0.5 ) * h;
-                hYY = -2 * p * h - 2 * p * ( xglob[ 1 ] - 0.5 ) * hY;
+                const auto p = 100.0;
+                const auto g = xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 1 ] * ( xglob[ 1 ] - 1 );
+                const auto gX = ( 2 * xglob[ 0 ] - 1 ) * xglob[ 1 ] * ( xglob[ 1 ] - 1 );
+                const auto gXX = 2 * xglob[ 1 ] * ( xglob[ 1 ] - 1 );
+                const auto gY = ( 2 * xglob[ 1 ] - 1 ) * xglob[ 0 ] * ( xglob[ 0 ] - 1 );
+                const auto gYY = 2 * xglob[ 0 ] * ( xglob[ 0 ] - 1 );
+                const auto h = exp( -p * ( ( xglob[ 0 ] - 0.5 ) * ( xglob[ 0 ] - 0.5 ) + ( xglob[ 1 ] - 0.5 ) * ( xglob[ 1 ] - 0.5 ) ) );
+                const auto hX = -2 * p * ( xglob[ 0 ] - 0.5 ) * h;
+                const auto hXX = -2 * p * h - 2 * p * ( xglob[ 0 ] - 0.5 ) * hX;
+                const auto hY = -2 * p * ( xglob[ 1 ] - 0.5 ) * h;
+                const auto hYY = -2 * p * h - 2 * p * ( xglob[ 1 ] - 0.5 ) * hY;
                 f = gXX * h + 2 * gX * hX + g * hXX + gYY * h + 2 * gY * hY + g * hYY;
             }
             else
             {
-                double g, h, gX, hX, gXX, hXX, gY, hY, gYY, hYY, gZ, hZ, gZZ, hZZ, p;
-                p = 100.0;
-                g = xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 1 ] * ( xglob[ 1 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
-                gX = ( 2 * xglob[ 0 ] - 1 ) * xglob[ 1 ] * ( xglob[ 1 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
-                gXX = 2 * xglob[ 1 ] * ( xglob[ 1 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
-                gY = ( 2 * xglob[ 1 ] - 1 ) * xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
-                gYY = 2 * xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
-                gZ = ( 2 * xglob[ 2 ] - 1 ) * xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 0 ] * ( xglob[ 0 ] - 1 );
-                gZZ = 2 * xglob[ 1 ] * ( xglob[ 1 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
-                h = exp( -p * ( ( xglob[ 0 ] - 0.5 ) * ( xglob[ 0 ] - 0.5 ) + ( xglob[ 1 ] - 0.5 ) * ( xglob[ 1 ] - 0.5 ) +
-                                ( xglob[ 2 ] - 0.5 ) * ( xglob[ 2 ] - 0.5 ) ) );
-                hX = -2 * p * ( xglob[ 0 ] - 0.5 ) * h;
-                hXX = -2 * p * h - 2 * p * ( xglob[ 0 ] - 0.5 ) * hX;
-                hY = -2 * p * ( xglob[ 1 ] - 0.5 ) * h;
-                hYY = -2 * p * h - 2 * p * ( xglob[ 1 ] - 0.5 ) * hY;
-                hZ = -2 * p * ( xglob[ 2 ] - 0.5 ) * h;
-                hZZ = -2 * p * h - 2 * p * ( xglob[ 2 ] - 0.5 ) * hZ;
+                const auto p = 100.0;
+                const auto g = xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 1 ] * ( xglob[ 1 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
+                const auto gX = ( 2 * xglob[ 0 ] - 1 ) * xglob[ 1 ] * ( xglob[ 1 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
+                const auto gXX = 2 * xglob[ 1 ] * ( xglob[ 1 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
+                const auto gY = ( 2 * xglob[ 1 ] - 1 ) * xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
+                const auto gYY = 2 * xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
+                const auto gZ = ( 2 * xglob[ 2 ] - 1 ) * xglob[ 0 ] * ( xglob[ 0 ] - 1 ) * xglob[ 0 ] * ( xglob[ 0 ] - 1 );
+                const auto gZZ = 2 * xglob[ 1 ] * ( xglob[ 1 ] - 1 ) * xglob[ 2 ] * ( xglob[ 2 ] - 1 );
+                const auto h = exp( -p * ( ( xglob[ 0 ] - 0.5 ) * ( xglob[ 0 ] - 0.5 ) + ( xglob[ 1 ] - 0.5 ) * ( xglob[ 1 ] - 0.5 ) +
+                                           ( xglob[ 2 ] - 0.5 ) * ( xglob[ 2 ] - 0.5 ) ) );
+                const auto hX = -2 * p * ( xglob[ 0 ] - 0.5 ) * h;
+                const auto hXX = -2 * p * h - 2 * p * ( xglob[ 0 ] - 0.5 ) * hX;
+                const auto hY = -2 * p * ( xglob[ 1 ] - 0.5 ) * h;
+                const auto hYY = -2 * p * h - 2 * p * ( xglob[ 1 ] - 0.5 ) * hY;
+                const auto hZ = -2 * p * ( xglob[ 2 ] - 0.5 ) * h;
+                const auto hZZ = -2 * p * h - 2 * p * ( xglob[ 2 ] - 0.5 ) * hZ;
                 f = gXX * h + 2 * gX * hX + g * hXX + gYY * h + 2 * gY * hY + g * hYY + gZZ * h + 2 * gZ * hZ + g * hZZ;
             }
         }
@@ -129,7 +125,8 @@ public:
     public:
         using FaceIterator = typename AnsatzVars::Grid::LeafIntersectionIterator;
 
-        BoundaryCache( PoissonFunctional< RType, AnsatzVars > const&, typename AnsatzVars::VariableSet const& vars_, int flags = 7 )
+        BoundaryCache( PoissonFunctional< RType, AnsatzVars > const& /*unused*/, typename AnsatzVars::VariableSet const& vars_,
+                       int /*unused*/ = 7 )
             : data( vars_ ), e( 0 )
         {
         }
@@ -177,9 +174,6 @@ public:
         bool isNeumann;
     };
 
-    /// \struct D2
-    ///
-
     template < int row >
     struct D1 : public FunctionalBase< VariationalFunctional >::D1< row >
     {
@@ -187,7 +181,6 @@ public:
         static bool const constant = false;
     };
 
-public:
     template < int row, int col >
     struct D2 : public FunctionalBase< VariationalFunctional >::D2< row, col >
     {
@@ -204,9 +197,6 @@ public:
     {
         if ( boundary )
             return 2 * shapeFunctionOrder;
-        else
-            return 2 * shapeFunctionOrder;
+        return 2 * shapeFunctionOrder;
     }
-
-public:
 };

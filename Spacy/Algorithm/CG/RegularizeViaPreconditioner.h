@@ -12,18 +12,18 @@ namespace Spacy
     namespace CG
     {
         /**
-             * @brief Regularize by adding multiples of the preconditioner \f$P\f$ to the operator
-             * \f$A\f$.
-             */
+         * @brief Regularize by adding multiples of the preconditioner \f$P\f$ to the operator
+         * \f$A\f$.
+         */
         class RegularizeViaPreconditioner : Mixin::Eps
         {
         public:
             /**
-                   * @brief Constructor.
-                   * @param minIncrease minimal increase of the regularization parameter
-                   * @param maxIncrease maximal increase of the regularization parameter
-                   * @param eps maximal attainable accuracy
-                   */
+             * @brief Constructor.
+             * @param minIncrease minimal increase of the regularization parameter
+             * @param maxIncrease maximal increase of the regularization parameter
+             * @param eps maximal attainable accuracy
+             */
             RegularizeViaPreconditioner( double minIncrease = 2, double maxIncrease = 1000,
                                          double eps = std::numeric_limits< double >::epsilon() );
 
@@ -66,13 +66,13 @@ namespace Spacy
             void init()
             {
             }
-            void apply( Real&, Real ) const
+            void apply( Real& /*unused*/, Real /*unused*/ ) const
             {
             }
-            void update( Real, Real )
+            void update( Real /*unused*/, Real /*unused*/ )
             {
             }
-            void adjustResidual( Real, const Vector&, Vector& ) const
+            void adjustResidual( Real /*unused*/, const Vector& /*unused*/, Vector& /*unused*/ ) const
             {
             }
         };
@@ -83,15 +83,14 @@ namespace Spacy
             using CallableOperator = std::function< Vector( const Vector& ) >;
 
             /**
-                 * @brief Constructor.
-                 * @param R operator used for regularization
-                 * @param theta_sugg suggested regularization paramteter
-                 * @param minIncrease minimal increase of the regularization parameter
-                 * @param maxIncrease maximal increase of the regularization parameter
-                 * @param eps maximal attainable accuracy
-                 */
-            RegularizeViaCallableOperator( CallableOperator R, Real theta_sugg,
-                                           double minIncrease = 2, double maxIncrease = 1000,
+             * @brief Constructor.
+             * @param R operator used for regularization
+             * @param theta_sugg suggested regularization paramteter
+             * @param minIncrease minimal increase of the regularization parameter
+             * @param maxIncrease maximal increase of the regularization parameter
+             * @param eps maximal attainable accuracy
+             */
+            RegularizeViaCallableOperator( CallableOperator R, Real theta_sugg, double minIncrease = 2, double maxIncrease = 1000,
                                            double eps = std::numeric_limits< double >::epsilon() );
 
             /// Initialize regularization.
@@ -134,12 +133,12 @@ namespace Spacy
             void resetMemory();
 
         private:
-            Real theta_ = Real{0.};
+            Real theta_ = Real{ 0. };
             double minIncrease_, maxIncrease_;
             CallableOperator R_;
 
             mutable std::vector< Real > qAq_vec, qRq_vec;
             mutable std::vector< Vector > Rq_vec;
         };
-    }
-}
+    } // namespace CG
+} // namespace Spacy

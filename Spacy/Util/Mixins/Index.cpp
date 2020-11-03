@@ -1,11 +1,67 @@
 #include "Index.h"
 
-#include "Macros.h"
+namespace Spacy
+{
+    namespace Mixin
+    {
+        StateIndex::StateIndex( unsigned value ) noexcept : value_( value )
+        {
+        }
 
-GENERATE_MIXIN_SOURCE(unsigned,StateIndex)
+        void StateIndex::setStateIndex( unsigned value )
+        {
+            value_ = value;
+            notify();
+        }
 
-GENERATE_MIXIN_SOURCE(unsigned,ControlIndex)
+        unsigned StateIndex::getStateIndex() const noexcept
+        {
+            return value_;
+        }
 
-GENERATE_MIXIN_SOURCE(unsigned,AdjointIndex)
+        void StateIndex::update( StateIndex* changedSubject )
+        {
+            setStateIndex( changedSubject->getStateIndex() );
+        }
 
-#include "UndefMacros.h"
+        ControlIndex::ControlIndex( unsigned value ) noexcept : value_( value )
+        {
+        }
+
+        void ControlIndex::setControlIndex( unsigned value )
+        {
+            value_ = value;
+            notify();
+        }
+
+        unsigned ControlIndex::getControlIndex() const noexcept
+        {
+            return value_;
+        }
+
+        void ControlIndex::update( ControlIndex* changedSubject )
+        {
+            setControlIndex( changedSubject->getControlIndex() );
+        }
+
+        AdjointIndex::AdjointIndex( unsigned value ) noexcept : value_( value )
+        {
+        }
+
+        void AdjointIndex::setAdjointIndex( unsigned value )
+        {
+            value_ = value;
+            notify();
+        }
+
+        unsigned AdjointIndex::getAdjointIndex() const noexcept
+        {
+            return value_;
+        }
+
+        void AdjointIndex::update( AdjointIndex* changedSubject )
+        {
+            setAdjointIndex( changedSubject->getAdjointIndex() );
+        }
+    } // namespace Mixin
+} // namespace Spacy

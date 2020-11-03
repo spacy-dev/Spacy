@@ -37,8 +37,8 @@ ENV PIPX_HOME=/usr/local/py-utils \
     PIPX_BIN_DIR=/usr/local/py-utils/bin
 ENV PATH=${PATH}:${PIPX_BIN_DIR}
 COPY library-scripts/python-debian.sh /tmp/library-scripts/
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-venv libatlas-base-dev fenics
-RUN bash /tmp/library-scripts/python-debian.sh "none" "/usr/local" "${PIPX_HOME}" "${USERNAME}" "false" \ 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-venv libatlas-base-dev fenics clang-format clang-tidy
+RUN /bin/bash /tmp/library-scripts/python-debian.sh "none" "/usr/local" "${PIPX_HOME}" "${USERNAME}" "false" \ 
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
 # conan default setup
@@ -46,11 +46,18 @@ RUN conan profile new default --detect
 RUN conan profile update settings.compiler=gcc default
 RUN conan profile update settings.compiler.libcxx=libstdc++11 default
 RUN conan profile update settings.build_type=Release default
-RUN mkdir -p /home/$USERNAME/.conan/data && sudo chown -R $USERNAME /home/$USERNAME/.conan/data
+RUN mkdir -p /home/$USERNAME/.conan/data && sudo chown -R $USERNAME /home/$USERNAME/.conan
+
+COPY library-scripts/install-kaskade-deps.sh /tmp/library-scripts/
+RUN /bin/bash /tmp/library-scripts/install-kaskade-deps.sh
 
 COPY Kaskade7.4.tar.gz /tmp/deps/Kaskade7.4.tar.gz
 COPY library-scripts/install-kaskade.sh /tmp/library-scripts/
-RUN bash /tmp/library-scripts/install-kaskade.sh \ 
+RUN /bin/bash /tmp/library-scripts/install-kaskade.sh \ 
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
-RUN sudo chown -R $USERNAME /home/$USERNAME/.conan
+USER $USERNAME
+RUN conan profile new default --detect
+RUN conan profile update settings.compiler=gcc default
+RUN conan profile update settings.compiler.libcxx=libstdc++11 default
+RUN conan profile update settings.build_type=Release default

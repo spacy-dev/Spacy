@@ -1,10 +1,11 @@
 #pragma once
 
+#include "utilities/linalg/scalarproducts.hh"
+
 #include "fem/assemble.hh"
 #include "fem/functionspace.hh"
 #include "fem/lagrangespace.hh"
 #include "fem/shapefunctioncache.hh"
-#include "utilities/linalg/scalarproducts.hh"
 #include <boost/fusion/include/as_vector.hpp>
 #include <boost/utility.hpp>
 
@@ -167,7 +168,8 @@ namespace Spacy
                 }
 
                 template < int row, int col, int dim >
-                auto d2( ::Kaskade::VariationalArg< Scalar, dim > const&, ::Kaskade::VariationalArg< Scalar, dim > const& ) const
+                auto d2( ::Kaskade::VariationalArg< Scalar, dim > const& /*unused*/,
+                         ::Kaskade::VariationalArg< Scalar, dim > const& /*unused*/ ) const
                 {
                     return Dune::FieldMatrix< Scalar, 1, 1 >( 0 );
                 }
@@ -267,8 +269,8 @@ namespace Spacy
                 }
 
                 template < int row, int col, int dim >
-                Dune::FieldMatrix< Scalar, 1, 1 > d2( ::Kaskade::VariationalArg< Scalar, dim > const&,
-                                                      ::Kaskade::VariationalArg< Scalar, dim > const& ) const
+                Dune::FieldMatrix< Scalar, 1, 1 > d2( ::Kaskade::VariationalArg< Scalar, dim > const& /*unused*/,
+                                                      ::Kaskade::VariationalArg< Scalar, dim > const& /*unused*/ ) const
                 {
                     return Dune::FieldMatrix< Scalar, 1, 1 >( 0 );
                 }
@@ -309,7 +311,7 @@ namespace Spacy
             };
 
             template < class Cell >
-            int integrationOrder( Cell const&, int, bool ) const
+            int integrationOrder( Cell const& /*unused*/, int /*unused*/, bool /*unused*/ ) const
             {
                 return 0;
             }
@@ -334,7 +336,7 @@ namespace Spacy
             typename ExtendedAnsatzVars::VariableSet const& errorEstimateH;
             AnsatzSpace ansatzSpace;
             AnsatzSpaces ansatzSpaces;
-            std::string varName[ 1 ];
+            std::string varName[ 1 ]; // NOLINT(cppcoreguidelines-avoid-c-arrays)
             AnsatzVars ansatzVars;
             ErrorNorm errorNorm = ErrorNorm::Energy;
             bool onlyExtension = false;

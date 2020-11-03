@@ -40,7 +40,7 @@ namespace Spacy
         private:
             std::vector< Impl* > observers_ = {};
         };
-    }
+    } // namespace Mixin
 
     template < class Base, class Source, class ToAttach >
     void cast_and_attach( Source& source, ToAttach& toAttach )
@@ -59,8 +59,7 @@ namespace Spacy
         namespace Mixin
         {
             template < class Callee, class ToAttach, class Mixin,
-                       bool valid = std::is_base_of< Mixin, ToAttach >::value&&
-                           std::is_base_of< Mixin, Callee >::value >
+                       bool valid = std::is_base_of< Mixin, ToAttach >::value&& std::is_base_of< Mixin, Callee >::value >
             struct SingleAttach
             {
                 static void apply( Callee& callee, ToAttach& toAttach )
@@ -72,14 +71,13 @@ namespace Spacy
             template < class Callee, class ToAttach, class Mixin >
             struct SingleAttach< Callee, ToAttach, Mixin, false >
             {
-                static void apply( Callee&, ToAttach& )
+                static void apply( Callee& /*unused*/, ToAttach& /*unused*/ )
                 {
                 }
             };
 
             template < class Callee, class ToDetach, class Mixin,
-                       bool valid = std::is_base_of< Mixin, ToDetach >::value&&
-                           std::is_base_of< Mixin, Callee >::value >
+                       bool valid = std::is_base_of< Mixin, ToDetach >::value&& std::is_base_of< Mixin, Callee >::value >
             struct SingleDetach
             {
                 static void apply( Callee& callee, ToDetach& toDetach )
@@ -91,7 +89,7 @@ namespace Spacy
             template < class Callee, class ToDetach, class Mixin >
             struct SingleDetach< Callee, ToDetach, Mixin, false >
             {
-                static void apply( Callee&, ToDetach& )
+                static void apply( Callee& /*unused*/, ToDetach& /*unused*/ )
                 {
                 }
             };
@@ -110,7 +108,7 @@ namespace Spacy
                 }
 
                 template < class Callee >
-                static void apply( Callee& )
+                static void apply( Callee& /*unused*/ )
                 {
                 }
 
@@ -126,7 +124,7 @@ namespace Spacy
             struct Attach<>
             {
                 template < class Callee, class ToAttach >
-                static void apply( Callee&, ToAttach& )
+                static void apply( Callee& /*unused*/, ToAttach& /*unused*/ )
                 {
                 }
             };
@@ -149,7 +147,7 @@ namespace Spacy
             struct Detach<>
             {
                 template < class Callee, class ToDetach >
-                static void apply( Callee&, ToDetach& )
+                static void apply( Callee& /*unused*/, ToDetach& /*unused*/ )
                 {
                 }
             };
@@ -165,6 +163,6 @@ namespace Spacy
             {
                 SingleDetach< Callee, ToDetach, Mixin >::apply( callee, toDetach );
             }
-        }
-    }
-}
+        } // namespace Mixin
+    }     // namespace Optional
+} // namespace Spacy

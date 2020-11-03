@@ -25,12 +25,11 @@ namespace Spacy
             class AffineCovariant : public Mixin::RelativeAccuracy, public Mixin::Eps
             {
             public:
-                DEFINE_LOG_TAG( static constexpr const char* covariant_log_tag =
-                                    "CovariantTerminationStrategy" )
+                DEFINE_LOG_TAG( static constexpr const char* covariant_log_tag = "CovariantTerminationStrategy" )
                 /**
                  * @brief Constuctor.
                  */
-                AffineCovariant( const C1Operator&, Real relativeAccuracy, Real eps );
+                AffineCovariant( const C1Operator& /*unused*/, Real relativeAccuracy, Real eps );
 
                 /**
                  * @brief Apply termination criterion.
@@ -53,8 +52,7 @@ namespace Spacy
             class AffineContravariant : public Mixin::RelativeAccuracy, public Mixin::Eps
             {
             public:
-                DEFINE_LOG_TAG( static constexpr const char* contravariant_log_tag =
-                                    "ContravariantTerminationStrategy" )
+                DEFINE_LOG_TAG( static constexpr const char* contravariant_log_tag = "ContravariantTerminationStrategy" )
                 /**
                  * @brief Constructor.
                  */
@@ -66,12 +64,12 @@ namespace Spacy
                  * @param x iterate
                  * @return true if \f$\nu=1\f$ and \f$ \|F(x)\|<rel_acc\|F(x_0)\| \f$, else false
                  */
-                bool operator()( DampingFactor nu, const Vector& x, const Vector& ) const;
+                bool operator()( DampingFactor nu, const Vector& x, const Vector& /*unused*/ ) const;
 
             private:
                 const C1Operator& F_;
-                mutable Real initialResidual = Real{-1};
+                mutable Real initialResidual = Real{ -1 };
             };
-        }
-    }
-}
+        } // namespace Termination
+    }     // namespace Newton
+} // namespace Spacy

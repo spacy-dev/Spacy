@@ -1,21 +1,108 @@
 #pragma once
 
-#include "Macros.h"
-
 #include <Spacy/Spaces/ScalarSpace/Real.h>
+#include <Spacy/Util/Mixins/MixinConnection.h>
 
-GENERATE_MIXIN_HEADER( Real, AbsoluteAccuracy, 1e-15 )
+namespace Spacy
+{
+    namespace Mixin
+    {
+        class AbsoluteAccuracy : public MixinConnection< AbsoluteAccuracy >
+        {
+            friend class MixinConnection< AbsoluteAccuracy >;
 
-GENERATE_MIXIN_HEADER( Real, RelativeAccuracy, 1e-15 )
+        public:
+            explicit AbsoluteAccuracy( Real value = 1e-15 ) noexcept;
+            void setAbsoluteAccuracy( Real value );
+            Real getAbsoluteAccuracy() const noexcept;
+            void update( AbsoluteAccuracy* changedSubject );
 
-GENERATE_MIXIN_HEADER( Real, MinimalAccuracy, 1e-15 )
+        private:
+            Real value_;
+        };
 
-GENERATE_MIXIN_HEADER( Real, DampingAccuracy, 5e-2 )
+        class RelativeAccuracy : public MixinConnection< RelativeAccuracy >
+        {
+            friend class MixinConnection< RelativeAccuracy >;
 
-GENERATE_MIXIN_HEADER( Real, NormalAccuracy, 0.1 )
+        public:
+            explicit RelativeAccuracy( Real value = 1e-15 ) noexcept;
+            void setRelativeAccuracy( Real value );
+            Real getRelativeAccuracy() const noexcept;
+            void update( RelativeAccuracy* changedSubject );
 
-GENERATE_MIXIN_HEADER( Real, TangentialAccuracy, 0.1 )
+        private:
+            Real value_;
+        };
 
-GENERATE_MIXIN_HEADER( Real, FallBackTangentialAccuracy, 0.25 )
+        class MinimalAccuracy : public MixinConnection< MinimalAccuracy >
+        {
+            friend class MixinConnection< MinimalAccuracy >;
 
-#include "UndefMacros.h"
+        public:
+            explicit MinimalAccuracy( Real value = 1e-15 ) noexcept;
+            void setMinimalAccuracy( Real value );
+            Real getMinimalAccuracy() const noexcept;
+            void update( MinimalAccuracy* changedSubject );
+
+        private:
+            Real value_;
+        };
+
+        class DampingAccuracy : public MixinConnection< DampingAccuracy >
+        {
+            friend class MixinConnection< DampingAccuracy >;
+
+        public:
+            explicit DampingAccuracy( Real value = 1e-15 ) noexcept;
+            void setDampingAccuracy( Real value );
+            Real getDampingAccuracy() const noexcept;
+            void update( DampingAccuracy* changedSubject );
+
+        private:
+            Real value_;
+        };
+
+        class NormalAccuracy : public MixinConnection< NormalAccuracy >
+        {
+            friend class MixinConnection< NormalAccuracy >;
+
+        public:
+            explicit NormalAccuracy( Real value = 1e-15 ) noexcept;
+            void setNormalAccuracy( Real value );
+            Real getNormalAccuracy() const noexcept;
+            void update( NormalAccuracy* changedSubject );
+
+        private:
+            Real value_;
+        };
+
+        class TangentialAccuracy : public MixinConnection< TangentialAccuracy >
+        {
+            friend class MixinConnection< TangentialAccuracy >;
+
+        public:
+            explicit TangentialAccuracy( Real value = 1e-15 ) noexcept;
+            void setTangentialAccuracy( Real value );
+            Real getTangentialAccuracy() const noexcept;
+            void update( TangentialAccuracy* changedSubject );
+
+        private:
+            Real value_;
+        };
+
+        class FallBackTangentialAccuracy : public MixinConnection< FallBackTangentialAccuracy >
+        {
+            friend class MixinConnection< FallBackTangentialAccuracy >;
+
+        public:
+            explicit FallBackTangentialAccuracy( Real value = 1e-15 ) noexcept;
+            void setFallBackTangentialAccuracy( Real value );
+            Real getFallBackTangentialAccuracy() const noexcept;
+            void update( FallBackTangentialAccuracy* changedSubject );
+
+        private:
+            Real value_;
+        };
+    } // namespace Mixin
+} // namespace Spacy

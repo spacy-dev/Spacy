@@ -12,10 +12,11 @@
 
 #pragma once
 
+#include <utilities/linalg/scalarproducts.hh>
+
 #include <fem/fixdune.hh>
 #include <fem/functional_aux.hh>
 #include <fem/variables.hh>
-#include <utilities/linalg/scalarproducts.hh>
 
 #include <algorithm>
 
@@ -39,7 +40,7 @@ public:
     class DomainCache : public CacheBase< HeatFunctional, DomainCache >
     {
     public:
-        DomainCache( HeatFunctional const&, typename AnsatzVars::VariableSet const& vars_, int flags = 7 ) : data( vars_ )
+        DomainCache( HeatFunctional const& /*unused*/, typename AnsatzVars::VariableSet const& vars_, int flags = 7 ) : data( vars_ )
         {
         }
 
@@ -81,13 +82,13 @@ public:
     class BoundaryCache : public CacheBase< HeatFunctional, BoundaryCache >
     {
     public:
-        BoundaryCache( HeatFunctional< RType, AnsatzVars > const&, typename AnsatzVars::VariableSet const& vars_, int flags = 7 )
+        BoundaryCache( HeatFunctional< RType, AnsatzVars > const& /*unused*/, typename AnsatzVars::VariableSet const& vars_, int flags = 7 )
             : data( vars_ ), penalty( 1e9 ), u( 0. ), uDirichletBoundaryValue( 0. )
         {
         }
 
         template < class Position, class Evaluators >
-        void evaluateAt( Position const&, Evaluators const& evaluators )
+        void evaluateAt( Position const& /*unused*/, Evaluators const& evaluators )
         {
             u = boost::fusion::at_c< uIdx >( data.data ).value( boost::fusion::at_c< uSpaceIdx >( evaluators ) );
         }
@@ -139,13 +140,11 @@ public:
     {
         if ( boundary )
             return 2 * shapeFunctionOrder;
-        else
-        {
-            int stiffnessMatrixIntegrationOrder = 2 * ( shapeFunctionOrder - 1 );
-            int sourceTermIntegrationOrder = shapeFunctionOrder; // as rhs f is constant, i.e. of order 0
 
-            return std::max( stiffnessMatrixIntegrationOrder, sourceTermIntegrationOrder );
-        }
+        int stiffnessMatrixIntegrationOrder = 2 * ( shapeFunctionOrder - 1 );
+        int sourceTermIntegrationOrder = shapeFunctionOrder; // as rhs f is constant, i.e. of order 0
+
+        return std::max( stiffnessMatrixIntegrationOrder, sourceTermIntegrationOrder );
     }
 };
 

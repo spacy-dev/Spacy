@@ -23,7 +23,6 @@ namespace Spacy
                     return min( 1.0, 2 * radius );
 
                 return 0.5 * radius;
-
             } );
 
             set( HilbertSpaceNorm( InducedScalarProduct( f_.hessian( zero( Space::R ) ) ) ) );
@@ -58,12 +57,10 @@ namespace Spacy
                 auto q_x = f_( x ) + f_.d1( x )( dx ) + 0.5 * f_.d2( x, dx )( dx );
 
                 auto trial = x + dx;
-                trust_region_radius = update_trust_region_radius_( trust_region_radius, norm_( dx ),
-                                                                   f_( trial ), q_x );
+                trust_region_radius = update_trust_region_radius_( trust_region_radius, norm_( dx ), f_( trial ), q_x );
 
                 x += dx;
-                LOG( log_tag, "|x|", norm_( x ), "|dx|", norm_( dx ), "trust_region",
-                     trust_region_radius );
+                LOG( log_tag, "|x|", norm_( x ), "|dx|", norm_( dx ), "trust_region", trust_region_radius );
 
                 if ( abs( trust_region_radius - 1 ) < eps() && norm_( dx ) < getRelativeAccuracy() )
                 {
@@ -77,5 +74,5 @@ namespace Spacy
             LOG_INFO( log_tag, "Failed" );
             return {};
         }
-    }
-}
+    } // namespace Algorithm
+} // namespace Spacy

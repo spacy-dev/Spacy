@@ -51,7 +51,7 @@ IncludeCategories:
     Priority: 5
   - Regex: '^"(Util|Detail)/'
     Priority: 1
-  - Regex: '^((<|")(gtest|isl|json/)/)'
+  - Regex: '^((<|")(gtest|isl|json|boost|io|fem|linalg|mg|timestepping/)/)'
     Priority: 40
   - Regex: '^((<|")kaskade7)'
     Priority: 30

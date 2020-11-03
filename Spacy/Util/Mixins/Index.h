@@ -1,11 +1,51 @@
 #pragma once
 
-#include "Macros.h"
+#include <Spacy/Util/Mixins/MixinConnection.h>
 
-GENERATE_MIXIN_HEADER(unsigned,StateIndex,0)
+namespace Spacy
+{
+    namespace Mixin
+    {
+        class StateIndex : public MixinConnection< StateIndex >
+        {
+            friend class MixinConnection< StateIndex >;
 
-GENERATE_MIXIN_HEADER(unsigned,ControlIndex,1)
+        public:
+            explicit StateIndex( unsigned value = 0 ) noexcept;
+            void setStateIndex( unsigned value );
+            unsigned getStateIndex() const noexcept;
+            void update( StateIndex* changedSubject );
 
-GENERATE_MIXIN_HEADER(unsigned,AdjointIndex,2)
+        private:
+            unsigned value_;
+        };
 
-#include "UndefMacros.h"
+        class ControlIndex : public MixinConnection< ControlIndex >
+        {
+            friend class MixinConnection< ControlIndex >;
+
+        public:
+            explicit ControlIndex( unsigned value = 1 ) noexcept;
+            void setControlIndex( unsigned value );
+            unsigned getControlIndex() const noexcept;
+            void update( ControlIndex* changedSubject );
+
+        private:
+            unsigned value_;
+        };
+
+        class AdjointIndex : public MixinConnection< AdjointIndex >
+        {
+            friend class MixinConnection< AdjointIndex >;
+
+        public:
+            explicit AdjointIndex( unsigned value = 2 ) noexcept;
+            void setAdjointIndex( unsigned value );
+            unsigned getAdjointIndex() const noexcept;
+            void update( AdjointIndex* changedSubject );
+
+        private:
+            unsigned value_;
+        };
+    } // namespace Mixin
+} // namespace Spacy

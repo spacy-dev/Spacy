@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <functional>
+
+#include <Spacy/Spaces/ScalarSpace/Real.h>
 
 namespace Spacy
 {
@@ -15,8 +16,7 @@ namespace Spacy
          * @param eps relative accuracy
          * @return \f$ x \in \mathrm{argmin}_{[a,b]} \f$
          */
-        Real findGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b,
-                                  Real eps = 1e-2 );
+        Real findGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps = 1e-2 );
 
         /**
          * @brief Find log global minimizer of \f$f\f$ in \f$[a,b]\f$.
@@ -26,8 +26,7 @@ namespace Spacy
          * @param eps relative accuracy
          * @return \f$ x \in \mathrm{argmin}_{[a,b]} \f$
          */
-        Real findLogGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b,
-                                     Real eps = 1e-2 );
+        Real findLogGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps = 1e-2 );
 
         /**
          * @brief Find log global minimizer of \f$f\f$ in \f$[a,b]\f$ for inexact composite step
@@ -50,10 +49,8 @@ namespace Spacy
          * the dn+x*dt
          */
 
-        Real findLogGlobalMinimizerTangentialDamping( const std::function< Real( const Real ) >& f,
-                                                      Real a, Real b, const Real normdn2,
-                                                      const Real two_sp_dn_Dt, const Real normDt2,
-                                                      Real eps = 1e-2 );
+        Real findLogGlobalMinimizerTangentialDamping( const std::function< Real( const Real ) >& f, Real a, Real b, Real normdn2,
+                                                      Real two_sp_dn_Dt, Real normDt2, Real eps = 1e-2 );
 
         /**
          * @brief Find global minimizer of \f$f\f$ in \f$[a,b]\f$ with a Brent line search
@@ -63,7 +60,6 @@ namespace Spacy
          * @param eps relative accuracy
          * @return \f$ x \in \mathrm{argmin}_{[a,b]} \f$
          */
-        Real findMinBrent( const std::function< Real( const Real ) >& f, Real a, Real b,
-                           Real eps = 3.e-8 );
-    }
-}
+        Real findMinBrent( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps = 3.e-8 );
+    } // namespace Scalar
+} // namespace Spacy

@@ -2,14 +2,15 @@
 
 #include "Copy.h"
 #include "Vector.h"
+
+#include <Spacy/Util/Cast.h>
+#include <Spacy/Vector.h>
+
 #include <fem/assemble.hh>
 #include <fem/hierarchicErrorEstimator.hh>
 #include <fem/hierarchicspace.hh>
 #include <fem/lagrangespace.hh>
 #include <linalg/jacobiPreconditioner.hh>
-
-#include <Spacy/Util/Cast.h>
-#include <Spacy/Vector.h>
 
 #include <cmath>
 
@@ -91,14 +92,16 @@ namespace Spacy
 
             std::vector< double > getEstimatedRhsAndSol( const Spacy::Vector& x_, const Spacy::Vector& dx_, CoefficientVectors& estSol )
             {
-                typename Descriptions::VariableSet x( variableSetDescription ), dx( variableSetDescription );
+                typename Descriptions::VariableSet x( variableSetDescription );
+                typename Descriptions::VariableSet dx( variableSetDescription );
                 Spacy::Kaskade::copy( x_, x );
                 Spacy::Kaskade::copy( dx_, dx );
 
                 EstimatorAssembler estAssembler{ spaces };
                 estAssembler.assemble( ErrorEstimator( ::Kaskade::LinearizationAt< Functional >( F, x ), dx ) );
 
-                const std::string varNames[ 2 ] = { "l", "e" };
+                const std::string varNames[ 2 ] = { "l", "e" }; // NOLINT(cppcoreguidelines-avoid-c-arrays)
+                // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
                 ExtensionDescription extensionDescription{ spaces, varNames };
                 size_t estSize = extensionDescription.degreesOfFreedom( 0, numberOfExtAnsatzVars );
 
@@ -117,7 +120,7 @@ namespace Spacy
             double getErrorLevel( std::vector< double > errorDistribution, double maxErr, double norm_x )
             {
                 std::sort( begin( errorDistribution ), end( errorDistribution ), std::greater<>() );
-                const auto minRefineIndex = minRefinementRatio * ( errorDistribution.size() - 1 );
+                const auto minRefineIndex = std::size_t( minRefinementRatio * ( errorDistribution.size() - 1.0 ) );
                 const auto baseErrLevel =
                     std::max( errorDistribution[ minRefineIndex ], norm_x * std::numeric_limits< double >::epsilon() );
                 return std::min( baseErrLevel, 0.5 * maxErr );

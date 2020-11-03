@@ -45,7 +45,7 @@ namespace Spacy
                  * the conjugate search direction \f$q\f$ (here: unused)
                  * @param rPINVr squared \f$P^{-1}\f$-norm of the residual
                  */
-                void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& );
+                void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& /*unused*/ );
 
                 /**
                  * \brief check if the energy norm of the current step \f$\|q\|_A=\sqrt(qAq)\f$ is
@@ -150,26 +150,26 @@ namespace Spacy
                 bool terminate( const Vector& cg_iterate, Real SquaredErrorNormEstimate, Real SquaredSolutionNormEstimate ) const;
 
             protected:
-                Type type_;
+                Type type_; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
                 // For Normal Step Termination
                 // The offset performed before calling the solver
-                Vector dn0_;
+                Vector dn0_; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
                 // 2*Theta_des/omega_c
-                Real Gamma_ = 0;
+                Real Gamma_ = 0; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
                 // elbow space
-                Real rho_elbow_ = 0;
+                Real rho_elbow_ = 0; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
                 // threshold for normal step
-                Real eta_tau_ = 0;
+                Real eta_tau_ = 0; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
                 // FOr Simplified Normal Step Termination
                 // Contraction threshold for simpnorm step
-                Real boundNormds_ = 0;
+                Real boundNormds_ = 0; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
 
-                mutable std::string terminationStatus_;
+                mutable std::string terminationStatus_; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
             };
 
             /**

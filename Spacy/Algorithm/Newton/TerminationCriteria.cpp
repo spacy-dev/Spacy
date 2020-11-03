@@ -10,7 +10,7 @@ namespace Spacy
     {
         namespace Termination
         {
-            AffineCovariant::AffineCovariant( const C1Operator&, Real relativeAccuracy, Real eps )
+            AffineCovariant::AffineCovariant( const C1Operator& /*unused*/, Real relativeAccuracy, Real eps )
                 : Mixin::RelativeAccuracy( relativeAccuracy ), Mixin::Eps( eps )
             {
             }
@@ -44,7 +44,7 @@ namespace Spacy
             {
             }
 
-            bool AffineContravariant::operator()( DampingFactor nu, const Vector& x, const Vector& ) const
+            bool AffineContravariant::operator()( DampingFactor nu, const Vector& x, const Vector& /*unused*/ ) const
             {
                 if ( initialResidual < 0 )
                 {

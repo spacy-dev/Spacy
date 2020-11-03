@@ -1,14 +1,14 @@
 #pragma once
 
-#include <string>
-#include <utility>
-#include <vector>
+#include "Printer.h"
 #include <fstream>
 #include <functional>
 #include <ostream>
 #include <unordered_map>
 
-#include "Printer.h"
+#include <string>
+#include <utility>
+#include <vector>
 
 #ifndef SPACY_ENABLE_LOGGING
 #define SET_LOG_PRINTER( printer )
@@ -23,22 +23,24 @@
 #define LOG_SEPARATOR( tag )
 #define LOG_SEPARATOR_F
 #else
-#define SET_LOG_PRINTER( printer ) ::Spacy::Log::Logger::get().setPrinter( printer );
-#define ADD_LOG_PRINTER( printer ) ::Spacy::Log::Logger::get().addPrinter( printer );
-#define DEFINE_LOG_TAG( tag ) tag;
-#define ENABLE_LOG_TAG( tag ) ::Spacy::Log::Logger::get().enable( tag );
-#define DISABLE_LOG_TAG( tag ) ::Spacy::Log::Logger::get().disable( tag );
-#define LOG_INFO( tag, text ) ::Spacy::Log::log( tag, text, "" );
-#define LOG_INFO_F( text ) ::Spacy::Log::log_f( __FILE__, text, "" );
-#define LOG( tag, ... ) ::Spacy::Log::log( tag, __VA_ARGS__ );
-#define LOG_F( ... ) ::Spacy::Log::log_f( __FILE__, __VA_ARGS__ );
-#define LOG_SEPARATOR( tag )                                                                       \
-    ::Spacy::Log::log( tag, "", "" );                                                              \
-    ::Spacy::Log::log( tag, "--------------------------------------------------", "" );            \
+#define SET_LOG_PRINTER( printer ) ::Spacy::Log::Logger::get().setPrinter( printer ); // NOLINT(cppcoreguidelines-macro-usage)
+#define ADD_LOG_PRINTER( printer ) ::Spacy::Log::Logger::get().addPrinter( printer ); // NOLINT(cppcoreguidelines-macro-usage)
+#define DEFINE_LOG_TAG( tag ) tag;                                                    // NOLINT(cppcoreguidelines-macro-usage)
+#define ENABLE_LOG_TAG( tag ) ::Spacy::Log::Logger::get().enable( tag );              // NOLINT(cppcoreguidelines-macro-usage)
+#define DISABLE_LOG_TAG( tag ) ::Spacy::Log::Logger::get().disable( tag );            // NOLINT(cppcoreguidelines-macro-usage)
+#define LOG_INFO( tag, text ) ::Spacy::Log::log( tag, text, "" );                     // NOLINT(cppcoreguidelines-macro-usage)
+#define LOG_INFO_F( text ) ::Spacy::Log::log_f( __FILE__, text, "" );                 // NOLINT(cppcoreguidelines-macro-usage)
+#define LOG( tag, ... ) ::Spacy::Log::log( tag, __VA_ARGS__ );                        // NOLINT(cppcoreguidelines-macro-usage)
+#define LOG_F( ... ) ::Spacy::Log::log_f( __FILE__, __VA_ARGS__ );                    // NOLINT(cppcoreguidelines-macro-usage)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define LOG_SEPARATOR( tag )                                                                                                               \
+    ::Spacy::Log::log( tag, "", "" );                                                                                                      \
+    ::Spacy::Log::log( tag, "--------------------------------------------------", "" );                                                    \
     ::Spacy::Log::log( tag, "", "" )
-#define LOG_SEPARATOR_F                                                                            \
-    ::Spacy::Log::log_f( __FILE__, "", "" );                                                       \
-    ::Spacy::Log::log_f( __FILE__, "--------------------------------------------------", "" );     \
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define LOG_SEPARATOR_F                                                                                                                    \
+    ::Spacy::Log::log_f( __FILE__, "", "" );                                                                                               \
+    ::Spacy::Log::log_f( __FILE__, "--------------------------------------------------", "" );                                             \
     ::Spacy::Log::log_f( __FILE__, "", "" )
 
 namespace Spacy
@@ -60,7 +62,7 @@ namespace Spacy
         template < class T >
         Printable make_printable( const T& t )
         {
-            return [&t]( std::ostream& os ) { os << t; };
+            return [ &t ]( std::ostream& os ) { os << t; }; // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         }
 
         /// Simple printer for std::ostream.
@@ -172,7 +174,7 @@ namespace Spacy
         {
             static void apply( const char* tag, const StringArg& name, const Arg& arg )
             {
-                log( tag, name, arg );
+                log( tag, name, arg ); // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
             }
         };
 
@@ -180,10 +182,9 @@ namespace Spacy
         struct CombineAndLog< StringArg, Arg, Args_... >
         {
             template < typename... Args >
-            static void apply( const char* tag, const StringArg& name, const Arg& arg,
-                               const Args&... args )
+            static void apply( const char* tag, const StringArg& name, const Arg& arg, const Args&... args )
             {
-                log( tag, name, arg );
+                log( tag, name, arg ); // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
                 CombineAndLog< Args... >::apply( tag, args... );
             }
         };
@@ -209,9 +210,8 @@ namespace Spacy
         void log_f( const std::string& tag, const Args&... args )
         {
 
-            CombineAndLog< Args... >::apply(
-                tag.substr( tag.find_last_of( '/' ), tag.find_last_of( '.' ) ).c_str(), args... );
+            CombineAndLog< Args... >::apply( tag.substr( tag.find_last_of( '/' ), tag.find_last_of( '.' ) ).c_str(), args... );
         }
-    }
-}
+    } // namespace Log
+} // namespace Spacy
 #endif

@@ -122,7 +122,7 @@
 template < class T, class FUNC >
 T Fmin( T a, T b, FUNC& f, T tol )
 {
-    T c, d, e, eps, xm, p, q, r, tol1, t2, u, v, w, fu, fv, fw, fx, x, tol3;
+    T c, d, e, eps, xm, p, q, r, tol1, t2, u, v, w, fu, fv, fw, fx, x, tol3; // NOLINT(readability-isolate-declaration)
     c = .5 * ( 3.0 - std::sqrt( 5.0 ) );
     d = 0.0;
     // 1.1102e-16 is machine precision
@@ -163,8 +163,7 @@ T Fmin( T a, T b, FUNC& f, T tol )
             e = d;
             // brace below corresponds to statement 50
         }
-        if ( ( std::fabs( p ) < std::fabs( .5 * q * r ) ) && ( p > q * ( a - x ) ) &&
-             ( p < q * ( b - x ) ) )
+        if ( ( std::fabs( p ) < std::fabs( .5 * q * r ) ) && ( p > q * ( a - x ) ) && ( p < q * ( b - x ) ) )
         {
             // a parabolic interpolation step
             d = p / q;

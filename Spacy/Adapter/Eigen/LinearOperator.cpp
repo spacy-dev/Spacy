@@ -1,20 +1,18 @@
 #include "LinearOperator.h"
 
-#include <Spacy/Vector.h>
-#include <Spacy/ZeroVectorCreator.h>
-
 #include "Copy.h"
 #include "LinearSolver.h"
 #include "Vector.h"
+
+#include <Spacy/Vector.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 namespace Spacy
 {
     namespace Rn
     {
-        LinearOperator::LinearOperator(::Eigen::MatrixXd A, const VectorSpace& space,
-                                       const VectorSpace& domain, const VectorSpace& range )
-            : Mixin::Get<::Eigen::MatrixXd >( std::move( A ) ), VectorBase( space ),
-              OperatorBase( domain, range )
+        LinearOperator::LinearOperator( ::Eigen::MatrixXd A, const VectorSpace& space, const VectorSpace& domain, const VectorSpace& range )
+            : Mixin::Get< ::Eigen::MatrixXd >( std::move( A ) ), VectorBase( space ), OperatorBase( domain, range )
         {
         }
 
@@ -28,7 +26,7 @@ namespace Spacy
             return x;
         }
 
-        Real LinearOperator::operator()( const LinearOperator& ) const
+        Real LinearOperator::operator()( const LinearOperator& /*unused*/ ) const
         {
             return Real( 0 );
         }
@@ -37,5 +35,5 @@ namespace Spacy
         {
             return LinearSolver( get(), domain() );
         }
-    }
-}
+    } // namespace Rn
+} // namespace Spacy

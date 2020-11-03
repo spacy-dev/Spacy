@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Copy.h"
+
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Base/AddArithmeticOperators.h>
 #include <Spacy/Util/Base/VectorBase.h>
+#include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
-
-#include "Copy.h"
 
 #include <boost/fusion/include/size.hpp>
 #include <boost/fusion/mpl/at.hpp>
@@ -45,9 +46,7 @@ namespace Spacy
             AddAccessors( Accessors& accessors, Container& container )
             {
                 const auto size = boost::fusion::at_c< I >( container ).size();
-                accessors.emplace_back( size, [&container]( int i ) {
-                    return boost::fusion::at_c< I >( container )[ i ];
-                } );
+                accessors.emplace_back( size, [ &container ]( int i ) { return boost::fusion::at_c< I >( container )[ i ]; } );
                 AddAccessors< N, I + 1 >( accessors, container );
             }
         };
@@ -56,7 +55,7 @@ namespace Spacy
         struct AddAccessors< N, N >
         {
             template < class Accessors, class Container >
-            AddAccessors( Accessors&, Container& )
+            AddAccessors( Accessors& /*unused*/, Container& /*unused*/ )
             {
             }
         };
@@ -81,12 +80,10 @@ namespace Spacy
         struct ContiguousIterator
         {
             static constexpr auto N = boost::fusion::result_of::size< Vector >::type::value;
-            using ValueRef = typename std::conditional< std::is_const< Vector >::value,
-                                                        const double&, double& >::type;
+            using ValueRef = typename std::conditional< std::is_const< Vector >::value, const double&, double& >::type;
             using Accessor = Accessors< ValueRef >;
 
-            explicit ContiguousIterator( Vector* v = nullptr, int i = 0 )
-                : v( v ), i( i ), accessors( v ? getAccessors( *v ) : Accessor{} )
+            explicit ContiguousIterator( Vector* v = nullptr, int i = 0 ) : v( v ), i( i ), accessors( v ? getAccessors( *v ) : Accessor{} )
             {
             }
 
@@ -132,7 +129,7 @@ namespace Spacy
             Vector* v;
             int i;
             Accessor accessors;
-            std::size_t j{0};
+            std::size_t j{ 0 };
         };
 
         /**
@@ -143,14 +140,11 @@ namespace Spacy
         template < class Description >
         class Vector : public VectorBase, public AddArithmeticOperators< Vector< Description > >
         {
-            using VectorImpl =
-                typename Description::template CoefficientVectorRepresentation<>::type;
-            using Variable =
-                std::decay_t< std::remove_pointer_t< typename boost::fusion::result_of::value_at_c<
-                    typename Description::Variables, 0 >::type > >;
-            using Space =
-                std::decay_t< std::remove_pointer_t< typename boost::fusion::result_of::value_at_c<
-                    typename Description::Spaces, Variable::spaceIndex >::type > >;
+            using VectorImpl = typename Description::template CoefficientVectorRepresentation<>::type;
+            using Variable = std::decay_t<
+                std::remove_pointer_t< typename boost::fusion::result_of::value_at_c< typename Description::Variables, 0 >::type > >;
+            using Space = std::decay_t< std::remove_pointer_t<
+                typename boost::fusion::result_of::value_at_c< typename Description::Spaces, Variable::spaceIndex >::type > >;
             using VariableSet = typename Description::VariableSet;
 
         public:
@@ -159,12 +153,9 @@ namespace Spacy
              * @param space underlying vector space
              */
             Vector( const VectorSpace& space )
-                : VectorBase( space ),
-                  variableSet_( creator< VectorCreator< Description > >( space ).get() ),
-                  description_( std::make_shared< Description >(
-                      creator< VectorCreator< Description > >( space ).get() ) ),
-                  v_( Description::template CoefficientVectorRepresentation<>::init(
-                      variableSet_.descriptions.spaces ) )
+                : VectorBase( space ), variableSet_( creator< VectorCreator< Description > >( space ).get() ),
+                  description_( std::make_shared< Description >( creator< VectorCreator< Description > >( space ).get() ) ),
+                  v_( Description::template CoefficientVectorRepresentation<>::init( variableSet_.descriptions.spaces ) )
             {
             }
 
@@ -196,10 +187,8 @@ namespace Spacy
              */
             Real operator()( const Vector& y ) const
             {
-                VectorImpl v( Description::template CoefficientVectorRepresentation<>::init(
-                    variableSet_.descriptions.spaces ) );
-                VectorImpl w( Description::template CoefficientVectorRepresentation<>::init(
-                    variableSet_.descriptions.spaces ) );
+                VectorImpl v( Description::template CoefficientVectorRepresentation<>::init( variableSet_.descriptions.spaces ) );
+                VectorImpl w( Description::template CoefficientVectorRepresentation<>::init( variableSet_.descriptions.spaces ) );
                 variableSetToCoefficients( get(), v );
                 variableSetToCoefficients( y.get(), w );
                 return v * w;
@@ -215,12 +204,12 @@ namespace Spacy
 
             ContiguousIterator< typename VectorImpl::Sequence > begin()
             {
-                return ContiguousIterator< typename VectorImpl::Sequence >{&v_.data};
+                return ContiguousIterator< typename VectorImpl::Sequence >{ &v_.data };
             }
 
             ContiguousIterator< const typename VectorImpl::Sequence > begin() const
             {
-                return ContiguousIterator< const typename VectorImpl::Sequence >{&v_.data};
+                return ContiguousIterator< const typename VectorImpl::Sequence >{ &v_.data };
             }
 
             ContiguousIterator< typename VectorImpl::Sequence > end()
@@ -233,12 +222,15 @@ namespace Spacy
                 return ContiguousIterator< const typename VectorImpl::Sequence >{};
             }
 
+            std::shared_ptr< Description > description() const
+            {
+                return description_;
+            }
+
         private:
-            template < class Desc >
-            friend void writeVTK( const Vector< Desc >& x, const std::string& fileName );
             VariableSet variableSet_;
             std::shared_ptr< Description > description_;
             mutable VectorImpl v_;
         };
-    }
-}
+    } // namespace Kaskade
+} // namespace Spacy

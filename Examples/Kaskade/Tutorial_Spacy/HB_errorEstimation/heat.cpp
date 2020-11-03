@@ -1,17 +1,19 @@
 #include <dune/grid/config.h>
 #include <dune/grid/uggrid.hh>
+
 #include <fem/assemble.hh>
 #include <fem/lagrangespace.hh>
 #include <io/vtk.hh>
 //#include "io/amira.hh"
-#include <boost/timer/timer.hpp>
-#include <linalg/direct.hh>
 #include <utilities/enums.hh>
 #include <utilities/gridGeneration.hh> //  createUnitSquare, createUnitCube
 #include <utilities/kaskopt.hh>
 
 #include <Spacy/Adapter/kaskade.hh>
 #include <Spacy/Spacy.h>
+
+#include <boost/timer/timer.hpp>
+#include <linalg/direct.hh>
 
 #include <algorithm>
 #include <cmath>
@@ -74,8 +76,8 @@ int main( int argc, char* argv[] )
     // construction of finite element space for the scalar solution T
     H1Space temperatureSpace( gridManager, gridManager.grid().leafGridView(), order );
     Spaces spaces( &temperatureSpace );
-    std::string varNames[ 1 ] = { "T" }; // NOLINT(cppcoreguidelines-avoid-c-arrays)
-    VSD variableSetDescription( spaces, varNames );
+    std::string varNames[ 1 ] = { "T" };            // NOLINT(cppcoreguidelines-avoid-c-arrays)
+    VSD variableSetDescription( spaces, varNames ); // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     Functional F;
 
     auto X = Spacy::Kaskade::makeHilbertSpace< VSD >( variableSetDescription );

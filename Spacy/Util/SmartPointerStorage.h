@@ -3,11 +3,12 @@
 
 #pragma once
 
+#include <functional>
+
 #include <array>
 #include <cassert>
 #include <memory>
 #include <type_traits>
-#include <functional>
 
 #ifdef CLANG_TYPE_ERASE_CAST
 #undef CLANG_TYPE_ERASE_CAST
@@ -16,7 +17,7 @@
 #ifdef CLANG_TYPE_ERASE_NO_RTTI
 #define CLANG_TYPE_ERASE_CAST static_cast
 #else
-#define CLANG_TYPE_ERASE_CAST dynamic_cast
+#define CLANG_TYPE_ERASE_CAST dynamic_cast // NOLINT(cppcoreguidelines-macro-usage)
 #endif
 
 namespace clang
@@ -86,9 +87,7 @@ namespace clang
                     auto interface = static_cast< Storage* >( this )->getInterfacePtr();
                     if ( containsReferenceWrapper )
                     {
-                        auto wrappedResult =
-                            CLANG_TYPE_ERASE_CAST< Wrapper< std::reference_wrapper< T > >* >(
-                                interface );
+                        auto wrappedResult = CLANG_TYPE_ERASE_CAST< Wrapper< std::reference_wrapper< T > >* >( interface );
                         return wrappedResult ? &wrappedResult->impl : nullptr;
                     }
                     auto wrappedResult = CLANG_TYPE_ERASE_CAST< Wrapper< T >* >( interface );
@@ -101,9 +100,7 @@ namespace clang
                     auto interface = static_cast< const Storage* >( this )->getInterfacePtr();
                     if ( containsReferenceWrapper )
                     {
-                        auto wrappedResult =
-                            CLANG_TYPE_ERASE_CAST< const Wrapper< std::reference_wrapper< T > >* >(
-                                interface );
+                        auto wrappedResult = CLANG_TYPE_ERASE_CAST< const Wrapper< std::reference_wrapper< T > >* >( interface );
                         return wrappedResult ? &wrappedResult->impl : nullptr;
                     }
                     auto wrappedResult = CLANG_TYPE_ERASE_CAST< const Wrapper< T >* >( interface );
@@ -126,21 +123,16 @@ namespace clang
 
                 Storage() = default;
 
-                template < class T, std::enable_if_t< !std::is_base_of<
-                                        Storage, std::decay_t< T > >::value >* = nullptr,
-                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
-                               nullptr >
-                explicit Storage( T&& t )
-                    : Base(), interface_( std::make_unique< Wrapper< std::decay_t< T > > >(
-                                  std::forward< T >( t ) ) )
+                template < class T, std::enable_if_t< !std::is_base_of< Storage, std::decay_t< T > >::value >* = nullptr,
+                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* = nullptr >
+                explicit Storage( T&& t ) : Base(), interface_( std::make_unique< Wrapper< std::decay_t< T > > >( std::forward< T >( t ) ) )
                 {
                 }
 
                 Storage( Storage&& ) = default;
                 Storage& operator=( Storage&& ) = default;
 
-                Storage( const Storage& other )
-                    : Base(), interface_( other.interface_ ? other.interface_->clone() : nullptr )
+                Storage( const Storage& other ) : Base(), interface_( other.interface_ ? other.interface_->clone() : nullptr )
                 {
                 }
 
@@ -173,13 +165,10 @@ namespace clang
 
                 COWStorage() = default;
 
-                template < class T, std::enable_if_t< !std::is_base_of<
-                                        COWStorage, std::decay_t< T > >::value >* = nullptr,
-                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
-                               nullptr >
+                template < class T, std::enable_if_t< !std::is_base_of< COWStorage, std::decay_t< T > >::value >* = nullptr,
+                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* = nullptr >
                 explicit COWStorage( T&& t )
-                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >(
-                                  std::forward< T >( t ) ) )
+                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >( std::forward< T >( t ) ) )
                 {
                 }
 
@@ -202,8 +191,7 @@ namespace clang
             };
 
             template < class Interface, template < class > class Wrapper, int Size >
-            struct SBOStorage
-                : Accessor< SBOStorage< Interface, Wrapper, Size >, Interface, Wrapper >
+            struct SBOStorage : Accessor< SBOStorage< Interface, Wrapper, Size >, Interface, Wrapper >
             {
                 using Base = Accessor< SBOStorage, Interface, Wrapper >;
 
@@ -214,24 +202,17 @@ namespace clang
                     reset();
                 }
 
-                template < class T, std::enable_if_t< !std::is_base_of<
-                                        SBOStorage, std::decay_t< T > >::value >* = nullptr,
-                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
-                               nullptr,
-                           std::enable_if_t< std::greater<>()(
-                               sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
+                template < class T, std::enable_if_t< !std::is_base_of< SBOStorage, std::decay_t< T > >::value >* = nullptr,
+                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* = nullptr,
+                           std::enable_if_t< std::greater<>()( sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
                 explicit SBOStorage( T&& t )
-                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >(
-                                  std::forward< T >( t ) ) )
+                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >( std::forward< T >( t ) ) )
                 {
                 }
 
-                template < class T, std::enable_if_t< !std::is_base_of<
-                                        SBOStorage, std::decay_t< T > >::value >* = nullptr,
-                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
-                               nullptr,
-                           std::enable_if_t< std::less_equal<>()(
-                               sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
+                template < class T, std::enable_if_t< !std::is_base_of< SBOStorage, std::decay_t< T > >::value >* = nullptr,
+                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* = nullptr,
+                           std::enable_if_t< std::less_equal<>()( sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
                 explicit SBOStorage( T&& t ) : Base()
                 {
                     new ( &buffer_ ) Wrapper< std::decay_t< T > >( std::forward< T >( t ) );
@@ -319,8 +300,7 @@ namespace clang
 
                 std::shared_ptr< Interface > makeAlias()
                 {
-                    const auto tmp =
-                        static_cast< Interface* >( static_cast< void* >( &buffer_[ 0 ] ) );
+                    const auto tmp = static_cast< Interface* >( static_cast< void* >( &buffer_[ 0 ] ) );
                     return std::shared_ptr< Interface >( std::shared_ptr< Interface >(), tmp );
                 }
 
@@ -329,8 +309,7 @@ namespace clang
             };
 
             template < class Interface, template < class > class Wrapper, int Size >
-            struct SBOCOWStorage
-                : Accessor< SBOCOWStorage< Interface, Wrapper, Size >, Interface, Wrapper >
+            struct SBOCOWStorage : Accessor< SBOCOWStorage< Interface, Wrapper, Size >, Interface, Wrapper >
             {
                 using Base = Accessor< SBOCOWStorage, Interface, Wrapper >;
 
@@ -341,24 +320,17 @@ namespace clang
                     reset();
                 }
 
-                template < class T, std::enable_if_t< !std::is_base_of<
-                                        SBOCOWStorage, std::decay_t< T > >::value >* = nullptr,
-                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
-                               nullptr,
-                           std::enable_if_t< std::greater<>()(
-                               sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
+                template < class T, std::enable_if_t< !std::is_base_of< SBOCOWStorage, std::decay_t< T > >::value >* = nullptr,
+                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* = nullptr,
+                           std::enable_if_t< std::greater<>()( sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
                 explicit SBOCOWStorage( T&& t )
-                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >(
-                                  std::forward< T >( t ) ) )
+                    : Base(), interface_( std::make_shared< Wrapper< std::decay_t< T > > >( std::forward< T >( t ) ) )
                 {
                 }
 
-                template < class T, std::enable_if_t< !std::is_base_of<
-                                        SBOCOWStorage, std::decay_t< T > >::value >* = nullptr,
-                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* =
-                               nullptr,
-                           std::enable_if_t< std::less_equal<>()(
-                               sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
+                template < class T, std::enable_if_t< !std::is_base_of< SBOCOWStorage, std::decay_t< T > >::value >* = nullptr,
+                           std::enable_if_t< std::is_base_of< Interface, Wrapper< T > >::value >* = nullptr,
+                           std::enable_if_t< std::less_equal<>()( sizeof( Wrapper< std::decay_t< T > > ), Size ) >* = nullptr >
                 explicit SBOCOWStorage( T&& t ) : Base()
                 {
                     new ( &buffer_ ) Wrapper< std::decay_t< T > >( std::forward< T >( t ) );
@@ -446,16 +418,15 @@ namespace clang
 
                 std::shared_ptr< Interface > makeAlias()
                 {
-                    const auto tmp =
-                        static_cast< Interface* >( static_cast< void* >( &buffer_[ 0 ] ) );
+                    const auto tmp = static_cast< Interface* >( static_cast< void* >( &buffer_[ 0 ] ) );
                     return std::shared_ptr< Interface >( std::shared_ptr< Interface >(), tmp );
                 }
 
                 std::array< char, Size > buffer_;
                 std::shared_ptr< Interface > interface_ = nullptr;
             };
-        }
-    }
-}
+        } // namespace polymorphic
+    }     // namespace type_erasure
+} // namespace clang
 
 #undef CLANG_TYPE_ERASE_CAST

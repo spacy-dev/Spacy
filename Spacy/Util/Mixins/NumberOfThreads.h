@@ -1,7 +1,23 @@
 #pragma once
 
-#include "Macros.h"
+#include <Spacy/Util/Mixins/MixinConnection.h>
 
-GENERATE_MIXIN_HEADER(unsigned,NumberOfThreads,1)
+namespace Spacy
+{
+    namespace Mixin
+    {
+        class NumberOfThreads : public MixinConnection< NumberOfThreads >
+        {
+            friend class MixinConnection< NumberOfThreads >;
 
-#include "UndefMacros.h"
+        public:
+            explicit NumberOfThreads( unsigned value = 1 ) noexcept;
+            void setNumberOfThreads( unsigned value );
+            unsigned getNumberOfThreads() const noexcept;
+            void update( NumberOfThreads* changedSubject );
+
+        private:
+            unsigned value_;
+        };
+    } // namespace Mixin
+} // namespace Spacy
