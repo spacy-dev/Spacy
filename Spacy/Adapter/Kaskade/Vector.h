@@ -199,6 +199,8 @@ namespace Spacy
                 return v_;
             }
 
+           void axpy(const double& s, const Vector& y) { v_.axpy(s,y.get()); };
+
             const Description& getDescription()
             {
             return *description_;

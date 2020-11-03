@@ -100,6 +100,8 @@ namespace Spacy
                     
                     return y;
                 }
+          
+               void axpy(const double& s, const LinearOperator& y) { assert(0); };
                 
                 ::Spacy::Real operator()( const LinearOperator& ) const
                 {
@@ -324,7 +326,6 @@ namespace Spacy
         ::Kaskade::IstlInterfaceDetail::Block<typename Bl::BlockType,typename Bl::SparseIndex,Bl::rowId,Bl::colId,Bl::symmetric,Bl::transposed>  blk(bl.matrix);
         if((nThreads_>1 || Bl::transposed) && embD_.isInRange(Bl::colId) && embR_.isInRange(Bl::rowId))
         {
-        std::cout << "copy: [" << Bl::rowId << "," << Bl::colId << "] " << " s:" << Bl::symmetric << " t:" << Bl::transposed << std::endl;
               blk.threadedMatrix.reset(new typename Bl::TMatrix(*blk.matrix,bl.symmetric,bl.transposed,false));
         }
         return blk;
