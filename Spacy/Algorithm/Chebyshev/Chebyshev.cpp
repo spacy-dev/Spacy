@@ -56,7 +56,11 @@ namespace Spacy
     {
             Spacy::Real condition = gamma_max_/gamma_min_;
             Spacy::Real theta = (sqrt(condition)-1)/(sqrt(condition)+1);
-           return std::max(floor(log(get(getRelativeAccuracy()))/log(get(theta))),0.0) + 1; 
+            int k=1;
+            while(2./(std::pow(get(theta),k)+std::pow(get(theta),-k))>get(getRelativeAccuracy()))
+              ++k;
+            return k;
+           //return std::max(floor(log(get(getRelativeAccuracy()))/log(get(theta))),0.0) + 1; 
     }
 
      
@@ -69,46 +73,43 @@ namespace Spacy
         Vector ChebyshevPreconditioner::operator()(const Vector& b) const
         {
 
-            Spacy::Real condition = gamma_max_/gamma_min_;
-            Spacy::Real theta = (sqrt(condition)-1)/(sqrt(condition)+1);
-            int N = std::max(floor(log(get(getRelativeAccuracy()))/log(get(theta))),0.0) + 1;
-
+            int N=getIterations();
+  
             Spacy::Real c = 0.5*(gamma_max_-gamma_min_);
-            Spacy::Real alpha = 0.5*(gamma_max_+gamma_min_);
-            Spacy::Real beta_const = -0.5*c*c/alpha;
+            Spacy::Real a = 0.5*(gamma_max_+gamma_min_);
+
             Spacy::Real beta = 0;
-            Spacy::Real gamma = -alpha;
-
+            Spacy::Real gamma = -a;
             
-            Spacy::Vector dx = P_(b);
-            Spacy::Vector x_nm1 = zero(dx.space());
-            Spacy::Vector x_n = zero(dx.space());
-
+            std::vector<Spacy::Vector> x = {P_(b)};
+            x.emplace_back(zero(x[0].space()));
+            x.emplace_back(zero(x[0].space()));
+            
+            Spacy::Vector r=b;
+            
             for(int i=0; i<N ; i++)
             {
-
-                if(i == 1)
-                    beta = beta_const;
-                if(i >= 2)
-                    beta = (1./gamma)*0.25*c*c;
-                if(i >= 1)
-                    gamma = -(alpha+beta);
-
                 
-                 //x_np1 = -(1./gamma)*(dx+alpha*x_n+beta*x_nm1);
-
-
-                 dx+=alpha*x_n;
-                 dx+=beta*x_nm1;
-                 dx *= -1.0/get(gamma);
-                 x_nm1=x_n;
-                 x_n=dx;
-
+                if(i == 1)
+                    beta = -0.5*c*c/a;
+                if(i > 1)
+                    beta = (1./gamma)*0.25*c*c;
+                
+                gamma = -(a+beta);
+                
+//                if(i>0) x[i%3]+=a*    x[(i-1)%3];
+//                if(i>1) x[i%3]+=beta* x[(i-2)%3];
+                if(i>0) x[i%3].axpy(get(a),x[(i-1)%3]);
+                if(i>1) x[i%3].axpy(get(beta),x[(i-2)%3]);
+                
+                x[i%3]*=-1.0/get(gamma);
+                
                 if(i < N-1)
-                 {
-                    dx = P_(b-A_(x_n));
-                 }
-  //Explicit computation of residual if preferrable
+                {
+                    if(i>0) r=b;
+                    r.axpy(-1.0,A_(x[i%3]));
+                    x[(i+1)%3] = P_(r);
+                }
                 
             }
 
@@ -118,8 +119,7 @@ namespace Spacy
             }
 
             iterations_ = N;
-  //          std::cout << "Used BPX-calls:" << N << " Eigs: [" << gamma_min_ << "," << gamma_max_ << "]" << std::endl;
-            return x_n;
+            return x[(N-1)%3];
         }
     }
 }

@@ -206,7 +206,6 @@ namespace Spacy
 
             bool AdaptiveRelativeEnergyError::errorEstimationTerminate() const
             {
-                //std::cout << "Test TerminationCriterion: " << getRelativeAccuracy() << " " << eps() << std::endl;
 
                 auto tol = std::max( getRelativeAccuracy(), eps() );
                 tau = 1.;
@@ -264,7 +263,7 @@ namespace Spacy
                       ( 3.365 / 2.23 ) *
                           getStdDev(); */// basically one sided confidence interval of 99,5% for n = 5
 
-                //if(getVerbosityLevel() > 1)
+                if(getVerbosityLevel() > 1)
                 if ( scaledGamma2.size() > getMaxSteps() ||
                      ( scaledGamma2.size() > 2 * lookAhead_ && tau < 0.75 &&
                        squaredRelativeError() < tol * tol ) )    
@@ -300,7 +299,7 @@ namespace Spacy
                     tol = min( tol, eps() * eps() * energyNorm2 );
                 return stepLength2 < tol;
 
-                //return false;
+                return false;
             }
 
             void AdaptiveRelativeEnergyError::clear() noexcept

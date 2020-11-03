@@ -127,14 +127,14 @@ namespace Spacy
             adjointSolver.set_eps(eps());
             adjointSolver.setAbsoluteAccuracy(eps());
             adjointSolver.setMaxSteps(getMaxSteps());
-            adjointSolver.setTerminationCriterion( CG::Termination::StrakosTichyEnergyError() );
+            adjointSolver.setTerminationCriterion( CG::Termination::AdaptiveRelativeEnergyError());
             
             /// Initialize Primal Solver
             auto stateSolver = Spacy::CG::Solver(A_, BPX_, NR, true);
             stateSolver.set_eps(eps());
             stateSolver.setAbsoluteAccuracy(eps());
             stateSolver.setMaxSteps(getMaxSteps());
-            stateSolver.setTerminationCriterion( CG::Termination::StrakosTichyEnergyError() );
+            stateSolver.setTerminationCriterion( CG::Termination::AdaptiveRelativeEnergyError());
             
             std::vector<Spacy::Real> alpha_vec;
             std::vector<Spacy::Real> beta_vec;
@@ -293,9 +293,10 @@ namespace Spacy
                     LOG(log_tag, "Number of Dual Iterations: ", dual_iterations_);
                     LOG(log_tag, "Number of PPCG Iterations: ", modPPCG_.getIterationsInLifeTime());
                     LOG(log_tag, "Number of Proj Iterations: ", proj_iterations_);
-                    LOG(log_tag, "Number of BPX calls in CG: ", dual_iterations_ + proj_iterations_);
-                    LOG(log_tag, "Number of BPX calls  PPCG: ", triH.getBPXCallsInLifeTime());
-                    LOG(log_tag, "Number of BPX calls total: ", triH.getBPXCallsInLifeTime()+dual_iterations_ + proj_iterations_);
+                    LOG(log_tag, "Number of MG calls in  CG: ", dual_iterations_ + proj_iterations_);
+                    LOG(log_tag, "Number of MG calls   PPCG: ", triH.getBPXCallsInLifeTime());
+                    LOG(log_tag, "Number of MG calls  total: ", triH.getBPXCallsInLifeTime()+dual_iterations_ + proj_iterations_);
+                    LOG(log_tag, "Average no. MG calls /  A: ", triH.getBPXCallsInLifeTime()/(2.0*modPPCG_.getIterationsInLifeTime()));
                     
                     result_ = Result::Converged;
                     iterations_ = step;
@@ -366,12 +367,16 @@ namespace Spacy
                 
                 auto normSolutionEstimate = sqrt(sumNormSquaredUpdate_);
                 auto normErrorEstimate = (contraction/sqrt(1-contraction*contraction))*normDx_;
-                std::cout << " Convergence Test: "  << normErrorEstimate << " <? " << getRelativeAccuracy() << " * " << normSolutionEstimate << " theta " << contraction << std::endl;
                 
                 if(normErrorEstimate < getRelativeAccuracy() * normSolutionEstimate)
                 {
-                    //LOG_INFO(log_tag, "Converged: normErrorEstimate < getRelativeAccuracy() * normSolutionEstimate");
+                    std::cout << " Convergence Test: "  << normErrorEstimate << " < " << getRelativeAccuracy() << " * " << normSolutionEstimate << " theta " << contraction << std::endl;
+                    std::cout << " Exceeded desired accuracy by factor: " << normErrorEstimate/(getRelativeAccuracy() * normSolutionEstimate) << std::endl;
                     return true;
+                }
+                else
+                {
+                std::cout << " Convergence Test: "  << normErrorEstimate << " > " << getRelativeAccuracy() << " * " << normSolutionEstimate << " theta " << contraction << std::endl;
                 }
             }
             return false;

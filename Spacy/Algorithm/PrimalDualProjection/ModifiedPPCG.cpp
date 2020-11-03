@@ -33,7 +33,6 @@ namespace Spacy
         : OperatorBase( domainIn, domainIn ), P_(P), M_(M), minusB_((minusB)), stateSpace_(stateSpace), 
         primalSpace_(M_.domain()), adjointSpace_(minusB_.range()), theta_(theta)
         {
-            terminate_.setVerbosityLevel(2);
         }
         
         
@@ -95,7 +94,9 @@ namespace Spacy
             std::vector<Spacy::Real> beta_vec;
             
             
-            auto g= -P_(range().embed(r));
+            auto g=zero(domain());
+            //P_.apply(g,range().embed(-r));
+            g=-P_(range().embed(r));
             std::cout << "o" << std::flush;
             iterations_++;
             iterationsInLifeTime_++;
@@ -174,6 +175,7 @@ namespace Spacy
                 }
                     
                 g = -P_(range().embed(r));
+                //P_.apply(g,range().embed(-r));
                 std::cout << "o" << std::flush;
                 iterations_++;
                 iterationsInLifeTime_++;

@@ -40,21 +40,11 @@ namespace
 
         Vector TriangularConstraintPreconditioner::operator()(Vector x ) const
         {
-            auto y = zero( domain() );
+            auto out = zero( domain() );
 
-            apply( x, y, x );
+            apply(out, std::move(x) );
 
-            return y;
-        }
-
-        Vector TriangularConstraintPreconditioner::operator()( const Vector& x,
-                                                                    Vector& q ) const
-        {
-            std::cout << "Fail TriangularStateConstraintPreconditioner operator() should not be called: " << std::endl;
-            auto y = zero(domain());
-            q = x;
-
-            return y;
+            return out;
         }
 
         void TriangularConstraintPreconditioner::setSpectralBounds(double eigMin, double eigMax) 
@@ -64,11 +54,10 @@ namespace
         }
 
         
-        void TriangularConstraintPreconditioner::apply( const Vector& x, Vector& y,
-                                                             Vector& q ) const
+        void TriangularConstraintPreconditioner::apply( Vector& out, Vector&& in ) const
         {
                      
-            y += adjointSpace_.embed(adjointSolver_( stateSpace_.project(q)));
+            out = adjointSpace_.embed(adjointSolver_( stateSpace_.project(in)));
             
             if(is< ::Spacy::CG::Solver >( adjointSolver_ ) && ::Spacy::cast_ref<::Spacy::CG::Solver >(adjointSolver_).indefiniteOperator())
             {
@@ -76,15 +65,15 @@ namespace
                 std::cout << "Fail: AT in Preconditioner indefinite!!!!!!!!!!!!!!!" << std::endl;
             }
             
-            q -= minusB_.transposed( adjointSpace_.project(y));
+            in -= minusB_.transposed( adjointSpace_.project(out));
             
-            auto u = controlSolver_( controlSpace_.project(q));
-            sigma_ = u( controlSpace_.project(q));
+            auto u = controlSolver_( controlSpace_.project(in));
+            sigma_ = u( controlSpace_.project(in));
                         
-            y+=u;
+            out+=u;
             
-            q -= minusB_( controlSpace_.project(y) );
-            y += stateSpace_.embed(stateSolver_( adjointSpace_.project(q) ));
+            in -= minusB_( u );
+            out += stateSpace_.embed(stateSolver_( adjointSpace_.project(in) ));
             
             if(is< ::Spacy::CG::Solver >( stateSolver_ ) && ::Spacy::cast_ref<::Spacy::CG::Solver >(stateSolver_).indefiniteOperator())
             {

@@ -57,20 +57,8 @@ namespace Spacy
              * @param x argument
              * @return \f$P(x)\f$
              */
-            virtual Vector operator()(Vector x) const;
-            
-            
-            /**
-             * @brief Apply preconditioner \f$P\f$ 
-             * @param x argument, q auxilliary vector, needed for inexact differential block
-             * @return first argument: \f$P(x)\f$
-             *
-             */
-            Vector operator()(const Vector& x, Vector& q) const;
-            
-            
-            std::function<void(const ::Spacy::Vector& x)> output;
-            
+            virtual Vector operator()(Vector in) const;
+                        
             unsigned getBPXCallsInLifeTime() const
             {
                 return iterationsInLifeTime_;
@@ -82,10 +70,11 @@ namespace Spacy
             void setSpectralBounds(double eigMin, double eigMax);
             
             std::function<bool(bool setSignal, bool isConvex)> signalConvex_ = [](bool setSignal, bool isConvex){ return true; };
+      
+            void apply(Vector& out, Vector&& in) const;  // in will be overwritten
             
         private:
             
-            void apply(const Vector& x, Vector& y, Vector& q) const;
             
             ::Spacy::LinearSolver stateSolver_, controlSolver_, adjointSolver_;
             const ::Spacy::VectorSpace& stateSpace_, &controlSpace_, &adjointSpace_;
