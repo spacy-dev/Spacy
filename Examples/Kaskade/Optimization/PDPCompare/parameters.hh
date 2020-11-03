@@ -22,15 +22,19 @@ struct ProblemParameters
     double ref_deformationY;
     double ref_deformationZ;
 
-    bool usePDP;
+    bool solveForward=false;
+    bool usePDP = true;
     bool useMINRES;
-    bool useDirectBlockPreconditioner;
+    bool useDirectBlockPreconditioner = false;
     bool useSchurPreconditioner;
 
     double desiredAccuracy;
     double eps;
 
     int verbose;
+    int decades=0;
+    int smoothers;
+    int additiveDepth;
 
     unsigned numberOfThreads;
 
@@ -51,7 +55,7 @@ ProblemParameters readParameters(const std::string & filename)
     Dune::ParameterTree parTree;
     Dune::ParameterTreeParser::readINITree(filename,  parTree);
 
-    par.order = parTree.get<unsigned>("order");
+    par.order = parTree.get<unsigned>("order",1);
     par.refinements = parTree.get<unsigned>("refinements");
     par.numberOfCubesX = parTree.get<unsigned>("numberOfCubesX");
     par.numberOfCubesY = parTree.get<unsigned>("numberOfCubesY");
@@ -59,9 +63,10 @@ ProblemParameters readParameters(const std::string & filename)
 
     par.regularization = parTree.get<double>("regularization");
 
-    par.usePDP = parTree.get<bool>("usePDP");
+    par.solveForward = parTree.get<bool>("solveForward",true);
+    par.usePDP = parTree.get<bool>("usePDP",true);
     par.useMINRES = parTree.get<bool>("useMINRES");
-    par.useDirectBlockPreconditioner = parTree.get<bool>("useDirectBlockPreconditioner");
+    par.useDirectBlockPreconditioner = parTree.get<bool>("useDirectBlockPreconditioner",false);
     par.useSchurPreconditioner = parTree.get<bool>("useSchurPreconditioner");
 
     par.ref_deformationX = parTree.get<double>("ref_deformationX");
@@ -71,7 +76,10 @@ ProblemParameters readParameters(const std::string & filename)
     par.desiredAccuracy = parTree.get<double>("desiredAccuracy");
     par.eps = parTree.get<double>("eps");
 
-    par.verbose = parTree.get<int>("verbose");
+    par.verbose = parTree.get<int>("verbose",0);
+    par.smoothers = parTree.get<int>("smoothers",1);
+    par.additiveDepth = parTree.get<int>("addDepth",-1);
+    par.decades = parTree.get<int>("decades",0);
 
     par.numberOfThreads = parTree.get<unsigned>("numberOfThreads");
 

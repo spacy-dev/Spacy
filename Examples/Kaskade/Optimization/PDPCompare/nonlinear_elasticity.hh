@@ -175,7 +175,7 @@ public:
 
             else if (scalarProdSide < -0.5)
             {
-                gamma = 0; //dirichlet_penalty;
+                gamma = dirichlet_penalty;
                 beta  = 0.0;
                 localPenalty_ = 0.0;
             }
