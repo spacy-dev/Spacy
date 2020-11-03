@@ -14,7 +14,12 @@ endif()
 if(dealII)
     aux_source_directory(Adapter/dealII SRC_LIST)
 endif()
-
+list(APPEND SRC_LIST
+    Algorithm/Preconditioner/Chebyshev.h
+    Algorithm/Preconditioner/Chebyshev.cpp
+    Algorithm/Rothe/GenericRothe.h
+    Algorithm/Rothe/GenericRothe.cpp
+)
 aux_source_directory(. SRC_LIST)
 aux_source_directory(Adaptivity SRC_LIST)
 aux_source_directory(Adapter/Scalar SRC_LIST)
@@ -24,7 +29,6 @@ aux_source_directory(Algorithm/ACR SRC_LIST)
 aux_source_directory(Algorithm/CG SRC_LIST)
 aux_source_directory(Algorithm/CompositeStep SRC_LIST)
 aux_source_directory(Algorithm/Newton SRC_LIST)
-aux_source_directory(Algorithm/Rothe SRC_LIST)
 aux_source_directory(Algorithm/Scalar SRC_LIST)
 aux_source_directory(Algorithm/TrustRegion SRC_LIST)
 aux_source_directory(Spaces/ScalarSpace SRC_LIST)
