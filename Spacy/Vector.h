@@ -28,6 +28,7 @@ namespace Spacy
             virtual ~Interface() = default;
             virtual std::shared_ptr< Interface > clone() const = 0;
             virtual Real call_const_Vector_ref( const Vector& x ) const = 0;
+            virtual void axpy(const double& s,  const Vector& y ) = 0;
             virtual void add_const_Vector_ref( const Vector& y ) = 0;
             virtual void subtract_const_Vector_ref( const Vector& y ) = 0;
             virtual void multiply_double( double a ) = 0;
@@ -71,6 +72,18 @@ namespace Spacy
                   impl.operator+=( *y.template target< typename std::decay< Impl >::type >() );
                 }
             }
+
+            void axpy(const double& s,  const Vector& y )
+            {
+                if(this->space().index() != y.space().index())
+                {
+                  impl.axpy(s,*(y.space().getEmbedding(this->space()).apply(y)).template target< typename std::decay< Impl >::type >() );
+                } else
+                {
+                  impl.axpy(s,*y.template target< typename std::decay< Impl >::type >() );
+                }
+            }
+
 
             ///TODO: Was modified by hand, how to do this in the "Interface" definition?
             void subtract_const_Vector_ref( const Vector& y ) override
@@ -193,6 +206,12 @@ namespace Spacy
             assert( impl_ );
             impl_->add_const_Vector_ref( y );
             return *this;
+        }
+
+        void axpy(const double& s,  const Vector& y )
+        {
+            assert( impl_ );
+            impl_->axpy(s, y );
         }
 
         Vector& operator-=( const Vector& y )

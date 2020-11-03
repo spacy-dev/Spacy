@@ -154,11 +154,11 @@ namespace Spacy
 //            std::cout << " " << embedding->range().name();
             if ( embedding->range().index() == V.index() )
             {
-            std::cout << std::endl;
+//            std::cout << std::endl;
                 return true;
             } 
        }
-        std::cout << std::endl;
+//        std::cout << std::endl;
         return false;
      }
 
@@ -189,17 +189,17 @@ namespace Spacy
     
      bool VectorSpace::hasProjectionFrom(const VectorSpace& V) const
      {
-        std::cout << "Need: " << this->name() << "->"  << V.name() << " P. domains:";
+        //std::cout << "Need: " << this->name() << "->"  << V.name() << " P. domains:";
         for ( const auto& proj : projectedFrom_ )
         {
-            std::cout << " " << proj->domain().name();
+          //  std::cout << " " << proj->domain().name();
             if ( proj->domain().index() == V.index() )
             {
-                std::cout << std::endl;
+                //std::cout << std::endl;
                 return true;
             }
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
         return false;
      }
 

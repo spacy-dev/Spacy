@@ -21,6 +21,7 @@ namespace Spacy
                 globalSpaceManager().unsubscribe( this );
                 if(v.space().index() != this->space().index())
                 {
+                    *this *= 0.0;
                     v.space().getEmbedding(this->space()).apply(v,*this);
                 } else
                 {
@@ -44,10 +45,18 @@ namespace Spacy
                 globalSpaceManager().unsubscribe( this );
                 if(v.space().index() != this->space().index())
                 {
+                    *this *= 0.0;
                    v.space().getEmbedding(this->space()).apply(v,*this);
+                } 
+                else
+                {
+                  impl_ = std::move( v ).impl_;
                 }
+            } 
+            else
+            {
+                  impl_ = std::move( v ).impl_;
             }
-            impl_ = std::move( v ).impl_;
             if ( impl_ )
                 globalSpaceManager().subscribe( this );
             return *this;
