@@ -51,8 +51,12 @@ IncludeCategories:
     Priority: 5
   - Regex: '^"(Util|Detail)/'
     Priority: 1
-  - Regex: '^((<|")(gtest|isl|json|boost|io|fem|linalg|mg|timestepping/)/)'
+  - Regex: '^((<|")(gtest|isl|json|boost/)/)'
     Priority: 40
+  - Regex: '^(<|")(dune)/'
+    Priority: 35
+  - Regex: '^((<|")(io|fem|linalg|mg|timestepping|utilities/)/)'
+    Priority: 30
   - Regex: '^((<|")kaskade7)'
     Priority: 30
   - Regex: "^(<(array|algorithm|cassert|chrono|cmath|cstdlib|iostream|limits|list|map|memory|numeric|random|set|stdexcept|string|vector|type_traits|utility)>)"

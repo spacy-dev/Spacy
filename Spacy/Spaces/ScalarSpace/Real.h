@@ -3,6 +3,8 @@
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Mixins/Get.h>
 
+#include <limits>
+
 namespace Spacy
 {
     /** @addtogroup ScalarGroup @{ */
@@ -73,8 +75,7 @@ namespace Spacy
 
     Real operator*( Real x, const Mixin::Get< Real >& y );
 
-    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >,
-                                                           std::decay_t< T > >::value >* = nullptr >
+    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >, std::decay_t< T > >::value >* = nullptr >
     auto operator+( T&& x, const Real& y )
     {
         std::decay_t< T > z( std::forward< T >( x ) );
@@ -82,15 +83,13 @@ namespace Spacy
         return z;
     }
 
-    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >,
-                                                           std::decay_t< T > >::value >* = nullptr >
+    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >, std::decay_t< T > >::value >* = nullptr >
     auto operator+( Real x, T&& y )
     {
         return x += get( y );
     }
 
-    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >,
-                                                           std::decay_t< T > >::value >* = nullptr >
+    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >, std::decay_t< T > >::value >* = nullptr >
     auto operator-( T&& x, const Real& y )
     {
         std::decay_t< T > z( std::forward< T >( x ) );
@@ -98,26 +97,23 @@ namespace Spacy
         return z;
     }
 
-    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >,
-                                                           std::decay_t< T > >::value >* = nullptr >
+    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >, std::decay_t< T > >::value >* = nullptr >
     auto operator-( Real x, T&& y )
     {
         return x -= get( y );
     }
 
-    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >,
-                                                           std::decay_t< T > >::value >* = nullptr >
+    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >, std::decay_t< T > >::value >* = nullptr >
     auto operator/( T&& x, const Real& y )
     {
         Real z( get( std::forward< T >( x ) ) );
         return z /= y;
     }
 
-    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >,
-                                                           std::decay_t< T > >::value >* = nullptr >
+    template < class T, std::enable_if_t< std::is_base_of< Mixin::Get< Real >, std::decay_t< T > >::value >* = nullptr >
     auto operator/( const Real& x, T&& y )
     {
         return x / get( std::forward< T >( y ) );
     }
     /** @} */
-}
+} // namespace Spacy

@@ -1,17 +1,8 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                           */
-/*  This file is part of the library KASKADE 7                               */
-/*    see http://www.zib.de/projects/kaskade7-finite-element-toolbox         */
-/*                                                                           */
-/*  Copyright (C) 2002-2015 Zuse Institute Berlin                            */
-/*                                                                           */
-/*  KASKADE 7 is distributed under the terms of the ZIB Academic License.    */
-/*    see $KASKADE/academic.txt                                              */
-/*                                                                           */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+#include <utilities/gridGeneration.hh> //  createUnitSquare
 
-#include <dune/grid/config.h>
-#include <dune/grid/uggrid.hh>
+#include <Spacy/Adapter/kaskade.hh>
+#include <Spacy/Spacy.h>
+
 #include <fem/assemble.hh>
 #include <fem/functional_aux.hh>
 #include <fem/gridmanager.hh>
@@ -20,10 +11,9 @@
 #include <fem/variables.hh>
 #include <io/vtk.hh>
 #include <linalg/direct.hh>
-#include <utilities/gridGeneration.hh> //  createUnitSquare
 
-#include <Spacy/Adapter/kaskade.hh>
-#include <Spacy/Spacy.h>
+#include <dune/grid/config.h>
+#include <dune/grid/uggrid.hh>
 
 #include <iostream>
 
@@ -58,8 +48,9 @@ int main()
     // compute solution
     const auto X = Spacy::Kaskade::makeHilbertSpace< VariableSetDesc >( variableSetDesc );
     const auto A = Spacy::Kaskade::makeC1Operator( F, X, X.dualSpace() );
-    const auto solver = A.linearization( zero( X ) ).solver();
-    const auto x = solver( -A( zero( X ) ) );
+    const auto x0 = zero( X );
+    const auto solver = A.linearization( x0 ).solver();
+    const auto x = solver( -A( x0 ) );
 
     // output
     writeVTK( Spacy::cast_ref< Spacy::Kaskade::Vector< VariableSetDesc > >( x ), "temperature" );

@@ -4,9 +4,6 @@
 #include "DirectSolver.h"
 #include "LinearOperator.h"
 #include "OperatorSpace.h"
-#include <fem/assemble.hh>
-#include <fem/istlinterface.hh>
-#include <linalg/triplet.hh>
 
 #include <Spacy/C1Operator.h>
 #include <Spacy/LinearOperator.h>
@@ -14,6 +11,10 @@
 #include <Spacy/Util/Mixins/NumberOfThreads.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
+
+#include <fem/assemble.hh>
+#include <fem/istlinterface.hh>
+#include <linalg/triplet.hh>
 
 #include <utility>
 
@@ -235,15 +236,13 @@ namespace Spacy
             Spaces spaces_;
             mutable KaskadeOperator A_;
             mutable ::Spacy::Vector rhs_;
-            mutable ::Spacy::Vector old_X_A_{}, old_X_dA_{};
+            mutable ::Spacy::Vector old_X_A_{};
+            mutable ::Spacy::Vector old_X_dA_{};
             bool onlyLowerTriangle_ = false;
             int rbegin_ = 0, rend_ = OperatorDefinition::AnsatzVars::noOfVariables;
             int cbegin_ = 0, cend_ = OperatorDefinition::TestVars::noOfVariables;
             std::function< LinearSolver( const Linearization& ) > solverCreator_ = []( const Linearization& M ) {
-                return makeDirectSolver< TestVariableSetDescription, AnsatzVariableSetDescription >(
-                    M.A(), M.range(), M.domain() /*,
-                                                                                                                                                                                DirectType::MUMPS ,
-                                                                                                                                                                                MatrixProperties::GENERAL*/ );
+                return makeDirectSolver< TestVariableSetDescription, AnsatzVariableSetDescription >( M.A(), M.range(), M.domain() );
             };
             std::shared_ptr< VectorSpace > operatorSpace_ = nullptr;
         };
