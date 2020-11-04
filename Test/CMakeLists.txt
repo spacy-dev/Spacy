@@ -1,8 +1,6 @@
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
 
-set(CMAKE_CXX_CLANG_TIDY "")
-
 aux_source_directory(Mock MOCK_SRC_LIST)
 aux_source_directory(Spacy TEST_SRC_LIST)
 if(Eigen3_FOUND)
