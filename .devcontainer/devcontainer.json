@@ -11,7 +11,8 @@
 	"mounts": [
 		"source=vscode-zsh-history,target=/commandhistory,type=volume",
 		"source=vscode-ccache,target=/ccache,type=volume",
-		"source=vscode-conan-data,target=/home/vscode/.conan/data,type=volume"
+		"source=vscode-conan-data,target=/home/vscode/.conan/data,type=volume",
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind"
 	],
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
