@@ -1,16 +1,25 @@
 find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
 
+set(CMAKE_CXX_CLANG_TIDY "")
+
 aux_source_directory(Mock MOCK_SRC_LIST)
-aux_source_directory(Spacy TEST_SRC_LIST)
 if(Eigen3_FOUND)
-  aux_source_directory(Spacy/Adaptivity TEST_SRC_LIST)
   list(APPEND TEST_SRC_LIST
+      Spacy/Adaptivity/Refinement_1D.cpp
       Spacy/Algorithm/ODEInt.cpp
   )
 endif()
 
 list(APPEND TEST_SRC_LIST
+    Spacy/C1Functional.cpp
+    Spacy/C1Operator.cpp
+    Spacy/C2Functional.cpp
+    Spacy/Functional.cpp
+    Spacy/IndefiniteLinearSolver.cpp
+    Spacy/LinearOperator.cpp
+    Spacy/Operator.cpp
+    Spacy/VectorSpace.cpp
     Spacy/Algorithm/DampingFactor.cpp
     Spacy/Algorithm/LipschitzConstant.cpp
     Spacy/Algorithm/CompositeStep/Models.cpp
