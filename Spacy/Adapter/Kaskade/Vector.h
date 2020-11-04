@@ -36,79 +36,130 @@ namespace Spacy
             return lhs.end <= rhs.begin;
         }
 
-        template < class ValueRef >
-        using Accessors = std::vector< std::pair< std::size_t, std::function< ValueRef( int ) > > >;
-
-        template < int N, int I = 0 >
-        struct AddAccessors
+        template < class BlockVector >
+        class AccessBlockVectorEntry
         {
-            template < class Accessors, class Container >
-            AddAccessors( Accessors& accessors, Container& container )
-            {
-                const auto size = boost::fusion::at_c< I >( container ).size();
-                accessors.emplace_back( size, [ &container ]( int i ) { return boost::fusion::at_c< I >( container )[ i ]; } );
-                AddAccessors< N, I + 1 >( accessors, container );
-            }
-        };
-
-        template < int N >
-        struct AddAccessors< N, N >
-        {
-            template < class Accessors, class Container >
-            AddAccessors( Accessors& /*unused*/, Container& /*unused*/ )
+        public:
+            explicit AccessBlockVectorEntry( BlockVector& v, int i = 0, int k = 0 ) : v( v ), i( i ), k( k )
             {
             }
+
+            double& get()
+            {
+                return v[ i ][ k ];
+            }
+
+            const double& get() const
+            {
+                return v[ i ][ k ];
+            }
+
+            void increment()
+            {
+                ++k;
+                using std::size;
+                if ( k == size( v[ i ] ) )
+                {
+                    k = 0;
+                    ++i;
+                }
+            }
+
+        private:
+            BlockVector& v;
+            int i;
+            int k;
         };
 
-        template < template < class... > class Container, class... Args >
-        Accessors< double& > getAccessors( Container< Args... >& container )
+        namespace Detail
         {
-            Accessors< double& > accessors;
-            AddAccessors< sizeof...( Args ) >( accessors, container );
-            return accessors;
-        }
+            template < class ReturnT >
+            struct AccessInfo
+            {
+                int blockSize;
+                int spatialDim;
+                std::function< ReturnT( int, int ) > accessor;
+            };
 
-        template < template < class... > class Container, class... Args >
-        Accessors< const double& > getAccessors( const Container< Args... >& container )
-        {
-            Accessors< const double& > accessors;
-            AddAccessors< sizeof...( Args ) >( accessors, container );
-            return accessors;
-        }
+            template < class ReturnT >
+            using AccessInfos = std::vector< AccessInfo< ReturnT > >;
+
+            template < class ReturnT, int N, int I = 0 >
+            struct AddAccessInfo
+            {
+                template < class AccessInfos, class Container >
+                AddAccessInfo( AccessInfos& accessInfos, Container& container )
+                {
+                    const auto blockSize = int( boost::fusion::at_c< I >( container ).size() );
+                    const auto spatialDim = int( boost::fusion::at_c< I >( container )[ 0 ].size() );
+                    accessInfos.push_back( AccessInfo< ReturnT >{ blockSize, spatialDim, [ &container ]( int i, int k ) -> ReturnT {
+                                                                     return boost::fusion::at_c< I >( container )[ i ][ k ];
+                                                                 } } );
+                    AddAccessInfo< ReturnT, N, I + 1 >( accessInfos, container );
+                }
+            };
+
+            template < class ReturnT, int N >
+            struct AddAccessInfo< ReturnT, N, N >
+            {
+                template < class AccessInfos, class Container >
+                AddAccessInfo( AccessInfos& /*unused*/, Container& /*unused*/ )
+                {
+                }
+            };
+
+            template < template < class... > class Container, class... Args >
+            auto getAccessInfos( Container< Args... >& container )
+            {
+                using ReturnT = double&;
+                AccessInfos< ReturnT > accessInfos;
+                AddAccessInfo< ReturnT, sizeof...( Args ) >( accessInfos, container );
+                return accessInfos;
+            }
+
+            template < template < class... > class Container, class... Args >
+            auto getAccessInfos( const Container< Args... >& container )
+            {
+                using ReturnT = const double&;
+                AccessInfos< ReturnT > accessInfos;
+                AddAccessInfo< ReturnT, sizeof...( Args ) >( accessInfos, container );
+                return accessInfos;
+            }
+        } // namespace Detail
 
         template < class Vector >
         struct ContiguousIterator
         {
             static constexpr auto N = boost::fusion::result_of::size< Vector >::type::value;
             using ValueRef = typename std::conditional< std::is_const< Vector >::value, const double&, double& >::type;
-            using Accessor = Accessors< ValueRef >;
+            using AccessInfo = Detail::AccessInfos< ValueRef >;
 
-            explicit ContiguousIterator( Vector* v = nullptr, int i = 0 ) : v( v ), i( i ), accessors( v ? getAccessors( *v ) : Accessor{} )
+            explicit ContiguousIterator( Vector* v = nullptr, int i = 0, int k = 0 )
+                : v( v ), i( i ), k( k ), infos( v ? Detail::getAccessInfos( *v ) : AccessInfo{} )
             {
             }
 
             ContiguousIterator operator++()
             {
-                ++i;
-                adjustIndices();
+                increment();
                 return *this;
             }
 
             ContiguousIterator operator++( int )
             {
-                ContiguousIterator tmp( v, i );
+                ContiguousIterator tmp( v, i, k );
                 ++( *this );
                 return tmp;
             }
 
             ValueRef operator*() const
             {
-                return accessors[ j ].second( i );
+                return infos[ j ].accessor( i, k );
             }
 
             bool operator==( const ContiguousIterator& other ) const noexcept
             {
-                return isAtEnd( other ) || ( v == other.v && i == other.i && j == other.j );
+                return isAtEnd( other ) || ( v == other.v && i == other.i && j == other.j && k == other.k );
             }
 
         private:
@@ -117,9 +168,16 @@ namespace Spacy
                 return ( other.v == nullptr && j == N ) || ( v == nullptr && other.j == N );
             }
 
-            void adjustIndices()
+            void increment()
             {
-                if ( i == accessors[ j ].first )
+                ++k;
+                if ( k == infos[ j ].spatialDim )
+                {
+                    ++i;
+                    k = 0;
+                }
+
+                if ( i == infos[ j ].blockSize )
                 {
                     ++j;
                     i = 0;
@@ -127,8 +185,9 @@ namespace Spacy
             }
 
             Vector* v;
-            int i;
-            Accessor accessors;
+            int i{ 0 };
+            int k{ 0 };
+            AccessInfo infos;
             std::size_t j{ 0 };
         };
 
