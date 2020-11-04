@@ -6,9 +6,6 @@
 #include "OperatorSpace.h"
 #include "Vector.h"
 #include "VectorSpace.h"
-#include "fem/assemble.hh"
-#include "fem/istlinterface.hh"
-#include "linalg/triplet.hh"
 
 #include <Spacy/C1Operator.h>
 #include <Spacy/Util/Base/FunctionalBase.h>
@@ -18,7 +15,12 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
+#include <fem/assemble.hh>
+#include <fem/istlinterface.hh>
+#include <linalg/triplet.hh>
+
 #include <memory>
+#include <numeric>
 
 namespace Spacy
 {
@@ -77,11 +79,8 @@ namespace Spacy
                           using std::begin;
                           using std::end;
                           const auto& m = cast_ref< Linearization >( v ).get();
-                          auto iend = end( m );
-                          auto result = 0.;
-                          for ( auto iter = begin( m ); iter != iend; ++iter )
-                              result += ( *iter ) * ( *iter );
-                          return Real{ sqrt( result ) };
+                          return sqrt( std::accumulate( begin( m ), end( m ), Real( 0 ),
+                                                        []( const auto& x, const auto& y ) { return x + y * y; } ) );
                       },
                       true ) )
             {
@@ -283,12 +282,17 @@ namespace Spacy
 
             FunctionalDefinition f_;
             Spaces spaces_;
-            mutable KaskadeOperator A_ = {};
+            mutable KaskadeOperator A_{};
             mutable double value_ = 0;
-            mutable ::Spacy::Vector old_X_f_{}, old_X_df_{}, old_X_ddf_{}, rhs_{};
+            mutable ::Spacy::Vector old_X_f_{};
+            mutable ::Spacy::Vector old_X_df_{};
+            mutable ::Spacy::Vector old_X_ddf_{};
+            mutable ::Spacy::Vector rhs_{};
             bool onlyLowerTriangle_ = false;
-            int rbegin_ = 0, rend_ = FunctionalDefinition::AnsatzVars::noOfVariables;
-            int cbegin_ = 0, cend_ = FunctionalDefinition::TestVars::noOfVariables;
+            int rbegin_ = 0;
+            int rend_ = FunctionalDefinition::AnsatzVars::noOfVariables;
+            int cbegin_ = 0;
+            int cend_ = FunctionalDefinition::TestVars::noOfVariables;
             std::function< LinearSolver( const Linearization& ) > solverCreator_ = []( const Linearization& f ) {
                 return makeDirectSolver< VariableSetDescription, VariableSetDescription >(
                         f.A(), f.range(), f.domain() /*,

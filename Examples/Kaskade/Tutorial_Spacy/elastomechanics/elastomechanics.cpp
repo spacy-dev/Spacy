@@ -10,24 +10,27 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "fem/assemble.hh"
-#include "fem/spaces.hh"
-#include "io/matlab.hh"
-#include "io/vtk.hh"
-#include "linalg/apcg.hh"
-#include "linalg/direct.hh"
-#include "linalg/threadedMatrix.hh"
-#include "linalg/triplet.hh"
-#include "mg/additiveMultigrid.hh"
-#include "mg/multigrid.hh"
-#include "utilities/enums.hh"
-#include "utilities/gridGeneration.hh"
-#include "utilities/kaskopt.hh"
-#include "utilities/memory.hh"
-#include "utilities/timing.hh"
+#include <Spacy/Adapter/kaskade.hh>
+#include <Spacy/Spacy.h>
 
-#include "dune/grid/config.h"
-#include "dune/grid/uggrid.hh"
+#include <fem/assemble.hh>
+#include <fem/spaces.hh>
+#include <io/matlab.hh>
+#include <io/vtk.hh>
+#include <linalg/apcg.hh>
+#include <linalg/direct.hh>
+#include <linalg/threadedMatrix.hh>
+#include <linalg/triplet.hh>
+#include <mg/additiveMultigrid.hh>
+#include <mg/multigrid.hh>
+#include <utilities/enums.hh>
+#include <utilities/gridGeneration.hh>
+#include <utilities/kaskopt.hh>
+#include <utilities/memory.hh>
+#include <utilities/timing.hh>
+
+#include <dune/grid/config.h>
+#include <dune/grid/uggrid.hh>
 #include <dune/istl/operators.hh>
 
 #include <iostream>
@@ -119,131 +122,142 @@ int main( int argc, char* argv[] )
     // Create the variational functional.
     Functional F( ElasticModulus::material( material ) );
 
-    // construct Galerkin representation
-    Assembler assembler( varSetDesc.spaces );
-    VarSetDesc::VariableSet x( varSetDesc );
-    VarSetDesc::VariableSet dx( varSetDesc );
+    // // construct Galerkin representation
+    // Assembler assembler( varSetDesc.spaces );
+    // VarSetDesc::VariableSet x( varSetDesc );
+    // VarSetDesc::VariableSet dx( varSetDesc );
 
-    timer.start( "computing time for assemble" );
-    assembler.assemble( linearization( F, x ) );
-    timer.stop( "computing time for assemble" );
+    // timer.start( "computing time for assemble" );
+    // assembler.assemble( linearization( F, x ) );
+    // timer.stop( "computing time for assemble" );
 
-    CoefficientVectors rhs( assembler.rhs() );
-    CoefficientVectors solution = varSetDesc.zeroCoefficientVector();
-    timer.start( "computing time for solve" );
-    if ( direct )
-    {
-        auto directType = static_cast< DirectType >( solver );
-        AssembledGalerkinOperator< Assembler > A( assembler, directType == DirectType::MUMPS || directType == DirectType::PARDISO );
-        directInverseOperator( A, directType, MatrixProperties::POSITIVEDEFINITE ).applyscaleadd( -1.0, rhs, solution );
-        x.data = solution.data;
-    }
-    else
-    {
-        timer.start( "preconditioner setup" );
-        using X = Dune::BlockVector< Dune::FieldVector< double, DIM > >;
-        DefaultDualPairing< X, X > dp;
-        using Matrix = NumaBCRSMatrix< Dune::FieldMatrix< double, DIM, DIM > >;
-        using LinOp = Dune::MatrixAdapter< Matrix, X, X >;
-        Matrix Amat( assembler.get< 0, 0 >(), true );
-        LinOp A( Amat );
-        SymmetricLinearOperatorWrapper< X, X > sa( A, dp );
-        PCGEnergyErrorTerminationCriterion< double > term( atol, maxit );
+    // CoefficientVectors rhs( assembler.rhs() );
+    // CoefficientVectors solution = varSetDesc.zeroCoefficientVector();
+    // timer.start( "computing time for solve" );
+    // if ( direct )
+    // {
+    //     auto directType = static_cast< DirectType >( solver );
+    //     AssembledGalerkinOperator< Assembler > A( assembler, directType == DirectType::MUMPS || directType == DirectType::PARDISO );
+    //     directInverseOperator( A, directType, MatrixProperties::POSITIVEDEFINITE ).applyscaleadd( -1.0, rhs, solution );
+    //     x.data = solution.data;
+    // }
+    // else
+    // {
+    //     timer.start( "preconditioner setup" );
+    //     using X = Dune::BlockVector< Dune::FieldVector< double, DIM > >;
+    //     DefaultDualPairing< X, X > dp;
+    //     using Matrix = NumaBCRSMatrix< Dune::FieldMatrix< double, DIM, DIM > >;
+    //     using LinOp = Dune::MatrixAdapter< Matrix, X, X >;
+    //     Matrix Amat( assembler.get< 0, 0 >(), true );
+    //     LinOp A( Amat );
+    //     SymmetricLinearOperatorWrapper< X, X > sa( A, dp );
+    //     PCGEnergyErrorTerminationCriterion< double > term( atol, maxit );
 
-        Dune::InverseOperatorResult res;
-        X xi( component< 0 >( rhs ).N() );
+    //     Dune::InverseOperatorResult res;
+    //     X xi( component< 0 >( rhs ).N() );
 
-        std::unique_ptr< SymmetricPreconditioner< X, X > > mg;
-        if ( additive )
-        {
-            if ( order == 1 )
-                mg = moveUnique( makeBPX( Amat, gridManager ) );
-            else
-            {
-                H1Space< Grid > p1Space( gridManager, gridManager.grid().leafGridView(), 1 );
-                if ( storageScheme == "A" )
-                {
-                    if ( storageType == "float" )
-                    {
-                        mg = moveUnique(
-                            makePBPX( Amat, h1Space, p1Space, DenseInverseStorageTag< float >(), gridManager.grid().maxLevel() ) );
-                    }
-                    else
-                    {
-                        mg = moveUnique(
-                            makePBPX( Amat, h1Space, p1Space, DenseInverseStorageTag< double >(), gridManager.grid().maxLevel() ) );
-                    }
-                }
-                else if ( storageScheme == "L" )
-                {
-                    if ( storageType == "float" )
-                    {
-                        mg = moveUnique(
-                            makePBPX( Amat, h1Space, p1Space, DenseCholeskyStorageTag< float >(), gridManager.grid().maxLevel() ) );
-                    }
-                    else
-                    {
-                        mg = moveUnique(
-                            makePBPX( Amat, h1Space, p1Space, DenseCholeskyStorageTag< double >(), gridManager.grid().maxLevel() ) );
-                    }
-                }
-                else if ( storageScheme == "ND" )
-                {
-                    if ( storageType == "float" )
-                    {
-                        if ( factorizationType == "float" )
-                        {
-                            mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< float, float >( skipEntries ),
-                                                       gridManager.grid().maxLevel() ) );
-                        }
-                        else
-                        {
-                            mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< float, double >( skipEntries ),
-                                                       gridManager.grid().maxLevel() ) );
-                        }
-                    }
-                    else
-                    {
-                        mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< double, double >( skipEntries ),
-                                                   gridManager.grid().maxLevel() ) );
-                    }
-                }
-                else
-                {
-                    std::cerr << "unknown storage scheme provided\n";
-                    return -1;
-                }
-            }
-        }
-        else
-        {
-            mg = makeMultigrid( Amat, h1Space );
-        }
-        timer.stop( "preconditioner setup" );
+    //     std::unique_ptr< SymmetricPreconditioner< X, X > > mg;
+    //     if ( additive )
+    //     {
+    //         if ( order == 1 )
+    //             mg = moveUnique( makeBPX( Amat, gridManager ) );
+    //         else
+    //         {
+    //             H1Space< Grid > p1Space( gridManager, gridManager.grid().leafGridView(), 1 );
+    //             if ( storageScheme == "A" )
+    //             {
+    //                 if ( storageType == "float" )
+    //                 {
+    //                     mg = moveUnique(
+    //                         makePBPX( Amat, h1Space, p1Space, DenseInverseStorageTag< float >(), gridManager.grid().maxLevel() ) );
+    //                 }
+    //                 else
+    //                 {
+    //                     mg = moveUnique(
+    //                         makePBPX( Amat, h1Space, p1Space, DenseInverseStorageTag< double >(), gridManager.grid().maxLevel() ) );
+    //                 }
+    //             }
+    //             else if ( storageScheme == "L" )
+    //             {
+    //                 if ( storageType == "float" )
+    //                 {
+    //                     mg = moveUnique(
+    //                         makePBPX( Amat, h1Space, p1Space, DenseCholeskyStorageTag< float >(), gridManager.grid().maxLevel() ) );
+    //                 }
+    //                 else
+    //                 {
+    //                     mg = moveUnique(
+    //                         makePBPX( Amat, h1Space, p1Space, DenseCholeskyStorageTag< double >(), gridManager.grid().maxLevel() ) );
+    //                 }
+    //             }
+    //             else if ( storageScheme == "ND" )
+    //             {
+    //                 if ( storageType == "float" )
+    //                 {
+    //                     if ( factorizationType == "float" )
+    //                     {
+    //                         mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< float, float >( skipEntries ),
+    //                                                    gridManager.grid().maxLevel() ) );
+    //                     }
+    //                     else
+    //                     {
+    //                         mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< float, double >( skipEntries
+    //                         ),
+    //                                                    gridManager.grid().maxLevel() ) );
+    //                     }
+    //                 }
+    //                 else
+    //                 {
+    //                     mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< double, double >( skipEntries ),
+    //                                                gridManager.grid().maxLevel() ) );
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 std::cerr << "unknown storage scheme provided\n";
+    //                 return -1;
+    //             }
+    //         }
+    //     }
+    //     else
+    //     {
+    //         mg = makeMultigrid( Amat, h1Space );
+    //     }
+    //     timer.stop( "preconditioner setup" );
 
-        timer.start( "PCG iteration" );
-        Pcg< X, X > pcg( sa, *mg, term, verbose );
-        pcg.apply( xi, component< 0 >( rhs ), res );
-        std::cout << "PCG iterations: " << res.iterations << "\n";
-        timer.stop( "PCG iteration" );
-        xi *= -1;
-        component< 0 >( x ) = xi;
-    }
-    timer.stop( "computing time for solve" );
+    //     timer.start( "PCG iteration" );
+    //     Pcg< X, X > pcg( sa, *mg, term, verbose );
+    //     pcg.apply( xi, component< 0 >( rhs ), res );
+    //     std::cout << "PCG iterations: " << res.iterations << "\n";
+    //     timer.stop( "PCG iteration" );
+    //     xi *= -1;
+    //     component< 0 >( x ) = xi;
+    // }
+    // timer.stop( "computing time for solve" );
 
-    // output of solution in VTK format for visualization,
-    // the data are written as ascii stream into file elasto.vtu,
-    // possible is also binary
-    if ( vtk )
-    {
-        ScopedTimingSection ts( "computing time for file i/o", timer );
-        writeVTKFile( x, "elasto", IoOptions().setOrder( order ).setPrecision( 7 ) );
-    };
+    // // output of solution in VTK format for visualization,
+    // // the data are written as ascii stream into file elasto.vtu,
+    // // possible is also binary
+    // if ( vtk )
+    // {
+    //     ScopedTimingSection ts( "computing time for file i/o", timer );
+    //     writeVTKFile( x, "elasto", IoOptions().setOrder( order ).setPrecision( 7 ) );
+    // };
 
-    timer.stop( "total computing time" );
-    if ( verbose > 0 )
-        std::cout << timer;
-    std::cout << "End elastomechanics tutorial program" << std::endl;
+    // timer.stop( "total computing time" );
+    // if ( verbose > 0 )
+    //     std::cout << timer;
+    // std::cout << "End elastomechanics tutorial program" << std::endl;
 
-    return 0;
+    // compute solution
+    const auto X = Spacy::Kaskade::makeHilbertSpace< VarSetDesc >( varSetDesc );
+    const auto A = Spacy::Kaskade::makeC1Operator( F, X, X.dualSpace() );
+    const auto x0 = zero( X );
+    const auto solver_ = A.linearization( x0 ).solver();
+    const auto x = solver_( -A( x0 ) );
+
+    // output
+    writeVTK( Spacy::cast_ref< Spacy::Kaskade::Vector< VarSetDesc > >( x ), "temperature" );
+    std::cout << "graphical output finished, data in VTK format is written into file temperature.vtu \n";
+    std::cout << "End Laplacian tutorial program" << std::endl;
 }
