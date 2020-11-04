@@ -1,15 +1,16 @@
 #include "VectorSpace.h"
 
+#include "ScalarProduct.h"
+#include "Vector.h"
+
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "ScalarProduct.h"
-#include "Vector.h"
-
 #include <algorithm>
 #include <cassert>
+#include <utility>
 
 namespace Spacy
 {
@@ -17,9 +18,8 @@ namespace Spacy
     {
         namespace
         {
-            std::vector< std::shared_ptr< VectorSpace > >
-            extractSubSpaces( const std::vector< std::shared_ptr< VectorSpace > >& spaces,
-                              const std::vector< unsigned >& subSpaceIds )
+            std::vector< std::shared_ptr< VectorSpace > > extractSubSpaces( const std::vector< std::shared_ptr< VectorSpace > >& spaces,
+                                                                            const std::vector< unsigned >& subSpaceIds )
             {
                 std::vector< std::shared_ptr< VectorSpace > > subSpaces;
                 for ( unsigned i : subSpaceIds )
@@ -54,16 +54,15 @@ namespace Spacy
 
                 return map;
             }
-        }
+        } // namespace
 
         VectorCreator::VectorCreator( const std::vector< std::shared_ptr< VectorSpace > >& spaces )
             : spaces_( spaces ), idMap_( createMap( defaultGlobalIds( spaces.size() ) ) )
         {
         }
 
-        VectorCreator::VectorCreator( const std::vector< std::shared_ptr< VectorSpace > >& spaces,
-                                      const std::vector< unsigned >& subSpaceIds )
-            : spaces_( spaces ), idMap_( createMap( subSpaceIds ) )
+        VectorCreator::VectorCreator( std::vector< std::shared_ptr< VectorSpace > > spaces, const std::vector< unsigned >& subSpaceIds )
+            : spaces_( std::move( spaces ) ), idMap_( createMap( subSpaceIds ) )
         {
         }
 
@@ -89,8 +88,7 @@ namespace Spacy
 
         unsigned VectorCreator::inverseIdMap( unsigned k ) const
         {
-            auto found = std::find_if( begin( idMap_ ), end( idMap_ ),
-                                       [k]( const auto& entry ) { return entry.second == k; } );
+            auto found = std::find_if( begin( idMap_ ), end( idMap_ ), [ k ]( const auto& entry ) { return entry.second == k; } );
             assert( found != end( idMap_ ) );
             return found->first;
         }
@@ -102,41 +100,35 @@ namespace Spacy
 
         Vector VectorCreator::operator()( const VectorSpace* space ) const
         {
-            return Vector{*space};
+            return Vector{ *space };
         }
 
         VectorSpace makeHilbertSpace( const std::vector< std::shared_ptr< VectorSpace > >& spaces )
         {
-            return ::Spacy::makeHilbertSpace( VectorCreator{spaces}, ScalarProduct{} );
+            return ::Spacy::makeHilbertSpace( VectorCreator{ spaces }, ScalarProduct{} );
         }
 
         VectorSpace makeHilbertSpace( const std::vector< std::shared_ptr< VectorSpace > >& spaces,
                                       const std::vector< unsigned >& globalIds )
         {
-            return ::Spacy::makeHilbertSpace(
-                VectorCreator{extractSubSpaces( spaces, globalIds ), globalIds}, ScalarProduct{} );
+            return ::Spacy::makeHilbertSpace( VectorCreator{ extractSubSpaces( spaces, globalIds ), globalIds }, ScalarProduct{} );
         }
 
         VectorSpace makeHilbertSpace( const std::vector< std::shared_ptr< VectorSpace > >& spaces,
-                                      const std::vector< unsigned >& primalSubSpaceIds,
-                                      const std::vector< unsigned >& dualSubSpaceIds )
+                                      const std::vector< unsigned >& primalSubSpaceIds, const std::vector< unsigned >& dualSubSpaceIds )
         {
             return ::Spacy::makeHilbertSpace(
-                VectorCreator( {std::make_shared< VectorSpace >(
-                                    ProductSpace::makeHilbertSpace( spaces, primalSubSpaceIds ) ),
-                                std::make_shared< VectorSpace >(
-                                    ProductSpace::makeHilbertSpace( spaces, dualSubSpaceIds ) )} ),
+                VectorCreator( { std::make_shared< VectorSpace >( ProductSpace::makeHilbertSpace( spaces, primalSubSpaceIds ) ),
+                                 std::make_shared< VectorSpace >( ProductSpace::makeHilbertSpace( spaces, dualSubSpaceIds ) ) } ),
                 ScalarProduct{} );
         }
-    }
+    } // namespace ProductSpace
 
-    std::shared_ptr< VectorSpace > extractSubSpaceImpl( const VectorSpace& space,
-                                                        unsigned global_id )
+    std::shared_ptr< VectorSpace > extractSubSpaceImpl( const VectorSpace& space, unsigned global_id )
     {
         if ( is< ProductSpace::VectorCreator >( space.creator() ) )
         {
-            const auto& product_space_creator =
-                cast_ref< ProductSpace::VectorCreator >( space.creator() );
+            const auto& product_space_creator = cast_ref< ProductSpace::VectorCreator >( space.creator() );
             const auto& subSpaces = product_space_creator.subSpaces();
             std::shared_ptr< VectorSpace > result;
             for ( auto i = 0u; i < subSpaces.size(); ++i )
@@ -165,4 +157,4 @@ namespace Spacy
 
         return space;
     }
-}
+} // namespace Spacy

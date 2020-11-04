@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include <functional>
+
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/Vector.h>
+
 #include <memory>
 #include <type_traits>
-#include <functional>
 
 namespace Spacy
 {
@@ -20,9 +22,9 @@ namespace Spacy
         struct Interface
         {
             virtual ~Interface() = default;
-            virtual std::shared_ptr< Interface > clone() const = 0;
-            virtual Vector call_const_Vector_ref( const Vector& x ) const = 0;
-            virtual bool isPositiveDefinite() const = 0;
+            [[nodiscard]] virtual std::shared_ptr< Interface > clone() const = 0;
+            [[nodiscard]] virtual Vector call_const_Vector_ref( const Vector& x ) const = 0;
+            [[nodiscard]] virtual bool isPositiveDefinite() const = 0;
         };
 
         template < class Impl >
@@ -33,17 +35,17 @@ namespace Spacy
             {
             }
 
-            std::shared_ptr< Interface > clone() const override
+            [[nodiscard]] std::shared_ptr< Interface > clone() const override
             {
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            Vector call_const_Vector_ref( const Vector& x ) const override
+            [[nodiscard]] Vector call_const_Vector_ref( const Vector& x ) const override
             {
                 return impl.operator()( x );
             }
 
-            bool isPositiveDefinite() const override
+            [[nodiscard]] bool isPositiveDefinite() const override
             {
                 return impl.isPositiveDefinite();
             }
@@ -63,12 +65,9 @@ namespace Spacy
     public:
         IndefiniteLinearSolver() noexcept = default;
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, IndefiniteLinearSolver >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, IndefiniteLinearSolver >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         IndefiniteLinearSolver( T&& value ) : impl_( std::forward< T >( value ) )
         {
         }
@@ -79,18 +78,15 @@ namespace Spacy
             return impl_->call_const_Vector_ref( x );
         }
 
-        bool isPositiveDefinite() const
+        [[nodiscard]] bool isPositiveDefinite() const
         {
             assert( impl_ );
             return impl_->isPositiveDefinite();
         }
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, IndefiniteLinearSolver >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, IndefiniteLinearSolver >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         IndefiniteLinearSolver& operator=( T&& value )
         {
             return *this = IndefiniteLinearSolver( std::forward< T >( value ) );

@@ -6,6 +6,7 @@
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
+
 #include <memory>
 #include <type_traits>
 
@@ -17,7 +18,7 @@ namespace Spacy
         struct Interface
         {
             virtual ~Interface() = default;
-            virtual std::unique_ptr< Interface > clone() const = 0;
+            [[nodiscard]] virtual std::unique_ptr< Interface > clone() const = 0;
             virtual Vector call_const_VectorSpace_ptr( const VectorSpace* V ) const = 0;
         };
 
@@ -29,7 +30,7 @@ namespace Spacy
             {
             }
 
-            std::unique_ptr< Interface > clone() const override
+            [[nodiscard]] std::unique_ptr< Interface > clone() const override
             {
                 return std::make_unique< Wrapper< Impl > >( impl );
             }
@@ -54,12 +55,9 @@ namespace Spacy
     public:
         ZeroVectorCreator() noexcept = default;
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, ZeroVectorCreator >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, ZeroVectorCreator >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         ZeroVectorCreator( T&& value ) : impl_( std::forward< T >( value ) )
         {
         }
@@ -71,12 +69,9 @@ namespace Spacy
             return impl_->call_const_VectorSpace_ptr( V );
         }
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, ZeroVectorCreator >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, ZeroVectorCreator >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         ZeroVectorCreator& operator=( T&& value )
         {
             return *this = ZeroVectorCreator( std::forward< T >( value ) );
@@ -94,7 +89,7 @@ namespace Spacy
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }

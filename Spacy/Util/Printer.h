@@ -3,11 +3,13 @@
 
 #pragma once
 
-#include <Spacy/Util/SmartPointerStorage.h>
-#include <memory>
-#include <type_traits>
 #include <functional>
 #include <ostream>
+
+#include <Spacy/Util/SmartPointerStorage.h>
+
+#include <memory>
+#include <type_traits>
 
 namespace Spacy
 {
@@ -19,11 +21,9 @@ namespace Spacy
             struct Interface
             {
                 virtual ~Interface() = default;
-                virtual std::unique_ptr< Interface > clone() const = 0;
-                virtual void
-                call_const_char_ptr_const_char_ptr_const_std_function_void_std_ostream_ref_ref(
-                    const char* tag, const char* name,
-                    const std::function< void( std::ostream& ) >& printable ) = 0;
+                [[nodiscard]] virtual std::unique_ptr< Interface > clone() const = 0;
+                virtual void call_const_char_ptr_const_char_ptr_const_std_function_void_std_ostream_ref_ref(
+                    const char* tag, const char* name, const std::function< void( std::ostream& ) >& printable ) = 0;
             };
 
             template < class Impl >
@@ -34,14 +34,13 @@ namespace Spacy
                 {
                 }
 
-                std::unique_ptr< Interface > clone() const override
+                [[nodiscard]] std::unique_ptr< Interface > clone() const override
                 {
                     return std::make_unique< Wrapper< Impl > >( impl );
                 }
 
                 void call_const_char_ptr_const_char_ptr_const_std_function_void_std_ostream_ref_ref(
-                    const char* tag, const char* name,
-                    const std::function< void( std::ostream& ) >& printable ) override
+                    const char* tag, const char* name, const std::function< void( std::ostream& ) >& printable ) override
                 {
                     impl.operator()( tag, name, printable );
                 }
@@ -61,12 +60,9 @@ namespace Spacy
         public:
             Printer() noexcept = default;
 
-            template <
-                class T,
-                typename std::enable_if<
-                    !std::is_same< typename std::decay< T >::type, Printer >::value &&
-                    !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                    nullptr >
+            template < class T,
+                       typename std::enable_if< !std::is_same< typename std::decay< T >::type, Printer >::value &&
+                                                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
             Printer( T&& value ) : impl_( std::forward< T >( value ) )
             {
             }
@@ -75,21 +71,15 @@ namespace Spacy
             ///@param tag specifies the algorithm/function this log originates from
             ///@param name name of the logged value
             ///@param printable wraps writing of the logged value to some stream
-            void operator()( const char* tag, const char* name,
-                             const std::function< void( std::ostream& ) >& printable )
+            void operator()( const char* tag, const char* name, const std::function< void( std::ostream& ) >& printable )
             {
                 assert( impl_ );
-                impl_
-                    ->call_const_char_ptr_const_char_ptr_const_std_function_void_std_ostream_ref_ref(
-                        tag, name, printable );
+                impl_->call_const_char_ptr_const_char_ptr_const_std_function_void_std_ostream_ref_ref( tag, name, printable );
             }
 
-            template <
-                class T,
-                typename std::enable_if<
-                    !std::is_same< typename std::decay< T >::type, Printer >::value &&
-                    !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                    nullptr >
+            template < class T,
+                       typename std::enable_if< !std::is_same< typename std::decay< T >::type, Printer >::value &&
+                                                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
             Printer& operator=( T&& value )
             {
                 return *this = Printer( std::forward< T >( value ) );

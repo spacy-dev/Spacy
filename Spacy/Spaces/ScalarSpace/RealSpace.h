@@ -7,7 +7,7 @@ namespace Spacy
     /**
      * @brief Construct space of real numbers.
      */
-    VectorSpace make_real_space( bool defaultIndex = false );
+    VectorSpace makeRealSpace( bool defaultIndex = false );
 
     namespace Space
     {
@@ -16,6 +16,6 @@ namespace Spacy
          *
          * This space is used by class Real if the underlying space is left unspecified.
          */
-        static VectorSpace R = make_real_space( true );
-    }
-}
+        static VectorSpace R = makeRealSpace( true );
+    } // namespace Space
+} // namespace Spacy

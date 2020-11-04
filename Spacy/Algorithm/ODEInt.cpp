@@ -1,11 +1,12 @@
 #include "ODEInt.h"
 
+#include <iterator>
+
 #include <Spacy/ZeroVectorCreator.h>
 
 #include <algorithm>
 #include <cmath>
 #include <numeric>
-#include <iterator>
 
 namespace boost
 {
@@ -16,29 +17,25 @@ namespace boost
             Spacy::Vector operator/( const Spacy::Vector& x, const Spacy::Vector& y )
             {
                 auto z( x );
-                std::transform( x.begin(), x.end(), y.begin(), z.begin(),
-                                []( double x, double y ) { return x / y; } );
+                std::transform( x.begin(), x.end(), y.begin(), z.begin(), []( double x, double y ) { return x / y; } );
                 return z;
             }
 
             Spacy::Vector abs( Spacy::Vector x )
             {
-                std::transform( x.begin(), x.end(), x.begin(),
-                                []( double xi ) { return std::abs( xi ); } );
+                std::transform( x.begin(), x.end(), x.begin(), []( double xi ) { return std::abs( xi ); } );
                 return x;
             }
 
             vector_space_norm_inf< Spacy::Vector >::result_type
             vector_space_norm_inf< Spacy::Vector >::operator()( const Spacy::Vector& x ) const
             {
-                return std::accumulate( x.begin(), x.end(), result_type{0},
-                                        []( result_type max, result_type xi ) {
-                                            return std::max( max, std::abs( xi ) );
-                                        } );
+                return std::accumulate( x.begin(), x.end(), result_type{ 0 },
+                                        []( result_type max, result_type xi ) { return std::max( max, std::abs( xi ) ); } );
             }
 
-            bool same_size_impl< Spacy::Vector, Spacy::Vector >::same_size( const Spacy::Vector& x,
-                                                                            const Spacy::Vector& y )
+            // NOLINTNEXTLINE(readability-identifier-naming)
+            bool same_size_impl< Spacy::Vector, Spacy::Vector >::same_size( const Spacy::Vector& x, const Spacy::Vector& y )
             {
                 if ( !bool( x ) && !bool( y ) )
                     return true;
@@ -49,14 +46,13 @@ namespace boost
                 return std::distance( x.begin(), x.end() ) == std::distance( y.begin(), y.end() );
             }
 
-            void resize_impl< Spacy::Vector, Spacy::Vector >::resize( Spacy::Vector& x,
-                                                                      const Spacy::Vector& y )
+            void resize_impl< Spacy::Vector, Spacy::Vector >::resize( Spacy::Vector& x, const Spacy::Vector& y )
             {
                 x = zero( y.space() );
             }
-        }
-    }
-}
+        } // namespace odeint
+    }     // namespace numeric
+} // namespace boost
 
 namespace Spacy
 {
@@ -119,6 +115,7 @@ namespace Spacy
         return *iterator;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SpacyIterator end_iterator( Vector* x )
     {
         SpacyIterator iter;
@@ -126,6 +123,7 @@ namespace Spacy
         return iter;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     ConstSpacyIterator end_iterator( const Vector* x )
     {
         ConstSpacyIterator iter;
@@ -133,23 +131,27 @@ namespace Spacy
         return iter;
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SpacyIterator range_begin( Vector& x )
     {
         return SpacyIterator( &x );
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     SpacyIterator range_end( Vector& x )
     {
         return end_iterator( &x );
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     ConstSpacyIterator range_begin( const Vector& x )
     {
         return ConstSpacyIterator( &x );
     }
 
+    // NOLINTNEXTLINE(readability-identifier-naming)
     ConstSpacyIterator range_end( const Vector& x )
     {
         return end_iterator( &x );
     }
-}
+} // namespace Spacy

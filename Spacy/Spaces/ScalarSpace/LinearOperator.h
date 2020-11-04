@@ -17,10 +17,7 @@ namespace Spacy
     namespace Scalar
     {
         /// Linear operator for scalar problems.
-        struct LinearOperator : VectorBase,
-                                OperatorBase,
-                                Mixin::Get< Real >,
-                                AddArithmeticOperators< LinearOperator >
+        struct LinearOperator : VectorBase, OperatorBase, Mixin::Get< Real >, AddArithmeticOperators< LinearOperator >
         {
             /// Create linear operator.
             LinearOperator( const VectorSpace& space, Real value );
@@ -35,8 +32,8 @@ namespace Spacy
             LinearOperator operator-() const;
 
             /// Get solver for the computation of the inverse of this linear operator.
-            std::function<::Spacy::Vector( const ::Spacy::Vector& ) > solver() const;
+            [[nodiscard]] std::function< ::Spacy::Vector( const ::Spacy::Vector& ) > solver() const;
         };
-    }
+    } // namespace Scalar
     /** @} */
-}
+} // namespace Spacy

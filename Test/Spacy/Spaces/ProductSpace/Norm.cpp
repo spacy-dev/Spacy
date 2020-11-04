@@ -1,7 +1,8 @@
-#include <Test/gtest.hh>
-
 #include <Test/mockSetup.hh>
+
 #include <Spacy/Spaces/ProductSpace/Norm.h>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 

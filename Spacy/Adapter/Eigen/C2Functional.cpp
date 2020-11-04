@@ -1,25 +1,25 @@
 #include "C2Functional.h"
 
-#include <Spacy/Util/Cast.h>
-#include <Spacy/Vector.h>
-#include <Spacy/VectorSpace.h>
-
 #include "LinearOperator.h"
 #include "LinearOperatorCreator.h"
 #include "ScalarProduct.h"
 #include "Vector.h"
 #include "VectorCreator.h"
 
+#include <Spacy/Util/Cast.h>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+
+#include <utility>
+
 namespace Spacy
 {
     namespace Rn
     {
-        C2Functional::C2Functional(
-            std::function< double( const ::Eigen::VectorXd& ) > f,
-            std::function<::Eigen::VectorXd( const ::Eigen::VectorXd& ) > df,
-            std::function<::Eigen::MatrixXd( const ::Eigen::VectorXd& ) > ddf,
-            const VectorSpace& domain )
-            : Spacy::FunctionalBase( domain ), f_( f ), df_( df ), ddf_( ddf )
+        C2Functional::C2Functional( std::function< double( const ::Eigen::VectorXd& ) > f,
+                                    std::function< ::Eigen::VectorXd( const ::Eigen::VectorXd& ) > df,
+                                    std::function< ::Eigen::MatrixXd( const ::Eigen::VectorXd& ) > ddf, const VectorSpace& domain )
+            : Spacy::FunctionalBase( domain ), f_( std::move( f ) ), df_( std::move( df ) ), ddf_( std::move( ddf ) )
         {
         }
 
@@ -40,8 +40,7 @@ namespace Spacy
 
         LinearOperator C2Functional::hessian( const ::Spacy::Vector& x ) const
         {
-            return LinearOperator( ddf_( cast_ref< Vector >( x ).get() ), *operatorSpace_, domain(),
-                                   domain() );
+            return LinearOperator( ddf_( cast_ref< Vector >( x ).get() ), *operatorSpace_, domain(), domain() );
         }
-    }
-}
+    } // namespace Rn
+} // namespace Spacy

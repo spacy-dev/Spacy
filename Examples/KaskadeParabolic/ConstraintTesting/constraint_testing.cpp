@@ -1,11 +1,6 @@
 #define FUSION_MAX_VECTOR_SIZE 15
 
-#include <chrono>
-#include <iostream>
 #include <functional>
-
-#include <dune/grid/config.h>
-#include <dune/grid/uggrid.hh>
 
 #include <Spacy/Adapter/kaskadeParabolic.hh>
 #include <Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh>
@@ -19,6 +14,12 @@
 #include <utilities/gridGeneration.hh>
 #include <utilities/kaskopt.hh>
 
+#include <dune/grid/config.h>
+#include <dune/grid/uggrid.hh>
+
+#include <chrono>
+#include <iostream>
+
 #define NCOMPONENTS 1
 #include "Spacy/Adapter/KaskadeParabolic/Constraints/lqOcpHeader.hh"
 
@@ -31,8 +32,7 @@ int main( int argc, char* argv[] )
 
     constexpr int dim = 2;
     int silence = 0;
-    std::unique_ptr< boost::property_tree::ptree > pt =
-        getKaskadeOptions( argc, argv, silence, false );
+    std::unique_ptr< boost::property_tree::ptree > pt = getKaskadeOptions( argc, argv, silence, false );
 
     double desiredAccuracy = getParameter( pt, "desiredAccuracy", 1e-6 );
     double eps = getParameter( pt, "eps", 1e-12 );
@@ -62,37 +62,30 @@ int main( int argc, char* argv[] )
     using VariableDescriptions = boost::fusion::vector< VY, VU, VP >;
     using Descriptions = VariableSetDescription< Spaces, VariableDescriptions >;
 
-    ::Spacy::KaskadeParabolic::GridManager< Spaces > gm( 11, ::Spacy::Real{30.}, initialRefinements,
-                                                         FEorder );
-    auto domain2 = Spacy::KaskadeParabolic::makeHilbertSpace( gm, {0u, 1u}, {2u} );
+    ::Spacy::KaskadeParabolic::GridManager< Spaces > gm( 11, ::Spacy::Real{ 30. }, initialRefinements, FEorder );
+    auto domain2 = Spacy::KaskadeParabolic::makeHilbertSpace( gm, { 0u, 1u }, { 2u } );
 
-    using NormalFunctionalDefinition =
-        NormalStepFunctional< stateId, controlId, adjointId, double, Descriptions >;
-    std::function< NormalFunctionalDefinition( const typename Descriptions::VariableSet ) >
-        normalFuncGenerator = [&d, &mu, &alpha]( const typename Descriptions::VariableSet y_ref ) {
-            return NormalFunctionalDefinition( alpha, y_ref, d, mu );
+    using NormalFunctionalDefinition = NormalStepFunctional< stateId, controlId, adjointId, double, Descriptions >;
+    std::function< NormalFunctionalDefinition( const typename Descriptions::VariableSet ) > normalFuncGenerator =
+        [ &d, &mu, &alpha ]( const typename Descriptions::VariableSet y_ref ) { return NormalFunctionalDefinition( alpha, y_ref, d, mu ); };
+
+    using TangentialFunctionalDefinition = TangentialStepFunctional< stateId, controlId, adjointId, double, Descriptions >;
+
+    std::function< TangentialFunctionalDefinition( const typename Descriptions::VariableSet ) > tangentialFuncGenerator =
+        [ &d, &mu, &alpha ]( const typename Descriptions::VariableSet y_ref ) {
+            return TangentialFunctionalDefinition( alpha, y_ref, d, mu );
         };
-
-    using TangentialFunctionalDefinition =
-        TangentialStepFunctional< stateId, controlId, adjointId, double, Descriptions >;
-
-    std::function< TangentialFunctionalDefinition( const typename Descriptions::VariableSet ) >
-        tangentialFuncGenerator =
-            [&d, &mu, &alpha]( const typename Descriptions::VariableSet y_ref ) {
-                return TangentialFunctionalDefinition( alpha, y_ref, d, mu );
-            };
 
     //####################### OCP SOLUTION #######################
     std::cout << "Creating Functionals" << std::endl;
     auto n_func2 = Spacy::KaskadeParabolic::makeC2Functional( normalFuncGenerator, gm, domain2 );
-    auto t_func2 =
-        Spacy::KaskadeParabolic::makeC2Functional( tangentialFuncGenerator, gm, domain2 );
+    auto t_func2 = Spacy::KaskadeParabolic::makeC2Functional( tangentialFuncGenerator, gm, domain2 );
 
     cout << "set up solver" << endl;
     // algorithm and parameters
     auto cs2 = Spacy::CompositeStep::AffineCovariantSolver( n_func2, t_func2, domain2 );
     cs2.setRelativeAccuracy( desiredAccuracy );
-    cs2.set_eps( eps );
+    cs2.setEps( eps );
     cs2.setVerbosityLevel( 2 );
     cs2.setMaxSteps( maxSteps );
     cs2.setIterativeRefinements( iterativeRefinements );
@@ -102,57 +95,47 @@ int main( int argc, char* argv[] )
     auto uniform_solution = cs2();
     ::Spacy::KaskadeParabolic::OCP::writeVTK< Descriptions >( uniform_solution, "sol" );
 
-    using HeatFunctionalDefinition = LinearModelPDE<
-        double, ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 0 >,
-        ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 1 > >;
+    using HeatFunctionalDefinition = LinearModelPDE< double, ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 0 >,
+                                                     ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 1 > >;
     std::function< HeatFunctionalDefinition(
-        const typename ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions,
-                                                                                1 >::VariableSet ) >
+        const typename ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 1 >::VariableSet ) >
         forwardFunctionalGenerator =
-            [&d, &mu]( const typename ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t<
-                       Descriptions, 1 >::VariableSet control ) {
+            [ &d, &mu ]( const typename ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 1 >::VariableSet control ) {
                 return HeatFunctionalDefinition( d, mu, control );
             };
     //####################### PDE SOLUTION #######################
     auto domain_forward_ = Spacy::KaskadeParabolic::makeHilbertSpace( gm );
     auto z = zero( domain2 );
-    auto z_ps = ::Spacy::cast_ref<::Spacy::ProductSpace::Vector >( z );
+    auto z_ps = ::Spacy::cast_ref< ::Spacy::ProductSpace::Vector >( z );
     ::Spacy::C1Operator A = ::Spacy::KaskadeParabolic::makeC1Operator< HeatFunctionalDefinition >(
         forwardFunctionalGenerator, gm, domain_forward_, domain_forward_.dualSpace(),
-        ::Spacy::cast_ref<::Spacy::ProductSpace::Vector >( z_ps.component( 0 ) ).component( 1 ) );
+        ::Spacy::cast_ref< ::Spacy::ProductSpace::Vector >( z_ps.component( 0 ) ).component( 1 ) );
     domain_forward_.setScalarProduct( Spacy::InducedScalarProduct(
-        ::Spacy::cast_ref<::Spacy::KaskadeParabolic::C1Operator< HeatFunctionalDefinition > >( A )
-            .massMatrix() ) );
+        ::Spacy::cast_ref< ::Spacy::KaskadeParabolic::C1Operator< HeatFunctionalDefinition > >( A ).massMatrix() ) );
 
-    auto result_ps = ::Spacy::cast_ref<::Spacy::ProductSpace::Vector >( uniform_solution );
-    ::Spacy::cast_ref<::Spacy::KaskadeParabolic::C1Operator< HeatFunctionalDefinition > >( A )
-        .setSource( (::Spacy::cast_ref<::Spacy::ProductSpace::Vector >( result_ps.component( 0 ) ) )
-                        .component( 1 ) );
+    auto result_ps = ::Spacy::cast_ref< ::Spacy::ProductSpace::Vector >( uniform_solution );
+    ::Spacy::cast_ref< ::Spacy::KaskadeParabolic::C1Operator< HeatFunctionalDefinition > >( A ).setSource(
+        ( ::Spacy::cast_ref< ::Spacy::ProductSpace::Vector >( result_ps.component( 0 ) ) ).component( 1 ) );
 
     auto p = Spacy::Newton::Parameter{};
     p.setRelativeAccuracy( 1e-12 );
     auto y = covariantNewton( A, p );
 
-    using DescriptionsY =
-        ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 0 >;
-    using CoefficientVectorY =
-        typename DescriptionsY::template CoefficientVectorRepresentation<>::type;
+    using DescriptionsY = ::Spacy::KaskadeParabolic::Detail::ExtractDescription_t< Descriptions, 0 >;
+    using CoefficientVectorY = typename DescriptionsY::template CoefficientVectorRepresentation<>::type;
 
     //  ::Spacy::KaskadeParabolic::PDE::writeVTK(::Spacy::cast_ref<::Spacy::KaskadeParabolic::Vector<Descriptions>
     //  > (y),"sol_forward");
     ::Spacy::KaskadeParabolic::PDE::writeVTK< DescriptionsY >( y, "sol_forward" );
 
-    auto y1 = (::Spacy::cast_ref<::Spacy::ProductSpace::Vector >( result_ps.component( 0 ) ) )
-                  .component( 0 );
-    auto y1impl = ::Spacy::cast_ref<::Spacy::KaskadeParabolic::Vector< DescriptionsY > >( y1 );
-    auto y2impl = ::Spacy::cast_ref<::Spacy::KaskadeParabolic::Vector< DescriptionsY > >( y );
+    auto y1 = ( ::Spacy::cast_ref< ::Spacy::ProductSpace::Vector >( result_ps.component( 0 ) ) ).component( 0 );
+    auto y1impl = ::Spacy::cast_ref< ::Spacy::KaskadeParabolic::Vector< DescriptionsY > >( y1 );
+    auto y2impl = ::Spacy::cast_ref< ::Spacy::KaskadeParabolic::Vector< DescriptionsY > >( y );
 
     for ( auto i = 0u; i < gm.getSpacesVec().size(); i++ )
     {
-        CoefficientVectorY y1coeff( Descriptions::template CoefficientVectorRepresentation<>::init(
-            *gm.getSpacesVec().at( i ) ) );
-        CoefficientVectorY y2coeff( Descriptions::template CoefficientVectorRepresentation<>::init(
-            *gm.getSpacesVec().at( i ) ) );
+        CoefficientVectorY y1coeff( Descriptions::template CoefficientVectorRepresentation<>::init( *gm.getSpacesVec().at( i ) ) );
+        CoefficientVectorY y2coeff( Descriptions::template CoefficientVectorRepresentation<>::init( *gm.getSpacesVec().at( i ) ) );
 
         boost::fusion::at_c< 0 >( y1coeff.data ) = y1impl.getCoeffVec( i );
         boost::fusion::at_c< 0 >( y2coeff.data ) = y2impl.getCoeffVec( i );
@@ -160,7 +143,7 @@ int main( int argc, char* argv[] )
         y1coeff -= y2coeff;
 
         auto My = y1coeff;
-        ::Spacy::cast_ref<::Spacy::KaskadeParabolic::C1Operator< HeatFunctionalDefinition > >( A )
+        ::Spacy::cast_ref< ::Spacy::KaskadeParabolic::C1Operator< HeatFunctionalDefinition > >( A )
             .linearization( zero( domain_forward_ ) )
             .getKaskOp( "MassY", i )
             .apply( y1coeff, My );

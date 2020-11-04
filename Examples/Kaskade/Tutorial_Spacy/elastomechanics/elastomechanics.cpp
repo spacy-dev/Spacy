@@ -10,12 +10,6 @@
 /*                                                                           */
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "utilities/enums.hh"
-#include "utilities/gridGeneration.hh"
-#include "utilities/kaskopt.hh"
-#include "utilities/memory.hh"
-#include "utilities/timing.hh"
-
 #include "fem/assemble.hh"
 #include "fem/spaces.hh"
 #include "io/matlab.hh"
@@ -26,6 +20,11 @@
 #include "linalg/triplet.hh"
 #include "mg/additiveMultigrid.hh"
 #include "mg/multigrid.hh"
+#include "utilities/enums.hh"
+#include "utilities/gridGeneration.hh"
+#include "utilities/kaskopt.hh"
+#include "utilities/memory.hh"
+#include "utilities/timing.hh"
 
 #include "dune/grid/config.h"
 #include "dune/grid/uggrid.hh"
@@ -134,7 +133,7 @@ int main( int argc, char* argv[] )
     timer.start( "computing time for solve" );
     if ( direct )
     {
-        DirectType directType = static_cast< DirectType >( solver );
+        auto directType = static_cast< DirectType >( solver );
         AssembledGalerkinOperator< Assembler > A( assembler, directType == DirectType::MUMPS || directType == DirectType::PARDISO );
         directInverseOperator( A, directType, MatrixProperties::POSITIVEDEFINITE ).applyscaleadd( -1.0, rhs, solution );
         x.data = solution.data;
@@ -163,30 +162,52 @@ int main( int argc, char* argv[] )
             {
                 H1Space< Grid > p1Space( gridManager, gridManager.grid().leafGridView(), 1 );
                 if ( storageScheme == "A" )
+                {
                     if ( storageType == "float" )
+                    {
                         mg = moveUnique(
                             makePBPX( Amat, h1Space, p1Space, DenseInverseStorageTag< float >(), gridManager.grid().maxLevel() ) );
+                    }
                     else
+                    {
                         mg = moveUnique(
                             makePBPX( Amat, h1Space, p1Space, DenseInverseStorageTag< double >(), gridManager.grid().maxLevel() ) );
+                    }
+                }
                 else if ( storageScheme == "L" )
+                {
                     if ( storageType == "float" )
+                    {
                         mg = moveUnique(
                             makePBPX( Amat, h1Space, p1Space, DenseCholeskyStorageTag< float >(), gridManager.grid().maxLevel() ) );
+                    }
                     else
+                    {
                         mg = moveUnique(
                             makePBPX( Amat, h1Space, p1Space, DenseCholeskyStorageTag< double >(), gridManager.grid().maxLevel() ) );
+                    }
+                }
                 else if ( storageScheme == "ND" )
+                {
                     if ( storageType == "float" )
+                    {
                         if ( factorizationType == "float" )
+                        {
                             mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< float, float >( skipEntries ),
                                                        gridManager.grid().maxLevel() ) );
+                        }
                         else
+                        {
                             mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< float, double >( skipEntries ),
                                                        gridManager.grid().maxLevel() ) );
+                        }
+                    }
                     else
+                    {
                         mg = moveUnique( makePBPX( Amat, h1Space, p1Space, NestedDissectionStorageTag< double, double >( skipEntries ),
                                                    gridManager.grid().maxLevel() ) );
+                    }
+                }
                 else
                 {
                     std::cerr << "unknown storage scheme provided\n";
@@ -195,7 +216,9 @@ int main( int argc, char* argv[] )
             }
         }
         else
+        {
             mg = makeMultigrid( Amat, h1Space );
+        }
         timer.stop( "preconditioner setup" );
 
         timer.start( "PCG iteration" );

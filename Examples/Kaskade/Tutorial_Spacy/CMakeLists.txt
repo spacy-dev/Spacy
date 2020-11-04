@@ -1,2 +1,3 @@
 add_subdirectory(laplacian)
+add_subdirectory(elastomechanics)
 add_subdirectory(HB_errorEstimation)

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <functional>
+
 #include <Spacy/Adaptivity/SpaceManager.h>
 #include <Spacy/ForwardIterator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
@@ -10,9 +12,9 @@
 #include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/VectorSpace.h>
+
 #include <memory>
 #include <type_traits>
-#include <functional>
 
 namespace Spacy
 {
@@ -22,18 +24,18 @@ namespace Spacy
         struct Interface
         {
             virtual ~Interface() = default;
-            virtual std::shared_ptr< Interface > clone() const = 0;
-            virtual Real call_const_Vector_ref( const Vector& x ) const = 0;
+            [[nodiscard]] virtual std::shared_ptr< Interface > clone() const = 0;
+            [[nodiscard]] virtual Real call_const_Vector_ref( const Vector& x ) const = 0;
             virtual void add_const_Vector_ref( const Vector& y ) = 0;
             virtual void subtract_const_Vector_ref( const Vector& y ) = 0;
             virtual void multiply_double( double a ) = 0;
-            virtual Vector negate() const = 0;
-            virtual bool compare_const_Vector_ref( const Vector& y ) const = 0;
-            virtual const VectorSpace& space() const = 0;
+            [[nodiscard]] virtual Vector negate() const = 0;
+            [[nodiscard]] virtual bool compare_const_Vector_ref( const Vector& y ) const = 0;
+            [[nodiscard]] virtual const VectorSpace& space() const = 0;
             virtual ForwardIterator begin() = 0;
             virtual ForwardIterator end() = 0;
-            virtual ConstForwardIterator begin() const = 0;
-            virtual ConstForwardIterator end() const = 0;
+            [[nodiscard]] virtual ConstForwardIterator begin() const = 0;
+            [[nodiscard]] virtual ConstForwardIterator end() const = 0;
         };
 
         template < class Impl >
@@ -44,12 +46,12 @@ namespace Spacy
             {
             }
 
-            std::shared_ptr< Interface > clone() const override
+            [[nodiscard]] std::shared_ptr< Interface > clone() const override
             {
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            Real call_const_Vector_ref( const Vector& x ) const override
+            [[nodiscard]] Real call_const_Vector_ref( const Vector& x ) const override
             {
                 return impl.operator()( *x.template target< typename std::decay< Impl >::type >() );
             }
@@ -69,17 +71,17 @@ namespace Spacy
                 impl.operator*=( std::move( a ) );
             }
 
-            Vector negate() const override
+            [[nodiscard]] Vector negate() const override
             {
                 return impl.operator-();
             }
 
-            bool compare_const_Vector_ref( const Vector& y ) const override
+            [[nodiscard]] bool compare_const_Vector_ref( const Vector& y ) const override
             {
                 return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
             }
 
-            const VectorSpace& space() const override
+            [[nodiscard]] const VectorSpace& space() const override
             {
                 return impl.space();
             }
@@ -94,12 +96,12 @@ namespace Spacy
                 return impl.end();
             }
 
-            ConstForwardIterator begin() const override
+            [[nodiscard]] ConstForwardIterator begin() const override
             {
                 return impl.begin();
             }
 
-            ConstForwardIterator end() const override
+            [[nodiscard]] ConstForwardIterator end() const override
             {
                 return impl.end();
             }
@@ -119,10 +121,9 @@ namespace Spacy
     public:
         Vector() noexcept = default;
 
-        template < class T, typename std::enable_if<
-                                !std::is_same< typename std::decay< T >::type, Vector >::value &&
-                                !std::is_base_of< Interface, typename std::decay< T >::type >::
-                                    value >::type* = nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, Vector >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         Vector( T&& value ) : impl_( std::forward< T >( value ) )
         {
             globalSpaceManager().subscribe( this );
@@ -207,7 +208,7 @@ namespace Spacy
         }
 
         /// Access underlying space.
-        const VectorSpace& space() const
+        [[nodiscard]] const VectorSpace& space() const
         {
             assert( impl_ );
             return impl_->space();
@@ -225,22 +226,21 @@ namespace Spacy
             return impl_->end();
         }
 
-        ConstForwardIterator begin() const
+        [[nodiscard]] ConstForwardIterator begin() const
         {
             assert( impl_ );
             return impl_->begin();
         }
 
-        ConstForwardIterator end() const
+        [[nodiscard]] ConstForwardIterator end() const
         {
             assert( impl_ );
             return impl_->end();
         }
 
-        template < class T, typename std::enable_if<
-                                !std::is_same< typename std::decay< T >::type, Vector >::value &&
-                                !std::is_base_of< Interface, typename std::decay< T >::type >::
-                                    value >::type* = nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, Vector >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         Vector& operator=( T&& value )
         {
             return *this = Vector( std::forward< T >( value ) );
@@ -258,7 +258,7 @@ namespace Spacy
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }
@@ -267,16 +267,14 @@ namespace Spacy
         clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
     /// Multiplication with arithmetic types (double,float,int,...).
-    template < class Arithmetic,
-               class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
+    template < class Arithmetic, class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
     Vector operator*( Arithmetic a, Vector x )
     {
         return x *= a;
     }
 
     /// Multiplication with arithmetic types (double,float,int,...).
-    template < class Arithmetic,
-               class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
+    template < class Arithmetic, class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
     Vector operator*( Vector x, Arithmetic a )
     {
         return x *= a;

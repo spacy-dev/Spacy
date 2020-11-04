@@ -5,19 +5,18 @@
 #include <Spacy/Util/Cast.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include <Test/gtest.hh>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <cmath>
-#include <iostream>
-#include <iomanip>
 
 using testing::DoubleNear;
 
 using Spacy::cast_ref;
 using Spacy::Real;
 using Spacy::Vector;
-using Spacy::Scalar::DynamicOperator;
 using Spacy::Algorithm::odeint::integrate;
+using Spacy::Scalar::DynamicOperator;
 
 const auto pi = 4 * std::atan( 1 );
 const auto tol = 1e-6;
@@ -44,7 +43,7 @@ namespace
             out += dt * tmp;
         }
     };
-}
+} // namespace
 
 TEST( ODEIntTest, CosinusWithObserver )
 {
@@ -53,9 +52,8 @@ TEST( ODEIntTest, CosinusWithObserver )
     Vector x = Real( 1 );
 
     int steps = -1;
-    x = integrate( A, x, 0, pi, 0.1, [&steps]( const Vector& y, double t ) {
+    x = integrate( A, x, 0, pi, 0.1, [ &steps ]( const Vector& y, double t ) {
         auto& x_ = cast_ref< Real >( y );
-        std::cout << t << "\t" << x_ << std::endl;
         ++steps;
     } );
 
@@ -69,7 +67,7 @@ TEST( ODEIntTest, Exp )
     Vector x = Real( 1 );
 
     int steps = -1;
-    x = integrate( A, x, 0, 5, 0.1, [&steps]( const auto&, double ) { ++steps; } );
+    x = integrate( A, x, 0, 5, 0.1, [ &steps ]( const auto&, double ) { ++steps; } );
 
     EXPECT_THAT( get( cast_ref< Real >( x ) ), DoubleNear( 148.41316, 148.41316 * steps * tol ) );
 }
@@ -81,8 +79,7 @@ TEST( ODEIntTest, CosinusWithObserverAndExplicitStepper )
     Vector x = Real( 1 );
 
     int steps = -1;
-    x = integrate( ExplicitEuler(), A, x, 0, pi, 0.01,
-                   [&steps]( const Vector&, double ) { ++steps; } );
+    x = integrate( ExplicitEuler(), A, x, 0, pi, 0.01, [ &steps ]( const Vector&, double ) { ++steps; } );
 
     EXPECT_THAT( get( cast_ref< Real >( x ) ), DoubleNear( -1, steps * tol ) );
 }
@@ -90,7 +87,7 @@ TEST( ODEIntTest, CosinusWithObserverAndExplicitStepper )
 TEST( ODEIntTest, SinusCosinus )
 {
     auto V = Spacy::Rn::makeHilbertSpace( 2 );
-    const auto A = [&V]( double, Vector x ) {
+    const auto A = [ &V ]( double, Vector x ) {
         auto& x_ = cast_ref< Spacy::Rn::Vector >( x ).get();
         auto tmp = x_[ 1 ];
         x_[ 1 ] = -x_[ 0 ];
@@ -103,7 +100,7 @@ TEST( ODEIntTest, SinusCosinus )
     get( cast_ref< Spacy::Rn::Vector >( x ) )[ 1 ] = 1;
 
     int steps = -1;
-    x = integrate( A, x, 0, pi, 0.1, [&steps]( const auto&, double ) { ++steps; } );
+    x = integrate( A, x, 0, pi, 0.1, [ &steps ]( const auto&, double ) { ++steps; } );
 
     EXPECT_THAT( get( cast_ref< Spacy::Rn::Vector >( x ) )[ 0 ], DoubleNear( 0, steps * tol ) );
     EXPECT_THAT( get( cast_ref< Spacy::Rn::Vector >( x ) )[ 1 ], DoubleNear( -1, steps * tol ) );

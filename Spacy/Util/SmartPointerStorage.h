@@ -95,7 +95,7 @@ namespace clang
                 }
 
                 template < class T >
-                const T* target() const noexcept
+                [[nodiscard]] const T* target() const noexcept
                 {
                     auto interface = static_cast< const Storage* >( this )->getInterfacePtr();
                     if ( containsReferenceWrapper )
@@ -150,7 +150,7 @@ namespace clang
                     return interface_.get();
                 }
 
-                const Interface* getInterfacePtr() const
+                [[nodiscard]] const Interface* getInterfacePtr() const
                 {
                     return interface_.get();
                 }
@@ -182,7 +182,7 @@ namespace clang
                     return interface_.get();
                 }
 
-                const Interface* getInterfacePtr() const
+                [[nodiscard]] const Interface* getInterfacePtr() const
                 {
                     return interface_.get();
                 }
@@ -287,7 +287,7 @@ namespace clang
                     return interface_.get();
                 }
 
-                const Interface* getInterfacePtr() const
+                [[nodiscard]] const Interface* getInterfacePtr() const
                 {
                     return interface_.get();
                 }
@@ -405,7 +405,7 @@ namespace clang
                     return interface_.get();
                 }
 
-                const Interface* getInterfacePtr() const
+                [[nodiscard]] const Interface* getInterfacePtr() const
                 {
                     return interface_.get();
                 }

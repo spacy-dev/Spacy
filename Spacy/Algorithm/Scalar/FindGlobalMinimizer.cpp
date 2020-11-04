@@ -1,17 +1,17 @@
 #include "FindGlobalMinimizer.h"
 
-#include <cassert>
-#include <iostream>
+#include "Fmin.h"
 
 #include <Spacy/Util/Mixins/Get.h>
-#include "Fmin.h"
+
+#include <cassert>
+#include <iostream>
 
 namespace Spacy
 {
     namespace Scalar
     {
-        Real findGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b,
-                                  Real eps )
+        Real findGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
         {
             assert( a < b );
             eps *= b - a;
@@ -19,11 +19,13 @@ namespace Spacy
             Real fmin = f( a );
 
             while ( ( a += eps ) <= b )
+            {
                 if ( f( a ) < fmin )
                 {
                     fmin = f( a );
                     tmin = a;
                 }
+            }
 
             // try upper bound as candidate (might not have been tested due to roundoff errors)
             if ( f( b ) < fmin )
@@ -32,8 +34,7 @@ namespace Spacy
             return tmin;
         }
 
-        Real findLogGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b,
-                                     Real eps )
+        Real findLogGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
         {
             assert( a < b );
             assert( a > 0 );
@@ -42,19 +43,19 @@ namespace Spacy
 
             eps = min( eps, 0.5 );
             while ( ( b *= ( 1 - eps ) ) >= a )
+            {
                 if ( f( b ) < fmin )
                 {
                     fmin = f( b );
                     tmin = b;
                 }
+            }
 
             return tmin;
         }
 
-        Real findLogGlobalMinimizeTangentialDamping( const std::function< Real( const Real ) >& f,
-                                                     Real a, Real b, const Real normdn2,
-                                                     const Real two_sp_dn_Dt, const Real normDt2,
-                                                     Real eps )
+        Real findLogGlobalMinimizeTangentialDamping( const std::function< Real( const Real ) >& f, Real a, Real b, const Real normdn2,
+                                                     const Real two_sp_dn_Dt, const Real normDt2, Real eps )
         {
             assert( a < b );
             assert( a > 0 );
@@ -89,8 +90,8 @@ namespace Spacy
 
         Real findMinBrent( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
         {
-            const auto fun = [f]( double t ) { return get( f(::Spacy::Real( t ) ) ); };
+            const auto fun = [ f ]( double t ) { return get( f( ::Spacy::Real( t ) ) ); };
             return Fmin( get( a ), get( b ), fun, get( eps ) );
         }
-    }
-}
+    } // namespace Scalar
+} // namespace Spacy

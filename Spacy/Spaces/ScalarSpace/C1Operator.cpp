@@ -10,6 +10,7 @@
 #include <Spacy/ZeroVectorCreator.h>
 
 #include <cassert>
+#include <utility>
 
 namespace Spacy
 {
@@ -22,7 +23,7 @@ namespace Spacy
 
         C1Operator::C1Operator( std::function< double( double ) > value, std::function< double( double ) > derivative,
                                 const VectorSpace& domain, const VectorSpace& range )
-            : OperatorBase( domain, range ), value_( value ), derivative_( derivative ),
+            : OperatorBase( domain, range ), value_( std::move( value ) ), derivative_( std::move( derivative ) ),
               operatorSpace_( std::make_shared< VectorSpace >(
                   []( const ::Spacy::VectorSpace* /*unused*/ ) -> Spacy::Vector {
                       throw Exception::CallOfUndefinedFunction( "OperatorCreator::operator()(const VectorSpace*)" );
@@ -50,7 +51,7 @@ namespace Spacy
         {
             assert( derivative_ );
             assert( operatorSpace_ != nullptr );
-            return LinearOperator( *operatorSpace_, derivative_( get( cast_ref< Real >( x ) ) ) );
+            return { *operatorSpace_, derivative_( get( cast_ref< Real >( x ) ) ) };
         }
     } // namespace Scalar
 } // namespace Spacy

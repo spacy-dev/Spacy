@@ -1,9 +1,9 @@
-#include <Test/gtest.hh>
-
 #include <Test/Spacy/Algorithm/Newton/newtonTestSetup.hh>
 #include <Test/Spacy/Algorithm/scalarTests.hh>
 
 #include <Spacy/Spaces/RealSpace.h>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 
@@ -16,7 +16,7 @@ namespace LocalNewton
 
     GENERATE_SCALAR_TEST( LocalNewton, Linear, 2 )
     GENERATE_SCALAR_TEST( LocalNewton, Quadratic, 7 )
-}
+} // namespace LocalNewton
 
 namespace CovariantNewton
 {
@@ -27,7 +27,7 @@ namespace CovariantNewton
 
     GENERATE_SCALAR_TEST( CovariantNewton, Linear, 2 )
     GENERATE_SCALAR_TEST( CovariantNewton, Quadratic, 7 )
-}
+} // namespace CovariantNewton
 
 namespace ContravariantNewton
 {
@@ -38,6 +38,6 @@ namespace ContravariantNewton
 
     GENERATE_SCALAR_TEST( ContravariantNewton, Linear, 1 )
     GENERATE_SCALAR_TEST( ContravariantNewton, Quadratic, 6 )
-}
+} // namespace ContravariantNewton
 
 #include "Test/Spacy/Algorithm/undefScalarTests.hh"

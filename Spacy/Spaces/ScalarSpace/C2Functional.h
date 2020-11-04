@@ -30,13 +30,13 @@ namespace Spacy
             ::Spacy::Real operator()( const ::Spacy::Vector& x ) const;
 
             // Compute f'(x) as element of X*.
-            ::Spacy::Vector d1( const ::Spacy::Vector& x ) const;
+            [[nodiscard]] ::Spacy::Vector d1( const ::Spacy::Vector& x ) const;
 
             // Compute f''(x)dx as element of X*.
-            ::Spacy::Vector d2( const ::Spacy::Vector& x, const ::Spacy::Vector& dx ) const;
+            [[nodiscard]] ::Spacy::Vector d2( const ::Spacy::Vector& x, const ::Spacy::Vector& dx ) const;
 
             // Access f''(x) as mapping f''(x): X->X*.
-            ::Spacy::Scalar::LinearOperator hessian( const ::Spacy::Vector& x ) const;
+            [[nodiscard]] ::Spacy::Scalar::LinearOperator hessian( const ::Spacy::Vector& x ) const;
 
         private:
             std::function< double( const double& ) > value_;

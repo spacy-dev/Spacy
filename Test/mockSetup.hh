@@ -1,9 +1,9 @@
 #pragma once
 
-#include <memory>
-#include <type_traits>
-#include <utility>
-#include <vector>
+#include <Test/Mock/ScalarProduct.h>
+#include <Test/Mock/norm.hh>
+#include <Test/Mock/vector.hh>
+#include <Test/Mock/vectorCreator.hh>
 #include <tuple>
 
 #include <Spacy/Spaces/ProductSpace.h>
@@ -13,17 +13,15 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include <Test/Mock/ScalarProduct.h>
-#include <Test/Mock/norm.hh>
-#include <Test/Mock/vector.hh>
-#include <Test/Mock/vectorCreator.hh>
+#include <memory>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 template < class Space, class Spaces, unsigned... indices >
-inline auto makeTuple( Space&& space, const Spaces& spaces,
-                       std::integer_sequence< unsigned, indices... > )
+inline auto makeTuple( Space&& space, const Spaces& spaces, std::integer_sequence< unsigned, indices... > )
 {
-    return std::make_tuple( typename std::decay< Space >::type( std::forward< Space >( space ) ),
-                            ( spaces[ indices ]->index() )... );
+    return std::make_tuple( typename std::decay< Space >::type( std::forward< Space >( space ) ), ( spaces[ indices ]->index() )... );
 }
 
 inline constexpr auto numberOfVariables()
@@ -66,7 +64,7 @@ inline auto notGlobalId()
 
 inline auto createGlobalIds()
 {
-    std::vector< unsigned > globalIds = {firstGlobalId(), secondGlobalId()};
+    std::vector< unsigned > globalIds = { firstGlobalId(), secondGlobalId() };
     return globalIds;
 }
 
@@ -77,8 +75,7 @@ inline auto createProductSpaceCreatorWithSpaceIndices()
     for ( auto i = 0u; i < numberOfVariables(); ++i )
         spaces.push_back( std::make_shared< VectorSpace >( createMockBanachSpace() ) );
     auto creator = ProductSpace::VectorCreator( spaces );
-    return makeTuple( creator, spaces,
-                      std::make_integer_sequence< unsigned, numberOfVariables() >() );
+    return makeTuple( creator, spaces, std::make_integer_sequence< unsigned, numberOfVariables() >() );
 }
 
 inline auto createProductSpaceCreatorWithSpaceIndicesAndMap()
@@ -88,8 +85,7 @@ inline auto createProductSpaceCreatorWithSpaceIndicesAndMap()
     for ( auto i = 0u; i < numberOfVariables(); ++i )
         spaces.push_back( std::make_shared< VectorSpace >( createMockBanachSpace() ) );
     auto creator = ProductSpace::VectorCreator( spaces, createGlobalIds() );
-    return makeTuple( creator, spaces,
-                      std::make_integer_sequence< unsigned, numberOfVariables() >() );
+    return makeTuple( creator, spaces, std::make_integer_sequence< unsigned, numberOfVariables() >() );
 }
 
 inline auto makeProductHilbertSpace()
@@ -98,8 +94,7 @@ inline auto makeProductHilbertSpace()
     std::vector< std::shared_ptr< VectorSpace > > spaces;
     for ( auto i = 0u; i < numberOfVariables(); ++i )
         spaces.push_back( std::make_shared< VectorSpace >( createMockHilbertSpace() ) );
-    return makeTuple( ProductSpace::makeHilbertSpace( spaces ), spaces,
-                      std::make_integer_sequence< unsigned, numberOfVariables() >() );
+    return makeTuple( ProductSpace::makeHilbertSpace( spaces ), spaces, std::make_integer_sequence< unsigned, numberOfVariables() >() );
 }
 
 inline auto makeProductHilbertSpaceWithMap()
@@ -116,16 +111,13 @@ inline auto makePrimalDualProductSpaceCreatorWithSpaceIndices()
 {
     using namespace Spacy;
 
-    auto primalSubSpace =
-        std::make_shared< VectorSpace >( std::get< 0 >( makeProductHilbertSpaceWithMap() ) );
-    auto dualSubSpace = std::make_shared< VectorSpace >( ProductSpace::makeHilbertSpace(
-        {std::make_shared< VectorSpace >( createMockHilbertSpace() )} ) );
-    auto creator = ProductSpace::VectorCreator( {primalSubSpace, dualSubSpace} );
-    return std::make_tuple(
-        creator,
-        Spacy::creator< ProductSpace::VectorCreator >( *primalSubSpace ).subSpace( 0 ).index(),
-        Spacy::creator< ProductSpace::VectorCreator >( *primalSubSpace ).subSpace( 1 ).index(),
-        Spacy::creator< ProductSpace::VectorCreator >( *dualSubSpace ).subSpace( 0 ).index() );
+    auto primalSubSpace = std::make_shared< VectorSpace >( std::get< 0 >( makeProductHilbertSpaceWithMap() ) );
+    auto dualSubSpace = std::make_shared< VectorSpace >(
+        ProductSpace::makeHilbertSpace( { std::make_shared< VectorSpace >( createMockHilbertSpace() ) } ) );
+    auto creator = ProductSpace::VectorCreator( { primalSubSpace, dualSubSpace } );
+    return std::make_tuple( creator, Spacy::creator< ProductSpace::VectorCreator >( *primalSubSpace ).subSpace( 0 ).index(),
+                            Spacy::creator< ProductSpace::VectorCreator >( *primalSubSpace ).subSpace( 1 ).index(),
+                            Spacy::creator< ProductSpace::VectorCreator >( *dualSubSpace ).subSpace( 0 ).index() );
 }
 
 inline auto makePrimalDualSpaceCreatorWithSpaceIndices()
@@ -134,7 +126,7 @@ inline auto makePrimalDualSpaceCreatorWithSpaceIndices()
 
     auto primalSubSpace = std::make_shared< VectorSpace >( createMockHilbertSpace() );
     auto dualSubSpace = std::make_shared< VectorSpace >( createMockHilbertSpace() );
-    auto creator = ProductSpace::VectorCreator( {primalSubSpace, dualSubSpace} );
+    auto creator = ProductSpace::VectorCreator( { primalSubSpace, dualSubSpace } );
     return std::make_tuple( creator, primalSubSpace->index(), dualSubSpace->index() );
 }
 
@@ -142,12 +134,11 @@ inline auto makePrimalDualProductHilbertSpace()
 {
     using namespace Spacy;
 
-    auto primalSubSpace =
-        std::make_shared< VectorSpace >( std::get< 0 >( makeProductHilbertSpaceWithMap() ) );
-    auto dualSubSpace = std::make_shared< VectorSpace >( ProductSpace::makeHilbertSpace(
-        {std::make_shared< VectorSpace >( createMockHilbertSpace() )}, {thirdGlobalId()} ) );
+    auto primalSubSpace = std::make_shared< VectorSpace >( std::get< 0 >( makeProductHilbertSpaceWithMap() ) );
+    auto dualSubSpace = std::make_shared< VectorSpace >(
+        ProductSpace::makeHilbertSpace( { std::make_shared< VectorSpace >( createMockHilbertSpace() ) }, { thirdGlobalId() } ) );
 
-    return ProductSpace::makeHilbertSpace( {primalSubSpace, dualSubSpace} );
+    return ProductSpace::makeHilbertSpace( { primalSubSpace, dualSubSpace } );
 }
 
 inline const auto& valueOfComponent( const Spacy::Vector& v, unsigned i )
@@ -182,7 +173,7 @@ inline auto createSecondTestVector( const Spacy::VectorSpace& V )
     return v;
 }
 
-double toDouble( const Spacy::Vector& v )
+inline double toDouble( const Spacy::Vector& v )
 {
     return Spacy::Mixin::get( Spacy::cast_ref< Spacy::Real >( v ) );
 }

@@ -25,12 +25,12 @@ namespace Spacy
             void setVerbosity( bool verbose );
 
             /// Check if verbosityLevel > 0
-            bool verbose() const noexcept;
+            [[nodiscard]] bool verbose() const noexcept;
 
             void setVerbosityLevel( unsigned level ) noexcept;
 
             /// Access verbosity level.
-            unsigned getVerbosityLevel() const noexcept;
+            [[nodiscard]] unsigned getVerbosityLevel() const noexcept;
 
             /// update function for observer pattern.
             void update( Verbosity* changedSubject );
@@ -38,5 +38,5 @@ namespace Spacy
         private:
             unsigned verbosityLevel_;
         };
-    }
-}
+    } // namespace Mixin
+} // namespace Spacy

@@ -1,5 +1,7 @@
 #include "QuadraticModel.h"
 
+#include <tuple>
+
 #include <Spacy/C2Functional.h>
 #include <Spacy/ScalarProduct.h>
 #include <Spacy/Util/Invoke.h>
@@ -7,7 +9,7 @@
 #include <Spacy/VectorSpace.h>
 
 #include <cmath>
-#include <tuple>
+#include <utility>
 
 namespace Spacy
 {
@@ -15,38 +17,33 @@ namespace Spacy
     {
         namespace
         {
-            auto quadraticCoefficients( DampingFactor nu, const Vector& dn, const Vector& dt,
-                                        const C2Functional& L, const Vector& x )
+            auto quadraticCoefficients( DampingFactor nu, const Vector& dn, const Vector& dt, const C2Functional& L, const Vector& x )
             {
                 auto constant = L( x ) + nu * L.d1( x )( dn ) + 0.5 * nu * nu * L.d2( x, dn )( dn );
                 auto linear = L.d1( x )( dt ) + nu * L.d2( x, dn )( dt );
                 auto quadratic = 0.5 * L.d2( x, dt )( dt );
                 return std::make_tuple( constant, linear, quadratic );
             }
-        }
+        } // namespace
 
-        Scalar::Quadratic makeQuadraticModel( DampingFactor nu, const Vector& dn, const Vector& dt,
-                                              const C2Functional& L, const Vector& x )
+        Scalar::Quadratic makeQuadraticModel( DampingFactor nu, const Vector& dn, const Vector& dt, const C2Functional& L, const Vector& x )
         {
             return create< Scalar::Quadratic >( quadraticCoefficients( nu, dn, dt, L, x ) );
         }
 
-        Scalar::Quadratic makeQuadraticNormModel( DampingFactor nu, const Vector& dn,
-                                                  const Vector& dt )
+        Scalar::Quadratic makeQuadraticNormModel( DampingFactor nu, const Vector& dn, const Vector& dt )
         {
-            return Scalar::Quadratic( nu * nu * dn * dn, 2 * nu * dn * dt, dt * dt );
+            return { nu * nu * dn * dn, 2 * nu * dn * dt, dt * dt };
         }
 
-        CubicModel makeCubicModel( DampingFactor nu, const Vector& dn, const Vector& dt,
-                                   const C2Functional& L, const Vector& x, LipschitzConstant omega )
+        CubicModel makeCubicModel( DampingFactor nu, const Vector& dn, const Vector& dt, const C2Functional& L, const Vector& x,
+                                   LipschitzConstant omega )
         {
-            return CubicModel( makeQuadraticModel( nu, dn, dt, L, x ),
-                               makeQuadraticNormModel( nu, dn, dt ), get( omega ) );
+            return { makeQuadraticModel( nu, dn, dt, L, x ), makeQuadraticNormModel( nu, dn, dt ), get( omega ) };
         }
 
-        CubicModel::CubicModel( const Scalar::Quadratic& quadraticModel,
-                                const Scalar::Quadratic& squaredNorm, Real omega )
-            : quadraticModel_( quadraticModel ), squaredNorm_( squaredNorm ), omega_( omega )
+        CubicModel::CubicModel( Scalar::Quadratic quadraticModel, Scalar::Quadratic squaredNorm, Real omega )
+            : quadraticModel_( std::move( quadraticModel ) ), squaredNorm_( std::move( squaredNorm ) ), omega_( std::move( omega ) )
         {
         }
 
@@ -54,5 +51,5 @@ namespace Spacy
         {
             return quadraticModel_( t ) + omega_ / 6 * pow( squaredNorm_( t ), 1.5 );
         }
-    }
-}
+    } // namespace CompositeStep
+} // namespace Spacy

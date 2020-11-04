@@ -8,6 +8,7 @@
 #include <iostream>
 #include <limits>
 #include <numeric>
+#include <utility>
 
 namespace Spacy
 {
@@ -19,11 +20,15 @@ namespace Spacy
             {
                 auto tol = max( getRelativeAccuracy(), eps() );
                 if ( getVerbosityLevel() > 1 )
+                {
                     std::cout << "      termination criterion (relative error): " << sqrt( squaredRelativeError() )
                               << "\n      tolerance: " << tol << std::endl;
+                }
                 if ( scaledGamma2.size() > getMaxSteps() || ( scaledGamma2.size() > lookAhead_ && squaredRelativeError() < tol * tol ) )
+                {
                     std::cout << "      termination criterion (relative error): " << sqrt( squaredRelativeError() )
                               << "\n      tolerance: " << tol << std::endl;
+                }
                 return scaledGamma2.size() > getMaxSteps() || ( scaledGamma2.size() > lookAhead_ && squaredRelativeError() < tol * tol );
             }
 
@@ -65,15 +70,15 @@ namespace Spacy
                 return std::accumulate( scaledGamma2.end() - lookAhead_, scaledGamma2.end(), 0. ) / energyNorm2;
             }
 
-            PreemptiveNormalStepTermination::PreemptiveNormalStepTermination( const Vector& dn0, const Real& Gamma, const Real& rho_elbow,
-                                                                              const Real& eta_tau )
-                : dn0_( dn0 ), Gamma_( Gamma ), rho_elbow_( rho_elbow ), eta_tau_( eta_tau )
+            PreemptiveNormalStepTermination::PreemptiveNormalStepTermination( Vector dn0, Real Gamma, Real rho_elbow, Real eta_tau )
+                : dn0_( std::move( dn0 ) ), Gamma_( std::move( Gamma ) ), rho_elbow_( std::move( rho_elbow ) ),
+                  eta_tau_( std::move( eta_tau ) )
             {
                 type_ = Type::Normal;
             }
 
-            PreemptiveNormalStepTermination::PreemptiveNormalStepTermination( const Vector& dn0, const Real& boundNormds )
-                : dn0_( dn0 ), boundNormds_( boundNormds )
+            PreemptiveNormalStepTermination::PreemptiveNormalStepTermination( Vector dn0, Real boundNormds )
+                : dn0_( std::move( dn0 ) ), boundNormds_( std::move( boundNormds ) )
             {
                 type_ = Type::SimplifiedNormal;
             }
@@ -157,9 +162,8 @@ namespace Spacy
                     }
                     else
                     {
-                        if ( norm2_offset <= norm2_tilde_dn_ex ) // in case something is wrong
-                                                                 // as 0 < |sol|^2 = |offset|^2
-                                                                 // - |solest|^2
+                        // in case something is wrong as 0 < |sol|^2 = |offset|^2 - |solest|^2
+                        if ( norm2_offset <= norm2_tilde_dn_ex )
                             std::cout << "OFFSET NORM <= Solution estimate!!! " << norm2_offset << " <= " << norm2_tilde_dn_ex << std::endl;
 
                         auto taubound = ( sqrt( GammaSquare - norm2_dn ) - sqrt( norm2_dn ) ) / sqrt( GammaSquare );
@@ -229,8 +233,10 @@ namespace Spacy
 
                 if ( scaledGamma2.size() > getMaxSteps() ||
                      ( scaledGamma2.size() > 2 * lookAhead_ && tau < 0.75 && squaredRelativeError() < tol * tol ) )
+                {
                     std::cout << "      adaptive termination criterion (relative error): " << sqrt( squaredRelativeError() )
                               << "\n      tolerance: " << tol << std::endl;
+                }
                 return scaledGamma2.size() > getMaxSteps() ||
                        ( scaledGamma2.size() > 2 * lookAhead_ && tau < 0.75 && ( squaredRelativeError() < tol * tol ) );
             }
@@ -320,10 +326,6 @@ namespace Spacy
             AdaptiveRelativeEnergyError::AdaptiveRelativeEnergyError( PreemptiveNormalStepTermination st )
             {
                 st_ = st;
-            }
-
-            AdaptiveRelativeEnergyError::AdaptiveRelativeEnergyError()
-            {
             }
 
             bool AdaptiveRelativeEnergyError::operator()() const

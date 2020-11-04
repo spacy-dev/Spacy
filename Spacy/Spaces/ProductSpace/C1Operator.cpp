@@ -8,14 +8,15 @@
 
 #include <cassert>
 #include <numeric>
+#include <utility>
 
 namespace Spacy
 {
     namespace ProductSpace
     {
-        C1Operator::C1Operator( const std::vector< std::vector< Spacy::C1Operator > >& blockOperators, const Spacy::VectorSpace& domain,
+        C1Operator::C1Operator( std::vector< std::vector< Spacy::C1Operator > > blockOperators, const Spacy::VectorSpace& domain,
                                 const Spacy::VectorSpace& range )
-            : OperatorBase( domain, range ), blockOperators_( blockOperators )
+            : OperatorBase( domain, range ), blockOperators_( std::move( blockOperators ) )
         {
             assert( !blockOperators_.empty() );
         }
@@ -84,8 +85,10 @@ namespace Spacy
                 const auto& dxp = cast_ref< Vector >( dx );
                 auto& yp = cast_ref< Vector >( y );
                 for ( auto i = 0u; i < yp.numberOfVariables(); ++i )
+                {
                     for ( auto j = 0u; j < xp.numberOfVariables(); ++j )
                         yp.component( i ) += blockOperators_[ i ][ j ].d1( xp.component( j ), dxp.component( j ) );
+                }
                 return y;
             }
 

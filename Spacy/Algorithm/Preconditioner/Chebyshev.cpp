@@ -8,6 +8,7 @@
 #include <Spacy/ZeroVectorCreator.h>
 
 #include <iostream>
+#include <utility>
 
 namespace Spacy
 {
@@ -28,12 +29,12 @@ namespace Spacy
             for ( auto i = 0u; i < a_size; ++i )
             {
                 eig[ i ] = 0.0;
-                if ( i == 0 )
-                    diagonal[ i ] = 1. / alpha[ i ].get();
-                else
-                    diagonal[ i ] = 1. / alpha[ i ].get() + beta[ i - 1 ].get() / alpha[ i - 1 ].get();
+                diagonal[ i ] = 1. / alpha[ i ].get();
                 if ( i != 0 )
+                {
+                    diagonal[ i ] += beta[ i - 1 ].get() / alpha[ i - 1 ].get();
                     subDiagonal[ i - 1 ] = std::sqrt( beta[ i - 1 ].get() ) / alpha[ i - 1 ].get();
+                }
                 z_vec[ i ] = 0.0;
                 isuppz_vec[ i ] = 0;
                 isuppz_vec[ i + a_size ] = 0;
@@ -66,7 +67,7 @@ namespace Spacy
         ChebyshevPreconditioner::ChebyshevPreconditioner( Spacy::CallableOperator A, Spacy::CallableOperator P, ::Spacy::Real gamma_max,
                                                           ::Spacy::Real gamma_min )
 
-            : A_( A ), P_( P ), gamma_max_( gamma_max ), gamma_min_( gamma_min )
+            : A_( std::move( A ) ), P_( std::move( A ) ), gamma_max_( std::move( gamma_max ) ), gamma_min_( std::move( gamma_min ) )
         {
         }
 

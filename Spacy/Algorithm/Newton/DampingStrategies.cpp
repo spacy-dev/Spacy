@@ -24,7 +24,7 @@ namespace Spacy
                 auto mu = 1.;
                 auto normDx = norm( dx );
 
-                if ( normDx < sqrt_eps() * norm( x ) )
+                if ( normDx < sqrtEps() * norm( x ) )
                     return nu;
 
                 if ( oldNu > 0 )
@@ -79,7 +79,7 @@ namespace Spacy
             {
                 auto nu = DampingFactor( 1 );
                 auto norm_F_x = norm( F_( x ) );
-                if ( norm_F_x < sqrt_eps() )
+                if ( norm_F_x < sqrtEps() )
                     return nu;
 
                 if ( muPrime > 0 )

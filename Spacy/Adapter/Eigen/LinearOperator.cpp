@@ -28,7 +28,7 @@ namespace Spacy
 
         Real LinearOperator::operator()( const LinearOperator& /*unused*/ ) const
         {
-            return Real( 0 );
+            return { 0 };
         }
 
         LinearSolver LinearOperator::solver() const

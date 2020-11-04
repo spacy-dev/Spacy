@@ -16,8 +16,7 @@ namespace Spacy
              * @param minimalDecrease minimal required decrease
              * @param relaxedMinimalDecrease relaxed required decrease
              */
-            explicit DecreaseCondition( Real minimalDecrease = 0.05,
-                                        Real relaxedMinimalDecrease = 0.01 ) noexcept;
+            explicit DecreaseCondition( Real minimalDecrease = 0.05, Real relaxedMinimalDecrease = 0.01 ) noexcept;
 
             /**
              * @brief Set required minimal decrease.
@@ -29,7 +28,7 @@ namespace Spacy
              * @brief Access minimal decrease.
              * @return minimal decrease
              */
-            Real minimalDecrease() const noexcept;
+            [[nodiscard]] Real minimalDecrease() const noexcept;
 
             /**
              * @brief Set relaxed minimal decrease.
@@ -44,17 +43,17 @@ namespace Spacy
              * @brief Decide if measure relative decrease is acceptable.
              * @param decrease measured relative decrease \f$\delta m/\delta f\f$.
              */
-            bool acceptableDecrease( Real decrease ) const noexcept;
+            [[nodiscard]] bool acceptableDecrease( Real decrease ) const noexcept;
 
             /**
              * @brief Decide if measure relative decrease is acceptable with respect to the relaxed
              * decrease condition.
              * @param decrease measured relative decrease \f$\delta m/\delta f\f$.
              */
-            bool acceptableRelaxedDecrease( Real decrease ) const noexcept;
+            [[nodiscard]] bool acceptableRelaxedDecrease( Real decrease ) const noexcept;
 
         private:
             Real minimalDecrease_, relaxedMinimalDecrease_;
         };
-    }
-}
+    } // namespace Mixin
+} // namespace Spacy

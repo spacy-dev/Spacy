@@ -104,17 +104,17 @@ namespace Spacy
 
     Real pow( Real x, double y )
     {
-        return Real( std::pow( x.get(), y ), x.space() );
+        return { std::pow( x.get(), y ), x.space() };
     }
 
     Real sqrt( Real x )
     {
-        return Real( std::sqrt( x.get() ), x.space() );
+        return { std::sqrt( x.get() ), x.space() };
     }
 
     Real cbrt( Real x )
     {
-        return Real( std::cbrt( x.get() ), x.space() );
+        return { std::cbrt( x.get() ), x.space() };
     }
 
     Real operator*( const Mixin::Get< Real >& x, Real y )

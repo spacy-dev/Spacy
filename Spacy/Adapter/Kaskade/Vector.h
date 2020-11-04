@@ -112,7 +112,7 @@ namespace Spacy
             }
 
         private:
-            bool isAtEnd( const ContiguousIterator& other ) const noexcept
+            [[nodiscard]] bool isAtEnd( const ContiguousIterator& other ) const noexcept
             {
                 return ( other.v == nullptr && j == N ) || ( v == nullptr && other.j == N );
             }

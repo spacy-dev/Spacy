@@ -1,147 +1,146 @@
 #include "Accuracy.h"
 
-namespace Spacy
+#include <utility>
+
+namespace Spacy::Mixin
 {
-    namespace Mixin
+    AbsoluteAccuracy::AbsoluteAccuracy( Real value ) noexcept : value_( std::move( value ) )
     {
-        AbsoluteAccuracy::AbsoluteAccuracy( Real value ) noexcept : value_( value )
-        {
-        }
+    }
 
-        void AbsoluteAccuracy::setAbsoluteAccuracy( Real value )
-        {
-            value_ = value;
-            notify();
-        }
+    void AbsoluteAccuracy::setAbsoluteAccuracy( Real value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        Real AbsoluteAccuracy::getAbsoluteAccuracy() const noexcept
-        {
-            return value_;
-        }
+    Real AbsoluteAccuracy::getAbsoluteAccuracy() const noexcept
+    {
+        return value_;
+    }
 
-        void AbsoluteAccuracy::update( AbsoluteAccuracy* changedSubject )
-        {
-            setAbsoluteAccuracy( changedSubject->getAbsoluteAccuracy() );
-        }
+    void AbsoluteAccuracy::update( AbsoluteAccuracy* changedSubject )
+    {
+        setAbsoluteAccuracy( changedSubject->getAbsoluteAccuracy() );
+    }
 
-        RelativeAccuracy::RelativeAccuracy( Real value ) noexcept : value_( value )
-        {
-        }
+    RelativeAccuracy::RelativeAccuracy( Real value ) noexcept : value_( std::move( value ) )
+    {
+    }
 
-        void RelativeAccuracy::setRelativeAccuracy( Real value )
-        {
-            value_ = value;
-            notify();
-        }
+    void RelativeAccuracy::setRelativeAccuracy( Real value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        Real RelativeAccuracy::getRelativeAccuracy() const noexcept
-        {
-            return value_;
-        }
+    Real RelativeAccuracy::getRelativeAccuracy() const noexcept
+    {
+        return value_;
+    }
 
-        void RelativeAccuracy::update( RelativeAccuracy* changedSubject )
-        {
-            setRelativeAccuracy( changedSubject->getRelativeAccuracy() );
-        }
+    void RelativeAccuracy::update( RelativeAccuracy* changedSubject )
+    {
+        setRelativeAccuracy( changedSubject->getRelativeAccuracy() );
+    }
 
-        MinimalAccuracy::MinimalAccuracy( Real value ) noexcept : value_( value )
-        {
-        }
+    MinimalAccuracy::MinimalAccuracy( Real value ) noexcept : value_( std::move( value ) )
+    {
+    }
 
-        void MinimalAccuracy::setMinimalAccuracy( Real value )
-        {
-            value_ = value;
-            notify();
-        }
+    void MinimalAccuracy::setMinimalAccuracy( Real value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        Real MinimalAccuracy::getMinimalAccuracy() const noexcept
-        {
-            return value_;
-        }
+    Real MinimalAccuracy::getMinimalAccuracy() const noexcept
+    {
+        return value_;
+    }
 
-        void MinimalAccuracy::update( MinimalAccuracy* changedSubject )
-        {
-            setMinimalAccuracy( changedSubject->getMinimalAccuracy() );
-        }
+    void MinimalAccuracy::update( MinimalAccuracy* changedSubject )
+    {
+        setMinimalAccuracy( changedSubject->getMinimalAccuracy() );
+    }
 
-        DampingAccuracy::DampingAccuracy( Real value ) noexcept : value_( value )
-        {
-        }
+    DampingAccuracy::DampingAccuracy( Real value ) noexcept : value_( std::move( value ) )
+    {
+    }
 
-        void DampingAccuracy::setDampingAccuracy( Real value )
-        {
-            value_ = value;
-            notify();
-        }
+    void DampingAccuracy::setDampingAccuracy( Real value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        Real DampingAccuracy::getDampingAccuracy() const noexcept
-        {
-            return value_;
-        }
+    Real DampingAccuracy::getDampingAccuracy() const noexcept
+    {
+        return value_;
+    }
 
-        void DampingAccuracy::update( DampingAccuracy* changedSubject )
-        {
-            setDampingAccuracy( changedSubject->getDampingAccuracy() );
-        }
+    void DampingAccuracy::update( DampingAccuracy* changedSubject )
+    {
+        setDampingAccuracy( changedSubject->getDampingAccuracy() );
+    }
 
-        NormalAccuracy::NormalAccuracy( Real value ) noexcept : value_( value )
-        {
-        }
+    NormalAccuracy::NormalAccuracy( Real value ) noexcept : value_( std::move( value ) )
+    {
+    }
 
-        void NormalAccuracy::setNormalAccuracy( Real value )
-        {
-            value_ = value;
-            notify();
-        }
+    void NormalAccuracy::setNormalAccuracy( Real value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        Real NormalAccuracy::getNormalAccuracy() const noexcept
-        {
-            return value_;
-        }
+    Real NormalAccuracy::getNormalAccuracy() const noexcept
+    {
+        return value_;
+    }
 
-        void NormalAccuracy::update( NormalAccuracy* changedSubject )
-        {
-            setNormalAccuracy( changedSubject->getNormalAccuracy() );
-        }
+    void NormalAccuracy::update( NormalAccuracy* changedSubject )
+    {
+        setNormalAccuracy( changedSubject->getNormalAccuracy() );
+    }
 
-        TangentialAccuracy::TangentialAccuracy( Real value ) noexcept : value_( value )
-        {
-        }
+    TangentialAccuracy::TangentialAccuracy( Real value ) noexcept : value_( std::move( value ) )
+    {
+    }
 
-        void TangentialAccuracy::setTangentialAccuracy( Real value )
-        {
-            value_ = value;
-            notify();
-        }
+    void TangentialAccuracy::setTangentialAccuracy( Real value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        Real TangentialAccuracy::getTangentialAccuracy() const noexcept
-        {
-            return value_;
-        }
+    Real TangentialAccuracy::getTangentialAccuracy() const noexcept
+    {
+        return value_;
+    }
 
-        void TangentialAccuracy::update( TangentialAccuracy* changedSubject )
-        {
-            setTangentialAccuracy( changedSubject->getTangentialAccuracy() );
-        }
+    void TangentialAccuracy::update( TangentialAccuracy* changedSubject )
+    {
+        setTangentialAccuracy( changedSubject->getTangentialAccuracy() );
+    }
 
-        FallBackTangentialAccuracy::FallBackTangentialAccuracy( Real value ) noexcept : value_( value )
-        {
-        }
+    FallBackTangentialAccuracy::FallBackTangentialAccuracy( Real value ) noexcept : value_( std::move( value ) )
+    {
+    }
 
-        void FallBackTangentialAccuracy::setFallBackTangentialAccuracy( Real value )
-        {
-            value_ = value;
-            notify();
-        }
+    void FallBackTangentialAccuracy::setFallBackTangentialAccuracy( Real value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        Real FallBackTangentialAccuracy::getFallBackTangentialAccuracy() const noexcept
-        {
-            return value_;
-        }
+    Real FallBackTangentialAccuracy::getFallBackTangentialAccuracy() const noexcept
+    {
+        return value_;
+    }
 
-        void FallBackTangentialAccuracy::update( FallBackTangentialAccuracy* changedSubject )
-        {
-            setFallBackTangentialAccuracy( changedSubject->getFallBackTangentialAccuracy() );
-        }
-    } // namespace Mixin
-} // namespace Spacy
+    void FallBackTangentialAccuracy::update( FallBackTangentialAccuracy* changedSubject )
+    {
+        setFallBackTangentialAccuracy( changedSubject->getFallBackTangentialAccuracy() );
+    }
+} // namespace Spacy::Mixin

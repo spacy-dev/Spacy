@@ -1,10 +1,12 @@
 #include "Models.h"
 
+#include <utility>
+
 namespace Spacy
 {
     namespace Scalar
     {
-        Quadratic::Quadratic( Real a, Real b, Real c ) noexcept : a_( a ), b_( b ), c_( c )
+        Quadratic::Quadratic( Real a, Real b, Real c ) noexcept : a_( std::move( a ) ), b_( std::move( b ) ), c_( std::move( c ) )
         {
         }
 
@@ -13,7 +15,8 @@ namespace Spacy
             return a_ + t * b_ + t * t * c_;
         }
 
-        Cubic::Cubic( Real a, Real b, Real c, Real d ) noexcept : a_( a ), b_( b ), c_( c ), d_( d )
+        Cubic::Cubic( Real a, Real b, Real c, Real d ) noexcept
+            : a_( std::move( a ) ), b_( std::move( b ) ), c_( std::move( c ) ), d_( std::move( d ) )
         {
         }
 
@@ -21,5 +24,5 @@ namespace Spacy
         {
             return a_ + t * ( b_ + t * ( c_ + d_ * t ) );
         }
-    }
-}
+    } // namespace Scalar
+} // namespace Spacy

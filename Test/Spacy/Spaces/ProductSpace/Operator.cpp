@@ -1,11 +1,13 @@
-#include <Test/gtest.hh>
+#include <Test/mockSetup.hh>
 
 #include <Spacy/Spaces/ProductSpace/Operator.h>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Spaces/ScalarSpace/Operator.h>
 #include <Spacy/Util/Cast.h>
-#include <Test/mockSetup.hh>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include <memory>
 #include <vector>
@@ -15,10 +17,10 @@ using namespace Spacy;
 TEST( ProductSpacyOperator, Apply_2x3 )
 {
     std::vector< std::shared_ptr< VectorSpace > > spaces;
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
     auto V = ProductSpace::makeHilbertSpace( spaces );
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
     auto W = ProductSpace::makeHilbertSpace( spaces );
     auto v = zero( V );
     auto& vp = cast_ref< ProductSpace::Vector >( v );
@@ -32,7 +34,7 @@ TEST( ProductSpacyOperator, Apply_2x3 )
     Scalar::Operator A31( []( double a ) { return a; }, *spaces[ 0 ], *spaces[ 2 ] );
     Scalar::Operator A32( []( double a ) { return 2 * a; }, *spaces[ 1 ], *spaces[ 2 ] );
 
-    auto A = ProductSpace::Operator( {{A11, A12}, {A21, A22}, {A31, A32}}, V, W );
+    auto A = ProductSpace::Operator( { { A11, A12 }, { A21, A22 }, { A31, A32 } }, V, W );
 
     auto w = A( v );
     const auto& wp = cast_ref< ProductSpace::Vector >( w );
@@ -44,8 +46,8 @@ TEST( ProductSpacyOperator, Apply_2x3 )
 TEST( ProductSpacyOperator, Apply_2x2 )
 {
     std::vector< std::shared_ptr< VectorSpace > > spaces;
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
     auto V = ProductSpace::makeHilbertSpace( spaces );
     auto v = zero( V );
     auto& vp = cast_ref< ProductSpace::Vector >( v );
@@ -57,7 +59,7 @@ TEST( ProductSpacyOperator, Apply_2x2 )
     Scalar::Operator A21( []( double a ) { return -a; }, *spaces[ 0 ], *spaces[ 1 ] );
     Scalar::Operator A22( []( double a ) { return 2 * a; }, *spaces[ 1 ], *spaces[ 1 ] );
 
-    auto A = ProductSpace::Operator( {{A11, A12}, {A21, A22}}, V, V );
+    auto A = ProductSpace::Operator( { { A11, A12 }, { A21, A22 } }, V, V );
 
     auto w = A( v );
     const auto& wp = cast_ref< ProductSpace::Vector >( w );
@@ -68,8 +70,8 @@ TEST( ProductSpacyOperator, Apply_2x2 )
 TEST( ProductSpaceOperator, Apply_1x2 )
 {
     std::vector< std::shared_ptr< VectorSpace > > spaces;
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
     auto V = ProductSpace::makeHilbertSpace( spaces );
     auto v = zero( V );
     auto& vp = cast_ref< ProductSpace::Vector >( v );
@@ -79,7 +81,7 @@ TEST( ProductSpaceOperator, Apply_1x2 )
     Scalar::Operator A11( []( double a ) { return a; }, *spaces[ 0 ], *spaces[ 0 ] );
     Scalar::Operator A12( []( double a ) { return -a; }, *spaces[ 1 ], *spaces[ 0 ] );
 
-    auto A = ProductSpace::Operator( {{A11, A12}}, V, *spaces[ 0 ] );
+    auto A = ProductSpace::Operator( { { A11, A12 } }, V, *spaces[ 0 ] );
 
     auto w = A( v );
     const auto& wr = cast_ref< Real >( w );
@@ -89,8 +91,8 @@ TEST( ProductSpaceOperator, Apply_1x2 )
 TEST( ProductSpaceOperator, Apply_2x1 )
 {
     std::vector< std::shared_ptr< VectorSpace > > spaces;
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
-    spaces.emplace_back( std::make_shared< VectorSpace >( make_real_space() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
+    spaces.emplace_back( std::make_shared< VectorSpace >( makeRealSpace() ) );
     auto V = ProductSpace::makeHilbertSpace( spaces );
     auto v = zero( *spaces[ 0 ] );
     cast_ref< Real >( v ) = 2;
@@ -98,7 +100,7 @@ TEST( ProductSpaceOperator, Apply_2x1 )
     Scalar::Operator A11( []( double a ) { return a; }, *spaces[ 0 ], *spaces[ 0 ] );
     Scalar::Operator A21( []( double a ) { return -a; }, *spaces[ 0 ], *spaces[ 1 ] );
 
-    auto A = ProductSpace::Operator( {{A11}, {A21}}, *spaces[ 0 ], V );
+    auto A = ProductSpace::Operator( { { A11 }, { A21 } }, *spaces[ 0 ], V );
 
     auto w = A( v );
     const auto& wp = cast_ref< ProductSpace::Vector >( w );

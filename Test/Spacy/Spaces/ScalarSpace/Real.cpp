@@ -1,13 +1,13 @@
-#include <Test/gtest.hh>
-
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 
-const auto two = Spacy::Real{2};
-const auto three = Spacy::Real{3};
-const auto five = Spacy::Real{5};
-const auto six = Spacy::Real{6};
-const auto two_third = Spacy::Real{2.0 / 3};
-const auto minus_one = Spacy::Real{-1};
+#include <gtest/gtest.h>
+
+const auto two = Spacy::Real{ 2 };
+const auto three = Spacy::Real{ 3 };
+const auto five = Spacy::Real{ 5 };
+const auto six = Spacy::Real{ 6 };
+const auto two_third = Spacy::Real{ 2.0 / 3 };
+const auto minus_one = Spacy::Real{ -1 };
 
 // Comparison
 TEST( Real, LessThanComparison )

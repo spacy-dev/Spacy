@@ -24,7 +24,7 @@ namespace
             return x;
         }
     };
-}
+} // namespace
 
 namespace Spacy
 {
@@ -32,20 +32,16 @@ namespace Spacy
     {
         DEFINE_LOG_TAG( static const char* log_tag = "ACR" )
 
-        CompositeStep::CubicModel makeCubicModel( const Vector& dx, const C2Functional& f,
-                                                  const Vector& x, Spacy::Real omega )
+        CompositeStep::CubicModel makeCubicModel( const Vector& dx, const C2Functional& f, const Vector& x, Spacy::Real omega )
         {
-            return CompositeStep::CubicModel(
-                CompositeStep::makeQuadraticModel( Spacy::DampingFactor( 0.0 ), dx, dx, f, x ),
-                CompositeStep::makeQuadraticNormModel( Spacy::DampingFactor( 0.0 ), dx, dx ),
-                omega );
+            return { CompositeStep::makeQuadraticModel( Spacy::DampingFactor( 0.0 ), dx, dx, f, x ),
+                     CompositeStep::makeQuadraticNormModel( Spacy::DampingFactor( 0.0 ), dx, dx ), omega };
         }
 
-        ACRSolver::ACRSolver( C2Functional f, double eta1, double eta2, double epsilon,
-                              double relativeAccuracy, double omegaMax, double lambdaMax )
-            : Mixin::RelativeAccuracy( relativeAccuracy ), f_( std::move( f ) ),
-              domain_( f_.domain() ), eta1_( eta1 ), eta2_( eta2 ), epsilon_( epsilon ),
-              omegaMax_( omegaMax ), lambdaMax_( lambdaMax )
+        ACRSolver::ACRSolver( C2Functional f, double eta1, double eta2, double epsilon, double relativeAccuracy, double omegaMax,
+                              double lambdaMax )
+            : Mixin::RelativeAccuracy( relativeAccuracy ), f_( std::move( f ) ), domain_( f_.domain() ), eta1_( eta1 ), eta2_( eta2 ),
+              epsilon_( epsilon ), omegaMax_( omegaMax ), lambdaMax_( lambdaMax )
         {
         }
 
@@ -80,11 +76,9 @@ namespace Spacy
 
                     dx = lambda * dx;
 
-                    LOG( log_tag, "lambda: ", lambda, " omega: ", omega_, " cubicModel: ",
-                         cubicModel( lambda ) )
+                    LOG( log_tag, "lambda: ", lambda, " omega: ", omega_, " cubicModel: ", cubicModel( lambda ) )
 
-                    if ( ( stepMonitor = acceptanceTest( x, dx, lambda, cubicModel ) ) ==
-                         StepMonitor::Accepted )
+                    if ( ( stepMonitor = acceptanceTest( x, dx, lambda, cubicModel ) ) == StepMonitor::Accepted )
                     {
                         x += dx;
                         //  if( convergenceTest(/*TODO*/) ) return x;
@@ -114,9 +108,8 @@ namespace Spacy
             return x;
         }
 
-        ACRSolver::StepMonitor
-        ACRSolver::acceptanceTest( const Vector& x, const Vector& dx, const Real& lambda,
-                                   const CompositeStep::CubicModel& cubicModel )
+        ACRSolver::StepMonitor ACRSolver::acceptanceTest( const Vector& x, const Vector& dx, const Real& lambda,
+                                                          const CompositeStep::CubicModel& cubicModel )
         {
             auto diff = cubicModel( lambda ) - cubicModel( 0.0 );
 
@@ -124,18 +117,13 @@ namespace Spacy
             // Consider the Case numerator = nominator = 0
             if ( abs( diff ) < eps() )
             {
-                if ( diff < 0 )
-                    diff = -eps();
-
-                else
-                    diff = eps();
+                diff = diff < 0 ? -eps() : eps();
             }
 
             rho_ = ( f_( x + dx ) - f_( x ) ) / diff;
 
-            LOG( log_tag, "f_(x+dx): ", f_( x + dx ), "f_(x): ", f_( x ), "CubicModel(lambda): ",
-                 cubicModel( lambda ), "CubicModel(0): ", cubicModel( 0 ), "rho: ", rho_, "eta1 ",
-                 eta1_, "eta2 ", eta2_ )
+            LOG( log_tag, "f_(x+dx): ", f_( x + dx ), "f_(x): ", f_( x ), "CubicModel(lambda): ", cubicModel( lambda ),
+                 "CubicModel(0): ", cubicModel( 0 ), "rho: ", rho_, "eta1 ", eta1_, "eta2 ", eta2_ )
 
             if ( rho_ >= eta1_ )
                 return StepMonitor::Accepted;
@@ -149,9 +137,13 @@ namespace Spacy
             LOG( log_tag, "rho: ", rho_, "eta1 ", eta1_, "eta2 ", eta2_ )
 
             if ( rho_ > eta2_ )
+            {
                 omega *= 0.5;
+            }
             else if ( rho_ < eta1_ )
+            {
                 omega *= 2;
+            }
 
             return omega;
         }
@@ -165,5 +157,5 @@ namespace Spacy
 
             return tcg( -f_.d1( x ) );
         }
-    }
-}
+    } // namespace ACR
+} // namespace Spacy

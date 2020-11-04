@@ -3,15 +3,17 @@
 
 #pragma once
 
+#include <functional>
+
 #include <Spacy/LinearSolver.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
+
 #include <memory>
 #include <type_traits>
-#include <functional>
 
 namespace Spacy
 {
@@ -21,18 +23,18 @@ namespace Spacy
         struct Interface
         {
             virtual ~Interface() = default;
-            virtual std::shared_ptr< Interface > clone() const = 0;
-            virtual Vector call_const_Vector_ref( const Vector& x ) const = 0;
-            virtual Real call_const_LinearOperator_ref( const LinearOperator& x ) const = 0;
+            [[nodiscard]] virtual std::shared_ptr< Interface > clone() const = 0;
+            [[nodiscard]] virtual Vector call_const_Vector_ref( const Vector& x ) const = 0;
+            [[nodiscard]] virtual Real call_const_LinearOperator_ref( const LinearOperator& x ) const = 0;
             virtual void add_const_LinearOperator_ref( const LinearOperator& y ) = 0;
             virtual void subtract_const_LinearOperator_ref( const LinearOperator& y ) = 0;
             virtual void multiply_double( double a ) = 0;
-            virtual LinearOperator negate() const = 0;
-            virtual bool compare_const_LinearOperator_ref( const LinearOperator& y ) const = 0;
-            virtual std::function< Vector( const Vector& ) > solver() const = 0;
-            virtual const VectorSpace& domain() const = 0;
-            virtual const VectorSpace& range() const = 0;
-            virtual const VectorSpace& space() const = 0;
+            [[nodiscard]] virtual LinearOperator negate() const = 0;
+            [[nodiscard]] virtual bool compare_const_LinearOperator_ref( const LinearOperator& y ) const = 0;
+            [[nodiscard]] virtual std::function< Vector( const Vector& ) > solver() const = 0;
+            [[nodiscard]] virtual const VectorSpace& domain() const = 0;
+            [[nodiscard]] virtual const VectorSpace& range() const = 0;
+            [[nodiscard]] virtual const VectorSpace& space() const = 0;
         };
 
         template < class Impl >
@@ -43,17 +45,17 @@ namespace Spacy
             {
             }
 
-            std::shared_ptr< Interface > clone() const override
+            [[nodiscard]] std::shared_ptr< Interface > clone() const override
             {
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            Vector call_const_Vector_ref( const Vector& x ) const override
+            [[nodiscard]] Vector call_const_Vector_ref( const Vector& x ) const override
             {
                 return impl.operator()( x );
             }
 
-            Real call_const_LinearOperator_ref( const LinearOperator& x ) const override
+            [[nodiscard]] Real call_const_LinearOperator_ref( const LinearOperator& x ) const override
             {
                 return impl.operator()( *x.template target< typename std::decay< Impl >::type >() );
             }
@@ -73,32 +75,32 @@ namespace Spacy
                 impl.operator*=( std::move( a ) );
             }
 
-            LinearOperator negate() const override
+            [[nodiscard]] LinearOperator negate() const override
             {
                 return impl.operator-();
             }
 
-            bool compare_const_LinearOperator_ref( const LinearOperator& y ) const override
+            [[nodiscard]] bool compare_const_LinearOperator_ref( const LinearOperator& y ) const override
             {
                 return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
             }
 
-            std::function< Vector( const Vector& ) > solver() const override
+            [[nodiscard]] std::function< Vector( const Vector& ) > solver() const override
             {
                 return impl.solver();
             }
 
-            const VectorSpace& domain() const override
+            [[nodiscard]] const VectorSpace& domain() const override
             {
                 return impl.domain();
             }
 
-            const VectorSpace& range() const override
+            [[nodiscard]] const VectorSpace& range() const override
             {
                 return impl.range();
             }
 
-            const VectorSpace& space() const override
+            [[nodiscard]] const VectorSpace& space() const override
             {
                 return impl.space();
             }
@@ -118,12 +120,9 @@ namespace Spacy
     public:
         LinearOperator() noexcept = default;
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, LinearOperator >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, LinearOperator >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         LinearOperator( T&& value ) : impl_( std::forward< T >( value ) )
         {
         }
@@ -174,39 +173,36 @@ namespace Spacy
             return impl_->compare_const_LinearOperator_ref( y );
         }
 
-        std::function< Vector( const Vector& ) > solver() const
+        [[nodiscard]] std::function< Vector( const Vector& ) > solver() const
         {
             assert( impl_ );
             return impl_->solver();
         }
 
         /// Access domain space \f$X\f$.
-        const VectorSpace& domain() const
+        [[nodiscard]] const VectorSpace& domain() const
         {
             assert( impl_ );
             return impl_->domain();
         }
 
         /// Access range space \f$Y\f$.
-        const VectorSpace& range() const
+        [[nodiscard]] const VectorSpace& range() const
         {
             assert( impl_ );
             return impl_->range();
         }
 
         /// Access underlying space of linear operators.
-        const VectorSpace& space() const
+        [[nodiscard]] const VectorSpace& space() const
         {
             assert( impl_ );
             return impl_->space();
         }
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, LinearOperator >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, LinearOperator >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         LinearOperator& operator=( T&& value )
         {
             return *this = LinearOperator( std::forward< T >( value ) );
@@ -224,7 +220,7 @@ namespace Spacy
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }
@@ -237,8 +233,7 @@ namespace Spacy
     {
         if ( k == -1 )
             return A.solver();
-        throw Exception::InvalidArgument(
-            "operator^ for LinearOperator only defined for exponent: k = -1." );
+        throw Exception::InvalidArgument( "operator^ for LinearOperator only defined for exponent: k = -1." );
     }
 
     /// Access solver via A^-1. Throws for k!=-1.
@@ -246,8 +241,7 @@ namespace Spacy
     {
         if ( k == -1 )
             return std::move( A.solver() );
-        throw Exception::InvalidArgument(
-            "operator^ for LinearOperator only defined for exponent: k = -1." );
+        throw Exception::InvalidArgument( "operator^ for LinearOperator only defined for exponent: k = -1." );
     }
 
     inline LinearOperator& axpy( LinearOperator& A, double a, LinearOperator B )

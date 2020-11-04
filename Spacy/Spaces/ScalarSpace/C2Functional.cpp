@@ -45,7 +45,7 @@ namespace Spacy
         }
         Spacy::Scalar::LinearOperator C2Functional::hessian( const ::Spacy::Vector& x ) const
         {
-            return Spacy::Scalar::LinearOperator( *operatorSpace_, secDerivative_( get( cast_ref< Spacy::Real >( x ) ) ) );
+            return { *operatorSpace_, secDerivative_( get( cast_ref< Spacy::Real >( x ) ) ) };
         }
     } // namespace Scalar
 } // namespace Spacy

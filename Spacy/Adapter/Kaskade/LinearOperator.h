@@ -93,7 +93,7 @@ namespace Spacy
             }
 
             /// Access solver representing \f$A^{-1}\f$.
-            auto solver() const
+            [[nodiscard]] auto solver() const
             {
                 return solverCreator_( *this );
                 //        return
@@ -106,7 +106,7 @@ namespace Spacy
                 return A_.get_non_const();
             }
 
-            const auto& get() const
+            [[nodiscard]] const auto& get() const
             {
                 return A_.template get< Matrix >();
             }
@@ -124,7 +124,7 @@ namespace Spacy
             //        return result;
             //      }
 
-            const auto& A() const
+            [[nodiscard]] const auto& A() const
             {
                 return A_;
             }
@@ -134,7 +134,7 @@ namespace Spacy
                 return Spacy::ContiguousIterator< double >{};
             }
 
-            Spacy::ContiguousIterator< const double > begin() const
+            [[nodiscard]] Spacy::ContiguousIterator< const double > begin() const
             {
                 return Spacy::ContiguousIterator< const double >{};
             }
@@ -144,7 +144,7 @@ namespace Spacy
                 return Spacy::ContiguousIterator< double >{};
             }
 
-            Spacy::ContiguousIterator< const double > end() const
+            [[nodiscard]] Spacy::ContiguousIterator< const double > end() const
             {
                 return Spacy::ContiguousIterator< const double >{};
             }

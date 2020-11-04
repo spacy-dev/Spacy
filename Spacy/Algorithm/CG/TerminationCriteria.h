@@ -53,7 +53,7 @@ namespace Spacy
                  * the iterate \f$\varepsilon_{max}\|x\|_A\f$.
                  * \return true if \f$\|q\|<\varepsilon_{max}\|x\|_A\f$, else false
                  */
-                bool vanishingStep() const noexcept;
+                [[nodiscard]] bool vanishingStep() const noexcept;
 
                 /// re-initializes the termination criterion for a new CG run
                 void clear() noexcept;
@@ -73,11 +73,11 @@ namespace Spacy
                  * possibly bigger than the desired accuracy. This method is required in the hybrid
                  * conjugate gradient method only.
                  */
-                bool minimalDecreaseAchieved() const noexcept;
+                [[nodiscard]] bool minimalDecreaseAchieved() const noexcept;
 
             private:
                 /// returns the estimated sqaured absolute energy error
-                double squaredRelativeError() const noexcept;
+                [[nodiscard]] double squaredRelativeError() const noexcept;
 
                 unsigned lookAhead_ = 5;
                 std::vector< double > scaledGamma2 = std::vector< double >{};
@@ -116,7 +116,7 @@ namespace Spacy
                  * \param eta_tau loss in tangential damping due to inaccuracy in normal step
                  * (smaller than one)
                  */
-                PreemptiveNormalStepTermination( const Vector& dn0, const Real& Gamma, const Real& rho_elbow, const Real& eta_tau );
+                PreemptiveNormalStepTermination( Vector dn0, Real Gamma, Real rho_elbow, Real eta_tau );
                 /**
                  * \brief constructor for simplified normal step criterion
                  *
@@ -126,7 +126,7 @@ namespace Spacy
                  * fraction \f$ \frac{\|ds\|}{\|dx\|} \f$ small
                  * enough to not cause rejection of steps
                  */
-                PreemptiveNormalStepTermination( const Vector& dn0, const Real& boundNormds );
+                PreemptiveNormalStepTermination( Vector dn0, Real boundNormds );
 
                 /**
                  * \brief default constructor
@@ -194,13 +194,9 @@ namespace Spacy
                  *
                  * \param st StepTermination with an extra termination criterion
                  */
-                AdaptiveRelativeEnergyError( PreemptiveNormalStepTermination st );
+                explicit AdaptiveRelativeEnergyError( PreemptiveNormalStepTermination st );
 
-                /**
-                 * \brief Default constructor
-                 *
-                 */
-                AdaptiveRelativeEnergyError();
+                AdaptiveRelativeEnergyError() = default;
 
                 /**
                  * \brief the termination decision function called by the cg

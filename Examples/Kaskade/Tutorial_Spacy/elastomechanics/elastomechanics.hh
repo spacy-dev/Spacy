@@ -53,19 +53,19 @@ public:
                 boost::fusion::at_c< u_Idx >( vars.data ).derivative( boost::fusion::at_c< u_Space_Idx >( evaluators ) ) );
         }
 
-        Scalar d0() const
+        [[nodiscard]] Scalar d0() const
         {
             return energy.d0();
         }
 
         template < int row >
-        Vector d1( VariationalArg< Scalar, dim > const& arg ) const
+        [[nodiscard]] Vector d1( VariationalArg< Scalar, dim > const& arg ) const
         {
             return energy.d1( arg );
         }
 
         template < int row, int col >
-        Matrix d2( VariationalArg< Scalar, dim > const& argTest, VariationalArg< Scalar, dim > const& argAnsatz ) const
+        [[nodiscard]] Matrix d2( VariationalArg< Scalar, dim > const& argTest, VariationalArg< Scalar, dim > const& argAnsatz ) const
         {
             return energy.d2( argTest, argAnsatz );
         }
@@ -115,19 +115,19 @@ public:
             u = at_c< u_Idx >( vars.data ).value( at_c< u_Space_Idx >( evaluators ) );
         }
 
-        Scalar d0() const
+        [[nodiscard]] Scalar d0() const
         {
             return alpha * ( u * u ) - beta * u;
         }
 
         template < int row >
-        Scalar d1_impl( VariationalArg< Scalar, dim, dim > const& arg ) const
+        [[nodiscard]] Scalar d1_impl( VariationalArg< Scalar, dim, dim > const& arg ) const
         {
             return 2 * alpha * ( u * arg.value ) - beta * arg.value;
         }
 
         template < int row, int col >
-        Scalar d2_impl( VariationalArg< Scalar, dim, dim > const& arg1, VariationalArg< Scalar, dim, dim > const& arg2 ) const
+        [[nodiscard]] Scalar d2_impl( VariationalArg< Scalar, dim, dim > const& arg1, VariationalArg< Scalar, dim, dim > const& arg2 ) const
         {
             return 2 * alpha * ( arg1.value * arg2.value );
         }
@@ -143,7 +143,7 @@ public:
     }
 
     template < class Cell >
-    int integrationOrder( Cell const& /* cell */, int shapeFunctionOrder, bool boundary ) const
+    [[nodiscard]] int integrationOrder( Cell const& /* cell */, int shapeFunctionOrder, bool boundary ) const
     {
         if ( boundary )
             return 2 * shapeFunctionOrder; // mass term u*u on boundary

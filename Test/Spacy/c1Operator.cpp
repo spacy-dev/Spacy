@@ -1,11 +1,12 @@
-#include <Test/gtest.hh>
+#include <Test/Mock/linearOperator.hh>
+#include <Test/mockSetup.hh>
 
 #include <Spacy/C1Operator.h>
 #include <Spacy/Operator.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
-#include <Test/Mock/linearOperator.hh>
-#include <Test/mockSetup.hh>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 
@@ -13,8 +14,7 @@ namespace
 {
     struct TestC1Operator
     {
-        TestC1Operator( const VectorSpace& domain, const VectorSpace& range )
-            : domain_( &domain ), range_( &range )
+        TestC1Operator( const VectorSpace& domain, const VectorSpace& range ) : domain_( &domain ), range_( &range )
         {
         }
 
@@ -66,7 +66,7 @@ namespace
         EXPECT_EQ( X.index(), f.domain().index() );
         EXPECT_EQ( Y.index(), f.range().index() );
     }
-}
+} // namespace
 
 TEST( C1Operator, Assert )
 {
@@ -157,7 +157,7 @@ TEST( C1Operator, ToOperator )
 
     Operator copied = g;
     const Operator& bound = h;
-    auto fun = [&X]( const Operator& A ) { return A( zero( X ) ); };
+    auto fun = [ &X ]( const Operator& A ) { return A( zero( X ) ); };
     auto x = fun( h );
     Operator moved = std::move( g );
     testOp( copied, X, Y );

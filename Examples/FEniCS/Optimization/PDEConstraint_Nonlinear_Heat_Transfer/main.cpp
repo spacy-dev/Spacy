@@ -1,12 +1,11 @@
-#include <chrono>
-
+#include "LagrangeFunctional.h"
+#include "NormalStepFunctional.h"
 #include <dolfin.h>
 
 #include <Spacy/Adapter/fenics.hh>
 #include <Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh>
 
-#include "LagrangeFunctional.h"
-#include "NormalStepFunctional.h"
+#include <chrono>
 
 using namespace dolfin;
 using namespace std::chrono;
@@ -27,8 +26,7 @@ class DirichletBoundary : public SubDomain
 {
     bool inside( const Array< double >& x, bool on_boundary ) const
     {
-        return x[ 0 ] < DOLFIN_EPS or x[ 0 ] > 1.0 - DOLFIN_EPS or x[ 1 ] < DOLFIN_EPS or
-               x[ 1 ] > 1. - DOLFIN_EPS;
+        return x[ 0 ] < DOLFIN_EPS or x[ 0 ] > 1.0 - DOLFIN_EPS or x[ 1 ] < DOLFIN_EPS or x[ 1 ] > 1. - DOLFIN_EPS;
     }
 };
 
@@ -68,19 +66,17 @@ int main()
     // Compute solution
     using namespace Spacy;
 
-    std::vector< unsigned > primalSpaceIds = {0u, 1u}, dualSpaceIds = {2u};
+    std::vector< unsigned > primalSpaceIds = { 0u, 1u }, dualSpaceIds = { 2u };
     auto productSpace = FEniCS::makeHilbertSpace( V, primalSpaceIds, dualSpaceIds );
 
     // functionals
     Spacy::C2Functional lagrangeFunctional = FEniCS::makeC2Functional( L, dL, ddL, productSpace );
-    Spacy::C2Functional normalStepFunctional =
-        FEniCS::makeC2Functional( L, dL, Norm, productSpace );
+    Spacy::C2Functional normalStepFunctional = FEniCS::makeC2Functional( L, dL, Norm, productSpace );
 
     // composite step solve
-    CompositeStep::AffineCovariantSolver solver( normalStepFunctional, lagrangeFunctional,
-                                                 productSpace );
+    CompositeStep::AffineCovariantSolver solver( normalStepFunctional, lagrangeFunctional, productSpace );
     solver.setRelativeAccuracy( 1e-9 );
-    solver.set_eps( 1e-12 );
+    solver.setEps( 1e-12 );
     solver.setMaxSteps( 500 );
     solver.setVerbosityLevel( 2 );
     solver.setIterativeRefinements( 0 );
@@ -88,9 +84,7 @@ int main()
     // solve problem
     auto startTime = high_resolution_clock::now();
     auto sol = solver();
-    std::cout << "computation time: "
-              << duration_cast< seconds >( high_resolution_clock::now() - startTime ).count()
-              << std::endl;
+    std::cout << "computation time: " << duration_cast< seconds >( high_resolution_clock::now() - startTime ).count() << std::endl;
 
     // copy back and display solution
     Function u( V );

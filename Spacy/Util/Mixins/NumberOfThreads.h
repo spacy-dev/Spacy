@@ -13,7 +13,7 @@ namespace Spacy
         public:
             explicit NumberOfThreads( unsigned value = 1 ) noexcept;
             void setNumberOfThreads( unsigned value );
-            unsigned getNumberOfThreads() const noexcept;
+            [[nodiscard]] unsigned getNumberOfThreads() const noexcept;
             void update( NumberOfThreads* changedSubject );
 
         private:

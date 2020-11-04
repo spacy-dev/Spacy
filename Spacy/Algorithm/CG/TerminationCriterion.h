@@ -5,6 +5,7 @@
 
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/Vector.h>
+
 #include <memory>
 #include <type_traits>
 
@@ -18,14 +19,13 @@ namespace Spacy
             struct Interface
             {
                 virtual ~Interface() = default;
-                virtual std::unique_ptr< Interface > clone() const = 0;
-                virtual bool call() const = 0;
+                [[nodiscard]] virtual std::unique_ptr< Interface > clone() const = 0;
+                [[nodiscard]] virtual bool call() const = 0;
                 virtual void clear() = 0;
-                virtual void update( double alpha, double qAq, double qPq, double rPINVr,
-                                     const Vector& x ) = 0;
-                virtual bool vanishingStep() const = 0;
-                virtual bool minimalDecreaseAchieved() const = 0;
-                virtual void set_eps( double eps ) = 0;
+                virtual void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& x ) = 0;
+                [[nodiscard]] virtual bool vanishingStep() const = 0;
+                [[nodiscard]] virtual bool minimalDecreaseAchieved() const = 0;
+                virtual void setEps( double eps ) = 0;
                 virtual void setAbsoluteAccuracy( double accuracy ) = 0;
                 virtual void setMinimalAccuracy( double accuracy ) = 0;
                 virtual void setRelativeAccuracy( double accuracy ) = 0;
@@ -39,12 +39,12 @@ namespace Spacy
                 {
                 }
 
-                std::unique_ptr< Interface > clone() const override
+                [[nodiscard]] std::unique_ptr< Interface > clone() const override
                 {
                     return std::make_unique< Wrapper< Impl > >( impl );
                 }
 
-                bool call() const override
+                [[nodiscard]] bool call() const override
                 {
                     return impl.operator()();
                 }
@@ -54,26 +54,24 @@ namespace Spacy
                     impl.clear();
                 }
 
-                void update( double alpha, double qAq, double qPq, double rPINVr,
-                             const Vector& x ) override
+                void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& x ) override
                 {
-                    impl.update( std::move( alpha ), std::move( qAq ), std::move( qPq ),
-                                 std::move( rPINVr ), x );
+                    impl.update( std::move( alpha ), std::move( qAq ), std::move( qPq ), std::move( rPINVr ), x );
                 }
 
-                bool vanishingStep() const override
+                [[nodiscard]] bool vanishingStep() const override
                 {
                     return impl.vanishingStep();
                 }
 
-                bool minimalDecreaseAchieved() const override
+                [[nodiscard]] bool minimalDecreaseAchieved() const override
                 {
                     return impl.minimalDecreaseAchieved();
                 }
 
-                void set_eps( double eps ) override
+                void setEps( double eps ) override
                 {
-                    impl.set_eps( std::move( eps ) );
+                    impl.setEps( std::move( eps ) );
                 }
 
                 void setAbsoluteAccuracy( double accuracy ) override
@@ -106,12 +104,9 @@ namespace Spacy
         public:
             TerminationCriterion() noexcept = default;
 
-            template <
-                class T,
-                typename std::enable_if<
-                    !std::is_same< typename std::decay< T >::type, TerminationCriterion >::value &&
-                    !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                    nullptr >
+            template < class T,
+                       typename std::enable_if< !std::is_same< typename std::decay< T >::type, TerminationCriterion >::value &&
+                                                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
             TerminationCriterion( T&& value ) : impl_( std::forward< T >( value ) )
             {
             }
@@ -131,26 +126,25 @@ namespace Spacy
             void update( double alpha, double qAq, double qPq, double rPINVr, const Vector& x )
             {
                 assert( impl_ );
-                impl_->update( std::move( alpha ), std::move( qAq ), std::move( qPq ),
-                               std::move( rPINVr ), x );
+                impl_->update( std::move( alpha ), std::move( qAq ), std::move( qPq ), std::move( rPINVr ), x );
             }
 
-            bool vanishingStep() const
+            [[nodiscard]] bool vanishingStep() const
             {
                 assert( impl_ );
                 return impl_->vanishingStep();
             }
 
-            bool minimalDecreaseAchieved() const
+            [[nodiscard]] bool minimalDecreaseAchieved() const
             {
                 assert( impl_ );
                 return impl_->minimalDecreaseAchieved();
             }
 
-            void set_eps( double eps )
+            void setEps( double eps )
             {
                 assert( impl_ );
-                impl_->set_eps( std::move( eps ) );
+                impl_->setEps( std::move( eps ) );
             }
 
             void setAbsoluteAccuracy( double accuracy )
@@ -171,12 +165,9 @@ namespace Spacy
                 impl_->setRelativeAccuracy( std::move( accuracy ) );
             }
 
-            template <
-                class T,
-                typename std::enable_if<
-                    !std::is_same< typename std::decay< T >::type, TerminationCriterion >::value &&
-                    !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                    nullptr >
+            template < class T,
+                       typename std::enable_if< !std::is_same< typename std::decay< T >::type, TerminationCriterion >::value &&
+                                                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
             TerminationCriterion& operator=( T&& value )
             {
                 return *this = TerminationCriterion( std::forward< T >( value ) );

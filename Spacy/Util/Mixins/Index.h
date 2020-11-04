@@ -13,7 +13,7 @@ namespace Spacy
         public:
             explicit StateIndex( unsigned value = 0 ) noexcept;
             void setStateIndex( unsigned value );
-            unsigned getStateIndex() const noexcept;
+            [[nodiscard]] unsigned getStateIndex() const noexcept;
             void update( StateIndex* changedSubject );
 
         private:
@@ -27,7 +27,7 @@ namespace Spacy
         public:
             explicit ControlIndex( unsigned value = 1 ) noexcept;
             void setControlIndex( unsigned value );
-            unsigned getControlIndex() const noexcept;
+            [[nodiscard]] unsigned getControlIndex() const noexcept;
             void update( ControlIndex* changedSubject );
 
         private:
@@ -41,7 +41,7 @@ namespace Spacy
         public:
             explicit AdjointIndex( unsigned value = 2 ) noexcept;
             void setAdjointIndex( unsigned value );
-            unsigned getAdjointIndex() const noexcept;
+            [[nodiscard]] unsigned getAdjointIndex() const noexcept;
             void update( AdjointIndex* changedSubject );
 
         private:

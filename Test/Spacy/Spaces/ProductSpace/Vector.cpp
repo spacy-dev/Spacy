@@ -1,9 +1,14 @@
-#include <Test/gtest.hh>
 #include <Test/mockSetup.hh>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 
-using testing::Eq;
+namespace
+{
+    using testing::Eq;
+}
 
 TEST( ProductSpaceVector, Add )
 {
@@ -14,11 +19,11 @@ TEST( ProductSpaceVector, Add )
     auto sumOfFirstComponent = valueOfComponent( v, 0 ) + valueOfComponent( w, 0 );
     auto sumOfSecondComponent = valueOfComponent( v, 1 ) + valueOfComponent( w, 1 );
     auto z = v + w;
-    ASSERT_EQ( valueOfComponent( z, 0 ), sumOfFirstComponent );
-    ASSERT_EQ( valueOfComponent( z, 1 ), sumOfSecondComponent );
+    EXPECT_THAT( valueOfComponent( z, 0 ), Eq( sumOfFirstComponent ) );
+    EXPECT_THAT( valueOfComponent( z, 1 ), Eq( sumOfSecondComponent ) );
     z = w + v;
-    ASSERT_EQ( valueOfComponent( z, 0 ), sumOfFirstComponent );
-    ASSERT_EQ( valueOfComponent( z, 1 ), sumOfSecondComponent );
+    EXPECT_THAT( valueOfComponent( z, 0 ), Eq( sumOfFirstComponent ) );
+    EXPECT_THAT( valueOfComponent( z, 1 ), Eq( sumOfSecondComponent ) );
 }
 
 TEST( ProductSpaceVector, Iterator )
@@ -140,8 +145,7 @@ TEST( ProductSpaceVector, CreatorAccess )
     auto v = zero( std::get< 0 >( V ) );
 
     auto consistentType =
-        std::is_same< std::decay_t< decltype( cast_ref< ProductSpace::Vector >( v ).creator() ) >,
-                      ProductSpace::VectorCreator >::value;
+        std::is_same< std::decay_t< decltype( cast_ref< ProductSpace::Vector >( v ).creator() ) >, ProductSpace::VectorCreator >::value;
     ASSERT_TRUE( consistentType );
 }
 
@@ -192,7 +196,7 @@ TEST( ExtractComponentView, TwoLayers )
     std::vector< std::shared_ptr< VectorSpace > > spaces;
     for ( auto i = 0u; i < 3; ++i )
         spaces.push_back( std::make_shared< VectorSpace >( createMockHilbertSpace() ) );
-    auto X = ProductSpace::makeHilbertSpace( spaces, {0, 1}, {2} );
+    auto X = ProductSpace::makeHilbertSpace( spaces, { 0, 1 }, { 2 } );
     auto x = zero( X );
     const auto y = zero( X );
 
@@ -212,11 +216,9 @@ TEST( ExtractComponentView, ThreeLayers )
     for ( auto i = 0u; i < 3; ++i )
         spaces.push_back( std::make_shared< VectorSpace >( createMockHilbertSpace() ) );
 
-    auto X =
-        std::make_shared< VectorSpace >( ProductSpace::makeHilbertSpace( spaces, {0, 1}, {2} ) );
-    auto Y =
-        std::make_shared< VectorSpace >( ProductSpace::makeHilbertSpace( spaces, {0, 1}, {2} ) );
-    auto Z = ProductSpace::makeHilbertSpace( {X, Y} );
+    auto X = std::make_shared< VectorSpace >( ProductSpace::makeHilbertSpace( spaces, { 0, 1 }, { 2 } ) );
+    auto Y = std::make_shared< VectorSpace >( ProductSpace::makeHilbertSpace( spaces, { 0, 1 }, { 2 } ) );
+    auto Z = ProductSpace::makeHilbertSpace( { X, Y } );
     auto x = zero( Z );
     const auto y = zero( Z );
 
@@ -228,8 +230,7 @@ TEST( ExtractComponentView, ThreeLayers )
         ASSERT_EQ( spaces[ i ]->index(), singleVectorView[ i ].space().index() );
         ASSERT_EQ( spaces[ i ]->index(), singleVectorView[ i + spaces.size() ].space().index() );
         ASSERT_EQ( spaces[ i ]->index(), singleConstVectorView[ i ].space().index() );
-        ASSERT_EQ( spaces[ i ]->index(),
-                   singleConstVectorView[ i + spaces.size() ].space().index() );
+        ASSERT_EQ( spaces[ i ]->index(), singleConstVectorView[ i + spaces.size() ].space().index() );
     }
 }
 
@@ -242,8 +243,6 @@ TEST( ExtractComponentView, Throw )
     auto x = zero( X );
     const auto y = zero( X );
 
-    ASSERT_THROW( ProductSpace::extractSingleComponentView< Real >( x ),
-                  Exception::InvalidArgument );
-    ASSERT_THROW( ProductSpace::extractSingleComponentView< Real >( y ),
-                  Exception::InvalidArgument );
+    ASSERT_THROW( ProductSpace::extractSingleComponentView< Real >( x ), Exception::InvalidArgument );
+    ASSERT_THROW( ProductSpace::extractSingleComponentView< Real >( y ), Exception::InvalidArgument );
 }

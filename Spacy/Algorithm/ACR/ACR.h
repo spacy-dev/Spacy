@@ -26,10 +26,7 @@ namespace Spacy
          * Solve problems of the form
          * \f[\min f(x).\f]
          */
-        class ACRSolver : public Mixin::Eps,
-                          public Mixin::MaxSteps,
-                          public Mixin::RelativeAccuracy,
-                          public Mixin::Verbosity
+        class ACRSolver : public Mixin::Eps, public Mixin::MaxSteps, public Mixin::RelativeAccuracy, public Mixin::Verbosity
         {
             enum class StepMonitor
             {
@@ -42,9 +39,8 @@ namespace Spacy
              * @brief Constructor.
              * @param f functional to minimize
              */
-            ACRSolver( C2Functional f, double eta1 = 0.25, double eta2 = 0.5, double epsilon = 1e-4,
-                       double relativeAccuracy = 1e-4, double omegaMax = 1e8,
-                       double lambdaMax = 2e-2 );
+            ACRSolver( C2Functional f, double eta1 = 0.25, double eta2 = 0.5, double epsilon = 1e-4, double relativeAccuracy = 1e-4,
+                       double omegaMax = 1e8, double lambdaMax = 2e-2 );
 
             /// Compute solution starting at \f$x_0=0\f$.
             Vector operator()();
@@ -60,7 +56,7 @@ namespace Spacy
              * @brief Compute correction dx.
              * @param x current iterate
              */
-            Vector computeStep( const Vector& x ) const;
+            [[nodiscard]] Vector computeStep( const Vector& x ) const;
 
             /**
              * @brief Test if dx is an acceptable correction.
@@ -76,7 +72,7 @@ namespace Spacy
              * @brief Update the weight Parameter of the cubic model.
              * @param omega weight Parameter of the cubic model
              */
-            Real weightChange(::Spacy::Real omega ) const;
+            [[nodiscard]] Real weightChange( ::Spacy::Real omega ) const;
 
             C2Functional f_;
             const VectorSpace& domain_;
@@ -87,5 +83,5 @@ namespace Spacy
             Real rho_ = 1;
             Real omega_ = 1e-6;
         };
-    }
-}
+    } // namespace ACR
+} // namespace Spacy

@@ -39,12 +39,9 @@ namespace Spacy
              * @param domain domain space
              * @param range range space
              */
-            TriangularStateConstraintPreconditioner(::Spacy::LinearSolver stateSolver,
-                                                    ::Spacy::LinearSolver controlSolver,
-                                                    ::Spacy::LinearSolver adjointSolver,
-                                                    CallableOperator B, CallableOperator BT,
-                                                    const VectorSpace& domain,
-                                                    const VectorSpace& range );
+            TriangularStateConstraintPreconditioner( ::Spacy::LinearSolver stateSolver, ::Spacy::LinearSolver controlSolver,
+                                                     ::Spacy::LinearSolver adjointSolver, CallableOperator B, CallableOperator BT,
+                                                     const VectorSpace& domain, const VectorSpace& range );
 
             /**
              * @brief Apply preconditioner \f$P\f$.
@@ -66,7 +63,7 @@ namespace Spacy
              * \left( \begin{array}{c} A^{-1}rhs_p \\ 0 \\ 0 \end{array} \right) \f$.
              * @param rhs right hand side
              */
-            Vector kernelOffset( const Vector& rhs ) const;
+            [[nodiscard]] Vector kernelOffset( const Vector& rhs ) const;
 
         private:
             void apply( const Vector& x, Vector& y, Vector& q ) const;
@@ -74,5 +71,5 @@ namespace Spacy
             ::Spacy::LinearSolver stateSolver_, controlSolver_, adjointSolver_;
             CallableOperator B_, BT_;
         };
-    }
-}
+    } // namespace CG
+} // namespace Spacy

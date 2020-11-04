@@ -7,14 +7,14 @@ namespace Spacy
 
         Eps::Eps( Real eps ) noexcept : eps_( eps )
         {
-            set_eps( eps );
+            setEps( eps );
         }
 
-        void Eps::set_eps( Real eps )
+        void Eps::setEps( Real eps )
         {
             eps_ = eps;
-            sqrt_eps_ = sqrt( eps_ );
-            cbrt_eps_ = cbrt( eps_ );
+            sqrtEps_ = sqrt( eps_ );
+            cbrtEps_ = cbrt( eps_ );
             notify();
         }
 
@@ -23,19 +23,19 @@ namespace Spacy
             return eps_;
         }
 
-        Real Eps::sqrt_eps() const noexcept
+        Real Eps::sqrtEps() const noexcept
         {
-            return sqrt_eps_;
+            return sqrtEps_;
         }
 
-        Real Eps::cbrt_eps() const noexcept
+        Real Eps::cbrtEps() const noexcept
         {
-            return cbrt_eps_;
+            return cbrtEps_;
         }
 
         void Eps::update( Eps* changedSubject )
         {
-            set_eps( changedSubject->eps() );
+            setEps( changedSubject->eps() );
         }
-    }
-}
+    } // namespace Mixin
+} // namespace Spacy

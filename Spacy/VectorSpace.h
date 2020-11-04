@@ -63,19 +63,19 @@ namespace Spacy
         void setNorm( Norm norm );
 
         /// Access norm.
-        const Norm& norm() const;
+        [[nodiscard]] const Norm& norm() const;
 
         /// Access unique index of the function space.
-        Index index() const;
+        [[nodiscard]] Index index() const;
 
         /// Change scalar product.
         void setScalarProduct( ScalarProduct sp );
 
         /// Access scalar product.
-        const ScalarProduct& scalarProduct() const;
+        [[nodiscard]] const ScalarProduct& scalarProduct() const;
 
         /// Access dual space \f$Y=X^*\f$.
-        const VectorSpace& dualSpace() const;
+        [[nodiscard]] const VectorSpace& dualSpace() const;
 
         /// Set dual space \f$Y=X^*\f$.
         void setDualSpace( const VectorSpace* Y );
@@ -88,10 +88,10 @@ namespace Spacy
 
         /// Checks whether \f$Y\f$ has been assigned as dual space with respect to this space
         /// \f$X\f$.
-        bool isPrimalWRT( const VectorSpace& Y ) const;
+        [[nodiscard]] bool isPrimalWRT( const VectorSpace& Y ) const;
 
         /// Checks whether this space is a hilbert space.
-        bool isHilbertSpace() const;
+        [[nodiscard]] bool isHilbertSpace() const;
 
         /**
          * @brief Restrict vector space.
@@ -103,18 +103,21 @@ namespace Spacy
         void setRestriction( std::function< bool( const Vector& ) > f );
 
         /// Checks if vector is admissible. Default implementation always returns true;
-        bool isAdmissible( const Vector& x ) const;
+        [[nodiscard]] bool isAdmissible( const Vector& x ) const;
 
         ZeroVectorCreator& creator();
 
-        const ZeroVectorCreator& creator() const;
+        [[nodiscard]] const ZeroVectorCreator& creator() const;
 
     private:
+        void setDualSpace( const VectorSpace& V );
+
         std::unique_ptr< ZeroVectorCreator > creator_;
         Norm norm_ = {};
         ScalarProduct sp_ = {};
         Index index_ = Detail::spaceIndex++;
-        std::vector< unsigned > primalSpaces_ = {}, dualSpaces_ = {}; ///< primal and dual spaces with respect to this space
+        std::vector< unsigned > primalSpaces_ = {}; ///< primal spaces with respect to this space
+        std::vector< unsigned > dualSpaces_ = {};   ///< dual spaces with respect to this space
         const VectorSpace* dualSpace_ = nullptr;
         std::function< bool( const Vector& ) > restriction_ = []( const Vector& /*unused*/ ) { return true; };
     };

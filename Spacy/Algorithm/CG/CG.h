@@ -130,25 +130,25 @@ namespace Spacy
              * @brief Access preconditioner.
              * @return preconditioner \f$P\f$
              */
-            const CallableOperator& P() const;
+            const CallableOperator& P() const noexcept;
 
             /**
              * @brief Access operator.
              * @return operator \f$A\f$
              */
-            const CallableOperator& A() const;
+            const CallableOperator& A() const noexcept;
 
             /**
              * @brief Access regularization.
              * @return Regularization \f$R\f$
              */
-            const Regularization& R() const;
+            const Regularization& R() const noexcept;
 
             /**
              * @brief get number of needed iterations.
              * @return iterations
              */
-            unsigned getIterations() const
+            unsigned getIterations() const noexcept
             {
                 return iterations_;
             }

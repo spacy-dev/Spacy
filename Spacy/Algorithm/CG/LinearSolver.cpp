@@ -47,22 +47,22 @@ namespace Spacy
             return cg;
         }
 
-        bool LinearSolver::isPositiveDefinite() const
+        bool LinearSolver::isPositiveDefinite() const noexcept
         {
             return !cg.indefiniteOperator();
         }
 
-        const CallableOperator& LinearSolver::P() const
+        const CallableOperator& LinearSolver::P() const noexcept // NOLINT(readability-identifier-naming)
         {
             return cg.P();
         }
 
-        const CallableOperator& LinearSolver::A() const
+        const CallableOperator& LinearSolver::A() const noexcept // NOLINT(readability-identifier-naming)
         {
             return cg.A();
         }
 
-        const Regularization& LinearSolver::R() const
+        const Regularization& LinearSolver::R() const noexcept // NOLINT(readability-identifier-naming)
         {
             return cg.R();
         }
@@ -72,7 +72,7 @@ namespace Spacy
     {
         auto solver = CG::LinearSolver( std::move( A ), std::move( P ), false, CG::NoRegularization() );
         solver.setRelativeAccuracy( relativeAccuracy );
-        solver.set_eps( eps );
+        solver.setEps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
@@ -81,7 +81,7 @@ namespace Spacy
     {
         auto solver = CG::LinearSolver( std::move( A ), std::move( P ), false, CG::RegularizeViaPreconditioner() );
         solver.setRelativeAccuracy( relativeAccuracy );
-        solver.set_eps( eps );
+        solver.setEps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
@@ -90,7 +90,7 @@ namespace Spacy
     {
         auto solver = CG::LinearSolver( std::move( A ), std::move( P ), true, CG::NoRegularization() );
         solver.setRelativeAccuracy( relativeAccuracy );
-        solver.set_eps( eps );
+        solver.setEps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
@@ -99,7 +99,7 @@ namespace Spacy
     {
         auto solver = CG::LinearSolver( std::move( A ), std::move( P ), true, CG::RegularizeViaPreconditioner() );
         solver.setRelativeAccuracy( relativeAccuracy );
-        solver.set_eps( eps );
+        solver.setEps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }
@@ -110,7 +110,7 @@ namespace Spacy
         auto solver =
             CG::LinearSolver( std::move( A ), std::move( P ), true, CG::RegularizeViaCallableOperator( std::move( R ), theta_sugg ) );
         solver.setRelativeAccuracy( relativeAccuracy );
-        solver.set_eps( eps );
+        solver.setEps( eps );
         solver.setVerbosity( verbose );
         return solver;
     }

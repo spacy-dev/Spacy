@@ -1,8 +1,9 @@
-#include <Test/gtest.hh>
+#include <Test/mockSetup.hh>
 
 #include <Spacy/Functional.h>
 #include <Spacy/Spaces/RealSpace.h>
-#include <Test/mockSetup.hh>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 
@@ -16,7 +17,7 @@ namespace
 
         Real operator()( const Vector& ) const
         {
-            return Real( 3. );
+            return { 3. };
         }
 
         const VectorSpace& domain() const
@@ -33,7 +34,7 @@ namespace
         EXPECT_DOUBLE_EQ( toDouble( f( zero( X ) ) ), 3 );
         EXPECT_EQ( X.index(), f.domain().index() );
     }
-}
+} // namespace
 
 TEST( Functional, IsEmpty )
 {

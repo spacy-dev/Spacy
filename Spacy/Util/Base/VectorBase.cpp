@@ -8,9 +8,7 @@ namespace Spacy
     {
     }
 
-    VectorBase::VectorBase( const VectorBase& y ) : space_( y.space_ )
-    {
-    }
+    VectorBase::VectorBase( const VectorBase& /*y*/ ) = default;
 
     VectorBase::VectorBase( VectorBase&& y ) noexcept : space_( y.space_ )
     {
@@ -32,4 +30,4 @@ namespace Spacy
     {
         return space_;
     }
-}
+} // namespace Spacy

@@ -55,8 +55,8 @@ namespace Spacy
         ContiguousIterator< double > begin();
         ContiguousIterator< double > end();
 
-        ContiguousIterator< const double > begin() const;
-        ContiguousIterator< const double > end() const;
+        [[nodiscard]] ContiguousIterator< const double > begin() const;
+        [[nodiscard]] ContiguousIterator< const double > end() const;
     };
 
     /// Compute absolute value.

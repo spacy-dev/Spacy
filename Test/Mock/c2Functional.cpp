@@ -1,9 +1,10 @@
 #include "c2Functional.hh"
 
+#include "linearOperator.hh"
+
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
-#include "linearOperator.hh"
 
 namespace Mock
 {
@@ -13,7 +14,7 @@ namespace Mock
 
     Spacy::Real C2Functional::operator()( const Spacy::Vector& ) const
     {
-        return Spacy::Real( 3. );
+        return { 3. };
     }
 
     Spacy::Vector C2Functional::d1( const Spacy::Vector& ) const
@@ -28,11 +29,11 @@ namespace Mock
 
     LinearOperator C2Functional::hessian( const Spacy::Vector& ) const
     {
-        return LinearOperator();
+        return {};
     }
 
     const Spacy::VectorSpace& C2Functional::domain() const
     {
         return *domain_;
     }
-}
+} // namespace Mock

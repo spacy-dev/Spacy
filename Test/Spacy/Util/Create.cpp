@@ -1,7 +1,7 @@
-#include <Test/gtest.hh>
-
 #include <Spacy/Algorithm/Scalar/Models.h>
 #include <Spacy/Util/Invoke.h>
+
+#include <gtest/gtest.h>
 
 namespace
 {
@@ -9,7 +9,7 @@ namespace
     {
         return Spacy::Scalar::Quadratic( a, b, c );
     }
-}
+} // namespace
 
 TEST( Invoke, MakeQuadratic )
 {

@@ -1,9 +1,10 @@
-#include <Test/gtest.hh>
+#include <Test/mockSetup.hh>
 
 #include <Spacy/Operator.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
-#include <Test/mockSetup.hh>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 
@@ -11,8 +12,7 @@ namespace
 {
     struct TestOperator
     {
-        TestOperator( const VectorSpace& domain, const VectorSpace& range )
-            : domain_( &domain ), range_( &range )
+        TestOperator( const VectorSpace& domain, const VectorSpace& range ) : domain_( &domain ), range_( &range )
         {
         }
 
@@ -42,7 +42,7 @@ namespace
         EXPECT_EQ( X.index(), f.domain().index() );
         EXPECT_EQ( Y.index(), f.range().index() );
     }
-}
+} // namespace
 
 TEST( Operator, Assert )
 {

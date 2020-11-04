@@ -1,4 +1,4 @@
-#include <Test/gtest.hh>
+#include <gtest/gtest.h>
 
 //#include "Spacy/norm.hh"
 //#include "Spacy/ScalarProduct.h"

@@ -74,7 +74,7 @@ namespace Spacy
                 return true;
             }
 
-            std::vector< bool > getErrorIndicator() const
+            [[nodiscard]] std::vector< bool > getErrorIndicator() const
             {
                 return errorIndicator;
             }

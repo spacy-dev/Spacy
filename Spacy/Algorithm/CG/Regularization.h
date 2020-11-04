@@ -6,6 +6,7 @@
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/Vector.h>
+
 #include <memory>
 #include <type_traits>
 
@@ -19,7 +20,7 @@ namespace Spacy
             struct Interface
             {
                 virtual ~Interface() = default;
-                virtual std::unique_ptr< Interface > clone() const = 0;
+                [[nodiscard]] virtual std::unique_ptr< Interface > clone() const = 0;
                 virtual void init() = 0;
                 virtual void apply( Real& qAq, Real qPq ) const = 0;
                 virtual void update( Real qAq, Real qPq ) = 0;
@@ -34,7 +35,7 @@ namespace Spacy
                 {
                 }
 
-                std::unique_ptr< Interface > clone() const override
+                [[nodiscard]] std::unique_ptr< Interface > clone() const override
                 {
                     return std::make_unique< Wrapper< Impl > >( impl );
                 }
@@ -74,12 +75,9 @@ namespace Spacy
         public:
             Regularization() noexcept = default;
 
-            template <
-                class T,
-                typename std::enable_if<
-                    !std::is_same< typename std::decay< T >::type, Regularization >::value &&
-                    !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                    nullptr >
+            template < class T,
+                       typename std::enable_if< !std::is_same< typename std::decay< T >::type, Regularization >::value &&
+                                                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
             Regularization( T&& value ) : impl_( std::forward< T >( value ) )
             {
             }
@@ -124,12 +122,9 @@ namespace Spacy
                 impl_->adjustResidual( std::move( alpha ), Pq, r );
             }
 
-            template <
-                class T,
-                typename std::enable_if<
-                    !std::is_same< typename std::decay< T >::type, Regularization >::value &&
-                    !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                    nullptr >
+            template < class T,
+                       typename std::enable_if< !std::is_same< typename std::decay< T >::type, Regularization >::value &&
+                                                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
             Regularization& operator=( T&& value )
             {
                 return *this = Regularization( std::forward< T >( value ) );

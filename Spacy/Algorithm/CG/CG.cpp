@@ -31,7 +31,7 @@ namespace Spacy
             definiteness_ = DefiniteNess::PositiveDefinite;
             result = Result::Failed;
 
-            terminate_.set_eps( get( eps() ) );
+            terminate_.setEps( get( eps() ) );
             terminate_.setRelativeAccuracy( get( getRelativeAccuracy() ) );
             terminate_.setAbsoluteAccuracy( get( getAbsoluteAccuracy() ) );
 
@@ -54,17 +54,17 @@ namespace Spacy
             return definiteness_ == DefiniteNess::Indefinite;
         }
 
-        const CallableOperator& Solver::P() const
+        const CallableOperator& Solver::P() const noexcept // NOLINT(readability-identifier-naming)
         {
             return P_;
         }
 
-        const CallableOperator& Solver::A() const
+        const CallableOperator& Solver::A() const noexcept // NOLINT(readability-identifier-naming)
         {
             return A_;
         }
 
-        const Regularization& Solver::R() const
+        const Regularization& Solver::R() const noexcept // NOLINT(readability-identifier-naming)
         {
             return regularization_;
         }
@@ -132,8 +132,7 @@ namespace Spacy
                 if ( terminate_() )
                 {
                     if ( verbose() )
-                        std::cout << "    "
-                                  << ": Terminating in iteration " << step << ".\n";
+                        std::cout << "    : Terminating in iteration " << step << ".\n";
                     result = ( step == getMaxSteps() ) ? Result::Failed : Result::Converged;
                     iterations_ = step;
                     break;
@@ -164,7 +163,7 @@ namespace Spacy
             return x;
         }
 
-        Vector Solver::Q( const Vector& r ) const
+        Vector Solver::Q( const Vector& r ) const // NOLINT(readability-identifier-naming)
         {
             auto Qr = P_( r );
             for ( auto i = 0u; i < getIterativeRefinements(); ++i )
@@ -177,8 +176,10 @@ namespace Spacy
             if ( terminate_.vanishingStep() )
             {
                 if ( verbose() )
+                {
                     std::cout << "    "
                               << ": Terminating due to numerically almost vanishing step in iteration " << step << "." << std::endl;
+                }
                 result = Result::Converged;
                 return true;
             }
@@ -190,8 +191,7 @@ namespace Spacy
             if ( qAq > 0 )
                 return false;
             if ( verbose() )
-                std::cout << "    "
-                          << ": Negative curvature: " << qAq << std::endl;
+                std::cout << "    : Negative curvature: " << qAq << std::endl;
 
             if ( !truncated_ && !regularized_ )
             {
@@ -219,8 +219,10 @@ namespace Spacy
                 if ( step == 1 )
                     x += q;
                 if ( verbose() )
+                {
                     std::cout << "    "
                               << ": Truncating at nonconvexity in iteration " << step << ": " << qAq << std::endl;
+                }
                 definiteness_ = DefiniteNess::Indefinite;
                 result = Result::TruncatedAtNonConvexity;
                 return true;
@@ -229,8 +231,10 @@ namespace Spacy
             regularization_.update( qAq, qRq );
 
             if ( verbose() )
+            {
                 std::cout << "    "
                           << ": Regularizing at nonconvexity in iteration " << step << "." << std::endl;
+            }
             definiteness_ = DefiniteNess::Indefinite;
             result = Result::EncounteredNonConvexity;
             return true;

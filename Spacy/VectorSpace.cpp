@@ -17,7 +17,7 @@ namespace Spacy
     VectorSpace::~VectorSpace() = default;
 
     VectorSpace::VectorSpace( ZeroVectorCreator&& creator, Norm norm, bool defaultIndex )
-        : creator_( new ZeroVectorCreator( std::move( creator ) ) ), norm_{ norm }
+        : creator_( new ZeroVectorCreator( std::move( creator ) ) ), norm_{ std::move( norm ) }
     {
         if ( defaultIndex )
             index_ = 0;
@@ -27,10 +27,7 @@ namespace Spacy
         : creator_{ std::move( V ).creator_ }, norm_{ std::move( V ).norm_ }, sp_{ std::move( V ).sp_ }, index_{ std::move( V ).index_ },
           primalSpaces_{ std::move( V ).primalSpaces_ }, dualSpaces_{ std::move( V ).dualSpaces_ }
     {
-        if ( &V == V.dualSpace_ )
-            setDualSpace( this );
-        else if ( V.dualSpace_ != nullptr )
-            setDualSpace( V.dualSpace_ );
+        setDualSpace( V );
     }
 
     VectorSpace& VectorSpace::operator=( VectorSpace&& V )
@@ -41,10 +38,7 @@ namespace Spacy
         index_ = V.index_;
         primalSpaces_ = std::move( V.primalSpaces_ );
         dualSpaces_ = std::move( V.dualSpaces_ );
-        if ( &V == V.dualSpace_ )
-            setDualSpace( this );
-        else if ( V.dualSpace_ != nullptr )
-            setDualSpace( V.dualSpace_ );
+        setDualSpace( V );
         return *this;
     }
 
@@ -83,11 +77,7 @@ namespace Spacy
 
     bool VectorSpace::isPrimalWRT( const VectorSpace& Y ) const
     {
-        for ( auto index : dualSpaces_ )
-            if ( index == Y.index() )
-                return true;
-
-        return false;
+        return std::any_of( begin( dualSpaces_ ), end( dualSpaces_ ), [ &Y ]( auto index ) { return index == Y.index(); } );
     }
 
     const VectorSpace& VectorSpace::dualSpace() const
@@ -126,6 +116,18 @@ namespace Spacy
     const ZeroVectorCreator& VectorSpace::creator() const
     {
         return *creator_;
+    }
+
+    void VectorSpace::setDualSpace( const VectorSpace& V )
+    {
+        if ( &V == V.dualSpace_ )
+        {
+            setDualSpace( this );
+        }
+        else if ( V.dualSpace_ != nullptr )
+        {
+            setDualSpace( V.dualSpace_ );
+        }
     }
 
     VectorSpace makeBanachSpace( ZeroVectorCreator&& creator, Norm norm )

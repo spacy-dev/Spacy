@@ -1,7 +1,8 @@
-#include <Test/gtest.hh>
-
 #include <Test/mockSetup.hh>
+
 #include <Spacy/Spaces/ProductSpace/ScalarProduct.h>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 

@@ -1,15 +1,17 @@
 #include "LinearSolver.h"
 
+#include "Real.h"
+
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
 
-#include "Real.h"
+#include <utility>
 
 namespace Spacy
 {
     namespace Scalar
     {
-        LinearSolver::LinearSolver( Real y ) : y_( y )
+        LinearSolver::LinearSolver( Real y ) : y_( std::move( y ) )
         {
         }
 
@@ -17,5 +19,5 @@ namespace Spacy
         {
             return cast_ref< Real >( x ) / y_;
         }
-    }
-}
+    } // namespace Scalar
+} // namespace Spacy

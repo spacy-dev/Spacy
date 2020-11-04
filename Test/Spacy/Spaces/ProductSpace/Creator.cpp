@@ -1,6 +1,6 @@
-#include <Test/gtest.hh>
-
 #include <Test/mockSetup.hh>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 

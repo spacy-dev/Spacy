@@ -1,11 +1,11 @@
 #include "LinearOperator.h"
 
+#include "LinearSolver.h"
+
 #include <Spacy/LinearSolver.h>
 #include <Spacy/Spaces/RealSpace.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
-
-#include "LinearSolver.h"
 
 namespace Spacy
 {
@@ -23,7 +23,7 @@ namespace Spacy
 
         ::Spacy::Real LinearOperator::operator()( const LinearOperator& dx ) const
         {
-            return Real( get() * dx.get() );
+            return { get() * dx.get() };
         }
 
         ::Spacy::LinearSolver LinearOperator::solver() const
@@ -33,7 +33,7 @@ namespace Spacy
 
         LinearOperator LinearOperator::operator-() const
         {
-            return LinearOperator( space(), -get() );
+            return { space(), -get() };
         }
-    }
-}
+    } // namespace Scalar
+} // namespace Spacy

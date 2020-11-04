@@ -92,19 +92,20 @@ public:
             }
         }
 
-        Scalar d0() const
+        [[nodiscard]] Scalar d0() const
         {
             return dT * dT / 2 - f * T;
         }
 
         template < int row, int dim >
-        Dune::FieldVector< Scalar, TestVars::template Components< row >::m > d1( VariationalArg< Scalar, dim > const& arg ) const
+        [[nodiscard]] Dune::FieldVector< Scalar, TestVars::template Components< row >::m >
+        d1( VariationalArg< Scalar, dim > const& arg ) const
         {
             return dT * arg.derivative[ 0 ] - f * arg.value;
         }
 
         template < int row, int col, int dim >
-        Dune::FieldMatrix< Scalar, TestVars::template Components< row >::m, AnsatzVars::template Components< col >::m >
+        [[nodiscard]] Dune::FieldMatrix< Scalar, TestVars::template Components< row >::m, AnsatzVars::template Components< col >::m >
         d2( VariationalArg< Scalar, dim > const& arg1, VariationalArg< Scalar, dim > const& arg2 ) const
         {
             return arg1.derivative[ 0 ] * arg2.derivative[ 0 ];
@@ -127,7 +128,7 @@ public:
 
         BoundaryCache( PoissonFunctional< RType, AnsatzVars > const& /*unused*/, typename AnsatzVars::VariableSet const& vars_,
                        int /*unused*/ = 7 )
-            : data( vars_ ), e( 0 )
+            : data( vars_ ), e( nullptr )
         {
         }
 
@@ -149,19 +150,20 @@ public:
             T0 = 0;
         }
 
-        Scalar d0() const
+        [[nodiscard]] Scalar d0() const
         {
             return penalty * ( T - T0 ) * ( T - T0 ) / 2;
         }
 
         template < int row, int dim >
-        Dune::FieldVector< Scalar, TestVars::template Components< row >::m > d1( VariationalArg< Scalar, dim > const& arg ) const
+        [[nodiscard]] Dune::FieldVector< Scalar, TestVars::template Components< row >::m >
+        d1( VariationalArg< Scalar, dim > const& arg ) const
         {
             return penalty * ( T - T0 ) * arg.value[ 0 ];
         }
 
         template < int row, int col, int dim >
-        Dune::FieldMatrix< Scalar, TestVars::template Components< row >::m, AnsatzVars::template Components< col >::m >
+        [[nodiscard]] Dune::FieldMatrix< Scalar, TestVars::template Components< row >::m, AnsatzVars::template Components< col >::m >
         d2( VariationalArg< Scalar, dim > const& arg1, VariationalArg< Scalar, dim > const& arg2 ) const
         {
             return penalty * arg1.value * arg2.value;
@@ -193,7 +195,7 @@ public:
     ///
 
     template < class Cell >
-    int integrationOrder( Cell const& /* cell */, int shapeFunctionOrder, bool boundary ) const
+    [[nodiscard]] int integrationOrder( Cell const& /* cell */, int shapeFunctionOrder, bool boundary ) const
     {
         if ( boundary )
             return 2 * shapeFunctionOrder;

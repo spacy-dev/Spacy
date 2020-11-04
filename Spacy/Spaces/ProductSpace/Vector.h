@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <memory>
 #include <numeric>
+#include <utility>
 #include <vector>
 
 namespace Spacy
@@ -54,15 +55,12 @@ namespace Spacy
             using CurrentIterator = typename Iterators::iterator;
             using Reference = decltype( *std::declval< Iterator >() );
 
-            explicit ProductIterator( const Iterators& iterators )
-                : iterators( iterators ), current( std::begin( this->iterators ) )
+            explicit ProductIterator( Iterators iterators ) : iterators( std::move( iterators ) ), current( std::begin( this->iterators ) )
             {
             }
 
             ProductIterator( const ProductIterator& other )
-                : iterators( other.iterators ),
-                  current( begin( iterators ) +
-                           distance( begin( other.iterators ), other.current ) )
+                : iterators( other.iterators ), current( begin( iterators ) + distance( begin( other.iterators ), other.current ) )
             {
                 if ( current == end( iterators ) )
                     return;
@@ -109,11 +107,9 @@ namespace Spacy
             {
                 if ( end( iterators ) == current && end( other.iterators ) == other.current )
                     return true;
-                if ( distance( begin( iterators ), current ) !=
-                     distance( begin( other.iterators ), other.current ) )
+                if ( distance( begin( iterators ), current ) != distance( begin( other.iterators ), other.current ) )
                     return false;
-                if ( distance( current->begin, current->end ) !=
-                     distance( other.current->begin, other.current->end ) )
+                if ( distance( current->begin, current->end ) != distance( other.current->begin, other.current->end ) )
                     return false;
                 return true;
             }
@@ -126,9 +122,9 @@ namespace Spacy
 
         private:
             template < class Iter1, class Iter2 >
-            std::ptrdiff_t distance( Iter1 begin, Iter2 end ) const
+            [[nodiscard]] std::ptrdiff_t distance( Iter1 begin, Iter2 end ) const
             {
-                std::ptrdiff_t dist{0};
+                std::ptrdiff_t dist{ 0 };
                 while ( begin != end )
                     ++dist, ++begin;
                 return dist;
@@ -147,9 +143,9 @@ namespace Spacy
         class Vector : public VectorBase
         {
         public:
-            using iterator = typename std::vector<::Spacy::Vector >::iterator;
+            using iterator = typename std::vector< ::Spacy::Vector >::iterator;
 
-            using const_iterator = typename std::vector<::Spacy::Vector >::const_iterator;
+            using const_iterator = typename std::vector< ::Spacy::Vector >::const_iterator;
 
             /**
              * @brief Construct product space vector.
@@ -175,7 +171,7 @@ namespace Spacy
             /// Equality comparison (possibly up to the maximal attainable accuracy).
             bool operator==( const Vector& y ) const;
 
-            unsigned numberOfVariables() const;
+            [[nodiscard]] unsigned numberOfVariables() const;
 
             /**
              * @brief Access k-th component.
@@ -187,24 +183,24 @@ namespace Spacy
              * @brief Access k-th component.
              * @return associated vector \f$x_k\f$
              */
-            const ::Spacy::Vector& component( unsigned k ) const;
+            [[nodiscard]] const ::Spacy::Vector& component( unsigned k ) const;
 
             /**
              * @brief Access VectorCreator object.
              * @see ProductSpace::VectorCreator
              */
-            const VectorCreator& creator() const;
+            [[nodiscard]] const VectorCreator& creator() const;
 
             /// Apply as dual element.
             Real operator()( const Vector& y ) const;
 
-            iterator component_begin();
+            iterator componentBegin();
 
-            iterator component_end();
+            iterator componentEnd();
 
-            const_iterator component_begin() const;
+            [[nodiscard]] const_iterator componentBegin() const;
 
-            const_iterator component_end() const;
+            [[nodiscard]] const_iterator componentEnd() const;
 
             ProductIterator< ForwardIterator > begin()
             {
@@ -216,12 +212,12 @@ namespace Spacy
                 return ProductIterator< ForwardIterator >( getEnd() ).makeEnd();
             }
 
-            ProductIterator< ConstForwardIterator > begin() const
+            [[nodiscard]] ProductIterator< ConstForwardIterator > begin() const
             {
                 return ProductIterator< ConstForwardIterator >( getBegin() );
             }
 
-            ProductIterator< ConstForwardIterator > end() const
+            [[nodiscard]] ProductIterator< ConstForwardIterator > end() const
             {
                 return ProductIterator< ConstForwardIterator >( getEnd() ).makeEnd();
             }
@@ -230,55 +226,46 @@ namespace Spacy
             std::vector< Range< ForwardIterator > > getBegin()
             {
                 std::vector< Range< ForwardIterator > > iterators( components_.size() );
-                std::transform(
-                    component_begin(), component_end(), std::begin( iterators ),
-                    []( Spacy::Vector& component ) {
-                        return Range< ForwardIterator >{component.begin(), component.end()};
-                    } );
+                std::transform( componentBegin(), componentEnd(), std::begin( iterators ), []( Spacy::Vector& component ) {
+                    return Range< ForwardIterator >{ component.begin(), component.end() };
+                } );
                 return iterators;
             }
 
-            std::vector< Range< ConstForwardIterator > > getBegin() const
+            [[nodiscard]] std::vector< Range< ConstForwardIterator > > getBegin() const
             {
                 std::vector< Range< ConstForwardIterator > > iterators( components_.size() );
-                std::transform(
-                    component_begin(), component_end(), std::begin( iterators ),
-                    []( const Spacy::Vector& component ) {
-                        return Range< ConstForwardIterator >{component.begin(), component.end()};
-                    } );
+                std::transform( componentBegin(), componentEnd(), std::begin( iterators ), []( const Spacy::Vector& component ) {
+                    return Range< ConstForwardIterator >{ component.begin(), component.end() };
+                } );
                 return iterators;
             }
 
             std::vector< Range< ForwardIterator > > getEnd()
             {
                 std::vector< Range< ForwardIterator > > iterators( components_.size() );
-                std::transform(
-                    component_begin(), component_end(), std::begin( iterators ),
-                    []( Spacy::Vector& component ) {
-                        return Range< ForwardIterator >{component.end(), component.end()};
-                    } );
+                std::transform( componentBegin(), componentEnd(), std::begin( iterators ), []( Spacy::Vector& component ) {
+                    return Range< ForwardIterator >{ component.end(), component.end() };
+                } );
                 return iterators;
             }
 
-            std::vector< Range< ConstForwardIterator > > getEnd() const
+            [[nodiscard]] std::vector< Range< ConstForwardIterator > > getEnd() const
             {
                 std::vector< Range< ConstForwardIterator > > iterators( components_.size() );
-                std::transform(
-                    component_begin(), component_end(), std::begin( iterators ),
-                    []( const Spacy::Vector& component ) {
-                        return Range< ConstForwardIterator >{component.end(), component.end()};
-                    } );
+                std::transform( componentBegin(), componentEnd(), std::begin( iterators ), []( const Spacy::Vector& component ) {
+                    return Range< ConstForwardIterator >{ component.end(), component.end() };
+                } );
                 return iterators;
             }
 
-            std::vector<::Spacy::Vector > components_ = {};
+            std::vector< ::Spacy::Vector > components_ = {};
         };
 
         template < class T >
         struct BasicComponentView
         {
-            explicit BasicComponentView( std::vector< T* > components )
-                : components_( std::move( components ) )
+            explicit BasicComponentView( std::vector< T* > components ) : components_( std::move( components ) )
             {
             }
 
@@ -299,8 +286,7 @@ namespace Spacy
         template < class T >
         struct BasicComponentView< const T >
         {
-            explicit BasicComponentView( std::vector< const T* > components )
-                : components_( std::move( components ) )
+            explicit BasicComponentView( std::vector< const T* > components ) : components_( std::move( components ) )
             {
             }
 
@@ -314,8 +300,7 @@ namespace Spacy
         };
 
         template < class SingleSpaceVector >
-        void extractSingleSpaceVectors(::Spacy::Vector& x,
-                                       std::vector< SingleSpaceVector* >& components )
+        void extractSingleSpaceVectors( ::Spacy::Vector& x, std::vector< SingleSpaceVector* >& components )
         {
             if ( is< SingleSpaceVector >( x ) )
             {
@@ -326,9 +311,8 @@ namespace Spacy
             if ( is< ProductSpace::Vector >( x ) )
             {
                 auto& x_ = cast_ref< ProductSpace::Vector >( x );
-                std::for_each( x_.component_begin(), x_.component_end(), [&components]( auto& x ) {
-                    extractSingleSpaceVectors( x, components );
-                } );
+                std::for_each( x_.componentBegin(), x_.componentEnd(),
+                               [ &components ]( auto& x ) { extractSingleSpaceVectors( x, components ); } );
                 return;
             }
 
@@ -336,8 +320,7 @@ namespace Spacy
         }
 
         template < class SingleSpaceVector >
-        void extractConstSingleSpaceVectors( const ::Spacy::Vector& x,
-                                             std::vector< const SingleSpaceVector* >& components )
+        void extractConstSingleSpaceVectors( const ::Spacy::Vector& x, std::vector< const SingleSpaceVector* >& components )
         {
             if ( is< SingleSpaceVector >( x ) )
             {
@@ -348,19 +331,16 @@ namespace Spacy
             if ( is< ProductSpace::Vector >( x ) )
             {
                 const auto& x_ = cast_ref< ProductSpace::Vector >( x );
-                std::for_each( x_.component_begin(), x_.component_end(),
-                               [&components]( const auto& x ) {
-                                   extractConstSingleSpaceVectors( x, components );
-                               } );
+                std::for_each( x_.componentBegin(), x_.componentEnd(),
+                               [ &components ]( const auto& x ) { extractConstSingleSpaceVectors( x, components ); } );
                 return;
             }
 
-            throw Exception::InvalidArgument(
-                "ProductSpace::Vector::extractConstSingleSpaceVectors" );
+            throw Exception::InvalidArgument( "ProductSpace::Vector::extractConstSingleSpaceVectors" );
         }
 
         template < class SingleSpaceVector >
-        BasicComponentView< SingleSpaceVector > extractSingleComponentView(::Spacy::Vector& x )
+        BasicComponentView< SingleSpaceVector > extractSingleComponentView( ::Spacy::Vector& x )
         {
             std::vector< SingleSpaceVector* > components;
             extractSingleSpaceVectors( x, components );
@@ -368,26 +348,25 @@ namespace Spacy
         }
 
         template < class SingleSpaceVector >
-        BasicComponentView< const SingleSpaceVector >
-        extractSingleComponentView( const ::Spacy::Vector& x )
+        BasicComponentView< const SingleSpaceVector > extractSingleComponentView( const ::Spacy::Vector& x )
         {
             std::vector< const SingleSpaceVector* > components;
             extractConstSingleSpaceVectors( x, components );
             return BasicComponentView< const SingleSpaceVector >( components );
         }
-    }
+    } // namespace ProductSpace
 
     /// @return cast_ref<ProductSpace::Vector>(v).component(PRIMAL);
-    ::Spacy::Vector& primalComponent(::Spacy::Vector& v );
+    ::Spacy::Vector& primalComponent( ::Spacy::Vector& v );
 
     /// @return cast_ref<ProductSpace::Vector>(v).component(PRIMAL);
     const ::Spacy::Vector& primalComponent( const ::Spacy::Vector& v );
 
     /// @return cast_ref<ProductSpace::Vector>(v).component(DUAL);
-    ::Spacy::Vector& dualComponent(::Spacy::Vector& v );
+    ::Spacy::Vector& dualComponent( ::Spacy::Vector& v );
 
     /// @return cast_ref<ProductSpace::Vector>(v).component(DUAL);
     const ::Spacy::Vector& dualComponent( const ::Spacy::Vector& v );
 
     /** @} */
-}
+} // namespace Spacy

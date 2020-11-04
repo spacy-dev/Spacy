@@ -1,6 +1,6 @@
-#include <Test/gtest.hh>
-
 #include <Test/mockSetup.hh>
+
+#include <gtest/gtest.h>
 
 #include <cmath>
 
@@ -18,22 +18,16 @@ TEST( ProductSpace, Index )
 TEST( ProductSpace, HasId )
 {
     auto V = makeProductHilbertSpaceWithMap();
-    EXPECT_TRUE(
-        creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).hasId( firstGlobalId() ) );
-    EXPECT_TRUE(
-        creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).hasId( secondGlobalId() ) );
-    EXPECT_FALSE(
-        creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).hasId( notGlobalId() ) );
+    EXPECT_TRUE( creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).hasId( firstGlobalId() ) );
+    EXPECT_TRUE( creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).hasId( secondGlobalId() ) );
+    EXPECT_FALSE( creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).hasId( notGlobalId() ) );
 }
 
 TEST( ProductSpace, IdMap )
 {
     auto V = makeProductHilbertSpaceWithMap();
-    EXPECT_EQ(
-        creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).idMap( firstGlobalId() ), 0u );
-    EXPECT_EQ(
-        creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).idMap( secondGlobalId() ),
-        1u );
+    EXPECT_EQ( creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).idMap( firstGlobalId() ), 0u );
+    EXPECT_EQ( creator< ProductSpace::VectorCreator >( std::get< 0 >( V ) ).idMap( secondGlobalId() ), 1u );
 }
 
 TEST( ProductSpace, Vector )

@@ -1,6 +1,6 @@
-#include <Test/gtest.hh>
-
 #include <Spacy/Algorithm/Scalar/Models.h>
+
+#include <gtest/gtest.h>
 
 TEST( Algorithm_Scalar_Quadratic, CreateAndApply )
 {

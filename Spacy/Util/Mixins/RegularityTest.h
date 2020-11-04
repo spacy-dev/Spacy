@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Spacy/Algorithm/DampingFactor.h>
-
 #include "MixinConnection.h"
+
+#include <Spacy/Algorithm/DampingFactor.h>
 
 namespace Spacy
 {
@@ -16,26 +16,26 @@ namespace Spacy
              * @brief Constructor.
              * @param lowerBound lower bound for regularity test
              */
-            explicit RegularityTest( DampingFactor lowerBound = DampingFactor{1e-12} ) noexcept;
+            explicit RegularityTest( DampingFactor lowerBound = DampingFactor{ 1e-12 } ) noexcept;
 
             /// Set lower bound of regularity test for termination criteria.
             void setLowerBound( DampingFactor lowerBound );
 
-            DampingFactor getLowerBound() const noexcept;
+            [[nodiscard]] DampingFactor getLowerBound() const noexcept;
 
             /**
              * @brief Apply regularity test.
              * @param nu damping factor
              * @return \f$nu > lowerBound_\f$
              */
-            bool regularityTestPassed( DampingFactor nu ) const noexcept;
+            [[nodiscard]] bool regularityTestPassed( DampingFactor nu ) const noexcept;
 
             /**
              * @brief Apply regularity test.
              * @param nu damping factor
              * @return \f$nu <= lowerBound_\f$
              */
-            bool regularityTestFailed( DampingFactor nu ) const noexcept;
+            [[nodiscard]] bool regularityTestFailed( DampingFactor nu ) const noexcept;
 
             /// update function for observer pattern.
             void update( RegularityTest* changedSubject );
@@ -43,5 +43,5 @@ namespace Spacy
         private:
             DampingFactor lowerBound_;
         };
-    }
-}
+    } // namespace Mixin
+} // namespace Spacy

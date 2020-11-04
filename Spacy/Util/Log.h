@@ -126,7 +126,7 @@ namespace Spacy
             template < class Arg >
             void log( const char* tag, const char* name, const Arg& value )
             {
-                if ( !is_disabled( tag ) )
+                if ( !isDisabled( tag ) )
                     for ( auto& printer : printer_ )
                         printer( tag, name, make_printable( value ) );
             }
@@ -153,7 +153,7 @@ namespace Spacy
             /// @brief Default constructor, logs to std::cout.
             Logger();
 
-            bool is_disabled( const char* tag ) const;
+            bool isDisabled( const char* tag ) const;
 
             std::vector< Printer > printer_{};
             std::unordered_map< std::string, bool > disabled_;

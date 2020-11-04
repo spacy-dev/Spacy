@@ -13,7 +13,7 @@ namespace Spacy
         public:
             explicit IterativeRefinements( unsigned value = 1000 ) noexcept;
             void setIterativeRefinements( unsigned value );
-            unsigned getIterativeRefinements() const noexcept;
+            [[nodiscard]] unsigned getIterativeRefinements() const noexcept;
             void update( IterativeRefinements* changedSubject );
 
         private:

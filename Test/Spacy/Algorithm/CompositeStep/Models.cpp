@@ -1,9 +1,10 @@
-#include <Test/gtest.hh>
+#include <Test/Mock/linearOperator.hh>
+#include <Test/mockSetup.hh>
 
 #include <Spacy/Algorithm/CompositeStep/QuadraticModel.h>
 #include <Spacy/C2Functional.h>
-#include <Test/Mock/linearOperator.hh>
-#include <Test/mockSetup.hh>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 
@@ -43,7 +44,7 @@ namespace
     private:
         const VectorSpace* domain_;
     };
-}
+} // namespace
 
 TEST( CompositeStep, QuadraticModel )
 {
@@ -83,7 +84,7 @@ TEST( CompositeStep, CubicModel )
     auto f = QuadraticFunctional( X );
 
     auto nu = DampingFactor( 0.5 );
-    auto omega = LipschitzConstant{2.};
+    auto omega = LipschitzConstant{ 2. };
     auto dn = Real( 1 );
     auto dt = Real( 2 );
     auto x = Real( 1 );

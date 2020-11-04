@@ -38,11 +38,10 @@ namespace Spacy
              * @param spaces vector of spaces \f$\{X_k\}_k\f$
              * @param subSpaceIds vector of subspace indices
              */
-            VectorCreator( const std::vector< std::shared_ptr< VectorSpace > >& spaces,
-                           const std::vector< unsigned >& subSpaceIds );
+            VectorCreator( std::vector< std::shared_ptr< VectorSpace > > spaces, const std::vector< unsigned >& subSpaceIds );
 
             /// Access sub-spaces.
-            const std::vector< std::shared_ptr< VectorSpace > >& subSpaces() const;
+            [[nodiscard]] const std::vector< std::shared_ptr< VectorSpace > >& subSpaces() const;
 
             /**
              * @brief Access the sub-space associated with the k-th variable.
@@ -56,7 +55,7 @@ namespace Spacy
              * @param k variable index
              * @return corresponding sub-space \f$X_k\f$
              */
-            const VectorSpace& subSpace( unsigned k ) const;
+            [[nodiscard]] const VectorSpace& subSpace( unsigned k ) const;
 
             /**
              * @brief Generate product space vector
@@ -70,17 +69,17 @@ namespace Spacy
              * @param k global space index
              * @return local space index with respect to product space
              */
-            unsigned idMap( unsigned k ) const;
+            [[nodiscard]] unsigned idMap( unsigned k ) const;
 
             /**
              * @brief Maps local space index to global space index.
              * @param k local space index with respect to product space
              * @return global space index
              */
-            unsigned inverseIdMap( unsigned k ) const;
+            [[nodiscard]] unsigned inverseIdMap( unsigned k ) const;
 
             /// Check if product space contains a subspace with global index k.
-            bool hasId( unsigned k ) const;
+            [[nodiscard]] bool hasId( unsigned k ) const;
 
         private:
             std::vector< std::shared_ptr< VectorSpace > > spaces_ = {};
@@ -109,12 +108,11 @@ namespace Spacy
          * @param dualSubSpaceIds entries of spaces that correspond to dual variables
          */
         VectorSpace makeHilbertSpace( const std::vector< std::shared_ptr< VectorSpace > >& spaces,
-                                      const std::vector< unsigned >& primalSubSpaceIds,
-                                      const std::vector< unsigned >& dualSubSpaceIds );
-    }
+                                      const std::vector< unsigned >& primalSubSpaceIds, const std::vector< unsigned >& dualSubSpaceIds );
+    } // namespace ProductSpace
 
     /// Get sub-space associated with global id.
     const VectorSpace& extractSubSpace( const VectorSpace& space, unsigned global_id );
 
     /** @} */
-}
+} // namespace Spacy

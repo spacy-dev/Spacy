@@ -30,8 +30,8 @@ namespace Spacy
              * size of blockOperators. The same holds for domain wrt. each of blockOperators[i],
              * i...
              */
-            Operator( const std::vector< std::vector< Spacy::Operator > >& blockOperators,
-                      const Spacy::VectorSpace& domain, const Spacy::VectorSpace& range );
+            Operator( std::vector< std::vector< Spacy::Operator > > blockOperators, const Spacy::VectorSpace& domain,
+                      const Spacy::VectorSpace& range );
 
             /// Compute \f$A(x)\in\mathbb{R}\f$.
             Spacy::Vector operator()( const Spacy::Vector& x ) const;
@@ -45,5 +45,5 @@ namespace Spacy
         private:
             std::vector< std::vector< Spacy::Operator > > blockOperators_;
         };
-    }
-}
+    } // namespace ProductSpace
+} // namespace Spacy

@@ -1,14 +1,15 @@
 #pragma once
 
-#include <string>
+#include "Copy.h"
+#include "LinearOperator.h"
 
-#include "Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h"
 #include "Spacy/Algorithm/CG/LinearSolver.h"
+#include "Spacy/Algorithm/CG/TriangularStateConstraintPreconditioner.h"
 #include "Spacy/LinearSolver.h"
 #include <Spacy/Util/Mixins.h>
 
-#include "Copy.h"
-#include "LinearOperator.h"
+#include <string>
+#include <utility>
 
 namespace Spacy
 {
@@ -41,8 +42,7 @@ namespace Spacy
              * @tparam adjointId index of the adjoint variable
              * @see CG::Solver
              */
-            template < class FunctionalDefinition, int stateId = 0, int controlId = 1,
-                       int adjointId = 2 >
+            template < class FunctionalDefinition, int stateId = 0, int controlId = 1, int adjointId = 2 >
             class CGCreator : public Mixin::AbsoluteAccuracy,
                               public Mixin::RelativeAccuracy,
                               public Mixin::Eps,
@@ -50,11 +50,9 @@ namespace Spacy
                               public Mixin::MaxSteps,
                               public Mixin::Verbosity
             {
-                using KaskadeOperator =
-                    typename C2Functional< FunctionalDefinition >::KaskadeOperator;
+                using KaskadeOperator = typename C2Functional< FunctionalDefinition >::KaskadeOperator;
                 using Matrix = typename C2Functional< FunctionalDefinition >::Matrix;
-                using VariableSetDescription =
-                    typename C2Functional< FunctionalDefinition >::VariableSetDescription;
+                using VariableSetDescription = typename C2Functional< FunctionalDefinition >::VariableSetDescription;
                 template < class X, class Y >
                 using M = ::Kaskade::MatrixRepresentedOperator< Matrix, X, Y >;
 
@@ -64,7 +62,7 @@ namespace Spacy
                  * @param solver solver type ("CG", "RCG", "TCG", "RTCG").
                  * @see CG::Solver
                  */
-                explicit CGCreator( std::string solver = "CG" ) : solver_( solver )
+                explicit CGCreator( std::string solver = "CG" ) : solver_( std::move( solver ) )
                 {
                 }
 
@@ -77,85 +75,59 @@ namespace Spacy
                  */
                 LinearSolver operator()( const C2Functional< FunctionalDefinition >& L ) const
                 {
-                    auto matA = L.assembler().template get< Matrix >(
-                        L.onlyLowerTriangle(), adjointId, adjointId + 1, stateId, stateId + 1 );
-                    auto matB = L.assembler().template get< Matrix >(
-                        L.onlyLowerTriangle(), adjointId, adjointId + 1, controlId, controlId + 1 );
-                    auto matM = L.assembler().template get< Matrix >(
-                        L.onlyLowerTriangle(), controlId, controlId + 1, controlId, controlId + 1 );
+                    auto matA =
+                        L.assembler().template get< Matrix >( L.onlyLowerTriangle(), adjointId, adjointId + 1, stateId, stateId + 1 );
+                    auto matB =
+                        L.assembler().template get< Matrix >( L.onlyLowerTriangle(), adjointId, adjointId + 1, controlId, controlId + 1 );
+                    auto matM =
+                        L.assembler().template get< Matrix >( L.onlyLowerTriangle(), controlId, controlId + 1, controlId, controlId + 1 );
                     auto matAt = matA;
                     matAt.transpose();
                     auto matBt = matB;
                     matBt.transpose();
 
-                    using VYSetDescription =
-                        Detail::ExtractDescription_t< VariableSetDescription, stateId >;
-                    using VUSetDescription =
-                        Detail::ExtractDescription_t< VariableSetDescription, controlId >;
-                    using VPSetDescription =
-                        Detail::ExtractDescription_t< VariableSetDescription, adjointId >;
-                    using DomainY =
-                        typename VYSetDescription::template CoefficientVectorRepresentation<>::type;
-                    using DomainU =
-                        typename VUSetDescription::template CoefficientVectorRepresentation<>::type;
-                    using DomainP =
-                        typename VPSetDescription::template CoefficientVectorRepresentation<>::type;
+                    using VYSetDescription = Detail::ExtractDescription_t< VariableSetDescription, stateId >;
+                    using VUSetDescription = Detail::ExtractDescription_t< VariableSetDescription, controlId >;
+                    using VPSetDescription = Detail::ExtractDescription_t< VariableSetDescription, adjointId >;
+                    using DomainY = typename VYSetDescription::template CoefficientVectorRepresentation<>::type;
+                    using DomainU = typename VUSetDescription::template CoefficientVectorRepresentation<>::type;
+                    using DomainP = typename VPSetDescription::template CoefficientVectorRepresentation<>::type;
 
-                    auto stateSolver =
-                        DirectSolver< M< DomainY, DomainP >, VPSetDescription, VYSetDescription >(
-                            M< DomainY, DomainP >( matA ), L.spaces(),
-                            cast_ref< ProductSpace::VectorCreator >( L.domain() )
-                                .subSpace( adjointId ),
-                            cast_ref< ProductSpace::VectorCreator >( L.domain() )
-                                .subSpace( stateId )
-                                .dualSpace() );
-                    auto controlSolver =
-                        DirectSolver< M< DomainU, DomainU >, VUSetDescription, VUSetDescription >(
-                            M< DomainU, DomainU >( matM ), L.spaces(),
-                            cast_ref< ProductSpace::VectorCreator >( L.domain() )
-                                .subSpace( controlId ),
-                            cast_ref< ProductSpace::VectorCreator >( L.domain() )
-                                .subSpace( controlId )
-                                .dualSpace() );
-                    auto adjointSolver =
-                        DirectSolver< M< DomainP, DomainY >, VYSetDescription, VPSetDescription >(
-                            M< DomainP, DomainY >( matAt ), L.spaces(),
-                            cast_ref< ProductSpace::VectorCreator >( L.domain() )
-                                .subSpace( stateId ),
-                            cast_ref< ProductSpace::VectorCreator >( L.domain() )
-                                .subSpace( adjointId )
-                                .dualSpace() );
+                    auto stateSolver = DirectSolver< M< DomainY, DomainP >, VPSetDescription, VYSetDescription >(
+                        M< DomainY, DomainP >( matA ), L.spaces(),
+                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( adjointId ),
+                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( stateId ).dualSpace() );
+                    auto controlSolver = DirectSolver< M< DomainU, DomainU >, VUSetDescription, VUSetDescription >(
+                        M< DomainU, DomainU >( matM ), L.spaces(),
+                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( controlId ),
+                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( controlId ).dualSpace() );
+                    auto adjointSolver = DirectSolver< M< DomainP, DomainY >, VYSetDescription, VPSetDescription >(
+                        M< DomainP, DomainY >( matAt ), L.spaces(),
+                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( stateId ),
+                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( adjointId ).dualSpace() );
 
                     auto B = Kaskade::LinearOperator< VUSetDescription, VPSetDescription >(
-                        M< DomainU, DomainP >( matB ),
-                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( controlId ),
-                        cast_ref< ProductSpace::VectorCreator >( L.domain() )
-                            .subSpace( adjointId )
-                            .dualSpace() );
+                        M< DomainU, DomainP >( matB ), cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( controlId ),
+                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( adjointId ).dualSpace() );
                     auto Bt = Kaskade::LinearOperator< VPSetDescription, VUSetDescription >(
-                        M< DomainP, DomainU >( matBt ),
-                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( adjointId ),
-                        cast_ref< ProductSpace::VectorCreator >( L.domain() )
-                            .subSpace( controlId )
-                            .dualSpace() );
+                        M< DomainP, DomainU >( matBt ), cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( adjointId ),
+                        cast_ref< ProductSpace::VectorCreator >( L.domain() ).subSpace( controlId ).dualSpace() );
 
-                    auto P = CG::TriangularStateConstraintPreconditioner(
-                        std::move( stateSolver ), std::move( controlSolver ),
-                        std::move( adjointSolver ), std::move( B ), std::move( Bt ),
-                        L.domain().dualSpace(), L.domain() );
+                    auto P = CG::TriangularStateConstraintPreconditioner( std::move( stateSolver ), std::move( controlSolver ),
+                                                                          std::move( adjointSolver ), std::move( B ), std::move( Bt ),
+                                                                          L.domain().dualSpace(), L.domain() );
 
                     P.setStateIndex( stateId );
                     P.setControlIndex( controlId );
                     P.setAdjointIndex( adjointId );
 
-                    auto A =
-                        Kaskade::LinearOperator< VariableSetDescription, VariableSetDescription >(
-                            L.A(), L.domain(), L.domain().dualSpace() );
+                    auto A = Kaskade::LinearOperator< VariableSetDescription, VariableSetDescription >( L.A(), L.domain(),
+                                                                                                        L.domain().dualSpace() );
 
                     auto solver = ::Spacy::CG::LinearSolver( A, P, solver_ );
                     //~ solver.setAbsoluteAccuracy(absoluteAccuracy());
                     //~ solver.setRelativeAccuracy(relativeAccuracy());
-                    //~ solver.set_eps(eps());
+                    //~ solver.setEps(eps());
                     //~ solver.setVerbosityLevel(verbosityLevel());
                     //~ solver.setIterativeRefinements(iterativeRefinements());
                     //~ solver.setMaxSteps(maxSteps());
@@ -166,6 +138,6 @@ namespace Spacy
             private:
                 std::string solver_ = "CG";
             };
-        }
-    }
-}
+        } // namespace Lagrange
+    }     // namespace Kaskade
+} // namespace Spacy

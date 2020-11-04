@@ -20,7 +20,7 @@ namespace Spacy
 
             bool minimalDecreaseAchieved() const;
 
-            void set_eps( double eps );
+            void setEps( double eps );
 
             void setAbsoluteAccuracy( double accuracy );
 
@@ -28,5 +28,5 @@ namespace Spacy
 
             void setRelativeAccuracy( double accuracy );
         };
-    }
-}
+    } // namespace CG
+} // namespace Spacy

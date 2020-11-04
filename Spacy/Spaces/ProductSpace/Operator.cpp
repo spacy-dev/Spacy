@@ -1,20 +1,21 @@
 #include "Operator.h"
 
-#include <Spacy/Util/Cast.h>
-#include <Spacy/ZeroVectorCreator.h>
-
 #include "Vector.h"
 #include "VectorSpace.h"
 
+#include <Spacy/Util/Cast.h>
+#include <Spacy/ZeroVectorCreator.h>
+
 #include <numeric>
+#include <utility>
 
 namespace Spacy
 {
     namespace ProductSpace
     {
-        Operator::Operator( const std::vector< std::vector< Spacy::Operator > >& blockOperators,
-                            const Spacy::VectorSpace& domain, const Spacy::VectorSpace& range )
-            : OperatorBase( domain, range ), blockOperators_( blockOperators )
+        Operator::Operator( std::vector< std::vector< Spacy::Operator > > blockOperators, const Spacy::VectorSpace& domain,
+                            const Spacy::VectorSpace& range )
+            : OperatorBase( domain, range ), blockOperators_( std::move( blockOperators ) )
         {
         }
 
@@ -62,5 +63,5 @@ namespace Spacy
         {
             return blockOperators_[ row ][ col ];
         }
-    }
-}
+    } // namespace ProductSpace
+} // namespace Spacy

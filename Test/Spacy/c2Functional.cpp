@@ -1,12 +1,13 @@
-#include <Test/gtest.hh>
+#include <Test/Mock/c2Functional.hh>
+#include <Test/Mock/linearOperator.hh>
+#include <Test/mockSetup.hh>
 
 #include <Spacy/C2Functional.h>
 #include <Spacy/LinearOperator.h>
 #include <Spacy/Operator.h>
 #include <Spacy/Spaces/RealSpace.h>
-#include <Test/Mock/c2Functional.hh>
-#include <Test/Mock/linearOperator.hh>
-#include <Test/mockSetup.hh>
+
+#include <gtest/gtest.h>
 
 using namespace Spacy;
 
@@ -19,7 +20,7 @@ namespace
         EXPECT_DOUBLE_EQ( toDouble( f.d2( zero( X ), zero( X ) ) ), 1 );
         EXPECT_EQ( X.index(), f.domain().index() );
     }
-}
+} // namespace
 
 TEST( C2Functional, Assert )
 {

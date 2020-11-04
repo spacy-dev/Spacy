@@ -1,11 +1,12 @@
 #pragma once
 
-#include <cmath>
-#include <type_traits>
-#include <utility>
 #include <ostream>
 
 #include <Spacy/Util/Voider.h>
+
+#include <cmath>
+#include <type_traits>
+#include <utility>
 
 namespace Spacy
 {
@@ -22,12 +23,9 @@ namespace Spacy
         class Get
         {
         public:
-            Get() : t_{}
-            {
-            }
+            Get() = default;
 
-            template < class... Args,
-                       class = std::enable_if_t< std::is_constructible< Type, Args... >::value > >
+            template < class... Args, class = std::enable_if_t< std::is_constructible< Type, Args... >::value > >
             explicit Get( Args&&... args ) : t_( std::forward< Args >( args )... )
             {
             }
@@ -39,13 +37,13 @@ namespace Spacy
             }
 
             /// Access implementation.
-            const Type& get() const
+            [[nodiscard]] const Type& get() const
             {
                 return t_;
             }
 
         private:
-            Type t_;
+            Type t_{};
         };
 
         template < class T >
@@ -63,8 +61,7 @@ namespace Spacy
         template < class T, class S >
         struct are_arithmetic
         {
-            static constexpr bool value =
-                std::is_arithmetic< T >::value && std::is_arithmetic< S >::value;
+            static constexpr bool value = std::is_arithmetic< T >::value && std::is_arithmetic< S >::value;
         };
 
         template < class T >
@@ -77,9 +74,8 @@ namespace Spacy
 
         template < class T >
         struct HasMemFn_get< T, voider< TryMemFn_get< T > > >
-            : std::integral_constant<
-                  bool, std::is_arithmetic< std::decay_t< TryMemFn_get< T > > >::value ||
-                            HasMemFn_get< std::decay_t< TryMemFn_get< T > > >::value >
+            : std::integral_constant< bool, std::is_arithmetic< std::decay_t< TryMemFn_get< T > > >::value ||
+                                                HasMemFn_get< std::decay_t< TryMemFn_get< T > > >::value >
         {
         };
 
@@ -89,8 +85,7 @@ namespace Spacy
         template < class T, typename... Ts >
         struct provide_operators< T, Ts... >
         {
-            static constexpr bool value =
-                provide_operators< T >::value && provide_operators< Ts... >::value;
+            static constexpr bool value = provide_operators< T >::value && provide_operators< Ts... >::value;
         };
 
         template < class T >
@@ -102,217 +97,188 @@ namespace Spacy
         template < class T, class S >
         struct are_admissible
         {
-            static constexpr bool value =
-                provide_operators< T >::value && std::is_arithmetic< S >::value;
+            static constexpr bool value = provide_operators< T >::value && std::is_arithmetic< S >::value;
         };
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         auto operator+( T x, S y )
         {
             get( x ) += y;
             return x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         auto operator+( S x, const T& y )
         {
             return y + x;
         }
 
-        template < class T,
-                   typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
+        template < class T, typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
         auto operator+( T x, const T& y )
         {
             get( x ) += get( y );
             return x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         auto operator-( T x, S y )
         {
             get( x ) -= y;
             return x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         auto operator-( S x, T y )
         {
             get( y ) -= x;
             return -y;
         }
 
-        template < class T,
-                   typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
+        template < class T, typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
         T operator-( T x, const T& y )
         {
             get( x ) -= get( y );
             return x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         auto operator*( T x, S y )
         {
             get( x ) *= y;
             return x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         auto operator*( S x, T y )
         {
             get( y ) *= x;
             return y;
         }
 
-        template < class T,
-                   typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
+        template < class T, typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
         auto operator*( T x, const T& y )
         {
             get( x ) *= get( y );
             return x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         auto operator/( T x, S y )
         {
             get( x ) /= y;
             return x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         auto operator/( S x, T y )
         {
             get( y ) = 1 / get( y );
             return y *= x;
         }
 
-        template < class T,
-                   typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
+        template < class T, typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
         auto operator/( T x, const T& y )
         {
             get( x ) /= get( y );
             return x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator<( const T& x, S y )
         {
             return get( x ) < y;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator<( S x, const T& y )
         {
             return x < get( y );
         }
 
-        template < class T, class S,
-                   typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
         bool operator<( const T& x, const S& y )
         {
             return get( x ) < get( y );
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator>( const T& x, S y )
         {
             return y < x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator>( S x, const T& y )
         {
             return y < x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
         bool operator>( const T& x, const S& y )
         {
             return get( y ) < get( x );
         }
 
-        template < class T, class S,
-                   typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
         bool operator<=( const T& x, const S& y )
         {
             return get( x ) <= get( y );
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator<=( const T& x, S y )
         {
             return get( x ) <= y;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator<=( S x, const T& y )
         {
             return x <= get( y );
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator>=( S x, const T& y )
         {
             return y <= x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator>=( const T& x, S y )
         {
             return y <= x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
         bool operator>=( const T& x, const S& y )
         {
             return y <= x;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< provide_operators< T, S >::value >::type* = nullptr >
         bool operator==( const T& x, const S& y )
         {
             return get( x ) == get( y );
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator==( const T& x, S y )
         {
             return get( x ) == y;
         }
 
-        template < class T, class S,
-                   typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
+        template < class T, class S, typename std::enable_if< are_admissible< T, S >::value >::type* = nullptr >
         bool operator==( S x, const T& y )
         {
             return y == x;
         }
 
-        template < class T,
-                   typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
+        template < class T, typename std::enable_if< provide_operators< T >::value >::type* = nullptr >
         std::ostream& operator<<( std::ostream& os, const T& x )
         {
             return os << get( x );
         }
-    }
+    } // namespace Mixin
 
     /// Compute maximum.
     template < class T, std::enable_if_t< std::is_arithmetic< T >::value >* = nullptr >
@@ -379,4 +345,4 @@ namespace Spacy
         get( y ) = min( x, get( y ) );
         return y;
     }
-}
+} // namespace Spacy

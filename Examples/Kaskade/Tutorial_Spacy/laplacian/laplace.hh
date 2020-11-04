@@ -12,11 +12,10 @@
 
 #pragma once
 
-#include <utilities/linalg/scalarproducts.hh>
-
 #include <fem/fixdune.hh>
 #include <fem/functional_aux.hh>
 #include <fem/variables.hh>
+#include <utilities/linalg/scalarproducts.hh>
 
 #include <algorithm>
 
@@ -52,20 +51,20 @@ public:
             f = 1.0;
         }
 
-        Scalar d0() const
+        [[nodiscard]] Scalar d0() const
         {
             return sp( du, du ) / 2 - f * u;
         }
 
         template < int row >
-        Scalar d1_impl( VariationalArg< Scalar, dim, TestVars::template Components< row >::m > const& arg ) const
+        [[nodiscard]] Scalar d1_impl( VariationalArg< Scalar, dim, TestVars::template Components< row >::m > const& arg ) const
         {
             return sp( du, arg.derivative ) - f * arg.value;
         }
 
         template < int row, int col >
-        Scalar d2_impl( VariationalArg< Scalar, dim, TestVars::template Components< row >::m > const& arg1,
-                        VariationalArg< Scalar, dim, AnsatzVars::template Components< row >::m > const& arg2 ) const
+        [[nodiscard]] Scalar d2_impl( VariationalArg< Scalar, dim, TestVars::template Components< row >::m > const& arg1,
+                                      VariationalArg< Scalar, dim, AnsatzVars::template Components< row >::m > const& arg2 ) const
         {
             return sp( arg1.derivative, arg2.derivative );
         }
@@ -93,19 +92,19 @@ public:
             u = boost::fusion::at_c< uIdx >( data.data ).value( boost::fusion::at_c< uSpaceIdx >( evaluators ) );
         }
 
-        Scalar d0() const
+        [[nodiscard]] Scalar d0() const
         {
             return penalty * ( u - uDirichletBoundaryValue ) * ( u - uDirichletBoundaryValue ) / 2;
         }
 
         template < int row >
-        Scalar d1_impl( VariationalArg< Scalar, dim > const& arg ) const
+        [[nodiscard]] Scalar d1_impl( VariationalArg< Scalar, dim > const& arg ) const
         {
             return penalty * ( u - uDirichletBoundaryValue ) * arg.value;
         }
 
         template < int row, int col >
-        Scalar d2_impl( VariationalArg< Scalar, dim > const& arg1, VariationalArg< Scalar, dim > const& arg2 ) const
+        [[nodiscard]] Scalar d2_impl( VariationalArg< Scalar, dim > const& arg1, VariationalArg< Scalar, dim > const& arg2 ) const
         {
             return penalty * arg1.value * arg2.value;
         }
@@ -136,7 +135,7 @@ public:
     /// \fn integrationOrder
     ///
     template < class Cell >
-    int integrationOrder( Cell const& /* cell */, int shapeFunctionOrder, bool boundary ) const
+    [[nodiscard]] int integrationOrder( Cell const& /* cell */, int shapeFunctionOrder, bool boundary ) const
     {
         if ( boundary )
             return 2 * shapeFunctionOrder;

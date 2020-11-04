@@ -3,10 +3,12 @@
 
 #pragma once
 
+#include <iterator>
+
 #include <Spacy/Util/SmartPointerStorage.h>
+
 #include <memory>
 #include <type_traits>
-#include <iterator>
 
 namespace Spacy
 {
@@ -15,12 +17,11 @@ namespace Spacy
         struct Interface
         {
             virtual ~Interface() = default;
-            virtual std::shared_ptr< Interface > clone() const = 0;
+            [[nodiscard]] virtual std::shared_ptr< Interface > clone() const = 0;
             virtual void increment() = 0;
             virtual ForwardIterator increment_int() = 0;
-            virtual double& dereference() const = 0;
-            virtual bool
-            compare_const_ForwardIterator_ref( const ForwardIterator& other ) const = 0;
+            [[nodiscard]] virtual double& dereference() const = 0;
+            [[nodiscard]] virtual bool compare_const_ForwardIterator_ref( const ForwardIterator& other ) const = 0;
         };
 
         template < class Impl >
@@ -31,7 +32,7 @@ namespace Spacy
             {
             }
 
-            std::shared_ptr< Interface > clone() const override
+            [[nodiscard]] std::shared_ptr< Interface > clone() const override
             {
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
@@ -46,15 +47,14 @@ namespace Spacy
                 return impl++;
             }
 
-            double& dereference() const override
+            [[nodiscard]] double& dereference() const override
             {
                 return impl.operator*();
             }
 
-            bool compare_const_ForwardIterator_ref( const ForwardIterator& other ) const override
+            [[nodiscard]] bool compare_const_ForwardIterator_ref( const ForwardIterator& other ) const override
             {
-                return impl.operator==(
-                    *other.template target< typename std::decay< Impl >::type >() );
+                return impl.operator==( *other.template target< typename std::decay< Impl >::type >() );
             }
 
             Impl impl;
@@ -78,12 +78,9 @@ namespace Spacy
 
         ForwardIterator() noexcept = default;
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, ForwardIterator >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, ForwardIterator >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         ForwardIterator( T&& value ) : impl_( std::forward< T >( value ) )
         {
         }
@@ -113,12 +110,9 @@ namespace Spacy
             return impl_->compare_const_ForwardIterator_ref( other );
         }
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, ForwardIterator >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, ForwardIterator >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         ForwardIterator& operator=( T&& value )
         {
             return *this = ForwardIterator( std::forward< T >( value ) );
@@ -136,7 +130,7 @@ namespace Spacy
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }
@@ -149,12 +143,11 @@ namespace Spacy
         struct Interface
         {
             virtual ~Interface() = default;
-            virtual std::shared_ptr< Interface > clone() const = 0;
+            [[nodiscard]] virtual std::shared_ptr< Interface > clone() const = 0;
             virtual void increment() = 0;
             virtual ConstForwardIterator increment_int() = 0;
-            virtual const double& dereference() const = 0;
-            virtual bool
-            compare_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const = 0;
+            [[nodiscard]] virtual const double& dereference() const = 0;
+            [[nodiscard]] virtual bool compare_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const = 0;
         };
 
         template < class Impl >
@@ -165,7 +158,7 @@ namespace Spacy
             {
             }
 
-            std::shared_ptr< Interface > clone() const override
+            [[nodiscard]] std::shared_ptr< Interface > clone() const override
             {
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
@@ -180,16 +173,14 @@ namespace Spacy
                 return impl++;
             }
 
-            const double& dereference() const override
+            [[nodiscard]] const double& dereference() const override
             {
                 return impl.operator*();
             }
 
-            bool compare_const_ConstForwardIterator_ref(
-                const ConstForwardIterator& other ) const override
+            [[nodiscard]] bool compare_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const override
             {
-                return impl.operator==(
-                    *other.template target< typename std::decay< Impl >::type >() );
+                return impl.operator==( *other.template target< typename std::decay< Impl >::type >() );
             }
 
             Impl impl;
@@ -213,12 +204,9 @@ namespace Spacy
 
         ConstForwardIterator() noexcept = default;
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, ConstForwardIterator >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, ConstForwardIterator >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         ConstForwardIterator( T&& value ) : impl_( std::forward< T >( value ) )
         {
         }
@@ -248,12 +236,9 @@ namespace Spacy
             return impl_->compare_const_ConstForwardIterator_ref( other );
         }
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, ConstForwardIterator >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, ConstForwardIterator >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         ConstForwardIterator& operator=( T&& value )
         {
             return *this = ConstForwardIterator( std::forward< T >( value ) );
@@ -271,7 +256,7 @@ namespace Spacy
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }

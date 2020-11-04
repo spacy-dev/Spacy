@@ -30,9 +30,9 @@ namespace Spacy
 
             ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const;
 
-            ::Spacy::Vector d1( const ::Spacy::Vector& x, const ::Spacy::Vector& dx ) const;
+            [[nodiscard]] ::Spacy::Vector d1( const ::Spacy::Vector& x, const ::Spacy::Vector& dx ) const;
 
-            LinearOperator linearization( const ::Spacy::Vector& x ) const;
+            [[nodiscard]] LinearOperator linearization( const ::Spacy::Vector& x ) const;
 
         private:
             std::function< double( double ) > value_;

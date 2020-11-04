@@ -74,16 +74,16 @@ namespace Spacy
 
         AffineCovariantSolver::AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain,
                                                       std::function< Vector( const Vector&, const Vector& ) > retraction )
-            : retraction_( retraction ), dualUpdate_( linearRetraction ), N_( std::move( N ) ), L_( std::move( L ) ), domain_( domain ),
-              chartSpace_( domain )
+            : retraction_( std::move( retraction ) ), dualUpdate_( linearRetraction ), N_( std::move( N ) ), L_( std::move( L ) ),
+              domain_( domain ), chartSpace_( domain )
         {
         }
 
         AffineCovariantSolver::AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& totalSpace, VectorSpace& chartSpace,
                                                       std::function< Vector( const Vector&, const Vector& ) > retraction,
                                                       std::function< Vector( const Vector&, const Vector& ) > dualUpdate )
-            : retraction_( retraction ), dualUpdate_( dualUpdate ), N_( std::move( N ) ), L_( std::move( L ) ), domain_( totalSpace ),
-              chartSpace_( chartSpace )
+            : retraction_( std::move( retraction ) ), dualUpdate_( std::move( dualUpdate ) ), N_( std::move( N ) ), L_( std::move( L ) ),
+              domain_( totalSpace ), chartSpace_( chartSpace )
         {
         }
 
@@ -126,8 +126,10 @@ namespace Spacy
                 DampingFactor nu = computeNormalStepDampingFactor( norm_Dn );
 
                 if ( getVerbosityLevel() > 1 )
+                {
                     std::cout << spacing2 << "|dn| = " << norm_Dn << ", nu = " << nu
                               << ", |projected(Dn)| = " << norm( primalProjection( Dn ) ) << std::endl;
+                }
 
                 if ( verbose() )
                     std::cout << spacing << "Computing lagrange multiplier." << std::endl;
@@ -164,10 +166,15 @@ namespace Spacy
 
                 if ( norm_dx > 0 )
                     previous_step_contraction = norm( ds ) / norm( dx );
+
                 if ( getContraction() < 0.25 )
+                {
                     x = retractPrimal( x, dx + ds );
+                }
                 else
+                {
                     x = retractPrimal( x, dx );
+                }
                 logCostFunctional( get( L_( primalProjection( x ) ) ) );
                 logDs( get( norm( primalProjection( ds ) ) ) );
 
@@ -239,11 +246,14 @@ namespace Spacy
             Real trcgRelativeAccuracy = getTangentialAccuracy();
             //            Real trcgRelativeAccuracy = 1e-10;
             if ( nu < 1 )
-                trcgRelativeAccuracy = getFallBackTangentialAccuracy(); // if normal step damped, we
-                                                                        // compute tangential step
-                                                                        // even less accurate
+            {
+                // if normal step damped, we compute tangential step even less accurate
+                trcgRelativeAccuracy = getFallBackTangentialAccuracy();
+            }
             else if ( previous_step_contraction > 0 )
+            {
                 trcgRelativeAccuracy = min( trcgRelativeAccuracy, previous_step_contraction );
+            }
 
             std::cout << " tangential solver accuracy set to " << trcgRelativeAccuracy << " as contraction is " << previous_step_contraction
                       << std::endl;
@@ -252,43 +262,37 @@ namespace Spacy
                 solver.setIterativeRefinements( getIterativeRefinements() );
                 solver.setVerbosityLevel( getVerbosityLevel() );
                 if ( norm( primalProjection( x ) ) > 0 )
+                {
                     solver.setAbsoluteAccuracy( getRelativeAccuracy() * norm( primalProjection( x ) ) );
+                }
                 else
+                {
                     solver.setAbsoluteAccuracy( eps() );
+                }
                 solver.setMaxSteps( getMaxSteps() );
             };
-
-            //    std::unique_ptr<CGSolver> trcg = nullptr;
 
             if ( is< CG::LinearSolver >( normalSolver ) )
             {
                 const auto& cgSolver = cast_ref< CG::LinearSolver >( normalSolver );
-                // preconditioner as regularization
-                //                auto trcg = makeTRCGSolver( L_.hessian(x) , cgSolver.P() ,
-                //                                           get(trcgRelativeAccuracy) , eps(),
-                //                                           verbose() );
                 // normal step matrix as regularization
                 auto trcg = makeTRCGSolver( L_.hessian( x ), cgSolver.P(), N_.hessian( primalProjection( x ) ), theta_sugg,
                                             get( trcgRelativeAccuracy ), eps(), verbose() );
                 setParams( trcg );
-                // Adaptive horizon termination criterion
-                //                trcg.setTermination(
-                //                CG::Termination::AdaptiveRelativeEnergyError{} );
 
                 trcg.setTerminationCriterion( CG::Termination::StrakosTichyEnergyError{} );
                 return IndefiniteLinearSolver( trcg );
             }
 
-            //    if( trcg == nullptr )
             auto trcg = makeTCGSolver( L_.hessian( x ), normalSolver, get( trcgRelativeAccuracy ), eps(), verbose() );
-            //  trcg.setIterativeRefinements(iterativeRefinements());
-            //  trcg.setDetailedVerbosity(verbose_detailed());
-            //            trcg.setRelativeAccuracy( getRelativeAccuracy() );
             if ( norm( primalProjection( x ) ) > 0 )
+            {
                 trcg.setAbsoluteAccuracy( getRelativeAccuracy() * norm( primalProjection( x ) ) );
+            }
             else
+            {
                 trcg.setAbsoluteAccuracy( eps() );
-            // trcg.setMaxSteps(maxSteps());
+            }
             setParams( trcg );
             if ( getVerbosityLevel() > 1 )
             {
@@ -318,13 +322,6 @@ namespace Spacy
                 auto nt = CG::Termination::PreemptiveNormalStepTermination( dn0, ( 2 * getDesiredContraction() / omegaC ), rho_elbow,
                                                                             0.9 ); // 1 means "off"
                 cgSolver.setTerminationCriterion( CG::Termination::AdaptiveRelativeEnergyError( nt ) );
-
-                //  new adaptive error estimator without adaptive step termination criterion
-                //             cgSolver.setTerminationCriterion(
-                //             CG::Termination::AdaptiveRelativeEnergyError());
-                //  old error estimator
-                //             cgSolver.setTerminationCriterion(
-                //             CG::Termination::StrakosTichyEnergyError());
             }
             auto sol = primalProjection( normalSolver( rhs ) );
 
@@ -455,9 +452,13 @@ namespace Spacy
             {
                 rej++;
                 if ( acceptanceTest == AcceptanceTest::LeftAdmissibleDomain )
+                {
                     nu *= 0.5;
+                }
                 else
+                {
                     nu = computeNormalStepDampingFactor( norm_Dn );
+                }
                 if ( getVerbosityLevel() > 1 )
                     std::cout << spacing2 << "nu = " << nu << std::endl;
 
@@ -465,9 +466,13 @@ namespace Spacy
                 auto cubicModel = CompositeStep::makeCubicModel( nu, Dn, Dt, L_, x, omegaL );
 
                 if ( acceptanceTest == AcceptanceTest::LeftAdmissibleDomain )
+                {
                     tau *= 0.5;
+                }
                 else
+                {
                     tau = computeTangentialStepDampingFactor( nu * norm_Dn, norm_Dt, nu * scalprod_DnDt, cubicModel );
+                }
                 if ( getVerbosityLevel() > 1 )
                     std::cout << spacing2 << "tau = " << tau << std::endl;
                 auto q_tau = quadraticModel( get( tau ) );
@@ -485,7 +490,9 @@ namespace Spacy
                 acceptanceTest = AcceptanceTest::Failed;
 
                 if ( !domain_.isAdmissible( trial ) )
+                {
                     acceptanceTest = AcceptanceTest::LeftAdmissibleDomain;
+                }
                 else
                 {
                     if ( verbose() )
@@ -602,10 +609,10 @@ namespace Spacy
         {
             if ( !N_ )
                 return;
-            if ( norm_dx < sqrt_eps() * norm_x )
+            if ( norm_dx < sqrtEps() * norm_x )
                 return;
             setContraction( get( norm_ds / norm_dx ) );
-            //    if( getContraction() < 0.25 && ( norm_dx <.sqrt_eps() * norm_x || norm_ds < eps()
+            //    if( getContraction() < 0.25 && ( norm_dx <.sqrtEps() * norm_x || norm_ds < eps()
             //    * norm_x ) ) return;
 
             if ( !( normalStepMonitor == StepMonitor::Rejected && tangentialStepMonitor == StepMonitor::Rejected ) ||
@@ -623,10 +630,10 @@ namespace Spacy
                 return 1;
 
             Real eta = 1;
-            if ( abs( cubic( get( tau ) ) - cubic( 0 ) ) > sqrt_eps() * norm_x )
+            if ( abs( cubic( get( tau ) ) - cubic( 0 ) ) > sqrtEps() * norm_x )
+            {
                 eta = ( L_( primalProjection( soc ) ) - cubic( 0 ) ) / ( cubic( get( tau ) ) - cubic( 0 ) );
-            else
-                eta = 1;
+            }
 
             // omega_l corrected with residual
             auto omegaLnew = ( L_( primalProjection( soc ) ) - q_tau + errorterm ) * 6 / ( norm_dx * norm_dx * norm_dx );
@@ -671,38 +678,33 @@ namespace Spacy
         DampingFactor AffineCovariantSolver::computeTangentialStepDampingFactor( Real norm_dn, Real norm_Dt, Real scalprod_dnDt,
                                                                                  const CompositeStep::CubicModel& cubic ) const
         {
-            auto tau = DampingFactor( 1 );
-            if ( !L_ )
-                return tau;
-            if ( norm_Dt < sqrt_eps() )
-                return tau;
-
+            if ( !L_ || norm_Dt < sqrtEps() )
+                return DampingFactor( 1 );
             auto maxTau = Real{ 1. };
             if ( pow( getRelaxedDesiredContraction() / omegaC, 2 ) - norm_dn * norm_dn > 0 )
             {
                 /// upper bound corrected with residual and error terms
                 if ( scalprod_dnDt > 0 )
+                {
                     maxTau = min(
                         1000.,
                         ( pow( 2 * getRelaxedDesiredContraction() / omegaC, 2 ) - norm_dn * norm_dn ) /
                             ( scalprod_dnDt +
                               sqrt( scalprod_dnDt * scalprod_dnDt +
                                     norm_Dt * norm_Dt * ( pow( 2 * getRelaxedDesiredContraction() / omegaC, 2 ) - norm_dn * norm_dn ) ) ) );
+                }
                 else
+                {
                     maxTau =
                         min( 1000.,
                              ( -scalprod_dnDt +
                                sqrt( scalprod_dnDt * scalprod_dnDt +
                                      norm_Dt * norm_Dt * ( pow( 2 * getRelaxedDesiredContraction() / omegaC, 2 ) - norm_dn * norm_dn ) ) ) /
                                  ( norm_Dt * norm_Dt ) );
+                }
             }
-            if ( maxTau > eps() )
-                tau = Scalar::findMinBrent( cubic, 0, maxTau );
 
-            else
-                tau = 0;
-
-            return tau;
+            return DampingFactor{ ( maxTau > eps() ) ? Scalar::findMinBrent( cubic, 0, maxTau ) : Real( 0 ) };
         }
 
         AffineCovariantSolver::AcceptanceTest AffineCovariantSolver::acceptedSteps( Real norm_x, Real norm_Dx, Real eta )

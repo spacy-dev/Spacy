@@ -1,11 +1,6 @@
 #define FUSION_MAX_VECTOR_SIZE 15
 
-#include <chrono>
-#include <iostream>
 #include <functional>
-
-#include <dune/grid/config.h>
-#include <dune/grid/uggrid.hh>
 
 #include <Spacy/Adapter/kaskadeParabolic.hh>
 #include <Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh>
@@ -18,9 +13,14 @@
 #include <utilities/gridGeneration.hh>
 #include <utilities/kaskopt.hh>
 
+#include <dune/grid/config.h>
+#include <dune/grid/uggrid.hh>
+
+#include <chrono>
+#include <iostream>
+
 #define NCOMPONENTS 1
 #include "optimal_control_fung.hh"
-
 #include <fung/examples/nonlinear_heat.hh>
 #include <fung/fung.hh>
 
@@ -32,12 +32,10 @@ struct Ids
 };
 
 template < class StateVector, class Reference, class ControlVector >
-auto tracking_type_cost_functional( double alpha, const StateVector& y, const Reference& y_ref,
-                                    const ControlVector& u )
+auto tracking_type_cost_functional( double alpha, const StateVector& y, const Reference& y_ref, const ControlVector& u )
 {
     using namespace FunG;
-    auto f = squared( variable< Ids::state >( y ) - constant( y_ref ) ) +
-             alpha * squared( variable< Ids::control >( u ) );
+    auto f = squared( variable< Ids::state >( y ) - constant( y_ref ) ) + alpha * squared( variable< Ids::control >( u ) );
     return finalize( f );
 }
 
@@ -46,8 +44,7 @@ int main( int argc, char* argv[] )
     using namespace Kaskade;
     constexpr int dim = 2;
     int silence = 0;
-    std::unique_ptr< boost::property_tree::ptree > pt =
-        getKaskadeOptions( argc, argv, silence, false );
+    std::unique_ptr< boost::property_tree::ptree > pt = getKaskadeOptions( argc, argv, silence, false );
 
     double desiredAccuracy = getParameter( pt, "desiredAccuracy", 1e-6 );
     double eps = getParameter( pt, "eps", 1e-12 );
@@ -71,8 +68,7 @@ int main( int argc, char* argv[] )
     using std::endl;
 
     cout << "cPara: " << c << " dPara: " << d << " ePara: " << e << " alpha:" << alpha << endl;
-    cout << "dContr: " << desContr << " rdContr: " << relDesContr << " mContr: " << maxContr
-         << endl;
+    cout << "dContr: " << desContr << " rdContr: " << relDesContr << " mContr: " << maxContr << endl;
 
     typedef Dune::UGGrid< dim > Grid;
     typedef FEFunctionSpace< ContinuousLagrangeMapper< double, Grid::LeafGridView > > H1Space;
@@ -84,47 +80,39 @@ int main( int argc, char* argv[] )
     typedef VariableSetDescription< Spaces, VariableDescriptions > Descriptions;
 
     // ################## Grid Generation (SPACE AND TIME) ##################
-    ::Spacy::KaskadeParabolic::GridManager< Spaces > gm( no_time_steps, ::Spacy::Real{t_end},
-                                                         initialRefinements, FEorder );
+    ::Spacy::KaskadeParabolic::GridManager< Spaces > gm( no_time_steps, ::Spacy::Real{ t_end }, initialRefinements, FEorder );
     gm.getTempGrid().print();
 
     // ################## Domain Generation ##################
-    auto domain = Spacy::KaskadeParabolic::makeHilbertSpace( gm, {0u, 1u}, {2u} );
+    auto domain = Spacy::KaskadeParabolic::makeHilbertSpace( gm, { 0u, 1u }, { 2u } );
 
     // ################## Constraint and Cost functional Generation ##################
-    Dune::FieldVector< double, 1 > y0{0}, u0{0}, y_r{1};
-    Dune::FieldMatrix< double, 1, dim > dy0{0};
+    Dune::FieldVector< double, 1 > y0{ 0 }, u0{ 0 }, y_r{ 1 };
+    Dune::FieldMatrix< double, 1, dim > dy0{ 0 };
     auto constraint = FunG::heatModel( c, d, y0, dy0 );
     std::function< void( const Dune::FieldVector< double, 1 >& ) > update_reference =
-        [&y_r]( const Dune::FieldVector< double, 1 >& ref ) { y_r = ref; };
+        [ &y_r ]( const Dune::FieldVector< double, 1 >& ref ) { y_r = ref; };
 
     auto costFunctional = tracking_type_cost_functional( alpha, y0, y_r, u0 );
 
     std::cout << "Creating Functionals" << std::endl;
 
     // ################## Normal Step Functional Generation ##################
-    using NormalFunctionalDefinition =
-        NormalStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ),
-                              Descriptions >;
-    std::function< NormalFunctionalDefinition( typename Descriptions::VariableSet ) >
-        normalFuncGenerator = [&constraint, costFunctional,
-                               update_reference]( typename Descriptions::VariableSet y_ref ) {
-            return NormalStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ),
-                                         Descriptions >( constraint, costFunctional, y_ref,
-                                                         update_reference );
+    using NormalFunctionalDefinition = NormalStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ), Descriptions >;
+    std::function< NormalFunctionalDefinition( typename Descriptions::VariableSet ) > normalFuncGenerator =
+        [ &constraint, costFunctional, update_reference ]( typename Descriptions::VariableSet y_ref ) {
+            return NormalStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ), Descriptions >(
+                constraint, costFunctional, y_ref, update_reference );
         };
 
     auto n_func = Spacy::KaskadeParabolic::makeC2Functional( normalFuncGenerator, gm, domain );
 
     // ################## Tangential Step Functional Generation ##################
     using TangentialFunctionalDefinition =
-        TangentialStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ),
-                                  Descriptions >;
-    std::function< TangentialFunctionalDefinition( typename Descriptions::VariableSet ) >
-        tangentialFuncGenerator = [&constraint, costFunctional,
-                                   update_reference]( typename Descriptions::VariableSet y_ref ) {
-            return TangentialStepFunctional< Ids, decltype( constraint ),
-                                             decltype( costFunctional ), Descriptions >(
+        TangentialStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ), Descriptions >;
+    std::function< TangentialFunctionalDefinition( typename Descriptions::VariableSet ) > tangentialFuncGenerator =
+        [ &constraint, costFunctional, update_reference ]( typename Descriptions::VariableSet y_ref ) {
+            return TangentialStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ), Descriptions >(
                 constraint, costFunctional, y_ref, update_reference );
         };
 
@@ -135,7 +123,7 @@ int main( int argc, char* argv[] )
     // algorithm and parameters
     auto cs = Spacy::CompositeStep::AffineCovariantSolver( n_func, t_func, domain );
     cs.setRelativeAccuracy( desiredAccuracy );
-    cs.set_eps( eps );
+    cs.setEps( eps );
     cs.setVerbosityLevel( 2 );
     cs.setMaxSteps( maxSteps );
     cs.setIterativeRefinements( iterativeRefinements );
@@ -147,9 +135,7 @@ int main( int argc, char* argv[] )
     using namespace std::chrono;
     auto startTime = high_resolution_clock::now();
     auto result = cs();
-    std::cout << "computation time: "
-              << duration_cast< seconds >( high_resolution_clock::now() - startTime ).count()
-              << "s." << std::endl;
+    std::cout << "computation time: " << duration_cast< seconds >( high_resolution_clock::now() - startTime ).count() << "s." << std::endl;
 
     // print solution to file
     ::Spacy::KaskadeParabolic::OCP::writeVTK< Descriptions >( result, "sol" );

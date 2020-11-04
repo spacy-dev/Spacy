@@ -10,11 +10,11 @@ namespace Spacy
     {
         previousOmega_ = get();
         if ( newOmega < 0 )
-            get() = minFactor_ * previousOmega_;
-        else
-            get() = newOmega;
+        {
+            newOmega = minFactor_ * previousOmega_;
+        }
 
-        get() = min( max( get(), eps() ), previousOmega_ * maxFactor_ );
+        get() = min( max( newOmega, eps() ), previousOmega_ * maxFactor_ );
         return *this;
     }
 
@@ -44,4 +44,4 @@ namespace Spacy
         x *= get( y );
         return x;
     }
-}
+} // namespace Spacy

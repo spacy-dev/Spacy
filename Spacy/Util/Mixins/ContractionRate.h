@@ -16,8 +16,7 @@ namespace Spacy
              * @param relaxedDesiredContraction relaxed contraction rate
              * @param maximalContraction maximal allowed contraction rate
              */
-            explicit ContractionRate( Real desiredContraction = 0.25,
-                                      Real relaxedDesiredContraction = 0.5,
+            explicit ContractionRate( Real desiredContraction = 0.25, Real relaxedDesiredContraction = 0.5,
                                       Real maximalContraction = 0.75 ) noexcept;
 
             void setContraction( Real contraction ) noexcept;
@@ -28,15 +27,15 @@ namespace Spacy
 
             void setMaximalContraction( Real maximalContraction ) noexcept;
 
-            Real getContraction() const noexcept;
+            [[nodiscard]] Real getContraction() const noexcept;
 
-            Real getDesiredContraction() const noexcept;
+            [[nodiscard]] Real getDesiredContraction() const noexcept;
 
-            Real getRelaxedDesiredContraction() const noexcept;
+            [[nodiscard]] Real getRelaxedDesiredContraction() const noexcept;
 
-            Real getMaximalContraction() const noexcept;
+            [[nodiscard]] Real getMaximalContraction() const noexcept;
 
-            bool contractionIsAdmissible() const noexcept;
+            [[nodiscard]] bool contractionIsAdmissible() const noexcept;
 
         private:
             Real contraction_ = 1;
@@ -44,5 +43,5 @@ namespace Spacy
             Real relaxedDesiredContraction_;
             Real maximalContraction_;
         };
-    }
-}
+    } // namespace Mixin
+} // namespace Spacy

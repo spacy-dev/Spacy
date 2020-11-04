@@ -36,7 +36,7 @@ namespace Spacy
         VectorBase& operator=( VectorBase&& y ) noexcept;
 
         /// Access underlying vector space.
-        const VectorSpace& space() const;
+        [[nodiscard]] const VectorSpace& space() const;
 
     private:
         const VectorSpace& space_;
@@ -90,8 +90,7 @@ namespace Spacy
         using Value = decltype( std::declval< Vector >()[ std::declval< Index >() ] );
 
         /// Constructor.
-        explicit VectorIterator( Vector* value = nullptr, Index i = Index{0} )
-            : value( value ), i( i )
+        explicit VectorIterator( Vector* value = nullptr, Index i = Index{ 0 } ) : value( value ), i( i )
         {
         }
 
@@ -126,4 +125,4 @@ namespace Spacy
         Vector* value;
         Index i;
     };
-}
+} // namespace Spacy

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "utilities/linalg/scalarproducts.hh"
-
 #include "fem/assemble.hh"
 #include "fem/functionspace.hh"
 #include "fem/lagrangespace.hh"
 #include "fem/shapefunctioncache.hh"
+#include "utilities/linalg/scalarproducts.hh"
+
 #include <boost/fusion/include/as_vector.hpp>
 #include <boost/utility.hpp>
 
@@ -53,19 +53,19 @@ namespace Spacy
         class ErrorDistribution
         {
             typedef typename Functional::AnsatzVars OriginalAnsatzVars;
-            typedef typename OriginalAnsatzVars::Grid Grid;
-            typedef ::Kaskade::ShapeFunctionCache< Grid, typename Functional::Scalar > SfCache;
-            typedef ::Kaskade::ShapeFunctionCache< Grid, typename Functional::Scalar > SfCache2;
-            typedef typename OriginalAnsatzVars::Spaces OriginalSpaces;
-            typedef typename ExtendedAnsatzVars::Spaces ExtendedSpaces;
-            typedef typename result_of::as_vector<
-                typename result_of::transform< OriginalSpaces, ::Kaskade::GetEvaluators< SfCache > >::type >::type OriginalEvaluators;
-            typedef typename result_of::as_vector<
-                typename result_of::transform< ExtendedSpaces, ::Kaskade::GetEvaluators< SfCache2 > >::type >::type ExtendedEvaluators;
-            typedef typename Grid::ctype CoordType;
-            typedef Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype, Functional::AnsatzVars::Grid::dimension > QuadRule;
-            typedef Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype, Functional::AnsatzVars::Grid::dimension - 1 >
-                FaceQuadRule;
+            using Grid = typename OriginalAnsatzVars::Grid;
+            using SfCache = ::Kaskade::ShapeFunctionCache< Grid, typename Functional::Scalar >;
+            using SfCache2 = ::Kaskade::ShapeFunctionCache< Grid, typename Functional::Scalar >;
+            using OriginalSpaces = typename OriginalAnsatzVars::Spaces;
+            using ExtendedSpaces = typename ExtendedAnsatzVars::Spaces;
+            using OriginalEvaluators = typename result_of::as_vector<
+                typename result_of::transform< OriginalSpaces, ::Kaskade::GetEvaluators< SfCache > >::type >::type;
+            using ExtendedEvaluators = typename result_of::as_vector<
+                typename result_of::transform< ExtendedSpaces, ::Kaskade::GetEvaluators< SfCache2 > >::type >::type;
+            using CoordType = typename Grid::ctype;
+            using QuadRule = Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype, Functional::AnsatzVars::Grid::dimension >;
+            using FaceQuadRule =
+                Dune::QuadratureRule< typename Functional::AnsatzVars::Grid::ctype, Functional::AnsatzVars::Grid::dimension - 1 >;
 
         public:
             using Scalar = typename Functional::Scalar;

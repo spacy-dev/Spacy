@@ -30,7 +30,7 @@ namespace Spacy
          * @brief Access previous value of Lipschitz constant.
          * @return \f$\omega_{k-1}\f$
          */
-        Real previous() const;
+        [[nodiscard]] Real previous() const;
 
         /**
          * @brief Set allowed maximal relative increase.
@@ -51,4 +51,4 @@ namespace Spacy
     Real operator*( const LipschitzConstant& x, Real y );
 
     Real operator*( Real x, const LipschitzConstant& y );
-}
+} // namespace Spacy

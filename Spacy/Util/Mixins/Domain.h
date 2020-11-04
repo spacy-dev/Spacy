@@ -9,19 +9,19 @@ namespace Spacy
         class Domain
         {
         public:
-            explicit Domain(const VectorSpace& domain);
+            explicit Domain( const VectorSpace& domain );
 
-            Domain(Domain&&) = default;
-            Domain(const Domain&) = default;
+            Domain( Domain&& ) = default;
+            Domain( const Domain& ) = default;
 
-            Domain& operator=(Domain&& other);
-            Domain& operator=(const Domain& other);
+            Domain& operator=( Domain&& other );
+            Domain& operator=( const Domain& other );
 
             /// Access domain space \f$X\f$.
-            const VectorSpace& domain() const;
+            [[nodiscard]] const VectorSpace& domain() const;
 
         private:
             const VectorSpace& domain_;
         };
-    }
-}
+    } // namespace Mixin
+} // namespace Spacy

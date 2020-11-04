@@ -8,6 +8,7 @@
 #include <Spacy/Util/SmartPointerStorage.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
+
 #include <memory>
 #include <type_traits>
 
@@ -19,12 +20,12 @@ namespace Spacy
         struct Interface
         {
             virtual ~Interface() = default;
-            virtual std::shared_ptr< Interface > clone() const = 0;
-            virtual Real call_const_Vector_ref( const Vector& x ) const = 0;
-            virtual Vector d1( const Vector& x ) const = 0;
-            virtual Vector d2( const Vector& x, const Vector& dx ) const = 0;
-            virtual LinearOperator hessian( const Vector& x ) const = 0;
-            virtual const VectorSpace& domain() const = 0;
+            [[nodiscard]] virtual std::shared_ptr< Interface > clone() const = 0;
+            [[nodiscard]] virtual Real call_const_Vector_ref( const Vector& x ) const = 0;
+            [[nodiscard]] virtual Vector d1( const Vector& x ) const = 0;
+            [[nodiscard]] virtual Vector d2( const Vector& x, const Vector& dx ) const = 0;
+            [[nodiscard]] virtual LinearOperator hessian( const Vector& x ) const = 0;
+            [[nodiscard]] virtual const VectorSpace& domain() const = 0;
         };
 
         template < class Impl >
@@ -35,32 +36,32 @@ namespace Spacy
             {
             }
 
-            std::shared_ptr< Interface > clone() const override
+            [[nodiscard]] std::shared_ptr< Interface > clone() const override
             {
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            Real call_const_Vector_ref( const Vector& x ) const override
+            [[nodiscard]] Real call_const_Vector_ref( const Vector& x ) const override
             {
                 return impl.operator()( x );
             }
 
-            Vector d1( const Vector& x ) const override
+            [[nodiscard]] Vector d1( const Vector& x ) const override
             {
                 return impl.d1( x );
             }
 
-            Vector d2( const Vector& x, const Vector& dx ) const override
+            [[nodiscard]] Vector d2( const Vector& x, const Vector& dx ) const override
             {
                 return impl.d2( x, dx );
             }
 
-            LinearOperator hessian( const Vector& x ) const override
+            [[nodiscard]] LinearOperator hessian( const Vector& x ) const override
             {
                 return impl.hessian( x );
             }
 
-            const VectorSpace& domain() const override
+            [[nodiscard]] const VectorSpace& domain() const override
             {
                 return impl.domain();
             }
@@ -80,12 +81,9 @@ namespace Spacy
     public:
         C2Functional() noexcept = default;
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, C2Functional >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, C2Functional >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         C2Functional( T&& value ) : impl_( std::forward< T >( value ) )
         {
         }
@@ -98,39 +96,36 @@ namespace Spacy
         }
 
         /// Compute derivative as function space element in \f$X^*\f$, where \f$x\in X\f$.
-        Vector d1( const Vector& x ) const
+        [[nodiscard]] Vector d1( const Vector& x ) const
         {
             assert( impl_ );
             return impl_->d1( x );
         }
 
         /// Compute second derivative as function space element in \f$X^*\f$, where \f$x,dx\in X\f$.
-        Vector d2( const Vector& x, const Vector& dx ) const
+        [[nodiscard]] Vector d2( const Vector& x, const Vector& dx ) const
         {
             assert( impl_ );
             return impl_->d2( x, dx );
         }
 
         /// Access hessian as linear operator \f$ X \rightarrow X^\f$.
-        LinearOperator hessian( const Vector& x ) const
+        [[nodiscard]] LinearOperator hessian( const Vector& x ) const
         {
             assert( impl_ );
             return impl_->hessian( x );
         }
 
         /// Access domain space \f$X\f$.
-        const VectorSpace& domain() const
+        [[nodiscard]] const VectorSpace& domain() const
         {
             assert( impl_ );
             return impl_->domain();
         }
 
-        template <
-            class T,
-            typename std::enable_if<
-                !std::is_same< typename std::decay< T >::type, C2Functional >::value &&
-                !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* =
-                nullptr >
+        template < class T,
+                   typename std::enable_if< !std::is_same< typename std::decay< T >::type, C2Functional >::value &&
+                                            !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         C2Functional& operator=( T&& value )
         {
             return *this = C2Functional( std::forward< T >( value ) );

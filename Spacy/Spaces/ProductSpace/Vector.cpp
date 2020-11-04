@@ -1,11 +1,11 @@
 #include "Vector.h"
 
+#include "VectorSpace.h"
+
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
-
-#include "VectorSpace.h"
 
 #include <algorithm>
 #include <cassert>
@@ -18,9 +18,9 @@ namespace Spacy
         {
             const auto& spaces = Spacy::creator< VectorCreator >( space ).subSpaces();
             components_.reserve( spaces.size() );
-            for ( auto i = 0u; i < spaces.size(); ++i )
+            for ( auto space : spaces )
             {
-                components_.emplace_back( zero( *spaces[ i ] ) );
+                components_.emplace_back( zero( *space ) );
                 assert( components_.back() );
             }
             assert( components_.size() == spaces.size() );
@@ -115,34 +115,34 @@ namespace Spacy
             checkDualPairing( *this, y );
             assert( components_.size() == y.components_.size() );
 
-            auto result = Real{0.};
+            auto result = Real{ 0. };
             for ( auto i = 0u; i < components_.size(); ++i )
                 result += component( i )( y.component( i ) );
             return result;
         }
 
-        Vector::iterator Vector::component_begin()
+        Vector::iterator Vector::componentBegin()
         {
             return components_.begin();
         }
 
-        Vector::iterator Vector::component_end()
+        Vector::iterator Vector::componentEnd()
         {
             return components_.end();
         }
 
-        Vector::const_iterator Vector::component_begin() const
+        Vector::const_iterator Vector::componentBegin() const
         {
             return components_.cbegin();
         }
 
-        Vector::const_iterator Vector::component_end() const
+        Vector::const_iterator Vector::componentEnd() const
         {
             return components_.cend();
         }
-    }
+    } // namespace ProductSpace
 
-    ::Spacy::Vector& primalComponent(::Spacy::Vector& v )
+    ::Spacy::Vector& primalComponent( ::Spacy::Vector& v )
     {
         return cast_ref< ProductSpace::Vector >( v ).component( PRIMAL );
     }
@@ -152,7 +152,7 @@ namespace Spacy
         return cast_ref< ProductSpace::Vector >( v ).component( PRIMAL );
     }
 
-    ::Spacy::Vector& dualComponent(::Spacy::Vector& v )
+    ::Spacy::Vector& dualComponent( ::Spacy::Vector& v )
     {
         return cast_ref< ProductSpace::Vector >( v ).component( DUAL );
     }
@@ -161,4 +161,4 @@ namespace Spacy
     {
         return cast_ref< ProductSpace::Vector >( v ).component( DUAL );
     }
-}
+} // namespace Spacy
