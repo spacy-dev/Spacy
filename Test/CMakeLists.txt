@@ -42,6 +42,6 @@ list(APPEND TEST_SRC_LIST
 enable_testing()
 set(TEST_NAME ${CMAKE_PROJECT_NAME}-unit-test)
 add_executable(${TEST_NAME} ${TEST_SRC_LIST} ${MOCK_SRC_LIST})
-target_link_libraries(${TEST_NAME} mocks Spacy::Spacy GTest::GTest GTest::Main Threads::Threads)
+target_link_libraries(${TEST_NAME} Spacy::Spacy GTest::GTest GTest::Main Threads::Threads)
 target_compile_options(${TEST_NAME} PRIVATE -Wno-unused-result)
 add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
