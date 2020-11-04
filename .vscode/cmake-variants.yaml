@@ -1,0 +1,47 @@
+buildType:
+  default: debug
+  choices:
+    coverage:
+      short: Coverage
+      long: Collect coverage data.
+      buildType: Coverage
+    debug:
+      short: Debug
+      long: Disable optimizations - include debug information.
+      buildType: Debug
+    release:
+      short: Release
+      long: Optimize for speed - exclude debug information.
+      buildType: Release
+    minsizerel:
+      short: MinSizeRel
+      long: Optimize for size - exclude debug information.
+      buildType: MinSizeRel
+    relwithdebinfo:
+      short: RelWithDebInfo
+      long: Optimize for speed - include debug information.
+      buildType: RelWithDebInfo
+    asan:
+      short: Asan
+      long: Instrument with Address Sanitizer.
+      buildType: Asan
+    tsan:
+      short: Tsan
+      long: Instrument with Thread Sanitizer.
+      buildType: Tsan
+    ubsan:
+      short: UBsan
+      long: Instrument with Undefined Behaviour Sanitizer.
+      buildType: UBsan
+
+linkage:
+  default: static
+  choices:
+    static:
+      short: Static
+      long: Create static libraries
+      linkage: static
+    shared:
+      short: Shared
+      long: Create shared libraries/DLLs
+      linkage: shared
