@@ -13,8 +13,8 @@ if(Eigen3_FOUND)
 endif()
 
 list(APPEND TEST_SRC_LIST
-    Spacy/Algorithm/dampingFactor.cpp
-    Spacy/Algorithm/lipschitzConstant.cpp
+    Spacy/Algorithm/DampingFactor.cpp
+    Spacy/Algorithm/LipschitzConstant.cpp
     Spacy/Algorithm/CompositeStep/Models.cpp
     Spacy/Algorithm/Newton/Scalar/Newton.cpp
     Spacy/Algorithm/Scalar/FindGlobalMinimizer.cpp
