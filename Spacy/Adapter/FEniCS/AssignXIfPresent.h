@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Spacy/Util/Voider.h>
+#include <type_traits>
 
 namespace Spacy
 {
@@ -20,7 +20,7 @@ namespace Spacy
         };
 
         template < class T >
-        struct Assign_X_If_Present< T, voider< Has_Member_X< T > > >
+        struct Assign_X_If_Present< T, std::void_t< Has_Member_X< T > > >
         {
             template < class Arg >
             static void apply( T& t, const Arg& x )
@@ -38,5 +38,5 @@ namespace Spacy
         {
             Assign_X_If_Present< T >::apply( t, x );
         }
-    }
-}
+    } // namespace FEniCS
+} // namespace Spacy

@@ -2,8 +2,6 @@
 
 #include <ostream>
 
-#include <Spacy/Util/Voider.h>
-
 #include <cmath>
 #include <type_traits>
 #include <utility>
@@ -73,7 +71,7 @@ namespace Spacy
         };
 
         template < class T >
-        struct HasMemFn_get< T, voider< TryMemFn_get< T > > >
+        struct HasMemFn_get< T, std::void_t< TryMemFn_get< T > > >
             : std::integral_constant< bool, std::is_arithmetic< std::decay_t< TryMemFn_get< T > > >::value ||
                                                 HasMemFn_get< std::decay_t< TryMemFn_get< T > > >::value >
         {

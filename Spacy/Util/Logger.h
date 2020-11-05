@@ -1,9 +1,8 @@
 #pragma once
 
-#include <string>
 #include <fstream>
 
-#include <Spacy/Util/Voider.h>
+#include <string>
 
 namespace Spacy
 {
@@ -13,7 +12,7 @@ namespace Spacy
     /// @endcond
 
     /// Logger for some quantity of type T.
-    template < class T, class = voider< TryInStreamOperator< T > > >
+    template < class T, class = std::void_t< TryInStreamOperator< T > > >
     struct Logger
     {
         explicit Logger( const std::string& fileName ) : logFile_( fileName )
@@ -30,4 +29,4 @@ namespace Spacy
         std::ofstream logFile_;
         char separator_ = '\n';
     };
-}
+} // namespace Spacy

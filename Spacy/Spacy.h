@@ -23,7 +23,6 @@
 #include <Spacy/Util/Invoke.h>
 #include <Spacy/Util/Log.h>
 #include <Spacy/Util/Mixins.h>
-#include <Spacy/Util/Voider.h>
 
 // Interfaces and directly related functionality
 #include <Spacy/C1Functional.h>

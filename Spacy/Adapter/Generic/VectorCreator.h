@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Spacy/Util/Voider.h>
-#include <Spacy/VectorSpace.h>
-
 #include "Vector.h"
+
+#include <Spacy/VectorSpace.h>
 
 namespace Spacy
 {
@@ -20,8 +19,7 @@ namespace Spacy
             };
 
             template < class T >
-            struct HasStaticMemFn_Zero< T, voider< TryStaticMemFn_Zero< T > > >
-                : std::is_constructible< T, TryStaticMemFn_Zero< T > >
+            struct HasStaticMemFn_Zero< T, std::void_t< TryStaticMemFn_Zero< T > > > : std::is_constructible< T, TryStaticMemFn_Zero< T > >
             {
             };
 
@@ -36,7 +34,7 @@ namespace Spacy
             {
                 return Vector< T >( T( dim ), space );
             }
-        }
+        } // namespace Detail
 
         /**
          * @ingroup GenericGroup
@@ -68,5 +66,5 @@ namespace Spacy
         private:
             unsigned dim_;
         };
-    }
-}
+    } // namespace Generic
+} // namespace Spacy

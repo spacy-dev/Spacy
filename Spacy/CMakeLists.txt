@@ -15,39 +15,130 @@ if(dealII)
     aux_source_directory(Adapter/dealII SRC_LIST)
 endif()
 list(APPEND SRC_LIST
+)
+aux_source_directory(Adaptivity SRC_LIST)
+aux_source_directory(Adapter/Scalar SRC_LIST)
+aux_source_directory(Adapter/Generic SRC_LIST)
+aux_source_directory(Spaces/ScalarSpace SRC_LIST)
+aux_source_directory(Spaces/ProductSpace SRC_LIST)
+
+add_library(spacy ${SRC_LIST}
+    C1Functional.h
+    C1Operator.h
+    C2Functional.h
+    Derivative.h
+    Derivative.cpp
+    DynamicOperator.h
+    ForwardIterator.h
+    Functional.h
+    HilbertSpaceNorm.h
+    HilbertSpaceNorm.cpp
+    InducedScalarProduct.h
+    InducedScalarProduct.cpp
+    LinearOperator.h
+    LinearSolver.h
+    Norm.h
+    Operator.h
+    ScalarProduct.h
+    Spacy.h
+    Vector.h
+    VectorSpace.h
+    VectorSpace.cpp
+    ZeroVectorCreator.h
+    ### Algorithm ###
+    Algorithm/DampingFactor.h
+    Algorithm/DampingFactor.cpp
+    Algorithm/LipschitzConstant.h
+    Algorithm/LipschitzConstant.cpp
+    Algorithm/ODEInt.h
+    Algorithm/ODEInt.cpp
+    Algorithm/ACR/ACR.h
+    Algorithm/ACR/ACR.cpp
+    Algorithm/CG/CG.h
+    Algorithm/CG/CG.cpp
+    Algorithm/CG/LinearSolver.h
+    Algorithm/CG/LinearSolver.cpp
+    Algorithm/CG/Regularization.h
+    Algorithm/CG/RegularizeViaPreconditioner.h
+    Algorithm/CG/RegularizeViaPreconditioner.cpp
+    Algorithm/CG/TerminationCriteria.h
+    Algorithm/CG/TerminationCriteria.cpp
+    Algorithm/CG/TerminationCriterion.h
+    Algorithm/CG/TriangularStateConstraintPreconditioner.h
+    Algorithm/CG/TriangularStateConstraintPreconditioner.cpp
+    Algorithm/CompositeStep/AffineCovariantSolver.h
+    Algorithm/CompositeStep/AffineCovariantSolver.cpp
+    Algorithm/CompositeStep/QuadraticModel.h
+    Algorithm/CompositeStep/QuadraticModel.cpp
+    Algorithm/Newton/DampingStrategies.h
+    Algorithm/Newton/DampingStrategies.cpp
+    Algorithm/Newton/Newton.h
+    Algorithm/Newton/Newton.cpp
+    Algorithm/Newton/Parameter.h
+    Algorithm/Newton/TerminationCriteria.h
+    Algorithm/Newton/TerminationCriteria.cpp
     Algorithm/Preconditioner/Chebyshev.h
     Algorithm/Preconditioner/Chebyshev.cpp
     Algorithm/Rothe/GenericRothe.h
     Algorithm/Rothe/GenericRothe.cpp
+    Algorithm/Scalar/FindGlobalMinimizer.h
+    Algorithm/Scalar/FindGlobalMinimizer.cpp
+    Algorithm/Scalar/Fmin.h
+    Algorithm/Scalar/Models.h
+    Algorithm/Scalar/Models.cpp
+    Algorithm/TrustRegion/TrustRegionSolver.h
+    Algorithm/TrustRegion/TrustRegionSolver.cpp
+    ### Util ###
+    Util/Cast.h
+    Util/CompareVTK.h
+    Util/Copy.h
+    Util/Exceptions.h
+    Util/Exceptions.cpp
+    Util/ForEach.h
+    Util/Invoke.h
+    Util/Log.h
+    Util/Log.cpp
+    Util/Logger.h
+    Util/Mixins.h
+    Util/Printer.h
+    Util/SmartPointerStorage.h
+    Util/Timer.h
+    Util/Timer.cpp
+    Util/Base/AddArithmeticOperators.h
+    Util/Base/FunctionalBase.h
+    Util/Base/OperatorBase.h
+    Util/Base/OperatorBase.cpp
+    Util/Base/VectorBase.h
+    Util/Base/VectorBase.cpp
+    Util/Mixins/Accuracy.h
+    Util/Mixins/Accuracy.cpp
+    Util/Mixins/ContractionRate.h
+    Util/Mixins/ContractionRate.cpp
+    Util/Mixins/DecreaseCondition.h
+    Util/Mixins/DecreaseCondition.cpp
+    Util/Mixins/Domain.h
+    Util/Mixins/Domain.cpp
+    Util/Mixins/Eps.h
+    Util/Mixins/Eps.cpp
+    Util/Mixins/Get.h
+    Util/Mixins/Index.h
+    Util/Mixins/Index.cpp
+    Util/Mixins/IterativeRefinements.h
+    Util/Mixins/IterativeRefinements.cpp
+    Util/Mixins/MaxSteps.h
+    Util/Mixins/MaxSteps.cpp
+    Util/Mixins/MixinConnection.h
+    Util/Mixins/NumberOfThreads.h
+    Util/Mixins/NumberOfThreads.cpp
+    Util/Mixins/Range.h
+    Util/Mixins/Range.cpp
+    Util/Mixins/RegularityTest.h
+    Util/Mixins/RegularityTest.cpp
+    Util/Mixins/Timer.h
+    Util/Mixins/Timer.cpp
+    Util/Mixins/Verbosity.h
+    Util/Mixins/Verbosity.cpp
 )
-aux_source_directory(. SRC_LIST)
-aux_source_directory(Adaptivity SRC_LIST)
-aux_source_directory(Adapter/Scalar SRC_LIST)
-aux_source_directory(Adapter/Generic SRC_LIST)
-aux_source_directory(Algorithm SRC_LIST)
-aux_source_directory(Algorithm/ACR SRC_LIST)
-aux_source_directory(Algorithm/CG SRC_LIST)
-aux_source_directory(Algorithm/CompositeStep SRC_LIST)
-aux_source_directory(Algorithm/Newton SRC_LIST)
-aux_source_directory(Algorithm/Scalar SRC_LIST)
-aux_source_directory(Algorithm/TrustRegion SRC_LIST)
-aux_source_directory(Spaces/ScalarSpace SRC_LIST)
-aux_source_directory(Spaces/ProductSpace SRC_LIST)
-aux_source_directory(Util SRC_LIST)
-aux_source_directory(Util/Base SRC_LIST)
-aux_source_directory(Util/Mixins SRC_LIST)
-aux_source_directory(Util/Exceptions SRC_LIST)
-
-file(GLOB_RECURSE HEADERS_1 RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hh)
-file(GLOB_RECURSE HEADERS_2 RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
-set(HEADERS ${HEADERS_1} ${HEADERS_2})
-
-foreach(HEADER ${HEADERS})
-  string(REGEX MATCH "(.*)[/\\]" DIR ${HEADER})
-  install(FILES ${HEADER} DESTINATION include/Spacy/${DIR})
-endforeach(HEADER HEADERS)
-
-add_library(spacy ${SRC_LIST})
 target_include_directories(spacy PUBLIC
     $<INSTALL_INTERFACE:include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>

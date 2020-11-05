@@ -13,7 +13,6 @@ namespace Spacy
 
     namespace Chebyshev
     {
-
         /**
          *  @brief An auxilliary function, needed by Chebyshev: from the coefficients, used by cg, bounds on the spectrum of the
          * corresponding operator can be computed via a Lanczos-Matrix

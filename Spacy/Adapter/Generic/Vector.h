@@ -4,8 +4,6 @@
 #include <Spacy/Util/Base/AddArithmeticOperators.h>
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/Util/Voider.h>
-
 namespace Spacy
 {
     namespace Generic
@@ -28,7 +26,7 @@ namespace Spacy
             };
 
             template < class T >
-            struct HasMemFn_dot< T, voider< TryMemFn_dot< T > > > : std::true_type
+            struct HasMemFn_dot< T, std::void_t< TryMemFn_dot< T > > > : std::true_type
             {
             };
 
@@ -38,12 +36,11 @@ namespace Spacy
             };
 
             template < class T >
-            struct HasMemFn_inner< T, voider< TryMemFn_inner< T > > > : std::true_type
+            struct HasMemFn_inner< T, std::void_t< TryMemFn_inner< T > > > : std::true_type
             {
             };
 
-            template < class VectorImpl, bool = HasMemFn_dot< VectorImpl >::value,
-                       bool = HasMemFn_inner< VectorImpl >::value >
+            template < class VectorImpl, bool = HasMemFn_dot< VectorImpl >::value, bool = HasMemFn_inner< VectorImpl >::value >
             struct DualPairingImpl
             {
                 template < template < class > class Vector >
@@ -57,8 +54,7 @@ namespace Spacy
             struct DualPairingImpl< VectorImpl, true, hasMemFn_inner >
             {
                 template < template < class > class Vector >
-                static Spacy::Real apply( const Vector< VectorImpl >& x,
-                                          const Vector< VectorImpl >& y )
+                static Spacy::Real apply( const Vector< VectorImpl >& x, const Vector< VectorImpl >& y )
                 {
                     return x.get().dot( y.get() );
                 }
@@ -68,8 +64,7 @@ namespace Spacy
             struct DualPairingImpl< VectorImpl, false, true >
             {
                 template < template < class > class Vector >
-                static Spacy::Real apply( const Vector< VectorImpl >& x,
-                                          const Vector< VectorImpl >& y )
+                static Spacy::Real apply( const Vector< VectorImpl >& x, const Vector< VectorImpl >& y )
                 {
                     return x.get().inner( y.get() );
                 }
@@ -87,7 +82,7 @@ namespace Spacy
             };
 
             template < class T >
-            struct HasIncrement< T, voider< TryIncrement< T > > > : std::true_type
+            struct HasIncrement< T, std::void_t< TryIncrement< T > > > : std::true_type
             {
             };
 
@@ -97,7 +92,7 @@ namespace Spacy
             };
 
             template < class T >
-            struct HasDereference< T, voider< TryDereference< T > > > : std::true_type
+            struct HasDereference< T, std::void_t< TryDereference< T > > > : std::true_type
             {
             };
 
@@ -119,7 +114,7 @@ namespace Spacy
             };
 
             template < class T, class S >
-            struct HasBegin_Ptr< T, S, voider< TryBegin< T > > > : std::is_same< S*, TryBegin< T > >
+            struct HasBegin_Ptr< T, S, std::void_t< TryBegin< T > > > : std::is_same< S*, TryBegin< T > >
             {
             };
 
@@ -129,7 +124,7 @@ namespace Spacy
             };
 
             template < class T, class S >
-            struct HasEnd_Ptr< T, S, voider< TryEnd< T > > > : std::is_same< S*, TryEnd< T > >
+            struct HasEnd_Ptr< T, S, std::void_t< TryEnd< T > > > : std::is_same< S*, TryEnd< T > >
             {
             };
 
@@ -139,7 +134,7 @@ namespace Spacy
             };
 
             template < class T >
-            struct HasBegin_ForwardIterator< T, voider< TryBegin< T > > >
+            struct HasBegin_ForwardIterator< T, std::void_t< TryBegin< T > > >
                 : std::integral_constant< bool, isForwardIterator< TryBegin< T > >() >
             {
             };
@@ -150,7 +145,7 @@ namespace Spacy
             };
 
             template < class T >
-            struct HasEnd_ForwardIterator< T, voider< TryEnd< T > > >
+            struct HasEnd_ForwardIterator< T, std::void_t< TryEnd< T > > >
                 : std::integral_constant< bool, isForwardIterator< TryEnd< T > >() >
             {
             };
@@ -167,8 +162,7 @@ namespace Spacy
                 return HasBegin_ForwardIterator< T >::value && HasEnd_ForwardIterator< T >::value;
             }
 
-            template < class Derived, class VectorImpl, bool = hasPtrAsIterator< VectorImpl >(),
-                       bool = hasForwardIterator< VectorImpl >() >
+            template < class Derived, class VectorImpl, bool = hasPtrAsIterator< VectorImpl >(), bool = hasForwardIterator< VectorImpl >() >
             struct IteratorBase
             {
                 auto begin()
@@ -197,26 +191,22 @@ namespace Spacy
             {
                 ContiguousIterator< double > begin()
                 {
-                    return ContiguousIterator< double >(
-                        static_cast< Derived* >( this )->get().begin() );
+                    return ContiguousIterator< double >( static_cast< Derived* >( this )->get().begin() );
                 }
 
                 ContiguousIterator< double > end()
                 {
-                    return ContiguousIterator< double >(
-                        static_cast< Derived* >( this )->get().end() );
+                    return ContiguousIterator< double >( static_cast< Derived* >( this )->get().end() );
                 }
 
                 ContiguousIterator< const double > begin() const
                 {
-                    return ContiguousIterator< const double >(
-                        static_cast< const Derived* >( this )->get().begin() );
+                    return ContiguousIterator< const double >( static_cast< const Derived* >( this )->get().begin() );
                 }
 
                 ContiguousIterator< const double > end() const
                 {
-                    return ContiguousIterator< const double >(
-                        static_cast< const Derived* >( this )->get().end() );
+                    return ContiguousIterator< const double >( static_cast< const Derived* >( this )->get().end() );
                 }
             };
 
@@ -225,8 +215,7 @@ namespace Spacy
             {
                 ContiguousIterator< double > begin()
                 {
-                    return ContiguousIterator< double >(
-                        static_cast< Derived* >( this )->get().data() );
+                    return ContiguousIterator< double >( static_cast< Derived* >( this )->get().data() );
                 }
 
                 ContiguousIterator< double > end()
@@ -237,8 +226,7 @@ namespace Spacy
 
                 ContiguousIterator< const double > begin() const
                 {
-                    return ContiguousIterator< const double >(
-                        static_cast< const Derived* >( this )->get().data() );
+                    return ContiguousIterator< const double >( static_cast< const Derived* >( this )->get().data() );
                 }
 
                 ContiguousIterator< const double > end() const
@@ -247,7 +235,7 @@ namespace Spacy
                     return ContiguousIterator< const double >( v.data() + v.size() );
                 }
             };
-        }
+        } // namespace Detail
         /// @endcond
 
         /**
@@ -266,8 +254,7 @@ namespace Spacy
              * @param v inital value
              * @param space underlying vector space
              */
-            Vector( const VectorImpl& v, const VectorSpace& space )
-                : Mixin::Get< VectorImpl >( v ), VectorBase( space )
+            Vector( const VectorImpl& v, const VectorSpace& space ) : Mixin::Get< VectorImpl >( v ), VectorBase( space )
             {
             }
 
@@ -291,5 +278,5 @@ namespace Spacy
                 return Detail::DualPairingImpl< VectorImpl >::apply( *this, y );
             }
         };
-    }
-}
+    } // namespace Generic
+} // namespace Spacy
