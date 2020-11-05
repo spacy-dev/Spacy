@@ -11,7 +11,7 @@ namespace Spacy
     namespace Kaskade
     {
         /// @cond
-        template < class, class >
+        template < class, class, class >
         class LinearOperator;
         /// @endcond
 
@@ -30,9 +30,9 @@ namespace Spacy
             {
             }
 
-            LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription > operator()( const VectorSpace* space ) const
+            LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription, Matrix > operator()( const VectorSpace* space ) const
             {
-                return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >{ OperatorImpl{ Matrix{} }, *space };
+                return { OperatorImpl{ Matrix{} }, *space };
             }
 
             [[nodiscard]] const VectorSpace& domain() const

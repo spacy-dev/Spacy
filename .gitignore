@@ -27,5 +27,6 @@
 *.out
 *.app
 
+*.vtu
 CMakeLists.txt.user
 build/*

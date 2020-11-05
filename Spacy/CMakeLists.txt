@@ -53,6 +53,8 @@ target_include_directories(spacy PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
 )
 
+target_link_libraries(spacy PUBLIC lapacke)
+
 
 target_compile_features(spacy PUBLIC cxx_std_14)
 set_target_properties(spacy PROPERTIES CXX_EXTENSIONS OFF)

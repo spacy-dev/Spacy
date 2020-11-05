@@ -6,6 +6,7 @@
 #include "OperatorSpace.h"
 #include "Vector.h"
 #include "VectorSpace.h"
+#include <optional>
 
 #include <Spacy/C1Operator.h>
 #include <Spacy/Util/Base/FunctionalBase.h>
@@ -17,10 +18,13 @@
 
 #include <fem/assemble.hh>
 #include <fem/istlinterface.hh>
+#include <linalg/symmetricOperators.hh>
 #include <linalg/triplet.hh>
 
+#include <dune/istl/operators.hh>
+
 #include <memory>
-#include <numeric>
+#include <type_traits>
 
 namespace Spacy
 {
@@ -29,13 +33,50 @@ namespace Spacy
      */
     namespace Kaskade
     {
+        namespace Detail
+        {
+            template < class T >
+            struct IsNumaBCRSMatrix : std::false_type
+            {
+            };
+
+            template < class T >
+            struct IsNumaBCRSMatrix< ::Kaskade::NumaBCRSMatrix< T > > : std::true_type
+            {
+            };
+
+            template < class Matrix, bool = IsNumaBCRSMatrix< Matrix >::value >
+            struct GetMatrix
+            {
+                template < class Assembler >
+                static Matrix apply( const Assembler& assembler, bool onlyLowerTriangle, int rbegin, int rend, int cbegin, int cend )
+                {
+                    return { assembler.template get< Matrix >( onlyLowerTriangle, rbegin, rend, cbegin, cend ) };
+                }
+            };
+
+            template < class Matrix >
+            struct GetMatrix< Matrix, true >
+            {
+                template < class Assembler >
+                static Matrix apply( const Assembler& assembler, bool /*onlyLowerTriangle*/, int /*rbegin*/, int /*rend*/, int /*cbegin*/,
+                                     int /*cend*/ )
+                {
+                    return { assembler.template get< 0, 0 >(), true };
+                }
+            };
+
+            template < class Functional, class Matrix >
+            using Linearization = LinearOperator< typename Functional::AnsatzVars, typename Functional::AnsatzVars, Matrix >;
+        } // namespace Detail
+
         /**
          * @brief %Functional interface for %Kaskade 7. Models a twice differentiable functional
          * \f$f:X\rightarrow \mathbb{R}\f$.
          * @tparam FunctionalDefinition functional definition from %Kaskade 7
          * @see ::Spacy::C2Functional
          */
-        template < class FunctionalDefinition >
+        template < class FunctionalDefinition, class MatrixT = ::Kaskade::MatrixAsTriplet< double > >
         class C2Functional : public FunctionalBase, public Mixin::Eps, public Mixin::NumberOfThreads
         {
         public:
@@ -48,11 +89,11 @@ namespace Spacy
             /// %Kaskade::VariationalFunctionalAssembler
             using Assembler = ::Kaskade::VariationalFunctionalAssembler< ::Kaskade::LinearizationAt< FunctionalDefinition > >;
             /// Matrix type
-            using Matrix = ::Kaskade::MatrixAsTriplet< double >;
+            using Matrix = MatrixT;
             /// operator for the description of the second derivative
             using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, CoefficientVector, CoefficientVector >;
 
-            using Linearization = LinearOperator< VariableSetDescription, VariableSetDescription >;
+            using Linearization = LinearOperator< VariableSetDescription, VariableSetDescription, Matrix >;
 
             /**
              * @brief Construct a twice differentiable functional \f$f: X\rightarrow \mathbb{R}\f$
@@ -76,11 +117,47 @@ namespace Spacy
                   operatorSpace_( std::make_shared< VectorSpace >(
                       LinearOperatorCreator< VariableSetDescription, VariableSetDescription >( domain, domain.dualSpace() ),
                       []( const ::Spacy::Vector& v ) {
-                          using std::begin;
-                          using std::end;
-                          const auto& m = cast_ref< Linearization >( v ).get();
-                          return sqrt( std::accumulate( begin( m ), end( m ), Real( 0 ),
-                                                        []( const auto& x, const auto& y ) { return x + y * y; } ) );
+                          return Real( 0 );
+                          //   using std::begin;
+                          //   using std::end;
+                          //   const auto& m = cast_ref< Linearization >( v ).A().template get< Matrix >();
+                          //   return sqrt( std::accumulate( begin( m ), end( m ), Real( 0 ),
+                          //                                 []( const auto& x, const auto& y ) { return x + y * y; } ) );
+                      },
+                      true ) )
+            {
+            }
+
+            /**
+             * @brief Construct a twice differentiable functional \f$f: X\rightarrow \mathbb{R}\f$
+             * from %Kaskade 7.
+             * @param f operator definition from %Kaskade 7
+             * @param domain domain space
+             * @param rbegin first row to be considered in the definition of f
+             * @param rend one after the last row to be considered in the definition of f
+             * @param cbegin first column to be considered in the definition of f
+             * @param cend one after the last column to be considered in the definition of f
+             *
+             * The optional parameters rbegin, rend, cbegin and cend can be used to define operators
+             * that correspond to parts of
+             * a system of equation.
+             */
+            C2Functional( const FunctionalDefinition& f, const VectorSpace& domain,
+                          std::function< LinearSolver( const Linearization& ) > solverCreator, int rbegin = 0,
+                          int rend = FunctionalDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
+                          int cend = FunctionalDefinition::TestVars::noOfVariables )
+                : FunctionalBase( domain ), f_( f ), spaces_( extractSpaces< VariableSetDescription >( domain ) ),
+                  rhs_( zero( domain.dualSpace() ) ), rbegin_( rbegin ), rend_( rend ), cbegin_( cbegin ), cend_( cend ),
+                  solverCreator_( std::move( solverCreator ) ),
+                  operatorSpace_( std::make_shared< VectorSpace >(
+                      LinearOperatorCreator< VariableSetDescription, VariableSetDescription >( domain, domain.dualSpace() ),
+                      []( const ::Spacy::Vector& v ) {
+                          return Real( 0 );
+                          //   using std::begin;
+                          //   using std::end;
+                          //   const auto& m = cast_ref< Linearization >( v ).A().template get< Matrix >();
+                          //   return sqrt( std::accumulate( begin( m ), end( m ), Real( 0 ),
+                          //                                 []( const auto& x, const auto& y ) { return x + y * y; } ) );
                       },
                       true ) )
             {
@@ -174,7 +251,7 @@ namespace Spacy
                 copyToCoefficientVector< VariableSetDescription >( dx, dx_ );
                 CoefficientVector y_( VariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
 
-                A_.apply( dx_, y_ );
+                A_->apply( dx_, y_ );
 
                 auto y = zero( domain().dualSpace() );
                 copyFromCoefficientVector< VariableSetDescription >( y_, y );
@@ -190,13 +267,13 @@ namespace Spacy
             auto hessian( const ::Spacy::Vector& x ) const
             {
                 assembleHessian( x );
-                return Linearization{ A_, *operatorSpace_, solverCreator_ };
+                return Linearization{ *A_, *operatorSpace_, solverCreator_ };
             }
 
             /// Access operator representing \f$f''\f$.
             const KaskadeOperator& A() const noexcept
             {
-                return A_;
+                return *A_;
             }
 
             /// Access boost::fusion::vector of pointers to spaces.
@@ -275,14 +352,15 @@ namespace Spacy
 
                 Assembler assembler( spaces_ );
                 assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::MATRIX, getNumberOfThreads() );
-                A_ = KaskadeOperator( assembler.template get< Matrix >( onlyLowerTriangle_, rbegin_, rend_, cbegin_, cend_ ) );
+                auto A = Detail::GetMatrix< Matrix >::apply( assembler, onlyLowerTriangle_, rbegin_, rend_, cbegin_, cend_ );
+                A_ = std::make_shared< KaskadeOperator >( std::move( A ) );
 
                 old_X_ddf_ = x;
             }
 
             FunctionalDefinition f_;
             Spaces spaces_;
-            mutable KaskadeOperator A_{};
+            mutable std::shared_ptr< KaskadeOperator > A_;
             mutable double value_ = 0;
             mutable ::Spacy::Vector old_X_f_{};
             mutable ::Spacy::Vector old_X_df_{};
@@ -295,9 +373,7 @@ namespace Spacy
             int cend_ = FunctionalDefinition::TestVars::noOfVariables;
             std::function< LinearSolver( const Linearization& ) > solverCreator_ = []( const Linearization& f ) {
                 return makeDirectSolver< VariableSetDescription, VariableSetDescription >(
-                        f.A(), f.range(), f.domain() /*,
-                                                                                                                                                             DirectType::MUMPS ,
-                                                                                                                                                             MatrixProperties::GENERAL */ );
+                    f.A(), f.range(), f.domain() /*, DirectType::MUMPS , MatrixProperties::GENERAL */ );
             };
             std::shared_ptr< VectorSpace > operatorSpace_ = nullptr;
         };
@@ -318,12 +394,20 @@ namespace Spacy
          * that correspond to parts of
          * a system of equation.
          */
-        template < class FunctionalDefinition >
+        template < class FunctionalDefinition, class Matrix = ::Kaskade::MatrixAsTriplet< double > >
         auto makeC2Functional( const FunctionalDefinition& f, const VectorSpace& domain, int rbegin = 0,
                                int rend = FunctionalDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
                                int cend = FunctionalDefinition::TestVars::noOfVariables )
         {
-            return C2Functional< FunctionalDefinition >( f, domain, rbegin, rend, cbegin, cend );
+            return C2Functional< FunctionalDefinition, Matrix >( f, domain, rbegin, rend, cbegin, cend );
+        }
+        template < class FunctionalDefinition, class Matrix = ::Kaskade::MatrixAsTriplet< double > >
+        auto makeC2Functional( const FunctionalDefinition& f, const VectorSpace& domain,
+                               std::function< LinearSolver( const Detail::Linearization< FunctionalDefinition, Matrix >& ) > solverCreator,
+                               int rbegin = 0, int rend = FunctionalDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
+                               int cend = FunctionalDefinition::TestVars::noOfVariables )
+        {
+            return C2Functional< FunctionalDefinition, Matrix >( f, domain, std::move( solverCreator ), rbegin, rend, cbegin, cend );
         }
     } // namespace Kaskade
     /** @} */

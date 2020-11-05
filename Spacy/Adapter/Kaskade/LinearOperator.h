@@ -3,11 +3,14 @@
 #include "Copy.h"
 #include "DirectSolver.h"
 #include "OperatorSpace.h"
+#include "Util/NumaMatrixAsOperator.h"
 
 #include <Spacy/LinearSolver.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Base/VectorBase.h>
 #include <Spacy/Vector.h>
+
+#include <dune/istl/operators.hh>
 
 #include <utility>
 
@@ -20,15 +23,16 @@ namespace Spacy
     namespace Kaskade
     {
         /**
-         * @brief Linear operator interface for operators in %Kaskade 7.
-         * @tparam OperatorImpl %Kaskade 7 operator, i.e. %Kaskade::AssembledGalerkinOperator or
-         * %Kaskade::MatrixRepresentedOperator.
+         * @brief Linear operator interface for operators in %Kaskade7.
+         * @tparam OperatorImpl %Kaskade7 operator, i.e. %Kaskade::AssembledGalerkinOperator,
+         * %Kaskade::MatrixRepresentedOperator, Dune::MatrixAdapter, ...
          * @tparam AnsatzVariableSetDescription %Kaskade::VariableSetDescription for ansatz
          * variables
          * @tparam TestVariableSetDescription %Kaskade::VariableSetDescription for test variables
          * @see ::Spacy::LinearOperator
          */
-        template < class AnsatzVariableSetDescription, class TestVariableSetDescription >
+        template < class AnsatzVariableSetDescription, class TestVariableSetDescription,
+                   class Matrix = ::Kaskade::MatrixAsTriplet< double > >
         class LinearOperator : public OperatorBase,
                                public VectorBase,
                                public AddArithmeticOperators< LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription > >
@@ -37,7 +41,6 @@ namespace Spacy
             using Variables = typename AnsatzVariableSetDescription::Variables;
             using Domain = typename AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::type;
             using Range = typename TestVariableSetDescription::template CoefficientVectorRepresentation<>::type;
-            using Matrix = ::Kaskade::MatrixAsTriplet< double >;
             using OperatorImpl = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
             using OperatorCreator = LinearOperatorCreator< AnsatzVariableSetDescription, TestVariableSetDescription >;
 
@@ -73,7 +76,7 @@ namespace Spacy
             }
 
             /// Compute \f$A(x)\f$.
-            ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const
+            [[nodiscard]] ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const
             {
                 Domain x_( AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
                 copyToCoefficientVector< AnsatzVariableSetDescription >( x, x_ );
@@ -96,19 +99,6 @@ namespace Spacy
             [[nodiscard]] auto solver() const
             {
                 return solverCreator_( *this );
-                //        return
-                //        DirectSolver<OperatorImpl,AnsatzVariableSetDescription,TestVariableSetDescription>(
-                //        A_ , spaces_, range() , domain() );
-            }
-
-            auto& get()
-            {
-                return A_.get_non_const();
-            }
-
-            [[nodiscard]] const auto& get() const
-            {
-                return A_.template get< Matrix >();
             }
 
             //      double operator()(const ::Spacy::Vector& x) const
@@ -124,12 +114,27 @@ namespace Spacy
             //        return result;
             //      }
 
+            decltype( auto ) get()
+            {
+                return A_.get_non_const();
+            }
+
+            [[nodiscard]] decltype( auto ) get() const
+            {
+                return A_.template get< Matrix >();
+            }
+
+            [[nodiscard]] auto& A()
+            {
+                return A_;
+            }
+
             [[nodiscard]] const auto& A() const
             {
                 return A_;
             }
 
-            Spacy::ContiguousIterator< double > begin()
+            [[nodiscard]] Spacy::ContiguousIterator< double > begin()
             {
                 return Spacy::ContiguousIterator< double >{};
             }
@@ -139,7 +144,7 @@ namespace Spacy
                 return Spacy::ContiguousIterator< const double >{};
             }
 
-            Spacy::ContiguousIterator< double > end()
+            [[nodiscard]] Spacy::ContiguousIterator< double > end()
             {
                 return Spacy::ContiguousIterator< double >{};
             }
@@ -176,7 +181,7 @@ namespace Spacy
         template < class AnsatzVariableSetDescription, class TestVariableSetDescription, class OperatorImpl >
         auto makeLinearOperator( const OperatorImpl& A, const VectorSpace& domain, const VectorSpace& range )
         {
-            return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >( A, domain, range );
+            return LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription, OperatorImpl >( A, domain, range );
         }
     } // namespace Kaskade
     /** @} */

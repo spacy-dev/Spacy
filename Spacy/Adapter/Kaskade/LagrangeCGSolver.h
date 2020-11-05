@@ -15,7 +15,7 @@ namespace Spacy
 {
     namespace Kaskade
     {
-        template < class >
+        template < class, class >
         class C2Functional;
 
         namespace Lagrange
