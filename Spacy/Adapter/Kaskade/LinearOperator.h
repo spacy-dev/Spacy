@@ -158,10 +158,7 @@ namespace Spacy
             OperatorImpl A_;
             Spaces spaces_;
             std::function< LinearSolver( const LinearOperator& ) > solverCreator_ = []( const LinearOperator& M ) {
-                return makeDirectSolver< TestVariableSetDescription, AnsatzVariableSetDescription >(
-                    M.A(), M.range(), M.domain() /*,
-                                                                                              DirectType::MUMPS ,
-                                                                                              MatrixProperties::GENERAL*/ );
+                return makeDirectSolver< TestVariableSetDescription, AnsatzVariableSetDescription >( M.A(), M.range(), M.domain() );
             };
         };
 
