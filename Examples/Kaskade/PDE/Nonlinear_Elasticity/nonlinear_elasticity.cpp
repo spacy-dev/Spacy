@@ -1,9 +1,14 @@
-#include <iostream>
-
 #include <dune/grid/config.h>
 #include <dune/grid/uggrid.hh>
 
+#include <iostream>
+
 #define SPACY_ENABLE_LOGGING
+#include "../fung_functional.hh"
+#include <fung/examples/biomechanics/adipose_tissue_sommer_holzapfel.hh>
+#include <fung/examples/rubber/neo_hooke.hh>
+#include <fung/fung.hh>
+
 #include <Spacy/Adapter/kaskade.hh>
 #include <Spacy/Spacy.h>
 
@@ -12,12 +17,6 @@
 #include <fem/variables.hh>
 #include <io/vtk.hh>
 #include <utilities/gridGeneration.hh> //  createUnitSquare
-
-#include "../fung_functional.hh"
-
-#include <fung/examples/biomechanics/adipose_tissue_sommer_holzapfel.hh>
-#include <fung/examples/rubber/neo_hooke.hh>
-#include <fung/fung.hh>
 
 using namespace Kaskade;
 
@@ -32,8 +31,7 @@ int main()
     using Grid = Dune::UGGrid< dim >;
     using H1Space = FEFunctionSpace< ContinuousLagrangeMapper< double, Grid::LeafGridView > >;
     using Spaces = boost::fusion::vector< H1Space const* >;
-    using VariableDescriptions =
-        boost::fusion::vector< Variable< SpaceIndex< 0 >, Components< dim >, VariableId< 0 > > >;
+    using VariableDescriptions = boost::fusion::vector< Variable< SpaceIndex< 0 >, Components< dim >, VariableId< 0 > > >;
     using VariableSetDesc = VariableSetDescription< Spaces, VariableDescriptions >;
 
     GridManager< Grid > gridManager( createUnitCube< Grid >( 1., false ) );
@@ -42,7 +40,7 @@ int main()
     H1Space temperatureSpace( gridManager, gridManager.grid().leafGridView(), order );
 
     Spaces spaces( &temperatureSpace );
-    VariableSetDesc variableSetDesc( spaces, {"u"} );
+    VariableSetDesc variableSetDesc( spaces, { "u" } );
 
     using Matrix = Dune::FieldMatrix< double, dim, dim >;
     // fiber tensor for 'fibers' aligned with x-axes
@@ -54,8 +52,8 @@ int main()
     auto F = FungFunctional< decltype( integrand ), VariableSetDesc >( integrand );
 
     // compute solution
-    auto domain = Spacy::Kaskade::makeHilbertSpace< VariableSetDesc >( variableSetDesc );
-    auto range = Spacy::Kaskade::makeHilbertSpace< VariableSetDesc >( variableSetDesc );
+    auto domain = Spacy::Kaskade::makeHilbertSpace< VariableSetDesc >( variableSetDesc, "X" );
+    auto range = Spacy::Kaskade::makeHilbertSpace< VariableSetDesc >( variableSetDesc, "Y" );
     connectAsPrimalDualPair( domain, range );
 
     Spacy::C1Operator A = Spacy::Kaskade::makeC1Operator( F, domain, range );

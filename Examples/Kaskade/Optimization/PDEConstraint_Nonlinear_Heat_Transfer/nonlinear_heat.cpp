@@ -1,9 +1,12 @@
-#define FUSION_MAX_VECTOR_SIZE 15
+#define FUSION_MAX_VECTOR_SIZE 15 // NOLINT(cppcoreguidelines-macro-usage)
 
+#include "nonlinear_control.hh"
 #include <functional>
+#include <fung/examples/nonlinear_heat.hh>
+#include <fung/fung.hh>
 
 #include <Spacy/Adapter/kaskade.hh>
-#include <Spacy/Algorithm/CompositeStep/affineCovariantSolver.hh>
+#include <Spacy/Spacy.h>
 
 #include <fem/forEach.hh>
 #include <fem/gridmanager.hh>
@@ -18,24 +21,67 @@
 #include <chrono>
 #include <iostream>
 
-#define NCOMPONENTS 1
-#include "nonlinear_control.hh"
-#include <fung/examples/nonlinear_heat.hh>
-#include <fung/fung.hh>
-
-struct Ids
+namespace Kaskade
 {
-    static constexpr int state = 0;
-    static constexpr int control = 1;
-    static constexpr int adjoint = 2;
-};
+    template < typename Weighing = PlainAverage, typename FSElement, typename Function >
+    void interpolateGloballyFromFunctor( FSElement& fse, Function const& fu )
+    {
+        using ImageSpace = typename FSElement::Space;
+        using Grid = typename ImageSpace::Grid;
+
+        DynamicMatrix< Dune::FieldMatrix< typename ImageSpace::Scalar, ImageSpace::sfComponents, 1 > > globalValues;
+        DynamicMatrix< Dune::FieldMatrix< typename ImageSpace::Scalar, 1, 1 > > localCoefficients;
+        std::vector< typename Grid::ctype > sumOfWeights( fse.space().degreesOfFreedom(), 0.0 );
+        fse.coefficients() = typename ImageSpace::Scalar( 0.0 );
+
+        typename ImageSpace::Evaluator isfs( fse.space() );
+        Weighing w;
+
+        auto const cend = fse.space().gridView().template end< 0 >();
+        using ValueType = decltype( fu( *cend, Dune::FieldVector< typename Grid::ctype, ImageSpace::dim >() ) );
+        std::vector< ValueType > fuvalue; // declare here to prevent reallocations
+        for ( auto ci = fse.space().gridView().template begin< 0 >(); ci != cend; ++ci )
+        {
+            auto index = fse.space().indexSet().index( *ci );
+
+            isfs.moveTo( *ci );
+            typename Grid::ctype myWeight = w( *ci );
+            for ( int i = 0; i < isfs.size(); ++i )
+                sumOfWeights[ isfs.globalIndices()[ i ] ] += myWeight;
+
+            auto const& iNodes( isfs.shapeFunctions().interpolationNodes() );
+
+            globalValues.setSize( iNodes.size(), 1 );
+            localCoefficients.setSize( iNodes.size(), 1 );
+            fuvalue.resize( iNodes.size() );
+            for ( int i = 0; i < iNodes.size(); ++i )
+                fuvalue[ i ] = fu( *ci, iNodes[ i ] );
+
+            for ( int k = 0; k < FSElement::components / ImageSpace::sfComponents; ++k )
+            {
+                for ( int i = 0; i < iNodes.size(); ++i )
+                    for ( int j = 0; j < ImageSpace::sfComponents; ++j )
+                        globalValues[ i ][ 0 ][ j ][ 0 ] = myWeight * fuvalue[ i ][ ImageSpace::sfComponents * k + j ];
+
+                approximateGlobalValues( fse.space(), *ci, globalValues, localCoefficients );
+
+                assert( localCoefficients.N() == isfs.globalIndices().size() );
+                fse.space().mapper().combiner( *ci, index ).leftPseudoInverse( localCoefficients );
+                for ( int i = 0; i < localCoefficients.N(); ++i )
+                    fse.coefficients()[ isfs.globalIndices()[ i ] ][ k ] += localCoefficients[ i ][ 0 ];
+            }
+        }
+
+        for ( int i = 0; i < sumOfWeights.size(); ++i )
+            fse.coefficients()[ i ] /= sumOfWeights[ i ] * w.scalingFactor() + w.offset();
+    }
+} // namespace Kaskade
 
 template < class StateVector, class Reference, class ControlVector >
-auto tracking_type_cost_functional( double alpha, const StateVector& y, const Reference& y_ref, const ControlVector& u )
+auto trackingTypeCostFunctional( double alpha, const StateVector& y, const Reference& y_ref, const ControlVector& u )
 {
     using namespace FunG;
-    auto f = squared( variable< Ids::state >( y ) - constant( y_ref ) ) + alpha * squared( variable< Ids::control >( u ) );
-    return finalize( f );
+    return squared( variable< Ids::state >( y ) - variable< Ids::reference >( y_ref ) ) + alpha * squared( variable< Ids::control >( u ) );
 }
 
 int main( int argc, char* argv[] )
@@ -48,13 +94,13 @@ int main( int argc, char* argv[] )
 
     double desiredAccuracy = getParameter( pt, "desiredAccuracy", 1e-6 );
     double eps = getParameter( pt, "eps", 1e-12 );
-    double alpha = getParameter( pt, "alpha", 1e-2 );
+    double alpha = getParameter( pt, "alpha", 1e-4 );
     int maxSteps = getParameter( pt, "maxSteps", 500 );
     int initialRefinements = getParameter( pt, "initialRefinements", 5 );
     int iterativeRefinements = getParameter( pt, "iterativeRefinements", 0 );
     int FEorder = getParameter( pt, "FEorder", 1 );
     int verbose = getParameter( pt, "verbose", 2 );
-    double c = getParameter( pt, "cPara", 1e0 );
+    double c = getParameter( pt, "cPara", 1e1 );
     double d = getParameter( pt, "dPara", 1e0 );
     double e = getParameter( pt, "ePara", 0.0 );
     double desContr = getParameter( pt, "desiredContraction", 0.5 );
@@ -70,8 +116,8 @@ int main( int argc, char* argv[] )
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
     /* * * * * * * * * * * * * * * * * * * * * * grid generation * * * * * * * * * * * * * * * * * * * * * */
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    typedef Dune::UGGrid< dim > Grid;
-    typedef Grid::LeafGridView GridView;
+    using Grid = Dune::UGGrid< dim >;
+    using GridView = Grid::LeafGridView;
 
     GridManager< Grid > gm( createUnitSquare< Grid >( 1., false ) );
     gm.enforceConcurrentReads( true );
@@ -83,72 +129,78 @@ int main( int argc, char* argv[] )
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
     /* * * * * * * * * * * * * * * * * * * * * * function spaces * * * * * * * * * * * * * * * * * * * * * */
     /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-    typedef FEFunctionSpace< ContinuousLagrangeMapper< double, GridView > > H1Space;
-
-    typedef boost::fusion::vector< H1Space const* > Spaces;
-    using VU = VariableDescription< 0, 1, Ids::control >;
-    using VY = VariableDescription< 0, 1, Ids::state >;
-    using VP = VariableDescription< 0, 1, Ids::adjoint >;
-    typedef boost::fusion::vector< VY, VU, VP > VariableDescriptions;
-    typedef VariableSetDescription< Spaces, VariableDescriptions > Descriptions;
-
-    typedef Descriptions::VariableSet VarSet;
+    using H1Space = FEFunctionSpace< ContinuousLagrangeMapper< double, GridView > >;
+    using Spaces = boost::fusion::vector< H1Space const* >;
+    using PrimalVariables = boost::fusion::vector< Variable< SpaceIndex< 0 >, Components< 1 >, VariableId< Ids::state > >,
+                                                   Variable< SpaceIndex< 0 >, Components< 1 >, VariableId< Ids::control > > >;
+    using DualVariables = boost::fusion::vector< Variable< SpaceIndex< 0 >, Components< 1 >, VariableId< 0 > > >;
+    using VariableDescriptions = boost::fusion::vector< Variable< SpaceIndex< 0 >, Components< 1 >, VariableId< Ids::state > >,
+                                                        Variable< SpaceIndex< 0 >, Components< 1 >, VariableId< Ids::control > >,
+                                                        Variable< SpaceIndex< 0 >, Components< 1 >, VariableId< Ids::adjoint > > >;
+    using Descriptions = VariableSetDescription< Spaces, VariableDescriptions >;
+    using PrimalDescriptions = VariableSetDescription< Spaces, PrimalVariables >;
+    using DualDescriptions = VariableSetDescription< Spaces, DualVariables >;
+    using VarSet = Descriptions::VariableSet;
 
     // construct variable list.
-    std::string names[] = { "y", "u", "p" };
+    std::string names[] = { "y", "u", "p" }; // NOLINT(cppcoreguidelines-avoid-c-arrays)
 
     auto const& leafView = gm.grid().leafGridView();
     // construct involved spaces.
     H1Space h1Space( gm, leafView, FEorder );
     Spaces spaces( &h1Space );
-    Descriptions desc( spaces, names );
+
+    Descriptions desc( spaces, names );                           // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+    PrimalDescriptions primalDescription( spaces, { "y", "u" } ); // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+    DualDescriptions dualDescription( spaces, { "p" } );          // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 
     // Reference solution
     cout << "interpolate" << endl;
     VarSet x_ref( desc );
     interpolateGloballyFromFunctor< PlainAverage >(
         boost::fusion::at_c< Ids::state >( x_ref.data ), []( auto const& cell, auto const& xLocal ) -> Dune::FieldVector< double, 1 > {
-            auto x = cell.geometry().global( xLocal );
+            const auto x = cell.geometry().global( xLocal );
             return Dune::FieldVector< double, 1 >( 12 * ( 1 - x[ 1 ] ) * x[ 1 ] * ( 1 - x[ 0 ] ) * x[ 0 ] );
         } );
 
     cout << "create domain" << endl;
+    auto X = Spacy::Kaskade::makeHilbertSpace< Descriptions >( desc, "X" );
+    auto Z = Spacy::Kaskade::makeHilbertSpace< PrimalDescriptions >( primalDescription, "Z" );
+    auto P = Spacy::Kaskade::makeHilbertSpace< DualDescriptions >( dualDescription, "P" );
+
+    PrimalDescriptions::CoefficientVectorRepresentation<>::type xyz(
+        PrimalDescriptions::CoefficientVectorRepresentation<>::init( Spacy::Kaskade::extractSpaces< PrimalDescriptions >( Z ) ) );
+    using ZXIdxPairs =
+        boost::fusion::vector< Spacy::Kaskade::IdxPair< Ids::state, Ids::state >, Spacy::Kaskade::IdxPair< Ids::control, Ids::control > >;
+    Z.setEmbedding( Spacy::Kaskade::ProductSpaceRelation< PrimalDescriptions, Descriptions, ZXIdxPairs >( Z, X ) );
+    using XZIdxPairs = ZXIdxPairs;
+    Z.setProjection( Spacy::Kaskade::ProductSpaceRelation< Descriptions, PrimalDescriptions, XZIdxPairs >( X, Z ) );
+    using PXIdxPairs = boost::fusion::vector< Spacy::Kaskade::IdxPair< 0, Ids::adjoint > >;
+    P.setEmbedding( Spacy::Kaskade::ProductSpaceRelation< DualDescriptions, Descriptions, PXIdxPairs >( P, X ) );
+    using XPIdxPairs = boost::fusion::vector< Spacy::Kaskade::IdxPair< Ids::adjoint, 0 > >;
+    P.setProjection( Spacy::Kaskade::ProductSpaceRelation< Descriptions, DualDescriptions, XPIdxPairs >( X, P ) );
     auto domain = Spacy::Kaskade::makeHilbertSpace< Descriptions >( spaces, { 0u, 1u }, { 2u } );
     // Normal step functional with cg solver
     // auto fn = Spacy::Kaskade::makeLagrangeCGFunctional<stateId,controlId,adjointId>(
     // NormalStepFunctional<stateId,controlId,adjointId,double,Descriptions>(alpha,x_ref,c,d) , domain );
 
     cout << "create functional" << endl;
-    Dune::FieldVector< double, 1 > y0{ 0 }, u0{ 0 }, y_ref{ 1 };
+    Dune::FieldVector< double, 1 > y0{ 0 };
+    Dune::FieldVector< double, 1 > u0{ 0 };
+    Dune::FieldVector< double, 1 > y_ref{ 0.5 };
     Dune::FieldMatrix< double, 1, dim > dy0{ 0 };
     auto constraint = FunG::heatModel( c, d, y0, dy0 );
-    auto costFunctional = tracking_type_cost_functional( alpha, y0, y_ref, u0 );
-
-    std::function< void( const Dune::FieldVector< double, 1 >& ) > update_reference =
-        [ &y_ref ]( const Dune::FieldVector< double, 1 >& ref ) { y_ref = ref; };
+    auto costFunctional = trackingTypeCostFunctional( alpha, y0, y_ref, u0 );
 
     // Normal step functional with direct solver
-    auto normalStepFunctional = NormalStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ), Descriptions >(
-        constraint, costFunctional, x_ref, update_reference );
+    auto normalStepFunctional =
+        NormalStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ), Descriptions >( constraint, costFunctional, x_ref );
     auto fn = Spacy::Kaskade::makeC2Functional( std::move( normalStepFunctional ), domain );
-
-    //~ using Impl = decltype(fn);
-    //~ cout << "copy constructible: " << std::is_copy_constructible<Impl>::value << endl;
-    //~ cout << "copy assignable: " << std::is_copy_assignable<Impl>::value << endl;
-    //~ cout << "callable: " << Spacy::HasMemOp_callable<Impl,Spacy::Vector,Spacy::Real>::value << endl;
-    //~ cout << "domain: " << Spacy::HasMemFn_domain<Impl>::value << endl;
-    //~ cout << "d1: " << Spacy::HasMemFn_d1_Functional<Impl,Spacy::Vector>::value << endl;
-    //~ cout << "d2: " << Spacy::HasMemFn_d2_Functional<Impl,Spacy::Vector>::value << endl;
-    //~ cout << "hessian: " << Spacy::HasMemFn_hessian<Impl,Spacy::Vector>::value << endl;
-    //  auto solverCreator =
-    //  Spacy::Kaskade::Lagrange::CGCreator<NormalStepFunctional<stateId,controlId,adjointId,double,Descriptions>,stateId,controlId,adjointId>{};
-    // solverCreator.setVerbosity(true);
-    // fn.setSolverCreator( solverCreator );
 
     // Lagrange functional
     cout << "make tangential functional " << endl;
     auto tangentialStepFunctional = TangentialStepFunctional< Ids, decltype( constraint ), decltype( costFunctional ), Descriptions >(
-        constraint, costFunctional, x_ref, update_reference );
+        constraint, costFunctional, x_ref );
     auto ft = Spacy::Kaskade::makeC2Functional( std::move( tangentialStepFunctional ), domain );
 
     cout << "set up solver" << endl;
@@ -172,9 +224,31 @@ int main( int argc, char* argv[] )
     VarSet x( desc );
     Spacy::Kaskade::copy( result, x );
 
+    auto x3 = zero( X );
+    Spacy::Kaskade::copy( x, x3 );
+    VarSet x2( desc );
+    Spacy::Kaskade::copy( x3, x2 );
+    // Spacy::Kaskade::writeVTK< VariableDescriptions >( x2, "x2" );
+
+    auto spacy_z = Z.project( x3 );
+    PrimalDescriptions::VariableSet z( primalDescription );
+    Spacy::Kaskade::copy( spacy_z, z );
+
+    auto spacy_p = P.project( x3 );
+    DualDescriptions::VariableSet p( dualDescription );
+    Spacy::Kaskade::copy( spacy_p, p );
+
+    auto spacy_z2 = X.embed( spacy_p );
+    VarSet x4( desc );
+    Spacy::Kaskade::copy( spacy_z2, x4 );
+
     IoOptions options;
     options.outputType = IoOptions::ascii;
     std::string outfilename( "nonlinear_control" );
     writeVTKFile( gm.grid().leafGridView(), x, outfilename, options, FEorder );
     writeVTKFile( gm.grid().leafGridView(), x_ref, "reference", options, FEorder );
+    writeVTKFile( gm.grid().leafGridView(), x4, "x4", options, FEorder );
+    writeVTKFile( gm.grid().leafGridView(), z, "primal_variables", options, FEorder );
+    writeVTKFile( gm.grid().leafGridView(), p, "dual_variables", options, FEorder );
+    // writeVTKFile( gm.grid().leafGridView(), p, "dual_variables", options, FEorder );
 }
