@@ -1,6 +1,10 @@
 #pragma once
 
-#include <memory>
+#include "AssignXIfPresent.h"
+#include "Copy.h"
+#include "LinearOperator.h"
+#include "OperatorSpace.h"
+#include "Vector.h"
 
 #include <Spacy/Operator.h>
 #include <Spacy/Util/Base/FunctionalBase.h>
@@ -9,11 +13,7 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "AssignXIfPresent.h"
-#include "Copy.h"
-#include "LinearOperator.h"
-#include "OperatorSpace.h"
-#include "Vector.h"
+#include <memory>
 
 namespace Spacy
 {
@@ -43,18 +43,14 @@ namespace Spacy
              * @param bcs Dirichlet boundary conditions
              * @param space domain space \f$X\f$
              */
-            C2Functional( const F& f, const DF& J, const DDF& H,
-                          const std::vector< const dolfin::DirichletBC* >& bcs,
+            C2Functional( const F& f, const DF& J, const DDF& H, const std::vector< const dolfin::DirichletBC* >& bcs,
                           const VectorSpace& domain )
-                : FunctionalBase( domain ), f_( f.mesh() ), J_( J.function_space( 0 ) ),
-                  H_( H.function_space( 0 ), H.function_space( 1 ) ), bcs_( bcs ),
+                : FunctionalBase( domain ), f_( f.mesh() ), J_( J.function_space( 0 ) ), H_( H.function_space( 0 ), H.function_space( 1 ) ),
+                  bcs_( bcs ),
                   operatorSpace_( std::make_shared< VectorSpace >(
                       LinearOperatorCreator( domain, domain.dualSpace(), J.function_space( 0 ) ),
-                      []( const Spacy::Vector& v ) {
-                          return dolfin::Matrix( cast_ref< LinearOperator >( v ).get() )
-                              .norm( "frobenius" );
-                      },
-                      true ) )
+                      []( const Spacy::Vector& v ) { return dolfin::Matrix( cast_ref< LinearOperator >( v ).get() ).norm( "frobenius" ); },
+                      "operator space (fenics)", true ) )
             {
                 copyCoefficients( f, f_ );
                 copyCoefficients( J, J_ );
@@ -68,10 +64,8 @@ namespace Spacy
             C2Functional( const C2Functional& g )
                 : FunctionalBase( g.domain() ), f_( g.f_.mesh() ), J_( g.J_.function_space( 0 ) ),
                   H_( g.H_.function_space( 0 ), g.H_.function_space( 1 ) ), bcs_( g.bcs_ ),
-                  A_( ( g.A_ != nullptr ) ? g.A_->copy() : nullptr ),
-                  b_( ( g.b_ != nullptr ) ? g.b_->copy() : nullptr ), value_( g.value_ ),
-                  oldX_f_( g.oldX_f_ ), oldX_J_( g.oldX_J_ ), oldX_H_( g.oldX_H_ ),
-                  operatorSpace_( g.operatorSpace_ )
+                  A_( ( g.A_ != nullptr ) ? g.A_->copy() : nullptr ), b_( ( g.b_ != nullptr ) ? g.b_->copy() : nullptr ),
+                  value_( g.value_ ), oldX_f_( g.oldX_f_ ), oldX_J_( g.oldX_J_ ), oldX_H_( g.oldX_H_ ), operatorSpace_( g.operatorSpace_ )
             {
                 copyCoefficients( g.f_, f_ );
                 copyCoefficients( g.J_, J_ );
@@ -104,9 +98,8 @@ namespace Spacy
              */
             C2Functional( C2Functional&& g )
                 : FunctionalBase( g.domain() ), f_( g.f_.mesh() ), J_( g.J_.function_space( 0 ) ),
-                  H_( g.H_.function_space( 0 ), g.H_.function_space( 1 ) ), bcs_( g.bcs_ ),
-                  A_( std::move( g.A_ ) ), b_( std::move( g.b_ ) ), value_( g.value_ ),
-                  oldX_f_( std::move( g.oldX_f_ ) ), oldX_J_( std::move( g.oldX_J_ ) ),
+                  H_( g.H_.function_space( 0 ), g.H_.function_space( 1 ) ), bcs_( g.bcs_ ), A_( std::move( g.A_ ) ),
+                  b_( std::move( g.b_ ) ), value_( g.value_ ), oldX_f_( std::move( g.oldX_f_ ) ), oldX_J_( std::move( g.oldX_J_ ) ),
                   oldX_H_( std::move( g.oldX_H_ ) ), operatorSpace_( std::move( g.operatorSpace_ ) )
             {
                 copyCoefficients( g.f_, f_ );
@@ -191,7 +184,7 @@ namespace Spacy
                 assembleHessian( x );
 
                 assert( A_ != nullptr );
-                return LinearOperator{A_->copy(), *operatorSpace_, J_.function_space( 0 )};
+                return LinearOperator{ A_->copy(), *operatorSpace_, J_.function_space( 0 ) };
                 //        return Hessian(*this, x,
                 //        LUSolver(*A_,this->domain().dualSpace(),this->domain(),true) );
             }
@@ -271,8 +264,7 @@ namespace Spacy
          * space )"
          */
         template < class F, class DF, class DDF >
-        auto makeC2Functional( const F& f, const DF& J, const DDF& H,
-                               const std::vector< const dolfin::DirichletBC* >& bcs,
+        auto makeC2Functional( const F& f, const DF& J, const DDF& H, const std::vector< const dolfin::DirichletBC* >& bcs,
                                const VectorSpace& space )
         {
             return C2Functional< F, DF, DDF >( f, J, H, bcs, space );
@@ -294,6 +286,6 @@ namespace Spacy
         {
             return C2Functional< F, DF, DDF >( f, J, H, {}, space );
         }
-    }
+    } // namespace FEniCS
     /** @} */
-}
+} // namespace Spacy

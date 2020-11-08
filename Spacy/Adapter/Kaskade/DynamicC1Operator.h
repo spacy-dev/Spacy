@@ -145,13 +145,13 @@ namespace Spacy
                 assembleGradient( t, x );
 
                 VectorImpl dx_( AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
-                copyToCoefficientVector< AnsatzVariableSetDescription >( dx, dx_ );
+                copy< AnsatzVariableSetDescription >( dx, dx_ );
                 VectorImpl y_( TestVariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
 
                 A_.apply( dx_, y_ );
 
                 auto y = zero( range() );
-                copyFromCoefficientVector< TestVariableSetDescription >( y_, y );
+                copy< TestVariableSetDescription >( y_, y );
 
                 return y;
             }
@@ -210,7 +210,7 @@ namespace Spacy
                 Assembler assembler( spaces_ );
                 assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::RHS, getNumberOfThreads() );
 
-                copyFromCoefficientVector< TestVariableSetDescription >( TestVectorImpl( assembler.rhs() ), rhs_ );
+                copy< TestVariableSetDescription >( TestVectorImpl( assembler.rhs() ), rhs_ );
 
                 old_X_A_ = x;
                 old_t_A_ = t;

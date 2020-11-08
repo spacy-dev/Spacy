@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Parameter.h"
+#include <functional>
 
 #include <Spacy/Adaptivity/SpatialAdaptivity.h>
 #include <Spacy/Vector.h>
-
-#include <functional>
 
 namespace Spacy
 {
@@ -31,14 +30,11 @@ namespace Spacy
          *
          * @see Newton::Parameter
          */
-        Vector newton(
-            const C1Operator& F, const Vector& x0,
-            const std::function< DampingFactor( const std::function< Vector( const Vector& ) >&,
-                                                const Vector&, const Vector& ) >& dampingStrategy,
-            const std::function< bool( DampingFactor, const Vector&, const Vector& ) >&
-                terminationCriterion,
-            const EstimateAndRefine& errorEstimator,
-            const Parameter& p );
+        Vector newton( const C1Operator& F, const Vector& x0,
+                       const std::function< DampingFactor( const std::function< Vector( const Vector& ) >&, const Vector&,
+                                                           const Vector& ) >& dampingStrategy,
+                       const std::function< bool( DampingFactor, const Vector&, const Vector& ) >& terminationCriterion,
+                       const EstimateAndRefine& errorEstimator, const Parameter& p );
 
         /**
          * @brief Generic %Newton method.
@@ -54,14 +50,11 @@ namespace Spacy
          * @see Newton::Parameter
          */
         template < class Damping, class Terminate >
-        Vector
-        newton( const C1Operator& F, const Vector& x0, const Parameter& p,
-                const EstimateAndRefine& errorEstimator = {} )
+        Vector newton( const C1Operator& F, const Vector& x0, const Parameter& p, const EstimateAndRefine& errorEstimator = {} )
         {
-            return newton( F, x0, Damping( F ), Terminate( F, p.getRelativeAccuracy(), p.eps() ),
-                           errorEstimator, p );
+            return newton( F, x0, Damping( F, p.eps() ), Terminate( F, p.getRelativeAccuracy(), p.eps() ), errorEstimator, p );
         }
-    }
+    } // namespace Newton
 
     /**
      * @brief Local %Newton method.
@@ -76,8 +69,7 @@ namespace Spacy
      *
      * @see Newton::Parameter
      */
-    Vector localNewton( const C1Operator& F, const Vector& x0,
-                        const Newton::Parameter& p = Newton::Parameter(),
+    Vector localNewton( const C1Operator& F, const Vector& x0, const Newton::Parameter& p = Newton::Parameter(),
                         const EstimateAndRefine& errorEstimator = {} );
 
     /**
@@ -108,9 +100,8 @@ namespace Spacy
      *
      * @see Newton::Parameter
      */
-    Vector covariantNewton(
-        const C1Operator& F, const Vector& x0, const Newton::Parameter& p = Newton::Parameter(),
-        const EstimateAndRefine& errorEstimator = {} );
+    Vector covariantNewton( const C1Operator& F, const Vector& x0, const Newton::Parameter& p = Newton::Parameter(),
+                            const EstimateAndRefine& errorEstimator = {} );
 
     /**
      * @brief Affine covariant %Newton method.
@@ -124,8 +115,8 @@ namespace Spacy
      *
      * @see Newton::Parameter
      */
-    Vector covariantNewton(const C1Operator& F, const Newton::Parameter& p = Newton::Parameter(),
-        const EstimateAndRefine& errorEstimator = {} );
+    Vector covariantNewton( const C1Operator& F, const Newton::Parameter& p = Newton::Parameter(),
+                            const EstimateAndRefine& errorEstimator = {} );
 
     /**
      * @brief Affine contravariant %Newton method.
@@ -140,8 +131,7 @@ namespace Spacy
      *
      * @see Newton::Parameter
      */
-    Vector contravariantNewton( const C1Operator& F, const Vector& x0,
-                                const Newton::Parameter& p = Newton::Parameter(),
+    Vector contravariantNewton( const C1Operator& F, const Vector& x0, const Newton::Parameter& p = Newton::Parameter(),
                                 const EstimateAndRefine& errorEstimator = {} );
 
     /**
@@ -156,9 +146,8 @@ namespace Spacy
      *
      * @see Newton::Parameter
      */
-    Vector contravariantNewton( const C1Operator& F,
-                                const Newton::Parameter& p = Newton::Parameter(),
+    Vector contravariantNewton( const C1Operator& F, const Newton::Parameter& p = Newton::Parameter(),
                                 const EstimateAndRefine& errorEstimator = {} );
 
     /** @} */
-}
+} // namespace Spacy

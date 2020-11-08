@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.13)
 
 project(spacy-kaskade-pde-constraint-nonlinear-heat-transfer)
 
-set(CMAKE_CXX_CLANG_TIDY "")
-
 find_package(Kaskade7 REQUIRED)
 if(NOT TARGET Spacy::Spacy)
     find_package(Spacy REQUIRED)

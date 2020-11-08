@@ -8,13 +8,6 @@
 #include <deal.II/lac/vector.h>
 #include <deal.II/numerics/vector_tools.h>
 // For boundary values
-#include <Spacy/Util/Base/FunctionalBase.h>
-#include <Spacy/Util/Cast.h>
-#include <Spacy/Util/Exceptions.h>
-#include <Spacy/VectorSpace.h>
-#include <Spacy/ZeroVectorCreator.h>
-#include <deal.II/numerics/matrix_tools.h>
-
 #include "C2FunGFunctionalAssembly.h"
 #include "Copy.h"
 #include "Init.h"
@@ -22,6 +15,13 @@
 #include "Util.h"
 #include "Vector.h"
 #include "VectorSpace.h"
+#include <deal.II/numerics/matrix_tools.h>
+
+#include <Spacy/Util/Base/FunctionalBase.h>
+#include <Spacy/Util/Cast.h>
+#include <Spacy/Util/Exceptions.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <algorithm>
 #include <memory>
@@ -37,8 +37,7 @@ namespace Spacy
         class C2FunGFunctional;
 
         template < class FunGFunctional, int dim, int... variable_dims >
-        class C2FunGFunctional< FunGFunctional, dim, VariableDim< variable_dims... > >
-            : public FunctionalBase
+        class C2FunGFunctional< FunGFunctional, dim, VariableDim< variable_dims... > > : public FunctionalBase
         {
             using VariableDims = VariableDim< variable_dims... >;
             using Gradient = typename Traits< VariableDims >::Vector;
@@ -47,42 +46,33 @@ namespace Spacy
 
         public:
             C2FunGFunctional( FunGFunctional&& functional_impl, const VectorSpace& domain )
-                : FunctionalBase( domain ), functional_( std::move( functional_impl ) ),
-                  boundary_values_( zero( domain ) ),
+                : FunctionalBase( domain ), functional_( std::move( functional_impl ) ), boundary_values_( zero( domain ) ),
                   operator_space_( std::make_shared< VectorSpace >(
                       LinearOperatorCreator(),
                       []( const Spacy::Vector& ) {
                           return Real( 0 ); // cast_ref< LinearOperator<dim,VariableDims>
                           // >(v).get()/*.block(max_variable_id,max_variable_id)*/.frobenius_norm();
                       },
-                      true ) ),
-                  fe_system_( std::make_shared< dealii::FESystem< dim > >(
-                      get_finite_element_system< dim, VariableDims >( domain ) ) ),
+                      "operator space (deal.II)", true ) ),
+                  fe_system_( std::make_shared< dealii::FESystem< dim > >( get_finite_element_system< dim, VariableDims >( domain ) ) ),
                   dof_handler_( std::make_shared< dealii::DoFHandler< dim > >(
-                      creator< VectorCreator< dim, GetDim< 0, VariableDims >::value > >(
-                          extractSubSpace( domain, 0 ) )
-                          .triangulation() ) ),
-                  gradient_( VariableDims::size == 1 ? GetDim< 0, VariableDims >::value
-                                                     : VariableDims::size )
+                      creator< VectorCreator< dim, GetDim< 0, VariableDims >::value > >( extractSubSpace( domain, 0 ) ).triangulation() ) ),
+                  gradient_( VariableDims::size == 1 ? GetDim< 0, VariableDims >::value : VariableDims::size )
             {
                 dof_handler_->distribute_dofs( *fe_system_ );
                 InitBlockVector< dim, VariableDims >::apply( domain, gradient_ );
-                InitSparsityPattern< dim, VariableDims >::apply( domain, *dof_handler_,
-                                                                 sparsity_pattern_ );
+                InitSparsityPattern< dim, VariableDims >::apply( domain, *dof_handler_, sparsity_pattern_ );
                 hessian_.reinit( sparsity_pattern_ );
             }
 
             C2FunGFunctional( const C2FunGFunctional& other )
-                : FunctionalBase( other.domain() ), functional_( other.functional_ ),
-                  boundary_values_( other.boundary_values_ ),
+                : FunctionalBase( other.domain() ), functional_( other.functional_ ), boundary_values_( other.boundary_values_ ),
                   operator_space_( other.operator_space_ ),
-                  gradient_( VariableDims::size == 1 ? GetDim< 0, VariableDims >::value
-                                                     : VariableDims::size ),
+                  gradient_( VariableDims::size == 1 ? GetDim< 0, VariableDims >::value : VariableDims::size ),
                   fe_system_( other.fe_system_ ), dof_handler_( other.dof_handler_ )
             {
                 InitBlockVector< dim, VariableDims >::apply( domain(), gradient_ );
-                InitSparsityPattern< dim, VariableDims >::apply( domain(), *dof_handler_,
-                                                                 sparsity_pattern_ );
+                InitSparsityPattern< dim, VariableDims >::apply( domain(), *dof_handler_, sparsity_pattern_ );
                 hessian_.reinit( sparsity_pattern_ );
             }
 
@@ -126,58 +116,48 @@ namespace Spacy
             auto hessian( const ::Spacy::Vector& x ) const
             {
                 assemble( x );
-                return LinearOperator< dim, VariableDims >{
-                    hessian_, *operator_space_, boundary_values_, domain(), domain().dualSpace()};
+                return LinearOperator< dim, VariableDims >{ hessian_, *operator_space_, boundary_values_, domain(), domain().dualSpace() };
             }
 
         private:
             void assemble_value_impl( const Gradient& x ) const
             {
-                Detail::FunctionalUpdate< dim, VariableDims > functional_update( domain(),
-                                                                                 *fe_system_ );
+                Detail::FunctionalUpdate< dim, VariableDims > functional_update( domain(), *fe_system_ );
 
-                for_each( dof_handler_->begin_active(), dof_handler_->end(),
-                          [this, &x, &functional_update]( const auto& cell ) {
-                              functional_update.reinit( cell );
-                              functional_update.init_old_solution( x );
+                for_each( dof_handler_->begin_active(), dof_handler_->end(), [ this, &x, &functional_update ]( const auto& cell ) {
+                    functional_update.reinit( cell );
+                    functional_update.init_old_solution( x );
 
-                              for ( auto q_index = 0u;
-                                    q_index < functional_update.impl_.n_q_points_; ++q_index )
-                              {
-                                  functional_update.update_functional( functional_, q_index );
-                                  value_ += functional_() *
-                                            functional_update.impl_.row_fe_values.JxW( q_index );
-                              }
-                          } );
+                    for ( auto q_index = 0u; q_index < functional_update.impl_.n_q_points_; ++q_index )
+                    {
+                        functional_update.update_functional( functional_, q_index );
+                        value_ += functional_() * functional_update.impl_.row_fe_values.JxW( q_index );
+                    }
+                } );
             }
 
             void assemble_derivative_impl( const Gradient& x ) const
             {
-                Detail::DerivativeUpdate< dim, VariableDims > derivative_update( domain(),
-                                                                                 *fe_system_ );
+                Detail::DerivativeUpdate< dim, VariableDims > derivative_update( domain(), *fe_system_ );
 
-                for_each( dof_handler_->begin_active(), dof_handler_->end(),
-                          [this, &x, &derivative_update]( const auto& cell ) {
-                              derivative_update.reinit( cell );
-                              derivative_update.init_old_solution( x );
+                for_each( dof_handler_->begin_active(), dof_handler_->end(), [ this, &x, &derivative_update ]( const auto& cell ) {
+                    derivative_update.reinit( cell );
+                    derivative_update.init_old_solution( x );
 
-                              for ( auto q_index = 0u;
-                                    q_index < derivative_update.impl_.n_q_points_; ++q_index )
-                              {
-                                  derivative_update.update_functional( functional_, q_index );
-                                  derivative_update.update_gradient_and_hessian( functional_,
-                                                                                 q_index );
-                              }
+                    for ( auto q_index = 0u; q_index < derivative_update.impl_.n_q_points_; ++q_index )
+                    {
+                        derivative_update.update_functional( functional_, q_index );
+                        derivative_update.update_gradient_and_hessian( functional_, q_index );
+                    }
 
-                              derivative_update.transfer_local_data( gradient_, hessian_ );
-                          } );
+                    derivative_update.transfer_local_data( gradient_, hessian_ );
+                } );
 
                 auto boundary_vals = gradient_;
                 boundary_vals = 0;
 
-                dealii::MatrixTools::apply_boundary_values(
-                    get_boundary_map< dim, VariableDims >( domain(), *dof_handler_ ), hessian_,
-                    boundary_vals, gradient_ );
+                dealii::MatrixTools::apply_boundary_values( get_boundary_map< dim, VariableDims >( domain(), *dof_handler_ ), hessian_,
+                                                            boundary_vals, gradient_ );
                 copy( boundary_vals, boundary_values_ );
             }
 
@@ -224,6 +204,6 @@ namespace Spacy
 
             mutable ::Spacy::Vector oldX_value_, oldX_;
         };
-    }
+    } // namespace dealII
     /** @} */
-}
+} // namespace Spacy

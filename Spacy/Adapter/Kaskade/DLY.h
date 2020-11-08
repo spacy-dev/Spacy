@@ -8,8 +8,7 @@ namespace Spacy
 {
     namespace Kaskade
     {
-        template < template < class, class > class Definition, class AnsatzVars,
-                   class AnsatzVarsExtension >
+        template < template < class, class > class Definition, class AnsatzVars, class AnsatzVarsExtension >
         class DLY : public Mixin::RelativeAccuracy
         {
             using Grid = typename AnsatzVars::Grid;
@@ -19,29 +18,22 @@ namespace Spacy
             using LumpedDefinition_EE = LumpedDefinition< Definition_EE >;
             using Scalar = typename Definition_HH::Scalar;
             static constexpr int dim = AnsatzVars::Grid::dimension;
-            using Assembler_HE = ::Kaskade::VariationalFunctionalAssembler<
-                ::Kaskade::LinearizationAt< Definition_HE > >;
-            using Assembler_EE = ::Kaskade::VariationalFunctionalAssembler<
-                ::Kaskade::LinearizationAt< LumpedDefinition_EE > >;
-            using ErrorAssembler =
-                ::Kaskade::VariationalFunctionalAssembler<::Kaskade::LinearizationAt<
-                    ErrorDistribution< Definition_HH, AnsatzVarsExtension > > >;
+            using Assembler_HE = ::Kaskade::VariationalFunctionalAssembler< ::Kaskade::LinearizationAt< Definition_HE > >;
+            using Assembler_EE = ::Kaskade::VariationalFunctionalAssembler< ::Kaskade::LinearizationAt< LumpedDefinition_EE > >;
+            using ErrorAssembler = ::Kaskade::VariationalFunctionalAssembler<
+                ::Kaskade::LinearizationAt< ErrorDistribution< Definition_HH, AnsatzVarsExtension > > >;
             using A_HE = ::Kaskade::AssembledGalerkinOperator< Assembler_HE >;
             using A_EE = ::Kaskade::AssembledGalerkinOperator< Assembler_EE >;
-            using CoeffVector_H =
-                typename AnsatzVars::template CoefficientVectorRepresentation<>::type;
-            using CoeffVector_E =
-                typename AnsatzVarsExtension::template CoefficientVectorRepresentation<>::type;
-            using CoeffVector_R =
-                typename AnsatzVarsExtension::template CoefficientVectorRepresentation<>::type;
+            using CoeffVector_H = typename AnsatzVars::template CoefficientVectorRepresentation<>::type;
+            using CoeffVector_E = typename AnsatzVarsExtension::template CoefficientVectorRepresentation<>::type;
+            using CoeffVector_R = typename AnsatzVarsExtension::template CoefficientVectorRepresentation<>::type;
 
         public:
             template < class... Args >
-            DLY(::Kaskade::GridManager< Grid >& gridManager, const AnsatzVars& ansatzVars,
-                const AnsatzVarsExtension& ansatzVarsExtension, const Args&... args )
-                : Mixin::RelativeAccuracy( 0.25 ), gridManager_( gridManager ),
-                  ansatzVars_( ansatzVars ), ansatzVarsExtension_( ansatzVarsExtension ),
-                  def_A_hh( args... ), def_A_he( args... ), def_A_ee( args... ),
+            DLY( ::Kaskade::GridManager< Grid >& gridManager, const AnsatzVars& ansatzVars, const AnsatzVarsExtension& ansatzVarsExtension,
+                 const Args&... args )
+                : Mixin::RelativeAccuracy( 0.25 ), gridManager_( gridManager ), ansatzVars_( ansatzVars ),
+                  ansatzVarsExtension_( ansatzVarsExtension ), def_A_hh( args... ), def_A_he( args... ), def_A_ee( args... ),
                   def_A_ee_lumped( args... )
             {
             }
@@ -57,45 +49,39 @@ namespace Spacy
                 Assembler_HE assembler_he( ansatzVars_.spaces );
                 Assembler_EE assembler_ee( ansatzVarsExtension_.spaces );
 
-                assembler_he.assemble(::Kaskade::linearization( def_A_he, vx_ ) );
+                assembler_he.assemble( ::Kaskade::linearization( def_A_he, vx_ ) );
 
                 auto xe = typename AnsatzVarsExtension::VariableSet( ansatzVarsExtension_ );
-                assembler_ee.assemble(::Kaskade::linearization( def_A_ee_lumped, xe ) );
+                assembler_ee.assemble( ::Kaskade::linearization( def_A_ee_lumped, xe ) );
 
                 auto A_he = A_HE( assembler_he );
                 auto A_ee = A_EE( assembler_ee );
 
                 CoeffVector_E rhs( assembler_ee.rhs() );
                 //        const auto& dx_ = cast_ref< Vector<AnsatzVars> >(dx).get();
-                CoeffVector_H dx_( AnsatzVars::template CoefficientVectorRepresentation<>::init(
-                    ansatzVars_.spaces ) );
-                copyToCoefficientVector< AnsatzVars >( dx, dx_ );
-                CoeffVector_E y(
-                    AnsatzVarsExtension::template CoefficientVectorRepresentation<>::init(
-                        ansatzVarsExtension_.spaces ) );
+                CoeffVector_H dx_( AnsatzVars::template CoefficientVectorRepresentation<>::init( ansatzVars_.spaces ) );
+                copy< AnsatzVars >( dx, dx_ );
+                CoeffVector_E y( AnsatzVarsExtension::template CoefficientVectorRepresentation<>::init( ansatzVarsExtension_.spaces ) );
                 A_he.apply( dx_, y );
                 rhs -= y;
                 CoeffVector_R estimate(
-                    AnsatzVarsExtension::template CoefficientVectorRepresentation<>::init(
-                        ansatzVarsExtension_.spaces ) );
+                    AnsatzVarsExtension::template CoefficientVectorRepresentation<>::init( ansatzVarsExtension_.spaces ) );
 
-                ::Kaskade::directInverseOperator( A_ee, DirectType::UMFPACK )
-                    .apply( rhs, estimate );
+                ::Kaskade::directInverseOperator( A_ee, DirectType::UMFPACK ).apply( rhs, estimate );
 
                 auto estimate_H = vx_;
                 estimate_H *= 0;
                 typename AnsatzVarsExtension::VariableSet estimate_E( ansatzVarsExtension_ );
                 at_c< 0 >( estimate_E.data ).coefficients() = at_c< 0 >( estimate.data );
-                ErrorDistribution< Definition_HH, AnsatzVarsExtension > distr(
-                    def_A_hh, vx_, estimate_H, estimate_E );
+                ErrorDistribution< Definition_HH, AnsatzVarsExtension > distr( def_A_hh, vx_, estimate_H, estimate_E );
                 ErrorAssembler errorAssembler( distr.spaces() );
-                auto xd0 = typename ErrorDistribution< Definition_HH, AnsatzVarsExtension >::
-                    AnsatzVars::VariableSet( distr.variableSetDescription() );
+                auto xd0 = typename ErrorDistribution< Definition_HH, AnsatzVarsExtension >::AnsatzVars::VariableSet(
+                    distr.variableSetDescription() );
                 auto lin = ::Kaskade::linearization( distr, xd0 );
                 errorAssembler.assemble( lin );
                 using CellWiseCoeff =
-                    typename ErrorDistribution< Definition_HH, AnsatzVarsExtension >::AnsatzVars::
-                        template CoefficientVectorRepresentation<>;
+                    typename ErrorDistribution< Definition_HH,
+                                                AnsatzVarsExtension >::AnsatzVars::template CoefficientVectorRepresentation<>;
                 using CellWiseError = typename CellWiseCoeff::type;
                 auto cellWiseError = CellWiseError( errorAssembler.rhs() );
                 at_c< 0 >( xd0.data ).coefficients() = at_c< 0 >( cellWiseError.data );
@@ -172,8 +158,7 @@ namespace Spacy
             Definition< AnsatzVars, AnsatzVars > def_A_hh;
             Definition< AnsatzVars, AnsatzVarsExtension > def_A_he;
             Definition< AnsatzVarsExtension, AnsatzVarsExtension > def_A_ee;
-            LumpedDefinition< Definition< AnsatzVarsExtension, AnsatzVarsExtension > >
-                def_A_ee_lumped;
+            LumpedDefinition< Definition< AnsatzVarsExtension, AnsatzVarsExtension > > def_A_ee_lumped;
         };
-    }
-}
+    } // namespace Kaskade
+} // namespace Spacy

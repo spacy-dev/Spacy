@@ -18,7 +18,6 @@ namespace Spacy
                                 const Spacy::VectorSpace& range )
             : OperatorBase( domain, range ), blockOperators_( std::move( blockOperators ) )
         {
-            assert( !blockOperators_.empty() );
         }
 
         Spacy::Vector C1Operator::operator()( const ::Spacy::Vector& x ) const
@@ -98,7 +97,7 @@ namespace Spacy
         Spacy::LinearOperator
         C1Operator::linearization( const Spacy::Vector& x ) const // NOLINT(readability-convert-member-functions-to-static)
         {
-            assert( false );
+            assert( false ); // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
             return Spacy::LinearOperator();
         }
 

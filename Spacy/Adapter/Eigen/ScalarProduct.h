@@ -4,14 +4,11 @@
 
 #include "Spacy/Adapter/Generic/ScalarProduct.h"
 
-namespace Spacy
+namespace Spacy::Rn
 {
-    namespace Rn
-    {
-        /**
-         * @ingroup EigenGroup
-         * @brief Euclidean scalar product for %Rn, based on the %Eigen library.
-         */
-        using EuclideanScalarProduct = Generic::EuclideanScalarProduct;
-    }
-}
+    /**
+     * @ingroup EigenGroup
+     * @brief Euclidean scalar product for %Rn, based on the %Eigen library.
+     */
+    using EuclideanScalarProduct = Generic::EuclideanScalarProduct;
+} // namespace Spacy::Rn

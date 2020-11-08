@@ -25,7 +25,7 @@ namespace Spacy
                   []( const ::Spacy::Vector& /*unused*/ ) -> Spacy::Real {
                       throw Exception::CallOfUndefinedFunction( "LinearOperatorNorm" );
                   },
-                  true ) )
+                  "operator space (R->R)" ) )
         {
         }
 

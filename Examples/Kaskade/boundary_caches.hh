@@ -1,97 +1,109 @@
 #pragma once
 
-#include <dune/common/fvector.hh>
 #include <fem/functional_aux.hh>
+
+#include <dune/common/fvector.hh>
 
 namespace Kaskade
 {
+    template < class F, class G, std::enable_if_t< !std::is_same< F, G >::value >* = nullptr >
+    const auto& if_( const F& f, const G& g )
+    {
+        return g;
+    }
+
+    template < class F, class G, std::enable_if_t< std::is_same< F, G >::value >* = nullptr >
+    const auto& if_( const F& f, const G& g )
+    {
+        return f;
+    }
+
     namespace PDE
     {
-        template <class Functional, int state_index>
-        class HomogeneousDirichletBoundary : public CacheBase< Functional, HomogeneousDirichletBoundary<Functional,state_index> >
+        template < class Functional, int state_index >
+        class HomogeneousDirichletBoundary : public CacheBase< Functional, HomogeneousDirichletBoundary< Functional, state_index > >
         {
             using Scalar = typename Functional::Scalar;
             using AnsatzVars = typename Functional::AnsatzVars;
             using TestVars = typename Functional::TestVars;
 
-            template <int entry>
-            using AnsatzVarArg = VariationalArg<Scalar, AnsatzVars::Grid::dimension, AnsatzVars::template Components<entry>::m>;
+            template < int entry >
+            using AnsatzVarArg = VariationalArg< Scalar, AnsatzVars::Grid::dimension, AnsatzVars::template Components< entry >::m >;
 
-            template <int entry>
-            using TestVarArg = VariationalArg<Scalar, TestVars::Grid::dimension, TestVars::template Components<entry>::m>;
+            template < int entry >
+            using TestVarArg = VariationalArg< Scalar, TestVars::Grid::dimension, TestVars::template Components< entry >::m >;
 
             static constexpr int state_space_index =
-                    boost::fusion::result_of::value_at_c<typename AnsatzVars::Variables, state_index>::type::spaceIndex;
+                boost::fusion::result_of::value_at_c< typename AnsatzVars::Variables, state_index >::type::spaceIndex;
 
         public:
-            HomogeneousDirichletBoundary(const Functional&,
-                                         const typename AnsatzVars::VariableSet& x,
-                                         int) : x_(x)
-            {}
+            HomogeneousDirichletBoundary( const Functional&, const typename AnsatzVars::VariableSet& x, int ) : x_( x )
+            {
+            }
 
-            template <class Position, class Evaluators>
-            void evaluateAt(const Position&, const Evaluators& evaluators)
+            template < class Position, class Evaluators >
+            void evaluateAt( const Position&, const Evaluators& evaluators )
             {
                 using boost::fusion::at_c;
-                u_ = at_c<state_index>(x_.data).value(at_c<state_space_index>(evaluators));
+                u_ = at_c< state_index >( x_.data ).value( at_c< state_space_index >( evaluators ) );
             }
 
             Scalar d0() const
             {
-                return 0.5*penalty*(u_*u_);
+                return 0.5 * penalty * ( u_ * u_ );
             }
 
-            template<int row>
-            Scalar d1_impl (const TestVarArg<row>& arg) const
+            template < int row >
+            Scalar d1_impl( const TestVarArg< row >& arg ) const
             {
-                return penalty*(u_*arg.value);
+                return penalty * ( u_ * arg.value );
             }
 
-            template<int row, int col>
-            Scalar d2_impl (const TestVarArg<row>& arg1, const AnsatzVarArg<col>& arg2) const
+            template < int row, int col >
+            Scalar d2_impl( const TestVarArg< row >& arg1, const AnsatzVarArg< col >& arg2 ) const
             {
-                return penalty*(arg1.value*arg2.value);
+                return penalty * ( arg1.value * arg2.value );
             }
 
         private:
             const typename AnsatzVars::VariableSet& x_;
-            Dune::FieldVector<Scalar,AnsatzVars::template Components<state_index>::m> u_;
+            Dune::FieldVector< Scalar, AnsatzVars::template Components< state_index >::m > u_;
             Scalar penalty = 1e9;
         };
-    }
+    } // namespace PDE
 
     namespace Optimization
     {
-        template <class Functional, int state_index, int adjoint_index>
-        class HomogeneousDirichletBoundary : public CacheBase< Functional, HomogeneousDirichletBoundary<Functional,state_index,adjoint_index> >
+        template < class Functional, int state_index, int adjoint_index >
+        class HomogeneousDirichletBoundary
+            : public CacheBase< Functional, HomogeneousDirichletBoundary< Functional, state_index, adjoint_index > >
         {
             using Scalar = typename Functional::Scalar;
             using AnsatzVars = typename Functional::AnsatzVars;
             using TestVars = typename Functional::TestVars;
 
-            template <int entry>
-            using AnsatzVarArg = VariationalArg<Scalar, AnsatzVars::Grid::dimension, AnsatzVars::template Components<entry>::m>;
+            template < int entry >
+            using AnsatzVarArg = VariationalArg< Scalar, AnsatzVars::Grid::dimension, AnsatzVars::template Components< entry >::m >;
 
-            template <int entry>
-            using TestVarArg = VariationalArg<Scalar, TestVars::Grid::dimension, TestVars::template Components<entry>::m>;
+            template < int entry >
+            using TestVarArg = VariationalArg< Scalar, TestVars::Grid::dimension, TestVars::template Components< entry >::m >;
 
             static constexpr int state_space_index =
-                    boost::fusion::result_of::value_at_c<typename AnsatzVars::Variables, state_index>::type::spaceIndex;
+                boost::fusion::result_of::value_at_c< typename AnsatzVars::Variables, state_index >::type::spaceIndex;
             static constexpr int adjoint_space_index =
-                    boost::fusion::result_of::value_at_c<typename AnsatzVars::Variables, adjoint_index>::type::spaceIndex;
+                boost::fusion::result_of::value_at_c< typename AnsatzVars::Variables, adjoint_index >::type::spaceIndex;
 
         public:
-            HomogeneousDirichletBoundary(const Functional&,
-                                         const typename AnsatzVars::VariableSet& x,
-                                         int) : x_(x)
-            {}
+            HomogeneousDirichletBoundary( const Functional&, const typename AnsatzVars::VariableSet& x, int ) : x_( x )
+            {
+            }
 
-            template <class Position, class Evaluators>
-            void evaluateAt(const Position&, const Evaluators& evaluators)
+            template < class Position, class Evaluators >
+            void evaluateAt( const Position&, const Evaluators& evaluators )
             {
                 using boost::fusion::at_c;
-                y_ = at_c<state_index>(x_.data).value(at_c<state_space_index>(evaluators));
-                p_ = at_c<adjoint_index>(x_.data).value(at_c<adjoint_space_index>(evaluators));
+                y_ = at_c< state_index >( x_.data ).value( at_c< state_space_index >( evaluators ) );
+                p_ = at_c< adjoint_index >( x_.data ).value( at_c< adjoint_space_index >( evaluators ) );
             }
 
             Scalar d0() const
@@ -99,26 +111,29 @@ namespace Kaskade
                 return 0;
             }
 
-            template<int row>
-            Scalar d1_impl (const TestVarArg<row>& arg) const
+            template < int row >
+            Scalar d1_impl( const TestVarArg< row >& arg ) const
             {
-                if( row == state_index ) return penalty*(p_*if_(arg.value,y_));
-                if( row == adjoint_index ) return penalty*(y_*if_(arg.value,p_));
+                if ( row == state_index )
+                    return penalty * ( p_ * if_( arg.value, y_ ) );
+                if ( row == adjoint_index )
+                    return penalty * ( y_ * if_( arg.value, p_ ) );
+                return 0;
             }
 
-            template<int row, int col>
-            Scalar d2_impl (const TestVarArg<row>& arg1, const AnsatzVarArg<col>& arg2) const
+            template < int row, int col >
+            Scalar d2_impl( const TestVarArg< row >& arg1, const AnsatzVarArg< col >& arg2 ) const
             {
-                if( (row == state_index && col == adjoint_index) || (row == adjoint_index && col == state_index) )
-                    return penalty*(if_(arg1.value,y_) * if_(arg2.value,p_));
+                if ( ( row == state_index && col == adjoint_index ) || ( row == adjoint_index && col == state_index ) )
+                    return penalty * ( if_( arg1.value, y_ ) * if_( arg2.value, p_ ) );
                 return 0;
             }
 
         private:
             const typename AnsatzVars::VariableSet& x_;
-            Dune::FieldVector<Scalar,AnsatzVars::template Components<state_index>::m> y_;
-            Dune::FieldVector<Scalar,AnsatzVars::template Components<adjoint_index>::m> p_;
+            Dune::FieldVector< Scalar, AnsatzVars::template Components< state_index >::m > y_;
+            Dune::FieldVector< Scalar, AnsatzVars::template Components< adjoint_index >::m > p_;
             Scalar penalty = 1e9;
         };
-    }
-}
+    } // namespace Optimization
+} // namespace Kaskade

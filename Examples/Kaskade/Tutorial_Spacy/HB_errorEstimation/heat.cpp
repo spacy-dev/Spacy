@@ -1,19 +1,19 @@
-#include <dune/grid/config.h>
-#include <dune/grid/uggrid.hh>
-
 #include <fem/assemble.hh>
 #include <fem/lagrangespace.hh>
 #include <io/vtk.hh>
+
+#include <dune/grid/config.h>
+#include <dune/grid/uggrid.hh>
 //#include "io/amira.hh"
+#include <Spacy/Adapter/kaskade.hh>
+#include <Spacy/Spacy.h>
+
+#include <linalg/direct.hh>
 #include <utilities/enums.hh>
 #include <utilities/gridGeneration.hh> //  createUnitSquare, createUnitCube
 #include <utilities/kaskopt.hh>
 
-#include <Spacy/Adapter/kaskade.hh>
-#include <Spacy/Spacy.h>
-
 #include <boost/timer/timer.hpp>
-#include <linalg/direct.hh>
 
 #include <algorithm>
 #include <cmath>
@@ -28,8 +28,7 @@ constexpr int dim = 2;
 
 using Grid = Dune::UGGrid< dim >;
 using LeafView = Grid::LeafGridView;
-using H1Space = FEFunctionSpace< ContinuousLagrangeMapper< double, LeafView > >;
-using Spaces = boost::fusion::vector< H1Space const* >;
+using Spaces = boost::fusion::vector< H1Space< Grid > const* >;
 using VariableDescriptions = boost::fusion::vector< Variable< SpaceIndex< 0 >, Components< 1 >, VariableId< 0 > > >;
 using VSD = VariableSetDescription< Spaces, VariableDescriptions >;
 using Functional = PoissonFunctional< double, VSD >;
@@ -74,13 +73,13 @@ int main( int argc, char* argv[] )
     gridManager.setVerbosity( bool( verbosity ) );
 
     // construction of finite element space for the scalar solution T
-    H1Space temperatureSpace( gridManager, gridManager.grid().leafGridView(), order );
+    H1Space< Grid > temperatureSpace( gridManager, gridManager.grid().leafGridView(), order );
     Spaces spaces( &temperatureSpace );
     std::string varNames[ 1 ] = { "T" };            // NOLINT(cppcoreguidelines-avoid-c-arrays)
     VSD variableSetDescription( spaces, varNames ); // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     Functional F;
 
-    auto X = Spacy::Kaskade::makeHilbertSpace< VSD >( variableSetDescription );
+    auto X = Spacy::Kaskade::makeHilbertSpace< VSD >( variableSetDescription, "X" );
     Spacy::globalSpaceManager().add( X.index(), Spacy::Kaskade::refineCells( gridManager ) );
 
     const auto A = Spacy::Kaskade::makeC1Operator( F, X, X.dualSpace() );

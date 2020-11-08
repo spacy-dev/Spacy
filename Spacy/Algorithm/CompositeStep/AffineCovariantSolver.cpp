@@ -222,29 +222,11 @@ namespace Spacy
         IndefiniteLinearSolver AffineCovariantSolver::makeTangentialSolver( DampingFactor nu, const Vector& x,
                                                                             bool lastStepWasUndamped ) const
         {
-            //            Real trcgRelativeAccuracy = getMinimalAccuracy();
-            //            if( nu == 1 && lastStepWasUndamped )
-            //            {
-            //                trcgRelativeAccuracy = max( getRelativeAccuracy() , min(
-            //                getMinimalAccuracy() , omegaL * norm_dx_old ) );
-            //                if( norm_dx_old > 0 && lastStepWasUndamped )
-            //                    trcgRelativeAccuracy = min( max( getRelativeAccuracy()/norm_dx_old
-            //                    , trcgRelativeAccuracy ) , getMinimalAccuracy() );
-            //                if( getVerbosityLevel() > 1 )
-            //                {
-            //                    std::cout << spacing2 << "relative accuracy = " <<
-            //                    trcgRelativeAccuracy << std::endl;
-            //                    std::cout << spacing2 << "absolute step length accuracy = " <<
-            //                    getRelativeAccuracy()*norm(x) << std::endl;
-            //                }
-            //            }
-
             // To achieve superlinear convergence, tangential step computation accuracy will be
             // proportional to |ds|/|dx|
             //  which is in o(|dx|), starting value is 0.01.
 
-            Real trcgRelativeAccuracy = getTangentialAccuracy();
-            //            Real trcgRelativeAccuracy = 1e-10;
+            auto trcgRelativeAccuracy = getTangentialAccuracy();
             if ( nu < 1 )
             {
                 // if normal step damped, we compute tangential step even less accurate
@@ -483,8 +465,6 @@ namespace Spacy
                 if ( getVerbosityLevel() > 1 )
                     std::cout << spacing2 << "|dx| = " << norm_dx << std::endl;
                 auto trial = retractPrimal( x, dx );
-                //        std::cout << "|x| = " << norm(x) << ", |trial| = " << norm(trial) << ",
-                //        norm(projected(trial)) = " << norm(primalProjection(trial)) << std::endl;
 
                 // reset acceptanceTest
                 acceptanceTest = AcceptanceTest::Failed;
@@ -503,9 +483,6 @@ namespace Spacy
                     // test if dx+ds is admissible
                     if ( !domain_.isAdmissible( trialplus ) )
                         acceptanceTest = AcceptanceTest::LeftAdmissibleDomain;
-
-                    //          std::cout << "ds2: " << norm(ds) << std::endl;
-                    //          std::cout << "soc: " << norm(trialplus) << std::endl;
 
                     updateOmegaC( norm_x, norm_dx, norm( ds ) );
 
@@ -561,13 +538,6 @@ namespace Spacy
                         std::cout << spacing2 << "Acceptance test left admissible domain." << std::endl;
                     if ( acceptanceTest == AcceptanceTest::Passed )
                         std::cout << spacing2 << "Acceptance test passed." << std::endl;
-                    //~ if( normalStepMonitor == StepMonitor::Accepted) std::cout << spacing2 <<
-                    //"NormalStepMonitor::Accepted." << std::endl;
-                    //~ else std::cout << spacing2 << "NormalStepMonitor::Rejected" << std::endl;
-                    //~ if( tangentialStepMonitor == StepMonitor::Accepted) std::cout << spacing2 <<
-                    //"TangentialStepMonitor::Accepted." << std::endl;
-                    //~ else std::cout << spacing2 << "TangentialStepMonitor::Rejected" <<
-                    // std::endl;
                 }
             } // end while (damping factors)
             while ( acceptanceTest != AcceptanceTest::Passed );
@@ -646,11 +616,6 @@ namespace Spacy
             if ( getVerbosityLevel() > 1 )
             {
                 std::cout << spacing2 << "predicted decrease: " << ( cubic( get( tau ) ) - cubic( 0 ) );
-                //        std::cout << spacing2 << "cubic(tau): " << cubic(tau) << ", cubic(0): " <<
-                //        cubic(0) << std::endl;
-                //        std::cout << spacing2 << "L(primalProjection(soc)): " <<
-                //        L_(primalProjection(soc)) << ", |primalProjection(soc)| = " <<
-                //        norm(primalProjection(soc)) << std::endl;
                 std::cout << spacing2 << "actual decrease: " << ( L_( primalProjection( soc ) ) - cubic( 0 ) ) << std::endl;
                 std::cout << spacing2 << "omegaL: " << omegaL;
                 std::cout << spacing2 << "eta: " << eta << std::endl;

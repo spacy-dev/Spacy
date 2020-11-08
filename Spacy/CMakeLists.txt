@@ -19,7 +19,6 @@ list(APPEND SRC_LIST
 aux_source_directory(Adaptivity SRC_LIST)
 aux_source_directory(Adapter/Scalar SRC_LIST)
 aux_source_directory(Adapter/Generic SRC_LIST)
-aux_source_directory(Spaces/ScalarSpace SRC_LIST)
 aux_source_directory(Spaces/ProductSpace SRC_LIST)
 
 add_library(spacy ${SRC_LIST}
@@ -88,6 +87,25 @@ add_library(spacy ${SRC_LIST}
     Algorithm/Scalar/Models.cpp
     Algorithm/TrustRegion/TrustRegionSolver.h
     Algorithm/TrustRegion/TrustRegionSolver.cpp
+    ### Spaces ###
+    Spaces/RealSpace.h
+    Spaces/ProductSpace.h
+    Spaces/ScalarSpace/C1Operator.h
+    Spaces/ScalarSpace/C1Operator.cpp
+    Spaces/ScalarSpace/C2Functional.h
+    Spaces/ScalarSpace/C2Functional.cpp
+    Spaces/ScalarSpace/DynamicOperator.h
+    Spaces/ScalarSpace/DynamicOperator.cpp
+    Spaces/ScalarSpace/LinearOperator.h
+    Spaces/ScalarSpace/LinearOperator.cpp
+    Spaces/ScalarSpace/LinearSolver.h
+    Spaces/ScalarSpace/LinearSolver.cpp
+    Spaces/ScalarSpace/Operator.h
+    Spaces/ScalarSpace/Operator.cpp
+    Spaces/ScalarSpace/Real.h
+    Spaces/ScalarSpace/Real.cpp
+    Spaces/ScalarSpace/RealSpace.h
+    Spaces/ScalarSpace/RealSpace.cpp
     ### Util ###
     Util/Cast.h
     Util/CompareVTK.h
@@ -146,8 +164,7 @@ target_include_directories(spacy PUBLIC
 
 target_link_libraries(spacy PUBLIC lapacke)
 
-
-target_compile_features(spacy PUBLIC cxx_std_14)
+target_compile_features(spacy PUBLIC cxx_std_17)
 set_target_properties(spacy PROPERTIES CXX_EXTENSIONS OFF)
 #This is required so that the exported target has the name Spacy and not spacy
 set_target_properties(spacy PROPERTIES EXPORT_NAME Spacy)

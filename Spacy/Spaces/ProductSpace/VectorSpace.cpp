@@ -89,7 +89,7 @@ namespace Spacy
         unsigned VectorCreator::inverseIdMap( unsigned k ) const
         {
             auto found = std::find_if( begin( idMap_ ), end( idMap_ ), [ k ]( const auto& entry ) { return entry.second == k; } );
-            assert( found != end( idMap_ ) );
+            assert( found != end( idMap_ ) ); // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
             return found->first;
         }
 

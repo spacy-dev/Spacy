@@ -200,10 +200,10 @@ namespace Spacy
         class Vector : public VectorBase, public AddArithmeticOperators< Vector< Description > >
         {
             using VectorImpl = typename Description::template CoefficientVectorRepresentation<>::type;
-            using Variable = std::decay_t<
-                std::remove_pointer_t< typename boost::fusion::result_of::value_at_c< typename Description::Variables, 0 >::type > >;
-            using Space = std::decay_t< std::remove_pointer_t<
-                typename boost::fusion::result_of::value_at_c< typename Description::Spaces, Variable::spaceIndex >::type > >;
+            // using Variable = std::decay_t<
+            //     std::remove_pointer_t< typename boost::fusion::result_of::value_at_c< typename Description::Variables, 0 >::type > >;
+            // using Space = std::decay_t< std::remove_pointer_t<
+            //     typename boost::fusion::result_of::value_at_c< typename Description::Spaces, Variable::spaceIndex >::type > >;
             using VariableSet = typename Description::VariableSet;
 
         public:
@@ -251,9 +251,6 @@ namespace Spacy
                 variableSetToCoefficients( get(), v );
                 variableSetToCoefficients( y.get(), w );
                 return v * w;
-                //        return get() * y.get();
-                //        auto v = VectorImpl(variableSet_), w = VectorImpl(variableSet_);
-                //        return v*w;
             }
             //      Vector& axpy(double a, const AbstractVector& y)
             //      {

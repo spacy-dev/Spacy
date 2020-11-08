@@ -308,7 +308,7 @@ namespace Spacy
     inline void checkDualPairing( const Vector& x, const Vector& y )
     {
         if ( !y.space().isPrimalWRT( x.space() ) )
-            throw Exception::IncompatibleSpace( x.space().index(), y.space().index() );
+            throw Exception::IncompatibleSpace( x.space().index(), x.space().name(), y.space().index(), y.space().name() );
     }
 
     template < class T, typename std::enable_if< std::is_arithmetic< T >::value >::type* = nullptr >

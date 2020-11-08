@@ -12,6 +12,7 @@ namespace Spacy
     {
         return makeHilbertSpace(
             []( const VectorSpace* space ) { return Real{ *space }; },
-            []( const Vector& x, const Vector& y ) { return Real( get( cast_ref< Real >( x ) * cast_ref< Real >( y ) ) ); }, defaultIndex );
+            []( const Vector& x, const Vector& y ) { return Real( get( cast_ref< Real >( x ) * cast_ref< Real >( y ) ) ); }, "R",
+            defaultIndex );
     }
 } // namespace Spacy

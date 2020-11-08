@@ -81,8 +81,8 @@ TEST( VectorSpace, MakeHilbertSpace )
 
 TEST( VectorSpace, SetDualSpace )
 {
-    auto V = makeBanachSpace( Mock::VectorCreator{}, Mock::Norm{} );
-    auto W = makeBanachSpace( Mock::VectorCreator{}, Mock::Norm{} );
+    auto V = makeBanachSpace( Mock::VectorCreator{}, Mock::Norm{}, "V" );
+    auto W = makeBanachSpace( Mock::VectorCreator{}, Mock::Norm{}, "W" );
     V.setDualSpace( &W );
     ASSERT_EQ( W.index(), V.dualSpace().index() );
     ASSERT_TRUE( V.isPrimalWRT( W ) );
@@ -92,8 +92,8 @@ TEST( VectorSpace, SetDualSpace )
 
 TEST( VectorSpace, AddDualSpace )
 {
-    auto V = makeBanachSpace( Mock::VectorCreator{}, Mock::Norm{} );
-    auto W = makeBanachSpace( Mock::VectorCreator{}, Mock::Norm{} );
+    auto V = makeBanachSpace( Mock::VectorCreator{}, Mock::Norm{}, "V" );
+    auto W = makeBanachSpace( Mock::VectorCreator{}, Mock::Norm{}, "W" );
     V.addDualSpace( W );
     ASSERT_TRUE( V.isPrimalWRT( W ) );
     ASSERT_FALSE( W.isPrimalWRT( V ) );

@@ -13,7 +13,8 @@ namespace Spacy
     {
         namespace Damping
         {
-            AffineCovariant::AffineCovariant( const C1Operator& F ) : F_( F ), oldDs( zero( F.domain() ) )
+            AffineCovariant::AffineCovariant( const C1Operator& F, const Real& eps )
+                : Mixin::Eps{ eps }, F_{ F }, oldDs{ zero( F.domain() ) }
             {
             }
 
@@ -70,7 +71,7 @@ namespace Spacy
                 return nu;
             }
 
-            AffineContravariant::AffineContravariant( const C1Operator& F ) : F_( F )
+            AffineContravariant::AffineContravariant( const C1Operator& F, const Real& eps ) : Mixin::Eps{ eps }, F_{ F }
             {
             }
 
@@ -118,7 +119,7 @@ namespace Spacy
                 return nu;
             }
 
-            None::None( const C1Operator& /*unused*/ )
+            None::None( const C1Operator& /*unused*/, const Real& /*unused*/ )
             {
             }
 

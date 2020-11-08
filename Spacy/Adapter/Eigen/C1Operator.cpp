@@ -17,10 +17,9 @@ namespace Spacy
                                 std::function< ::Eigen::MatrixXd( const ::Eigen::VectorXd& ) > derivative, const VectorSpace& domain,
                                 const VectorSpace& range )
             : OperatorBase( domain, range ), value_( std::move( value ) ), derivative_( std::move( derivative ) ),
-              operatorSpace_( std::make_shared< VectorSpace >(
-                  //                        LinearOperatorCreator(domain,range) ,
-                  []( const ::Spacy::VectorSpace* /*unused*/ ) { return Spacy::Real( 0. ); },
-                  []( const ::Spacy::Vector& /*unused*/ ) { return Spacy::Real( 0. ); } ) )
+              operatorSpace_( std::make_shared< VectorSpace >( []( const ::Spacy::VectorSpace* /*unused*/ ) { return Spacy::Real( 0. ); },
+                                                               []( const ::Spacy::Vector& /*unused*/ ) { return Spacy::Real( 0. ); },
+                                                               "operator space" ) )
         {
         }
 

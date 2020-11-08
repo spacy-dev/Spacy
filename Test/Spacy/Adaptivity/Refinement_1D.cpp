@@ -139,7 +139,7 @@ TEST( TestSpatialAdaptivity_1D, IF_NoAdaptivityIsDefinedForSpace_THEN_NoRefineme
 {
     const auto initialDimension = 2;
     auto norm = Spacy::HilbertSpaceNorm( Spacy::Rn::EuclideanScalarProduct() );
-    auto V = Spacy::VectorSpace( VectorCreatorForUnitInterval( initialDimension ), norm );
+    auto V = Spacy::VectorSpace( VectorCreatorForUnitInterval( initialDimension ), norm, "test space" );
     ::Eigen::VectorXd v_e( initialDimension );
     Spacy::Vector v = Spacy::Rn::Vector( v_e, V );
 
@@ -154,7 +154,7 @@ TEST( TestSpatialAdaptivity_1D, TestRefinementFrom_2_To_3_Unknowns )
 {
     const auto initialDimension = 2;
     auto norm = Spacy::HilbertSpaceNorm( Spacy::Rn::EuclideanScalarProduct() );
-    auto V = Spacy::VectorSpace( VectorCreatorForUnitInterval( initialDimension ), norm );
+    auto V = Spacy::VectorSpace( VectorCreatorForUnitInterval( initialDimension ), norm, "test space" );
     Spacy::globalSpaceManager().add( V.index(), [ &V ]( const Spacy::ErrorIndicator& indicator ) mutable {
         return V.creator().target< VectorCreatorForUnitInterval >()->refineGrid( indicator );
     } );
@@ -179,7 +179,7 @@ TEST( TestSpatialAdaptivity_1D, TestRefinementFrom_2_To_3_To_4_Unknowns )
 {
     const auto initialDimension = 2;
     auto norm = Spacy::HilbertSpaceNorm( Spacy::Rn::EuclideanScalarProduct() );
-    auto V = Spacy::VectorSpace( VectorCreatorForUnitInterval( initialDimension ), norm );
+    auto V = Spacy::VectorSpace( VectorCreatorForUnitInterval( initialDimension ), norm, "test space" );
     Spacy::globalSpaceManager().add( V.index(), [ &V ]( const Spacy::ErrorIndicator& indicator ) mutable {
         return V.creator().target< VectorCreatorForUnitInterval >()->refineGrid( indicator );
     } );

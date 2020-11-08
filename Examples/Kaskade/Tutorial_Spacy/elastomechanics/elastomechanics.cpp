@@ -29,36 +29,6 @@ using Grid = Dune::UGGrid< DIM >;
 using Spaces = boost::fusion::vector< H1Space< Grid > const* >;
 using NumaMatrix = NumaBCRSMatrix< Dune::FieldMatrix< double, DIM, DIM > >;
 
-template < class VariableSetDescription, class Matrix >
-std::function< ::Spacy::LinearSolver( const ::Spacy::Kaskade::LinearOperator< VariableSetDescription, VariableSetDescription, Matrix >& ) >
-getMultiGridSolver( const H1Space< Grid >& h1Space, double atol, int maxit, int verbose )
-{
-    return [ & ]( const Spacy::Kaskade::LinearOperator< VariableSetDescription, VariableSetDescription, Matrix >& L ) {
-        return [ &h1Space, atol, maxit, verbose, A = L.get() ]( const Spacy::Vector& x ) -> Spacy::Vector {
-            using CoefficientVector = typename VariableSetDescription::template CoefficientVectorRepresentation<>::type;
-            const auto spaces = ::Kaskade::makeSpaceList( &h1Space );
-            CoefficientVector y_( VariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces ) );
-            CoefficientVector x_( VariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces ) );
-            Spacy::Kaskade::copyToCoefficientVector< VariableSetDescription >( x, x_ );
-
-            using X = Dune::BlockVector< Dune::FieldVector< double, DIM > >;
-            Kaskade::DefaultDualPairing< X, X > dp{};
-            auto mat = Dune::MatrixAdapter< std::decay_t< std::decay_t< decltype( A ) > >, X, X >( A );
-            Kaskade::SymmetricLinearOperatorWrapper< X, X > sa( mat, dp );
-            Kaskade::PCGEnergyErrorTerminationCriterion< double > term( atol, maxit );
-            std::unique_ptr< Kaskade::SymmetricPreconditioner< X, X > > mg =
-                ::Kaskade::makeMultigrid( A, h1Space, false, Kaskade::DirectType::UMFPACK );
-            Kaskade::Pcg< X, X > pcg( sa, *mg, term, verbose );
-            Dune::InverseOperatorResult res{};
-            pcg.apply( boost::fusion::at_c< 0 >( y_.data ), boost::fusion::at_c< 0 >( x_.data ), res );
-
-            auto y = zero( x.space() );
-            Spacy::Kaskade::copyFromCoefficientVector< VariableSetDescription >( y_, y );
-            return y;
-        };
-    };
-}
-
 int main( int argc, char* argv[] )
 {
     using namespace boost::fusion;
@@ -76,7 +46,7 @@ int main( int argc, char* argv[] )
     auto threads = -1;
     auto additive = false;
     auto vtk = true;
-    auto direct = true;
+    auto direct = false;
     auto atol = 1e-8;
     auto epsilon = 0.0;
     std::string material;
@@ -118,9 +88,9 @@ int main( int argc, char* argv[] )
 
     // construction of finite element space for the scalar solution T.
     H1Space< Grid > h1Space( gridManager, gridManager.grid().leafGridView(), order );
+    const auto spaces = makeSpaceList( &h1Space );
 
-    auto varSetDesc =
-        makeVariableSetDescription( makeSpaceList( &h1Space ), make_vector( Variable< SpaceIndex< 0 >, Components< DIM > >( "u" ) ) );
+    auto varSetDesc = makeVariableSetDescription( spaces, make_vector( Variable< SpaceIndex< 0 >, Components< DIM > >( "u" ) ) );
     using VarSetDesc = decltype( varSetDesc );
     using Functional = ElasticityFunctional< VarSetDesc >;
     using Assembler = VariationalFunctionalAssembler< LinearizationAt< Functional > >;
@@ -130,8 +100,10 @@ int main( int argc, char* argv[] )
     Functional F( ElasticModulus::material( material ) );
 
     // compute solution
-    const auto X = Spacy::Kaskade::makeHilbertSpace< VarSetDesc >( varSetDesc );
-    auto createMultiGridSolver = getMultiGridSolver< VarSetDesc, NumaMatrix >( h1Space, atol, maxit, verbose );
+    const auto X = Spacy::Kaskade::makeHilbertSpace< VarSetDesc >( varSetDesc, "X" );
+    auto createMultiGridSolver = [ & ]( const Spacy::Kaskade::LinearOperator< VarSetDesc, VarSetDesc, NumaMatrix >& L ) {
+        return Spacy::Kaskade::MultiGridSolver< VarSetDesc, Grid >( L.get(), spaces, atol, maxit, verbose );
+    };
     auto A = direct ? Spacy::Kaskade::makeC2Functional< Functional, NumaMatrix >( F, X )
                     : Spacy::Kaskade::makeC2Functional< Functional, NumaMatrix >( F, X, std::move( createMultiGridSolver ) );
     const auto x0 = zero( X );

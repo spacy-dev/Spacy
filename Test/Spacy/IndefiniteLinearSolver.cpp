@@ -32,7 +32,7 @@ TEST( IndefiniteLinearSolver, Apply )
 {
     auto solver = Mock::IndefiniteLinearSolver{};
     IndefiniteLinearSolver typeErasedSolver( solver );
-    const auto V = VectorSpace( Mock::VectorCreator(), Mock::Norm() );
+    const auto V = VectorSpace( Mock::VectorCreator(), Mock::Norm(), "test space" );
     ASSERT_NO_THROW( typeErasedSolver( zero( V ) ) );
 }
 

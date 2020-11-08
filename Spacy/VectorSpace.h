@@ -18,6 +18,7 @@ namespace Spacy
     {
         static unsigned spaceIndex = 1;
     }
+    class Operator;
     class ZeroVectorCreator;
     /// @endcond
 
@@ -47,7 +48,7 @@ namespace Spacy
          *
          * The default index can be used to use different locally defined function spaces together.
          */
-        VectorSpace( ZeroVectorCreator&& creator, Norm norm, bool defaultIndex = false );
+        VectorSpace( ZeroVectorCreator&& creator, Norm norm, std::string name = "", bool defaultIndex = false );
 
         VectorSpace( VectorSpace&& V );
 
@@ -109,9 +110,30 @@ namespace Spacy
 
         [[nodiscard]] const ZeroVectorCreator& creator() const;
 
+        void setProjection( const Operator& P );
+
+        const Operator& getProjectionFrom( const VectorSpace& V ) const;
+
+        void setEmbedding( const Operator& E );
+
+        const Operator& getEmbeddingIn( const VectorSpace& V ) const;
+
+        [[nodiscard]] bool isEmbeddedIn( const VectorSpace& V ) const noexcept;
+
+        [[nodiscard]] Vector embed( const Vector& v ) const;
+
+        [[nodiscard]] Vector embed( Vector&& v ) const;
+
+        [[nodiscard]] Vector project( const Vector& v ) const;
+
+        [[nodiscard]] Vector project( Vector&& v ) const;
+
+        const std::string& name() const noexcept;
+
     private:
         void setDualSpace( const VectorSpace& V );
 
+        std::string name_;
         std::unique_ptr< ZeroVectorCreator > creator_;
         Norm norm_ = {};
         ScalarProduct sp_ = {};
@@ -120,13 +142,16 @@ namespace Spacy
         std::vector< unsigned > dualSpaces_ = {};   ///< dual spaces with respect to this space
         const VectorSpace* dualSpace_ = nullptr;
         std::function< bool( const Vector& ) > restriction_ = []( const Vector& /*unused*/ ) { return true; };
+        std::vector< std::unique_ptr< Operator > > embeddings_{};
+        std::vector< std::unique_ptr< Operator > > projections_{};
     };
 
     /// Construct Banach space.
-    VectorSpace makeBanachSpace( ZeroVectorCreator&& creator, Norm norm );
+    VectorSpace makeBanachSpace( ZeroVectorCreator&& creator, Norm norm, std::string name = "" );
 
     /// Construct Hilbert space.
-    VectorSpace makeHilbertSpace( ZeroVectorCreator&& creator, ScalarProduct scalarProduct, bool defaultIndex = false );
+    VectorSpace makeHilbertSpace( ZeroVectorCreator&& creator, ScalarProduct scalarProduct, std::string name = "",
+                                  bool defaultIndex = false );
 
     /**
      * @brief Relate function spaces.
