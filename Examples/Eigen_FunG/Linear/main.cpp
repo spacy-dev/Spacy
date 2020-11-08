@@ -10,7 +10,7 @@ const constexpr int dim = 2;
 using Vector = Eigen::VectorXd;
 using Matrix = Eigen::MatrixXd;
 
-auto get_fung_operator()
+auto getFungOperator()
 {
     Matrix A( dim, dim );
     A.fill( 0 );
@@ -31,7 +31,7 @@ int main()
     std::cout << std::endl;
     using namespace Spacy;
 
-    auto A_ = get_fung_operator();
+    auto A_ = getFungOperator();
     auto V = Rn::makeHilbertSpace( dim );
     auto A = Rn::getFunGC1Operator( A_, V, V.dualSpace() );
     V.setScalarProduct( InducedScalarProduct( A.linearization( zero( V ) ) ) );

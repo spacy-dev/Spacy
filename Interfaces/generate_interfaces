@@ -16,7 +16,7 @@ SMALL_SBO_ARGS="-sbo -buffer-size=$BUFFER_SIZE"
 
 function generate_interface {
   echo "generate $1"
-  $COMMAND $COMMON_ARGS $3 -target-dir=$2 $1 -std=c++14 -I.. -x c++-header
+  $COMMAND $COMMON_ARGS $3 -target-dir=$2 $1 -std=c++17 -I.. -x c++-header
 }
 
 function generate_interfaces {

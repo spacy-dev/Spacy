@@ -1,4 +1,4 @@
-Checks:          '-*,readability-*,-readability-uppercase-literal-suffix,cppcoreguidelines-*,bugprone-*,modernize-*,-modernize-use-trailing-return-type,-modernize-avoid-c-arrays, -cppcoreguidelines-special-member-functions, -bugprone-suspicious-semicolon, -*-magic-numbers, -cppcoreguidelines-pro-type-member-init, -bugprone-forwarding-reference-overload, -cppcoreguidelines-c-copy-assignment-signature, -readability-qualified-auto, -bugprone-unhandled-self-assignment, -cppcoreguidelines-pro-bounds-pointer-arithmetic, -bugprone-exception-escape'
+Checks:          '-*,readability-*,-readability-uppercase-literal-suffix,cppcoreguidelines-*,bugprone-*,modernize-*,-modernize-use-trailing-return-type,-modernize-avoid-c-arrays,-cppcoreguidelines-special-member-functions,-*-magic-numbers,-bugprone-exception-escape'
 WarningsAsErrors: '*'
 HeaderFilterRegex: 'Spacy/Spacy/.*'
 AnalyzeTemporaryDtors: false

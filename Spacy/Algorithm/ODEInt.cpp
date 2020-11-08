@@ -8,51 +8,44 @@
 #include <cmath>
 #include <numeric>
 
-namespace boost
+namespace boost::numeric::odeint
 {
-    namespace numeric
+    Spacy::Vector operator/( const Spacy::Vector& x, const Spacy::Vector& y )
     {
-        namespace odeint
-        {
-            Spacy::Vector operator/( const Spacy::Vector& x, const Spacy::Vector& y )
-            {
-                auto z( x );
-                std::transform( x.begin(), x.end(), y.begin(), z.begin(), []( double x, double y ) { return x / y; } );
-                return z;
-            }
+        auto z( x );
+        std::transform( x.begin(), x.end(), y.begin(), z.begin(), []( double x, double y ) { return x / y; } );
+        return z;
+    }
 
-            Spacy::Vector abs( Spacy::Vector x )
-            {
-                std::transform( x.begin(), x.end(), x.begin(), []( double xi ) { return std::abs( xi ); } );
-                return x;
-            }
+    Spacy::Vector abs( Spacy::Vector x )
+    {
+        std::transform( x.begin(), x.end(), x.begin(), []( double xi ) { return std::abs( xi ); } );
+        return x;
+    }
 
-            vector_space_norm_inf< Spacy::Vector >::result_type
-            vector_space_norm_inf< Spacy::Vector >::operator()( const Spacy::Vector& x ) const
-            {
-                return std::accumulate( x.begin(), x.end(), result_type{ 0 },
-                                        []( result_type max, result_type xi ) { return std::max( max, std::abs( xi ) ); } );
-            }
+    vector_space_norm_inf< Spacy::Vector >::result_type vector_space_norm_inf< Spacy::Vector >::operator()( const Spacy::Vector& x ) const
+    {
+        return std::accumulate( x.begin(), x.end(), result_type{ 0 },
+                                []( result_type max, result_type xi ) { return std::max( max, std::abs( xi ) ); } );
+    }
 
-            // NOLINTNEXTLINE(readability-identifier-naming)
-            bool same_size_impl< Spacy::Vector, Spacy::Vector >::same_size( const Spacy::Vector& x, const Spacy::Vector& y )
-            {
-                if ( !bool( x ) && !bool( y ) )
-                    return true;
+    // NOLINTNEXTLINE(readability-identifier-naming)
+    bool same_size_impl< Spacy::Vector, Spacy::Vector >::same_size( const Spacy::Vector& x, const Spacy::Vector& y )
+    {
+        if ( !bool( x ) && !bool( y ) )
+            return true;
 
-                if ( bool( x ) ^ bool( y ) )
-                    return false;
+        if ( bool( x ) ^ bool( y ) )
+            return false;
 
-                return std::distance( x.begin(), x.end() ) == std::distance( y.begin(), y.end() );
-            }
+        return std::distance( x.begin(), x.end() ) == std::distance( y.begin(), y.end() );
+    }
 
-            void resize_impl< Spacy::Vector, Spacy::Vector >::resize( Spacy::Vector& x, const Spacy::Vector& y )
-            {
-                x = zero( y.space() );
-            }
-        } // namespace odeint
-    }     // namespace numeric
-} // namespace boost
+    void resize_impl< Spacy::Vector, Spacy::Vector >::resize( Spacy::Vector& x, const Spacy::Vector& y )
+    {
+        x = zero( y.space() );
+    }
+} // namespace boost::numeric::odeint
 
 namespace Spacy
 {

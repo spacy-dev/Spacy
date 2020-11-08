@@ -19,7 +19,7 @@ namespace Spacy
             virtual ~Interface() = default;
             [[nodiscard]] virtual std::shared_ptr< Interface > clone() const = 0;
             virtual void increment() = 0;
-            virtual ForwardIterator increment_int() = 0;
+            virtual ForwardIterator increment_int( int offset ) = 0;
             [[nodiscard]] virtual double& dereference() const = 0;
             [[nodiscard]] virtual bool compare_const_ForwardIterator_ref( const ForwardIterator& other ) const = 0;
         };
@@ -39,20 +39,20 @@ namespace Spacy
 
             void increment() override
             {
-                ++impl;
+                impl.operator++();
             }
 
-            ForwardIterator increment_int() override
+            ForwardIterator increment_int( int offset ) override
             {
-                return impl++;
+                return impl.operator++( std::move( offset ) );
             }
 
-            [[nodiscard]] double& dereference() const override
+            double& dereference() const override
             {
                 return impl.operator*();
             }
 
-            [[nodiscard]] bool compare_const_ForwardIterator_ref( const ForwardIterator& other ) const override
+            bool compare_const_ForwardIterator_ref( const ForwardIterator& other ) const override
             {
                 return impl.operator==( *other.template target< typename std::decay< Impl >::type >() );
             }
@@ -92,19 +92,19 @@ namespace Spacy
             return *this;
         }
 
-        ForwardIterator operator++( int )
+        ForwardIterator operator++( int offset )
         {
             assert( impl_ );
-            return impl_->increment_int();
+            return impl_->increment_int( std::move( offset ) );
         }
 
-        double& operator*() const
+        [[nodiscard]] double& operator*() const
         {
             assert( impl_ );
             return impl_->dereference();
         }
 
-        bool operator==( const ForwardIterator& other ) const
+        [[nodiscard]] bool operator==( const ForwardIterator& other ) const
         {
             assert( impl_ );
             return impl_->compare_const_ForwardIterator_ref( other );
@@ -118,13 +118,13 @@ namespace Spacy
             return *this = ForwardIterator( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }
@@ -145,7 +145,7 @@ namespace Spacy
             virtual ~Interface() = default;
             [[nodiscard]] virtual std::shared_ptr< Interface > clone() const = 0;
             virtual void increment() = 0;
-            virtual ConstForwardIterator increment_int() = 0;
+            virtual ConstForwardIterator increment_int( int offset ) = 0;
             [[nodiscard]] virtual const double& dereference() const = 0;
             [[nodiscard]] virtual bool compare_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const = 0;
         };
@@ -165,20 +165,20 @@ namespace Spacy
 
             void increment() override
             {
-                ++impl;
+                impl.operator++();
             }
 
-            ConstForwardIterator increment_int() override
+            ConstForwardIterator increment_int( int offset ) override
             {
-                return impl++;
+                return impl.operator++( std::move( offset ) );
             }
 
-            [[nodiscard]] const double& dereference() const override
+            const double& dereference() const override
             {
                 return impl.operator*();
             }
 
-            [[nodiscard]] bool compare_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const override
+            bool compare_const_ConstForwardIterator_ref( const ConstForwardIterator& other ) const override
             {
                 return impl.operator==( *other.template target< typename std::decay< Impl >::type >() );
             }
@@ -218,19 +218,19 @@ namespace Spacy
             return *this;
         }
 
-        ConstForwardIterator operator++( int )
+        ConstForwardIterator operator++( int offset )
         {
             assert( impl_ );
-            return impl_->increment_int();
+            return impl_->increment_int( std::move( offset ) );
         }
 
-        const double& operator*() const
+        [[nodiscard]] const double& operator*() const
         {
             assert( impl_ );
             return impl_->dereference();
         }
 
-        bool operator==( const ConstForwardIterator& other ) const
+        [[nodiscard]] bool operator==( const ConstForwardIterator& other ) const
         {
             assert( impl_ );
             return impl_->compare_const_ConstForwardIterator_ref( other );
@@ -244,13 +244,13 @@ namespace Spacy
             return *this = ConstForwardIterator( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }

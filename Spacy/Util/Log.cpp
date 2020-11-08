@@ -7,105 +7,101 @@
 #include <iostream>
 #include <string>
 
-namespace Spacy
+namespace Spacy::Log
 {
-    namespace Log
+    namespace
     {
-        namespace
+        std::string adjust( std::string name )
         {
-            std::string adjust( std::string name )
-            {
-                auto max_size = 15u;
-                auto offset = ( name.size() > max_size ) ? std::string() : std::string( max_size - name.size(), ' ' );
-                return name += offset;
-            }
-        } // namespace
-
-        StreamPrinter::StreamPrinter() : os_( std::cout )
-        {
+            auto max_size = 15u;
+            auto offset = ( name.size() > max_size ) ? std::string() : std::string( max_size - name.size(), ' ' );
+            return name += offset;
         }
+    } // namespace
 
-        StreamPrinter::StreamPrinter( std::ostream& os ) : os_( os )
-        {
-        }
+    StreamPrinter::StreamPrinter() : os_( std::cout )
+    {
+    }
 
-        void StreamPrinter::operator()( const char* tag, const char* name, const Printable& printable )
-        {
-            printable( os_ << '[' << tag << "] " << adjust( name ) );
-            os_ << '\n';
-        }
+    StreamPrinter::StreamPrinter( std::ostream& os ) : os_( os )
+    {
+    }
 
-        FilePrinter::FilePrinter( const char* filename )
-        {
-            file_stream_.open( filename );
-        }
+    void StreamPrinter::operator()( const char* tag, const char* name, const Printable& printable )
+    {
+        printable( os_ << '[' << tag << "] " << adjust( name ) );
+        os_ << '\n';
+    }
 
-        FilePrinter::~FilePrinter()
-        {
-            file_stream_.close();
-        }
+    FilePrinter::FilePrinter( const char* filename )
+    {
+        file_stream_.open( filename );
+    }
 
-        void FilePrinter::operator()( const char* tag, const char* name, const Printable& printable )
-        {
-            StreamPrinter( file_stream_ ).operator()( tag, name, printable );
-        }
+    FilePrinter::~FilePrinter()
+    {
+        file_stream_.close();
+    }
 
-        Logger::Logger()
-        {
-            setPrinter( StreamPrinter{} );
-        }
+    void FilePrinter::operator()( const char* tag, const char* name, const Printable& printable )
+    {
+        StreamPrinter( file_stream_ ).operator()( tag, name, printable );
+    }
 
-        Logger& Logger::get()
-        {
-            static Logger logger{};
-            return logger;
-        }
+    Logger::Logger()
+    {
+        setPrinter( StreamPrinter{} );
+    }
 
-        void Logger::enable( const char* tag )
-        {
-            disabled_.erase(
-                std::find_if( begin( disabled_ ), end( disabled_ ),
-                              [ &tag ]( const typename decltype( disabled_ )::value_type& entry ) { return entry.first == tag; } ) );
-        }
+    Logger& Logger::get()
+    {
+        static Logger logger{};
+        return logger;
+    }
 
-        void Logger::disable( const char* tag )
-        {
-            if ( !isDisabled( tag ) )
-                disabled_[ tag ] = true;
-        }
+    void Logger::enable( const char* tag )
+    {
+        disabled_.erase(
+            std::find_if( begin( disabled_ ), end( disabled_ ),
+                          [ &tag ]( const typename decltype( disabled_ )::value_type& entry ) { return entry.first == tag; } ) );
+    }
 
-        void Logger::disable( std::vector< std::string > tags )
-        {
-            // remove duplicates
-            tags.erase(
-                std::remove_if( begin( tags ), end( tags ), [ this ]( const std::string& tag ) { return isDisabled( tag.c_str() ); } ),
-                end( tags ) );
+    void Logger::disable( const char* tag )
+    {
+        if ( !isDisabled( tag ) )
+            disabled_[ tag ] = true;
+    }
 
-            disabled_.reserve( disabled_.size() + tags.size() );
-            for ( const auto& tag : tags )
-                disabled_.emplace( std::make_pair( tag, true ) );
-        }
+    void Logger::disable( std::vector< std::string > tags )
+    {
+        // remove duplicates
+        tags.erase( std::remove_if( begin( tags ), end( tags ), [ this ]( const std::string& tag ) { return isDisabled( tag.c_str() ); } ),
+                    end( tags ) );
 
-        void Logger::setPrinter( Printer&& printer )
-        {
-            printer_.clear();
-            addPrinter( std::move( printer ) );
-        }
+        disabled_.reserve( disabled_.size() + tags.size() );
+        for ( const auto& tag : tags )
+            disabled_.emplace( std::make_pair( tag, true ) );
+    }
 
-        void Logger::addPrinter( Printer&& printer )
-        {
-            printer_.emplace_back( std::move( printer ) );
-        }
+    void Logger::setPrinter( Printer&& printer )
+    {
+        printer_.clear();
+        addPrinter( std::move( printer ) );
+    }
 
-        void Logger::clear()
-        {
-            printer_.clear();
-        }
+    void Logger::addPrinter( Printer&& printer )
+    {
+        printer_.emplace_back( std::move( printer ) );
+    }
 
-        bool Logger::isDisabled( const char* tag ) const
-        {
-            return std::find( begin( disabled_ ), end( disabled_ ), std::pair< const std::string, bool >( tag, true ) ) != end( disabled_ );
-        }
-    } // namespace Log
-} // namespace Spacy
+    void Logger::clear()
+    {
+        printer_.clear();
+    }
+
+    bool Logger::isDisabled( const char* tag ) const
+    {
+        return std::find( begin( disabled_ ), end( disabled_ ), std::pair< const std::string, bool >( tag, true ) ) != end( disabled_ );
+    }
+} // namespace Spacy::Log
 #endif

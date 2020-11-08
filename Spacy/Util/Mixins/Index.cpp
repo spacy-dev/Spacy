@@ -1,67 +1,64 @@
 #include "Index.h"
 
-namespace Spacy
+namespace Spacy::Mixin
 {
-    namespace Mixin
+    StateIndex::StateIndex( unsigned value ) noexcept : value_( value )
     {
-        StateIndex::StateIndex( unsigned value ) noexcept : value_( value )
-        {
-        }
+    }
 
-        void StateIndex::setStateIndex( unsigned value )
-        {
-            value_ = value;
-            notify();
-        }
+    void StateIndex::setStateIndex( unsigned value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        unsigned StateIndex::getStateIndex() const noexcept
-        {
-            return value_;
-        }
+    unsigned StateIndex::getStateIndex() const noexcept
+    {
+        return value_;
+    }
 
-        void StateIndex::update( StateIndex* changedSubject )
-        {
-            setStateIndex( changedSubject->getStateIndex() );
-        }
+    void StateIndex::update( StateIndex* changedSubject )
+    {
+        setStateIndex( changedSubject->getStateIndex() );
+    }
 
-        ControlIndex::ControlIndex( unsigned value ) noexcept : value_( value )
-        {
-        }
+    ControlIndex::ControlIndex( unsigned value ) noexcept : value_( value )
+    {
+    }
 
-        void ControlIndex::setControlIndex( unsigned value )
-        {
-            value_ = value;
-            notify();
-        }
+    void ControlIndex::setControlIndex( unsigned value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        unsigned ControlIndex::getControlIndex() const noexcept
-        {
-            return value_;
-        }
+    unsigned ControlIndex::getControlIndex() const noexcept
+    {
+        return value_;
+    }
 
-        void ControlIndex::update( ControlIndex* changedSubject )
-        {
-            setControlIndex( changedSubject->getControlIndex() );
-        }
+    void ControlIndex::update( ControlIndex* changedSubject )
+    {
+        setControlIndex( changedSubject->getControlIndex() );
+    }
 
-        AdjointIndex::AdjointIndex( unsigned value ) noexcept : value_( value )
-        {
-        }
+    AdjointIndex::AdjointIndex( unsigned value ) noexcept : value_( value )
+    {
+    }
 
-        void AdjointIndex::setAdjointIndex( unsigned value )
-        {
-            value_ = value;
-            notify();
-        }
+    void AdjointIndex::setAdjointIndex( unsigned value )
+    {
+        value_ = value;
+        notify();
+    }
 
-        unsigned AdjointIndex::getAdjointIndex() const noexcept
-        {
-            return value_;
-        }
+    unsigned AdjointIndex::getAdjointIndex() const noexcept
+    {
+        return value_;
+    }
 
-        void AdjointIndex::update( AdjointIndex* changedSubject )
-        {
-            setAdjointIndex( changedSubject->getAdjointIndex() );
-        }
-    } // namespace Mixin
-} // namespace Spacy
+    void AdjointIndex::update( AdjointIndex* changedSubject )
+    {
+        setAdjointIndex( changedSubject->getAdjointIndex() );
+    }
+} // namespace Spacy::Mixin

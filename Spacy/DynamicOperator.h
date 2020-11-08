@@ -43,17 +43,17 @@ namespace Spacy
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            [[nodiscard]] Vector call_double_const_Vector_ref( double t, const Vector& x ) const override
+            Vector call_double_const_Vector_ref( double t, const Vector& x ) const override
             {
                 return impl.operator()( std::move( t ), x );
             }
 
-            [[nodiscard]] const VectorSpace& domain() const override
+            const VectorSpace& domain() const override
             {
                 return impl.domain();
             }
 
-            [[nodiscard]] const VectorSpace& range() const override
+            const VectorSpace& range() const override
             {
                 return impl.range();
             }
@@ -81,7 +81,7 @@ namespace Spacy
         }
 
         /// Apply operator.
-        Vector operator()( double t, const Vector& x ) const
+        [[nodiscard]] Vector operator()( double t, const Vector& x ) const
         {
             assert( impl_ );
             return impl_->call_double_const_Vector_ref( std::move( t ), x );
@@ -109,19 +109,19 @@ namespace Spacy
             return *this = DynamicOperator( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }
@@ -161,7 +161,7 @@ namespace Spacy
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            [[nodiscard]] Vector call_double_const_Vector_ref( double t, const Vector& x ) const override
+            Vector call_double_const_Vector_ref( double t, const Vector& x ) const override
             {
                 return impl.operator()( std::move( t ), x );
             }
@@ -181,32 +181,32 @@ namespace Spacy
                 impl.operator*=( std::move( a ) );
             }
 
-            [[nodiscard]] DynamicLinearOperator negate() const override
+            DynamicLinearOperator negate() const override
             {
                 return impl.operator-();
             }
 
-            [[nodiscard]] bool compare_const_DynamicLinearOperator_ref( const DynamicLinearOperator& y ) const override
+            bool compare_const_DynamicLinearOperator_ref( const DynamicLinearOperator& y ) const override
             {
                 return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
             }
 
-            [[nodiscard]] std::function< Vector( const Vector& ) > solver() const override
+            std::function< Vector( const Vector& ) > solver() const override
             {
                 return impl.solver();
             }
 
-            [[nodiscard]] const VectorSpace& domain() const override
+            const VectorSpace& domain() const override
             {
                 return impl.domain();
             }
 
-            [[nodiscard]] const VectorSpace& range() const override
+            const VectorSpace& range() const override
             {
                 return impl.range();
             }
 
-            [[nodiscard]] const VectorSpace& space() const override
+            const VectorSpace& space() const override
             {
                 return impl.space();
             }
@@ -234,7 +234,7 @@ namespace Spacy
         }
 
         /// Apply operator.
-        Vector operator()( double t, const Vector& x ) const
+        [[nodiscard]] Vector operator()( double t, const Vector& x ) const
         {
             assert( impl_ );
             return impl_->call_double_const_Vector_ref( std::move( t ), x );
@@ -261,13 +261,13 @@ namespace Spacy
             return *this;
         }
 
-        DynamicLinearOperator operator-() const
+        [[nodiscard]] DynamicLinearOperator operator-() const
         {
             assert( impl_ );
             return impl_->negate();
         }
 
-        bool operator==( const DynamicLinearOperator& y ) const
+        [[nodiscard]] bool operator==( const DynamicLinearOperator& y ) const
         {
             assert( impl_ );
             return impl_->compare_const_DynamicLinearOperator_ref( y );
@@ -308,19 +308,19 @@ namespace Spacy
             return *this = DynamicLinearOperator( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }
@@ -356,32 +356,32 @@ namespace Spacy
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            [[nodiscard]] Vector call_double_const_Vector_ref( double t, const Vector& x ) const override
+            Vector call_double_const_Vector_ref( double t, const Vector& x ) const override
             {
                 return impl.operator()( std::move( t ), x );
             }
 
-            [[nodiscard]] Vector d1( double t, const Vector& x, const Vector& dx ) const override
+            Vector d1( double t, const Vector& x, const Vector& dx ) const override
             {
                 return impl.d1( std::move( t ), x, dx );
             }
 
-            [[nodiscard]] LinearOperator linearization( double t, const Vector& x ) const override
+            LinearOperator linearization( double t, const Vector& x ) const override
             {
                 return impl.linearization( std::move( t ), x );
             }
 
-            [[nodiscard]] LinearOperator M() const override
+            LinearOperator M() const override
             {
                 return impl.M();
             }
 
-            [[nodiscard]] const VectorSpace& domain() const override
+            const VectorSpace& domain() const override
             {
                 return impl.domain();
             }
 
-            [[nodiscard]] const VectorSpace& range() const override
+            const VectorSpace& range() const override
             {
                 return impl.range();
             }
@@ -409,7 +409,7 @@ namespace Spacy
         }
 
         /// Apply operator.
-        Vector operator()( double t, const Vector& x ) const
+        [[nodiscard]] Vector operator()( double t, const Vector& x ) const
         {
             assert( impl_ );
             return impl_->call_double_const_Vector_ref( std::move( t ), x );
@@ -457,19 +457,19 @@ namespace Spacy
             return *this = DynamicC1Operator( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }

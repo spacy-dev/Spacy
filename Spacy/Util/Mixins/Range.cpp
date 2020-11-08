@@ -2,29 +2,26 @@
 
 #include <Spacy/VectorSpace.h>
 
-namespace Spacy
+namespace Spacy::Mixin
 {
-    namespace Mixin
+    Range::Range( const VectorSpace& range ) : range_( range )
     {
-        Range::Range( const VectorSpace& range ) : range_( range )
-        {
-        }
-
-        Range& Range::operator=( Range&& other )
-        {
-            checkSpaceCompatibility( range(), other.range() );
-            return *this;
-        }
-
-        Range& Range::operator=( const Range& other )
-        {
-            checkSpaceCompatibility( range(), other.range() );
-            return *this;
-        }
-
-        const VectorSpace& Range::range() const
-        {
-            return range_;
-        }
     }
-}
+
+    Range& Range::operator=( Range&& other )
+    {
+        checkSpaceCompatibility( range(), other.range() );
+        return *this;
+    }
+
+    Range& Range::operator=( const Range& other )
+    {
+        checkSpaceCompatibility( range(), other.range() );
+        return *this;
+    }
+
+    const VectorSpace& Range::range() const
+    {
+        return range_;
+    }
+} // namespace Spacy::Mixin

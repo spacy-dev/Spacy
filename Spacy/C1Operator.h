@@ -40,27 +40,27 @@ namespace Spacy
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            [[nodiscard]] Vector call_const_Vector_ref( const Vector& x ) const override
+            Vector call_const_Vector_ref( const Vector& x ) const override
             {
                 return impl.operator()( x );
             }
 
-            [[nodiscard]] Vector d1( const Vector& x, const Vector& dx ) const override
+            Vector d1( const Vector& x, const Vector& dx ) const override
             {
                 return impl.d1( x, dx );
             }
 
-            [[nodiscard]] LinearOperator linearization( const Vector& x ) const override
+            LinearOperator linearization( const Vector& x ) const override
             {
                 return impl.linearization( x );
             }
 
-            [[nodiscard]] const VectorSpace& domain() const override
+            const VectorSpace& domain() const override
             {
                 return impl.domain();
             }
 
-            [[nodiscard]] const VectorSpace& range() const override
+            const VectorSpace& range() const override
             {
                 return impl.range();
             }
@@ -88,7 +88,7 @@ namespace Spacy
         }
 
         /// Apply operator.
-        Vector operator()( const Vector& x ) const
+        [[nodiscard]] Vector operator()( const Vector& x ) const
         {
             assert( impl_ );
             return impl_->call_const_Vector_ref( x );
@@ -130,19 +130,19 @@ namespace Spacy
             return *this = C1Operator( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }
@@ -150,8 +150,7 @@ namespace Spacy
     private:
         clang::type_erasure::polymorphic::SBOCOWStorage< Interface, Wrapper, 16 > impl_;
     };
-    /// @brief For an operator \f$ A: X\to Y \f$, compute \f$A'\f$ at \f$x\in X\f$ as linear
-    /// operator
+    /// @brief For an operator \f$ A: X\to Y \f$, compute \f$A'\f$ at \f$x\in X\f$ as linear operator
     ///\f$ A'(x): X \to Y \f$.
     ///     *
     /// Equivalent to calling A.linearization(x).

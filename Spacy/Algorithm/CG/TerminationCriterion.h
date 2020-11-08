@@ -44,7 +44,7 @@ namespace Spacy
                     return std::make_unique< Wrapper< Impl > >( impl );
                 }
 
-                [[nodiscard]] bool call() const override
+                bool call() const override
                 {
                     return impl.operator()();
                 }
@@ -59,12 +59,12 @@ namespace Spacy
                     impl.update( std::move( alpha ), std::move( qAq ), std::move( qPq ), std::move( rPINVr ), x );
                 }
 
-                [[nodiscard]] bool vanishingStep() const override
+                bool vanishingStep() const override
                 {
                     return impl.vanishingStep();
                 }
 
-                [[nodiscard]] bool minimalDecreaseAchieved() const override
+                bool minimalDecreaseAchieved() const override
                 {
                     return impl.minimalDecreaseAchieved();
                 }
@@ -111,7 +111,7 @@ namespace Spacy
             {
             }
 
-            bool operator()() const
+            [[nodiscard]] bool operator()() const
             {
                 assert( impl_ );
                 return impl_->call();
@@ -173,19 +173,19 @@ namespace Spacy
                 return *this = TerminationCriterion( std::forward< T >( value ) );
             }
 
-            explicit operator bool() const noexcept
+            [[nodiscard]] explicit operator bool() const noexcept
             {
                 return bool( impl_ );
             }
 
             template < class T >
-            T* target() noexcept
+            [[nodiscard]] T* target() noexcept
             {
                 return impl_.template target< T >();
             }
 
             template < class T >
-            const T* target() const noexcept
+            [[nodiscard]] const T* target() const noexcept
             {
                 return impl_.template target< T >();
             }

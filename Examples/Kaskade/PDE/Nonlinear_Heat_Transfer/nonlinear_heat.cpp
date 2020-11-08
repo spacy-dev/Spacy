@@ -1,9 +1,3 @@
-#include <dune/grid/config.h>
-#include <dune/grid/uggrid.hh>
-
-#include <iostream>
-
-#define SPACY_ENABLE_LOGGING
 #include "../fung_operator.hh"
 #include <fung/examples/nonlinear_heat.hh>
 #include <fung/fung.hh>
@@ -16,6 +10,11 @@
 #include <fem/variables.hh>
 #include <io/vtk.hh>
 #include <utilities/gridGeneration.hh> //  createUnitSquare
+
+#include <dune/grid/config.h>
+#include <dune/grid/uggrid.hh>
+
+#include <iostream>
 
 using namespace Kaskade;
 

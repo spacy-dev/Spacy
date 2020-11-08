@@ -7,45 +7,42 @@
 
 #include <utility>
 
-namespace Spacy
+namespace Spacy::Rothe
 {
-    namespace Rothe
+    class TimeDependentAxpy
     {
-        class TimeDependentAxpy
+    public:
+        TimeDependentAxpy( LinearOperator M, LinearOperator J ) : M_( std::move( M ) ), J_( std::move( J ) )
         {
-        public:
-            TimeDependentAxpy( LinearOperator M, LinearOperator J ) : M_( std::move( M ) ), J_( std::move( J ) )
-            {
-            }
+        }
 
-            LinearOperator operator()( Real dt ) const
-            {
-                auto Axpy = J_;
-                Axpy *= -get( dt );
-                Axpy += M_;
-                return Axpy;
-                //        return axpy(M_,-dt,J_);
-            }
+        LinearOperator operator()( Real dt ) const
+        {
+            auto Axpy = J_;
+            Axpy *= -get( dt );
+            Axpy += M_;
+            return Axpy;
+            //        return axpy(M_,-dt,J_);
+        }
 
-            LinearOperator M_, J_;
+        LinearOperator M_, J_;
+    };
+
+    Vector genericMethod( const DynamicC1Operator& A, Real t0, Real t1 )
+    {
+        unsigned maxSteps = 100;
+
+        auto t = t0;
+        auto dt = ( t1 - t0 ) / maxSteps;
+
+        auto integrator = [ &A, &dt ]( Real t, const Vector& x ) -> Vector {
+            return ( ( TimeDependentAxpy( A.linearization( get( t ), x ), A.M() )( get( dt ) ) ) ^ -1 )( -A( get( t ), x ) );
         };
 
-        Vector genericMethod( const DynamicC1Operator& A, Real t0, Real t1 )
-        {
-            unsigned maxSteps = 100;
+        auto x = zero( A.domain() );
+        for ( auto i = 0u; i < maxSteps; ++i )
+            x += integrator( t += dt, x );
 
-            auto t = t0;
-            auto dt = ( t1 - t0 ) / maxSteps;
-
-            auto integrator = [ &A, &dt ]( Real t, const Vector& x ) -> Vector {
-                return ( ( TimeDependentAxpy( A.linearization( get( t ), x ), A.M() )( get( dt ) ) ) ^ -1 )( -A( get( t ), x ) );
-            };
-
-            auto x = zero( A.domain() );
-            for ( auto i = 0u; i < maxSteps; ++i )
-                x += integrator( t += dt, x );
-
-            return x;
-        }
-    } // namespace Rothe
-} // namespace Spacy
+        return x;
+    }
+} // namespace Spacy::Rothe

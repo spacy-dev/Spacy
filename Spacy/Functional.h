@@ -37,12 +37,12 @@ namespace Spacy
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            [[nodiscard]] Real call_const_Vector_ref( const Vector& x ) const override
+            Real call_const_Vector_ref( const Vector& x ) const override
             {
                 return impl.operator()( x );
             }
 
-            [[nodiscard]] const VectorSpace& domain() const override
+            const VectorSpace& domain() const override
             {
                 return impl.domain();
             }
@@ -70,7 +70,7 @@ namespace Spacy
         }
 
         /// Apply functional.
-        Real operator()( const Vector& x ) const
+        [[nodiscard]] Real operator()( const Vector& x ) const
         {
             assert( impl_ );
             return impl_->call_const_Vector_ref( x );
@@ -91,19 +91,19 @@ namespace Spacy
             return *this = Functional( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }
 
         template < class T >
-        const T* target() const noexcept
+        [[nodiscard]] const T* target() const noexcept
         {
             return impl_.template target< T >();
         }

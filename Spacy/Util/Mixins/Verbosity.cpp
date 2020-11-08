@@ -1,38 +1,35 @@
 #include "Verbosity.h"
 
-namespace Spacy
+namespace Spacy::Mixin
 {
-  namespace Mixin
-  {
-    Verbosity::Verbosity(unsigned verbosityLevel) noexcept
-      : verbosityLevel_(verbosityLevel)
-    {}
-
-    void Verbosity::setVerbosity(bool verbose)
+    Verbosity::Verbosity( unsigned verbosityLevel ) noexcept : verbosityLevel_( verbosityLevel )
     {
-      verbosityLevel_ = verbose ? 1u : 0u;
-      notify();
+    }
+
+    void Verbosity::setVerbosity( bool verbose )
+    {
+        verbosityLevel_ = verbose ? 1u : 0u;
+        notify();
     }
 
     bool Verbosity::verbose() const noexcept
     {
-      return verbosityLevel_ > 0;
+        return verbosityLevel_ > 0;
     }
 
-    void Verbosity::setVerbosityLevel(unsigned level) noexcept
+    void Verbosity::setVerbosityLevel( unsigned level ) noexcept
     {
-      verbosityLevel_ = level;
-      notify();
+        verbosityLevel_ = level;
+        notify();
     }
 
     unsigned Verbosity::getVerbosityLevel() const noexcept
     {
-      return verbosityLevel_;
+        return verbosityLevel_;
     }
 
-    void Verbosity::update(Verbosity* changedSubject)
+    void Verbosity::update( Verbosity* changedSubject )
     {
-      setVerbosityLevel( changedSubject->getVerbosityLevel() );
+        setVerbosityLevel( changedSubject->getVerbosityLevel() );
     }
-  }
-}
+} // namespace Spacy::Mixin

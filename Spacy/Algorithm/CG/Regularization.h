@@ -130,19 +130,19 @@ namespace Spacy
                 return *this = Regularization( std::forward< T >( value ) );
             }
 
-            explicit operator bool() const noexcept
+            [[nodiscard]] explicit operator bool() const noexcept
             {
                 return bool( impl_ );
             }
 
             template < class T >
-            T* target() noexcept
+            [[nodiscard]] T* target() noexcept
             {
                 return impl_.template target< T >();
             }
 
             template < class T >
-            const T* target() const noexcept
+            [[nodiscard]] const T* target() const noexcept
             {
                 return impl_.template target< T >();
             }

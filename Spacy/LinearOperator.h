@@ -50,12 +50,12 @@ namespace Spacy
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            [[nodiscard]] Vector call_const_Vector_ref( const Vector& x ) const override
+            Vector call_const_Vector_ref( const Vector& x ) const override
             {
                 return impl.operator()( x );
             }
 
-            [[nodiscard]] Real call_const_LinearOperator_ref( const LinearOperator& x ) const override
+            Real call_const_LinearOperator_ref( const LinearOperator& x ) const override
             {
                 return impl.operator()( *x.template target< typename std::decay< Impl >::type >() );
             }
@@ -75,32 +75,32 @@ namespace Spacy
                 impl.operator*=( std::move( a ) );
             }
 
-            [[nodiscard]] LinearOperator negate() const override
+            LinearOperator negate() const override
             {
                 return impl.operator-();
             }
 
-            [[nodiscard]] bool compare_const_LinearOperator_ref( const LinearOperator& y ) const override
+            bool compare_const_LinearOperator_ref( const LinearOperator& y ) const override
             {
                 return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
             }
 
-            [[nodiscard]] std::function< Vector( const Vector& ) > solver() const override
+            std::function< Vector( const Vector& ) > solver() const override
             {
                 return impl.solver();
             }
 
-            [[nodiscard]] const VectorSpace& domain() const override
+            const VectorSpace& domain() const override
             {
                 return impl.domain();
             }
 
-            [[nodiscard]] const VectorSpace& range() const override
+            const VectorSpace& range() const override
             {
                 return impl.range();
             }
 
-            [[nodiscard]] const VectorSpace& space() const override
+            const VectorSpace& space() const override
             {
                 return impl.space();
             }
@@ -128,13 +128,13 @@ namespace Spacy
         }
 
         /// Apply operator.
-        Vector operator()( const Vector& x ) const
+        [[nodiscard]] Vector operator()( const Vector& x ) const
         {
             assert( impl_ );
             return impl_->call_const_Vector_ref( x );
         }
 
-        Real operator()( const LinearOperator& x ) const
+        [[nodiscard]] Real operator()( const LinearOperator& x ) const
         {
             assert( impl_ );
             return impl_->call_const_LinearOperator_ref( x );
@@ -161,13 +161,13 @@ namespace Spacy
             return *this;
         }
 
-        LinearOperator operator-() const
+        [[nodiscard]] LinearOperator operator-() const
         {
             assert( impl_ );
             return impl_->negate();
         }
 
-        bool operator==( const LinearOperator& y ) const
+        [[nodiscard]] bool operator==( const LinearOperator& y ) const
         {
             assert( impl_ );
             return impl_->compare_const_LinearOperator_ref( y );
@@ -208,13 +208,13 @@ namespace Spacy
             return *this = LinearOperator( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }

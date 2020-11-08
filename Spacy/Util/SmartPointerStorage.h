@@ -15,7 +15,7 @@
 #endif
 
 #ifdef CLANG_TYPE_ERASE_NO_RTTI
-#define CLANG_TYPE_ERASE_CAST static_cast
+#define CLANG_TYPE_ERASE_CAST static_cast // NOLINT(cppcoreguidelines-macro-usage)
 #else
 #define CLANG_TYPE_ERASE_CAST dynamic_cast // NOLINT(cppcoreguidelines-macro-usage)
 #endif
@@ -39,7 +39,8 @@ namespace clang
                 if ( !data )
                     return true;
                 return data < static_cast< const void* >( &buffer ) ||
-                       static_cast< const void* >( charPtr( &buffer ) + sizeof( buffer ) ) <= data;
+                       static_cast< const void* >( charPtr( &buffer ) + sizeof( buffer ) ) <=
+                           data; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
             }
 
             template < class Storage, class Interface, template < class > class Wrapper >
@@ -95,7 +96,7 @@ namespace clang
                 }
 
                 template < class T >
-                [[nodiscard]] const T* target() const noexcept
+                const T* target() const noexcept
                 {
                     auto interface = static_cast< const Storage* >( this )->getInterfacePtr();
                     if ( containsReferenceWrapper )
@@ -138,6 +139,8 @@ namespace clang
 
                 Storage& operator=( const Storage& other )
                 {
+                    if ( this == &other )
+                        return *this;
                     interface_ = other.interface_ ? other.interface_->clone() : nullptr;
                     return *this;
                 }
@@ -150,7 +153,7 @@ namespace clang
                     return interface_.get();
                 }
 
-                [[nodiscard]] const Interface* getInterfacePtr() const
+                const Interface* getInterfacePtr() const
                 {
                     return interface_.get();
                 }
@@ -182,7 +185,7 @@ namespace clang
                     return interface_.get();
                 }
 
-                [[nodiscard]] const Interface* getInterfacePtr() const
+                const Interface* getInterfacePtr() const
                 {
                     return interface_.get();
                 }
@@ -236,6 +239,9 @@ namespace clang
 
                 SBOStorage& operator=( const SBOStorage& other )
                 {
+                    if ( this == &other )
+                        return *this;
+
                     reset();
                     if ( isHeapAllocated( other.interface_.get(), other.buffer_ ) )
                     {
@@ -265,6 +271,9 @@ namespace clang
 
                 SBOStorage& operator=( SBOStorage&& other )
                 {
+                    if ( this == &other )
+                        return *this;
+
                     reset();
                     if ( isHeapAllocated( other.interface_.get(), other.buffer_ ) )
                     {
@@ -287,7 +296,7 @@ namespace clang
                     return interface_.get();
                 }
 
-                [[nodiscard]] const Interface* getInterfacePtr() const
+                const Interface* getInterfacePtr() const
                 {
                     return interface_.get();
                 }
@@ -300,11 +309,11 @@ namespace clang
 
                 std::shared_ptr< Interface > makeAlias()
                 {
-                    const auto tmp = static_cast< Interface* >( static_cast< void* >( &buffer_[ 0 ] ) );
+                    auto* tmp = static_cast< Interface* >( static_cast< void* >( &buffer_[ 0 ] ) );
                     return std::shared_ptr< Interface >( std::shared_ptr< Interface >(), tmp );
                 }
 
-                std::array< char, Size > buffer_;
+                std::array< char, Size > buffer_{};
                 std::shared_ptr< Interface > interface_ = nullptr;
             };
 
@@ -352,6 +361,9 @@ namespace clang
 
                 SBOCOWStorage& operator=( const SBOCOWStorage& other )
                 {
+                    if ( this == &other )
+                        return *this;
+
                     reset();
                     if ( isHeapAllocated( other.interface_.get(), other.buffer_ ) )
                     {
@@ -381,6 +393,9 @@ namespace clang
 
                 SBOCOWStorage& operator=( SBOCOWStorage&& other )
                 {
+                    if ( this == &other )
+                        return *this;
+
                     reset();
                     if ( isHeapAllocated( other.interface_.get(), other.buffer_ ) )
                     {
@@ -405,7 +420,7 @@ namespace clang
                     return interface_.get();
                 }
 
-                [[nodiscard]] const Interface* getInterfacePtr() const
+                const Interface* getInterfacePtr() const
                 {
                     return interface_.get();
                 }
@@ -418,11 +433,11 @@ namespace clang
 
                 std::shared_ptr< Interface > makeAlias()
                 {
-                    const auto tmp = static_cast< Interface* >( static_cast< void* >( &buffer_[ 0 ] ) );
+                    auto* tmp = static_cast< Interface* >( static_cast< void* >( &buffer_[ 0 ] ) );
                     return std::shared_ptr< Interface >( std::shared_ptr< Interface >(), tmp );
                 }
 
-                std::array< char, Size > buffer_;
+                std::array< char, Size > buffer_{};
                 std::shared_ptr< Interface > interface_ = nullptr;
             };
         } // namespace polymorphic

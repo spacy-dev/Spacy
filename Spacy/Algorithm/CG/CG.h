@@ -148,7 +148,7 @@ namespace Spacy
              * @brief get number of needed iterations.
              * @return iterations
              */
-            unsigned getIterations() const noexcept
+            int getIterations() const noexcept
             {
                 return iterations_;
             }
@@ -182,7 +182,7 @@ namespace Spacy
             bool regularized_ = false;
 
             mutable Regularization regularization_;
-            mutable unsigned iterations_;
+            mutable int iterations_{ -1 };
         };
     } // namespace CG
 } // namespace Spacy

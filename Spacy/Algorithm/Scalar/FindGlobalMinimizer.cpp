@@ -7,91 +7,88 @@
 #include <cassert>
 #include <iostream>
 
-namespace Spacy
+namespace Spacy::Scalar
 {
-    namespace Scalar
+    Real findGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
     {
-        Real findGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
+        assert( a < b );
+        eps *= b - a;
+        Real tmin = a;
+        Real fmin = f( a );
+
+        while ( ( a += eps ) <= b )
         {
-            assert( a < b );
-            eps *= b - a;
-            Real tmin = a;
-            Real fmin = f( a );
-
-            while ( ( a += eps ) <= b )
+            if ( f( a ) < fmin )
             {
-                if ( f( a ) < fmin )
-                {
-                    fmin = f( a );
-                    tmin = a;
-                }
+                fmin = f( a );
+                tmin = a;
             }
+        }
 
-            // try upper bound as candidate (might not have been tested due to roundoff errors)
+        // try upper bound as candidate (might not have been tested due to roundoff errors)
+        if ( f( b ) < fmin )
+            tmin = b;
+
+        return tmin;
+    }
+
+    Real findLogGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
+    {
+        assert( a < b );
+        assert( a > 0 );
+        Real tmin = b;
+        Real fmin = f( b );
+
+        eps = min( eps, 0.5 );
+        while ( ( b *= ( 1 - eps ) ) >= a )
+        {
             if ( f( b ) < fmin )
+            {
+                fmin = f( b );
                 tmin = b;
-
-            return tmin;
-        }
-
-        Real findLogGlobalMinimizer( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
-        {
-            assert( a < b );
-            assert( a > 0 );
-            Real tmin = b;
-            Real fmin = f( b );
-
-            eps = min( eps, 0.5 );
-            while ( ( b *= ( 1 - eps ) ) >= a )
-            {
-                if ( f( b ) < fmin )
-                {
-                    fmin = f( b );
-                    tmin = b;
-                }
             }
-
-            return tmin;
         }
 
-        Real findLogGlobalMinimizeTangentialDamping( const std::function< Real( const Real ) >& f, Real a, Real b, const Real normdn2,
-                                                     const Real two_sp_dn_Dt, const Real normDt2, Real eps )
+        return tmin;
+    }
+
+    Real findLogGlobalMinimizeTangentialDamping( const std::function< Real( const Real ) >& f, Real a, Real b, const Real normdn2,
+                                                 const Real two_sp_dn_Dt, const Real normDt2, Real eps )
+    {
+        assert( a < b );
+        assert( a > 0 );
+        Real tmin = b;
+        Real fmin = f( b );
+        eps = min( eps, 0.5 );
+
+        Real normbefore = 1.e16;
+        Real norm = 0.;
+
+        while ( ( b *= ( 1 - eps ) ) >= a )
         {
-            assert( a < b );
-            assert( a > 0 );
-            Real tmin = b;
-            Real fmin = f( b );
-            eps = min( eps, 0.5 );
-
-            Real normbefore = 1.e16;
-            Real norm = 0.;
-
-            while ( ( b *= ( 1 - eps ) ) >= a )
+            //                std::cout<<b<<std::endl;
+            if ( f( b ) < fmin )
             {
-                //                std::cout<<b<<std::endl;
-                if ( f( b ) < fmin )
-                {
-                    fmin = f( b );
-                    tmin = b;
-                }
-                norm = normdn2 + two_sp_dn_Dt * b + b * b * normDt2;
-
-                // stops the decrease of the damping parameter, if the norm of dn+tmin*Dt increases
-                // This is possible, if dn and Dt are not orthogonal.
-                if ( norm > normbefore )
-                {
-                    std::cout << "norm increased: stopping tangential damping" << std::endl;
-                    break;
-                }
-                normbefore = norm;
+                fmin = f( b );
+                tmin = b;
             }
-            return tmin;
-        }
+            norm = normdn2 + two_sp_dn_Dt * b + b * b * normDt2;
 
-        Real findMinBrent( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
-        {
-            const auto fun = [ f ]( double t ) { return get( f( ::Spacy::Real( t ) ) ); };
-            return Fmin( get( a ), get( b ), fun, get( eps ) );
+            // stops the decrease of the damping parameter, if the norm of dn+tmin*Dt increases
+            // This is possible, if dn and Dt are not orthogonal.
+            if ( norm > normbefore )
+            {
+                std::cout << "norm increased: stopping tangential damping" << std::endl;
+                break;
+            }
+            normbefore = norm;
         }
-    } // namespace Scalar
-} // namespace Spacy
+        return tmin;
+    }
+
+    Real findMinBrent( const std::function< Real( const Real ) >& f, Real a, Real b, Real eps )
+    {
+        const auto fun = [ f ]( double t ) { return get( f( ::Spacy::Real( t ) ) ); };
+        return Fmin( get( a ), get( b ), fun, get( eps ) );
+    }
+} // namespace Spacy::Scalar

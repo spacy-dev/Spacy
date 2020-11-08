@@ -1,9 +1,3 @@
-#include <dune/grid/config.h>
-#include <dune/grid/uggrid.hh>
-
-#include <iostream>
-
-#define SPACY_ENABLE_LOGGING
 #include "../fung_functional.hh"
 #include <fung/examples/biomechanics/adipose_tissue_sommer_holzapfel.hh>
 #include <fung/examples/rubber/neo_hooke.hh>
@@ -17,6 +11,11 @@
 #include <fem/variables.hh>
 #include <io/vtk.hh>
 #include <utilities/gridGeneration.hh> //  createUnitSquare
+
+#include <dune/grid/config.h>
+#include <dune/grid/uggrid.hh>
+
+#include <iostream>
 
 using namespace Kaskade;
 

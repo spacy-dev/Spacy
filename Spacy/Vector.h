@@ -51,7 +51,7 @@ namespace Spacy
                 return std::make_shared< Wrapper< Impl > >( impl );
             }
 
-            [[nodiscard]] Real call_const_Vector_ref( const Vector& x ) const override
+            Real call_const_Vector_ref( const Vector& x ) const override
             {
                 return impl.operator()( *x.template target< typename std::decay< Impl >::type >() );
             }
@@ -71,17 +71,17 @@ namespace Spacy
                 impl.operator*=( std::move( a ) );
             }
 
-            [[nodiscard]] Vector negate() const override
+            Vector negate() const override
             {
                 return impl.operator-();
             }
 
-            [[nodiscard]] bool compare_const_Vector_ref( const Vector& y ) const override
+            bool compare_const_Vector_ref( const Vector& y ) const override
             {
                 return impl.operator==( *y.template target< typename std::decay< Impl >::type >() );
             }
 
-            [[nodiscard]] const VectorSpace& space() const override
+            const VectorSpace& space() const override
             {
                 return impl.space();
             }
@@ -96,12 +96,12 @@ namespace Spacy
                 return impl.end();
             }
 
-            [[nodiscard]] ConstForwardIterator begin() const override
+            ConstForwardIterator begin() const override
             {
                 return impl.begin();
             }
 
-            [[nodiscard]] ConstForwardIterator end() const override
+            ConstForwardIterator end() const override
             {
                 return impl.end();
             }
@@ -126,49 +126,10 @@ namespace Spacy
                                             !std::is_base_of< Interface, typename std::decay< T >::type >::value >::type* = nullptr >
         Vector( T&& value ) : impl_( std::forward< T >( value ) )
         {
-            globalSpaceManager().subscribe( this );
-        }
-
-        Vector( const Vector& v ) : impl_( v.impl_ )
-        {
-            if ( impl_ )
-                globalSpaceManager().subscribe( this );
-        }
-
-        Vector( Vector&& v ) : impl_( std::move( v ).impl_ )
-        {
-            if ( impl_ )
-                globalSpaceManager().subscribe( this );
-        }
-
-        Vector& operator=( const Vector& v )
-        {
-            if ( impl_ )
-                globalSpaceManager().unsubscribe( this );
-            impl_ = v.impl_;
-            if ( impl_ )
-                globalSpaceManager().subscribe( this );
-            return *this;
-        }
-
-        Vector& operator=( Vector&& v )
-        {
-            if ( impl_ )
-                globalSpaceManager().unsubscribe( this );
-            impl_ = std::move( v ).impl_;
-            if ( impl_ )
-                globalSpaceManager().subscribe( this );
-            return *this;
-        }
-
-        ~Vector()
-        {
-            if ( impl_ )
-                globalSpaceManager().unsubscribe( this );
         }
 
         /// Apply as dual space element.
-        Real operator()( const Vector& x ) const
+        [[nodiscard]] Real operator()( const Vector& x ) const
         {
             assert( impl_ );
             return impl_->call_const_Vector_ref( x );
@@ -195,13 +156,13 @@ namespace Spacy
             return *this;
         }
 
-        Vector operator-() const
+        [[nodiscard]] Vector operator-() const
         {
             assert( impl_ );
             return impl_->negate();
         }
 
-        bool operator==( const Vector& y ) const
+        [[nodiscard]] bool operator==( const Vector& y ) const
         {
             assert( impl_ );
             return impl_->compare_const_Vector_ref( y );
@@ -246,13 +207,13 @@ namespace Spacy
             return *this = Vector( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }
@@ -268,14 +229,14 @@ namespace Spacy
     };
     /// Multiplication with arithmetic types (double,float,int,...).
     template < class Arithmetic, class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
-    Vector operator*( Arithmetic a, Vector x )
+    [[nodiscard]] Vector operator*( Arithmetic a, Vector x )
     {
         return x *= a;
     }
 
     /// Multiplication with arithmetic types (double,float,int,...).
     template < class Arithmetic, class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
-    Vector operator*( Vector x, Arithmetic a )
+    [[nodiscard]] Vector operator*( Vector x, Arithmetic a )
     {
         return x *= a;
     }
@@ -312,13 +273,13 @@ namespace Spacy
     }
 
     template < class T, typename std::enable_if< std::is_arithmetic< T >::value >::type* = nullptr >
-    Vector operator*( const Mixin::Get< T >& x, Vector y )
+    [[nodiscard]] Vector operator*( const Mixin::Get< T >& x, Vector y )
     {
         return y *= get( x );
     }
 
     template < class T, typename std::enable_if< std::is_arithmetic< T >::value >::type* = nullptr >
-    Vector operator*( const Vector& x, const Mixin::Get< T >& y )
+    [[nodiscard]] Vector operator*( const Vector& x, const Mixin::Get< T >& y )
     {
         return y * x;
     }

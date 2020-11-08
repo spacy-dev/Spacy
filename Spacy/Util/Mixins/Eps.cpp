@@ -1,41 +1,38 @@
 #include "Eps.h"
 
-namespace Spacy
+namespace Spacy::Mixin
 {
-    namespace Mixin
+
+    Eps::Eps( Real eps ) noexcept : eps_( eps )
     {
+        setEps( eps );
+    }
 
-        Eps::Eps( Real eps ) noexcept : eps_( eps )
-        {
-            setEps( eps );
-        }
+    void Eps::setEps( Real eps )
+    {
+        eps_ = eps;
+        sqrtEps_ = sqrt( eps_ );
+        cbrtEps_ = cbrt( eps_ );
+        notify();
+    }
 
-        void Eps::setEps( Real eps )
-        {
-            eps_ = eps;
-            sqrtEps_ = sqrt( eps_ );
-            cbrtEps_ = cbrt( eps_ );
-            notify();
-        }
+    Real Eps::eps() const noexcept
+    {
+        return eps_;
+    }
 
-        Real Eps::eps() const noexcept
-        {
-            return eps_;
-        }
+    Real Eps::sqrtEps() const noexcept
+    {
+        return sqrtEps_;
+    }
 
-        Real Eps::sqrtEps() const noexcept
-        {
-            return sqrtEps_;
-        }
+    Real Eps::cbrtEps() const noexcept
+    {
+        return cbrtEps_;
+    }
 
-        Real Eps::cbrtEps() const noexcept
-        {
-            return cbrtEps_;
-        }
-
-        void Eps::update( Eps* changedSubject )
-        {
-            setEps( changedSubject->eps() );
-        }
-    } // namespace Mixin
-} // namespace Spacy
+    void Eps::update( Eps* changedSubject )
+    {
+        setEps( changedSubject->eps() );
+    }
+} // namespace Spacy::Mixin

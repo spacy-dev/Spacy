@@ -6,48 +6,42 @@
 #include <boost/numeric/odeint.hpp>
 
 /// Enable Spacy::Vectors in Boost.ODEInt
-namespace boost
+namespace boost::numeric::odeint
 {
-    namespace numeric
+    template <>
+    struct norm_result_type< Spacy::Vector, void >
     {
-        namespace odeint
-        {
-            template <>
-            struct norm_result_type< Spacy::Vector, void >
-            {
-                using type = double;
-            };
+        using type = double;
+    };
 
-            Spacy::Vector operator/( const Spacy::Vector& x, const Spacy::Vector& y );
+    Spacy::Vector operator/( const Spacy::Vector& x, const Spacy::Vector& y );
 
-            Spacy::Vector abs( Spacy::Vector x );
+    Spacy::Vector abs( Spacy::Vector x );
 
-            template <>
-            struct vector_space_norm_inf< Spacy::Vector >
-            {
-                using result_type = double;
-                result_type operator()( const Spacy::Vector& x ) const;
-            };
+    template <>
+    struct vector_space_norm_inf< Spacy::Vector >
+    {
+        using result_type = double;
+        result_type operator()( const Spacy::Vector& x ) const;
+    };
 
-            template <>
-            struct is_resizeable< Spacy::Vector > : boost::true_type
-            {
-            };
+    template <>
+    struct is_resizeable< Spacy::Vector > : boost::true_type
+    {
+    };
 
-            template <>
-            struct same_size_impl< Spacy::Vector, Spacy::Vector >
-            {
-                static bool same_size( const Spacy::Vector& x, const Spacy::Vector& y );
-            };
+    template <>
+    struct same_size_impl< Spacy::Vector, Spacy::Vector >
+    {
+        static bool same_size( const Spacy::Vector& x, const Spacy::Vector& y );
+    };
 
-            template <>
-            struct resize_impl< Spacy::Vector, Spacy::Vector >
-            {
-                static void resize( Spacy::Vector& x, const Spacy::Vector& y );
-            };
-        } // namespace odeint
-    }     // namespace numeric
-} // namespace boost
+    template <>
+    struct resize_impl< Spacy::Vector, Spacy::Vector >
+    {
+        static void resize( Spacy::Vector& x, const Spacy::Vector& y );
+    };
+} // namespace boost::numeric::odeint
 
 namespace Spacy
 {

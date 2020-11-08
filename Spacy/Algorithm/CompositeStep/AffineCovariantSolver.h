@@ -129,19 +129,20 @@ namespace Spacy
             mutable LinearSolver normalSolver = {};
             mutable IndefiniteLinearSolver tangentialSolver = {};
 
-            std::string spacing = "  ", spacing2 = "    ";
+            std::string spacing{ "  " };
+            std::string spacing2{ "    " };
 
             StepMonitor normalStepMonitor = StepMonitor::Accepted;
             StepMonitor tangentialStepMonitor = StepMonitor::Accepted;
 
-            Real norm_dx_old = -1;
+            Real norm_dx_old{ -1 };
 
             // for suggesting a regularization parameter for the TRCG
-            mutable Real theta_sugg = Real{ 0. };
+            mutable Real theta_sugg{ 0. };
             // for tangential step accuracy control
-            Real previous_step_contraction = 0;
+            Real previous_step_contraction{ 0 };
             // for logging purposes
-            mutable unsigned ds_it_counter;
+            mutable unsigned ds_it_counter{ 0 };
         };
     } // namespace CompositeStep
 } // namespace Spacy

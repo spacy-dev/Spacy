@@ -2,35 +2,35 @@
 
 #include <utility>
 
-namespace Spacy
+namespace Spacy::Mixin
 {
-    Mixin::RegularityTest::RegularityTest( DampingFactor lowerBound ) noexcept : lowerBound_( std::move( lowerBound ) )
+    RegularityTest::RegularityTest( DampingFactor lowerBound ) noexcept : lowerBound_( std::move( lowerBound ) )
     {
     }
 
-    void Mixin::RegularityTest::setLowerBound( DampingFactor lowerBound )
+    void RegularityTest::setLowerBound( DampingFactor lowerBound )
     {
         lowerBound_ = lowerBound;
         notify();
     }
 
-    DampingFactor Mixin::RegularityTest::getLowerBound() const noexcept
+    DampingFactor RegularityTest::getLowerBound() const noexcept
     {
         return lowerBound_;
     }
 
-    bool Mixin::RegularityTest::regularityTestPassed( DampingFactor nu ) const noexcept
+    bool RegularityTest::regularityTestPassed( DampingFactor nu ) const noexcept
     {
         return nu > lowerBound_;
     }
 
-    bool Mixin::RegularityTest::regularityTestFailed( DampingFactor nu ) const noexcept
+    bool RegularityTest::regularityTestFailed( DampingFactor nu ) const noexcept
     {
         return !regularityTestPassed( nu );
     }
 
-    void Mixin::RegularityTest::update( RegularityTest* changedSubject )
+    void RegularityTest::update( RegularityTest* changedSubject )
     {
         setLowerBound( changedSubject->getLowerBound() );
     }
-} // namespace Spacy
+} // namespace Spacy::Mixin

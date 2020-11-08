@@ -19,7 +19,7 @@ namespace Spacy
         {
             virtual ~Interface() = default;
             [[nodiscard]] virtual std::unique_ptr< Interface > clone() const = 0;
-            virtual Vector call_const_VectorSpace_ptr( const VectorSpace* V ) const = 0;
+            [[nodiscard]] virtual Vector call_const_VectorSpace_ptr( const VectorSpace* V ) const = 0;
         };
 
         template < class Impl >
@@ -63,7 +63,7 @@ namespace Spacy
         }
 
         /// Creates \f$
-        Vector operator()( const VectorSpace* V ) const
+        [[nodiscard]] Vector operator()( const VectorSpace* V ) const
         {
             assert( impl_ );
             return impl_->call_const_VectorSpace_ptr( V );
@@ -77,13 +77,13 @@ namespace Spacy
             return *this = ZeroVectorCreator( std::forward< T >( value ) );
         }
 
-        explicit operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return bool( impl_ );
         }
 
         template < class T >
-        T* target() noexcept
+        [[nodiscard]] T* target() noexcept
         {
             return impl_.template target< T >();
         }
@@ -97,7 +97,6 @@ namespace Spacy
     private:
         clang::type_erasure::polymorphic::Storage< Interface, Wrapper > impl_;
     };
-
     template < class T >
     T& creator( VectorSpace& space )
     {

@@ -7,17 +7,14 @@
 
 #include <utility>
 
-namespace Spacy
+namespace Spacy::Scalar
 {
-    namespace Scalar
+    LinearSolver::LinearSolver( Real y ) : y_( std::move( y ) )
     {
-        LinearSolver::LinearSolver( Real y ) : y_( std::move( y ) )
-        {
-        }
+    }
 
-        ::Spacy::Vector LinearSolver::operator()( const ::Spacy::Vector& x ) const
-        {
-            return cast_ref< Real >( x ) / y_;
-        }
-    } // namespace Scalar
-} // namespace Spacy
+    ::Spacy::Vector LinearSolver::operator()( const ::Spacy::Vector& x ) const
+    {
+        return cast_ref< Real >( x ) / y_;
+    }
+} // namespace Spacy::Scalar
