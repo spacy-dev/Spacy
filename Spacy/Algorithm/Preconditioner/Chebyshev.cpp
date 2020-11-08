@@ -12,7 +12,7 @@
 #include <limits>
 #include <utility>
 
-namespace Spacy::Chebyshev
+namespace Spacy::Preconditioner
 {
     std::tuple< double, double > computeEigsFromCGCoefficients( const std::vector< Spacy::Real >& alpha,
                                                                 const std::vector< Spacy::Real >& beta )
@@ -48,54 +48,32 @@ namespace Spacy::Chebyshev
         return { eigMin, eigMax };
     }
 
-    void ChebyshevPreconditioner::setSpectralBounds( Real gamma_min, Real gamma_max )
-    {
-        gamma_max_ = gamma_max;
-        gamma_min_ = gamma_min;
-    }
-
-    unsigned ChebyshevPreconditioner::getIterations() const
-    {
-        Spacy::Real condition = gamma_max_ / gamma_min_;
-        Spacy::Real theta = ( sqrt( condition ) - 1 ) / ( sqrt( condition ) + 1 );
-        int k = 1;
-        while ( 2. / ( std::pow( get( theta ), k ) + std::pow( get( theta ), -k ) ) > get( getRelativeAccuracy() ) )
-            ++k;
-        return k;
-    }
-
-    ChebyshevPreconditioner::ChebyshevPreconditioner( Spacy::CallableOperator A, Spacy::CallableOperator P, ::Spacy::Real gamma_max,
-                                                      ::Spacy::Real gamma_min )
+    Chebyshev::Chebyshev( Spacy::CallableOperator A, Spacy::CallableOperator P, ::Spacy::Real gamma_max, ::Spacy::Real gamma_min )
 
         : A_( std::move( A ) ), P_( std::move( A ) ), gamma_max_( std::move( gamma_max ) ), gamma_min_( std::move( gamma_min ) )
     {
     }
 
-    Vector ChebyshevPreconditioner::operator()( const Vector& b ) const
+    Vector Chebyshev::operator()( const Vector& b ) const
     {
 
         const auto N = getIterations();
 
-        Spacy::Real c = 0.5 * ( gamma_max_ - gamma_min_ );
-        Spacy::Real a = 0.5 * ( gamma_max_ + gamma_min_ );
+        const auto c = 0.5 * ( gamma_max_ - gamma_min_ );
+        const auto a = 0.5 * ( gamma_max_ + gamma_min_ );
 
-        Spacy::Real beta = 0;
-        Spacy::Real gamma = -a;
+        auto beta = Real{ 0 };
+        auto gamma = -a;
 
-        std::vector< Spacy::Vector > x = { P_( b ) };
-        x.emplace_back( zero( x[ 0 ].space() ) );
-        x.emplace_back( zero( x[ 0 ].space() ) );
+        auto x0 = P_( b );
+        const auto x1 = zero( x0.space() );
+        std::vector< Spacy::Vector > x = { std::move( x0 ), x1, x1 };
 
         auto r = b;
 
-        for ( int i = 0; i < N; i++ )
+        for ( int i = 0; i < N; ++i )
         {
-
-            if ( i == 1 )
-                beta = -0.5 * c * c / a;
-            if ( i > 1 )
-                beta = ( 1. / gamma ) * 0.25 * c * c;
-
+            beta = ( i == 1 ) ? -0.5 * c * c / a : ( 1. / gamma ) * 0.25 * c * c;
             gamma = -( a + beta );
 
             if ( i > 0 )
@@ -121,7 +99,22 @@ namespace Spacy::Chebyshev
             std::cout << "[Chebyshev Preconditioner] terminating after " << N << " iterations " << std::endl;
         }
 
-        iterations_ = N;
         return x[ ( N - 1 ) % 3 ];
     }
-} // namespace Spacy::Chebyshev
+
+    void Chebyshev::setSpectralBounds( Real gamma_min, Real gamma_max )
+    {
+        gamma_max_ = gamma_max;
+        gamma_min_ = gamma_min;
+    }
+
+    int Chebyshev::getIterations() const
+    {
+        const auto condition = gamma_max_ / gamma_min_;
+        const auto theta = ( sqrt( condition ) - 1 ) / ( sqrt( condition ) + 1 );
+        int k = 1;
+        while ( 2. / ( std::pow( get( theta ), k ) + std::pow( get( theta ), -k ) ) > get( getRelativeAccuracy() ) )
+            ++k;
+        return k;
+    }
+} // namespace Spacy::Preconditioner

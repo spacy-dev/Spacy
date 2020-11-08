@@ -13,7 +13,7 @@ namespace Spacy
     class VectorSpace;
     /// \endcond
 
-    namespace Chebyshev
+    namespace Preconditioner
     {
         /**
          *  @brief An auxilliary function, needed by Chebyshev: from the coefficients, used by cg, bounds on the spectrum of the
@@ -28,11 +28,11 @@ namespace Spacy
         /**
          * @brief A Preconditioner based on the chebyshev-iteration solving A*x=b
          */
-        class ChebyshevPreconditioner : public Mixin::Eps,
-                                        public Mixin::MaxSteps,
-                                        public Mixin::Verbosity,
-                                        public Mixin::AbsoluteAccuracy,
-                                        public Mixin::RelativeAccuracy
+        class Chebyshev : public Mixin::Eps,
+                          public Mixin::MaxSteps,
+                          public Mixin::Verbosity,
+                          public Mixin::AbsoluteAccuracy,
+                          public Mixin::RelativeAccuracy
         {
         public:
             /**
@@ -42,28 +42,26 @@ namespace Spacy
              * @param gamma_max largest eigenvalue of A
              * @param gamma_min smallest eigenvalue of A
              */
-            ChebyshevPreconditioner( ::Spacy::CallableOperator A, ::Spacy::CallableOperator P, ::Spacy::Real gamma_max = 1.0,
-                                     ::Spacy::Real gamma_min = 1.0 );
-
-            void setSpectralBounds( Real gamma_min, Real gamma_max );
+            Chebyshev( ::Spacy::CallableOperator A, ::Spacy::CallableOperator P, ::Spacy::Real gamma_max = 1.0,
+                       ::Spacy::Real gamma_min = 1.0 );
             /**
              * @brief Apply preconditioner.
              * @param b argument
              */
             Vector operator()( const Vector& b ) const;
 
-            unsigned getIterations() const;
+            int getIterations() const;
+
+            void setSpectralBounds( Real gamma_min, Real gamma_max );
 
         private:
             ::Spacy::CallableOperator A_;
             ::Spacy::CallableOperator P_;
-            ::Spacy::Real gamma_max_ = 1.0;
-            ::Spacy::Real gamma_min_ = 1.0;
+            ::Spacy::Real gamma_max_{ 1.0 };
+            ::Spacy::Real gamma_min_{ 1.0 };
 
-            mutable unsigned int iterations_ = 0;
-
-            std::function< ::Spacy::Vector( ::Spacy::Vector, ::Spacy::Vector ) > transfer_ = []( ::Spacy::Vector src,
-                                                                                                 ::Spacy::Vector res ) { return src; };
+            std::function< ::Spacy::Vector( const ::Spacy::Vector&, const ::Spacy::Vector& ) > transfer_ =
+                []( const ::Spacy::Vector& src, const ::Spacy::Vector& res ) { return src; };
         };
-    } // namespace Chebyshev
+    } // namespace Preconditioner
 } // namespace Spacy
