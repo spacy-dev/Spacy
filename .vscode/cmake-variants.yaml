@@ -7,31 +7,31 @@ buildType:
       buildType: Coverage
     debug:
       short: Debug
-      long: Disable optimizations - include debug information.
+      long: Disable optimizations - include debug information
       buildType: Debug
     release:
       short: Release
-      long: Optimize for speed - exclude debug information.
+      long: Optimize for speed - exclude debug information
       buildType: Release
     minsizerel:
       short: MinSizeRel
-      long: Optimize for size - exclude debug information.
+      long: Optimize for size - exclude debug information
       buildType: MinSizeRel
     relwithdebinfo:
       short: RelWithDebInfo
-      long: Optimize for speed - include debug information.
+      long: Optimize for speed - include debug information
       buildType: RelWithDebInfo
     asan:
       short: Asan
-      long: Instrument with Address Sanitizer.
+      long: Instrument with Address Sanitizer
       buildType: Asan
     tsan:
       short: Tsan
-      long: Instrument with Thread Sanitizer.
+      long: Instrument with Thread Sanitizer
       buildType: Tsan
     ubsan:
       short: UBsan
-      long: Instrument with Undefined Behaviour Sanitizer.
+      long: Instrument with Undefined Behaviour Sanitizer
       buildType: UBsan
 
 linkage:
@@ -45,3 +45,15 @@ linkage:
       short: Shared
       long: Create shared libraries/DLLs
       linkage: shared
+
+linting:
+  default: clang-tidy
+  choices:
+    clang-tidy:
+      short: ClangTidy
+      long: Use clang-tidy
+      settings: CMAKE_CXX_CLANG_TIDY=clang-tidy
+    no-linting:
+      short: NoLinting
+      long: No linting
+      settings: CMAKE_CXX_CLANG_TIDY=""

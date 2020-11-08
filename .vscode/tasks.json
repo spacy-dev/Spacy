@@ -3,14 +3,12 @@
         {
             "type": "shell",
             "label": "conan",
-            "command": "conan",
+            "command": "/bin/bash",
             "args": [
-                "install",
-                ".."
+                "${workspaceFolder}/.vscode/conan.sh",
+                "${workspaceFolder}",
+                "${command:cmake.buildType}"
             ],
-            "options": {
-                "cwd": "${workspaceFolder}/build"
-            },
             "problemMatcher": [
                 "$gcc"
             ],

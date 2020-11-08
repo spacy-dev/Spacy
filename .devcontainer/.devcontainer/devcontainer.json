@@ -21,10 +21,10 @@
 		"python.linting.enabled": true,
 		"python.linting.pylintEnabled": true,
 		"python.linting.lintOnSave": true,
+		"cmake.buildDirectory": "${workspaceFolder}/build-${buildType}",
 		"cmake.configureArgs": [
 			"-GNinja",
 			"-DCMAKE_TOOLCHAIN_FILE=conan_paths.cmake",
-			"-DCMAKE_CXX_CLANG_TIDY=clang-tidy",
 			"-DBuildTest=ON",
 			"-DKaskade=ON"
 		]

@@ -30,3 +30,5 @@
 *.vtu
 CMakeLists.txt.user
 build/*
+build-Release/*
+build-Debug/*
