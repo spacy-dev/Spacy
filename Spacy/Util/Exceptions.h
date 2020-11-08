@@ -20,9 +20,7 @@ namespace Spacy
              * @param message exception message
              * @param hint hint for removing the reason for the exception
              */
-            Generic(const std::string& exception,
-                    const std::string& message,
-                    const std::string& hint = {});
+            Generic( const std::string& exception, const std::string& message, const std::string& hint = {} );
         };
 
         /**
@@ -36,9 +34,9 @@ namespace Spacy
              * @brief Constructor.
              * @param function name of function that throws
              */
-            explicit CallOfUndefinedFunction(const std::string& function)
-                : std::runtime_error("In " + function + ".")
-            {}
+            explicit CallOfUndefinedFunction( const std::string& function ) : std::runtime_error( "In " + function + "." )
+            {
+            }
         };
 
         /**
@@ -51,13 +49,17 @@ namespace Spacy
             /**
              * @brief Constructor.
              * @param spaceIndex1 index of first space
+             * @param name1 name of first space
              * @param spaceIndex2 index of second space
+             * @param name2 name of second space
              */
-            explicit IncompatibleSpace(unsigned spaceIndex1, unsigned spaceIndex2)
-                : Generic("Incompatible spaces.",
-                          " First spaces  index: " + std::to_string(spaceIndex1) + "\n ------------ Second space index: " + std::to_string(spaceIndex2),
-                          "Space indices must coincide.")
-            {}
+            explicit IncompatibleSpace( unsigned spaceIndex1, const std::string& name1, unsigned spaceIndex2, const std::string& name2 )
+                : Generic( "Incompatible spaces.",
+                           " First space: " + name1 + "(" + std::to_string( spaceIndex1 ) + ")\n ------------ Second space: " + name2 +
+                               "(" + std::to_string( spaceIndex2 ) + ")",
+                           "Space indices must coincide." )
+            {
+            }
         };
         /**
          * @ingroup ExceptionGroup
@@ -67,12 +69,12 @@ namespace Spacy
         {
         public:
             /**
-           * @brief Constructor.
-           * @param function name of function that throws
-           */
-            explicit InvalidArgument(const std::string& function)
-                : std::runtime_error("In " + function + ": Invalid arguments.\n")
-            {}
+             * @brief Constructor.
+             * @param function name of function that throws
+             */
+            explicit InvalidArgument( const std::string& function ) : std::runtime_error( "In " + function + ": Invalid arguments.\n" )
+            {
+            }
         };
 
         /**
@@ -81,9 +83,10 @@ namespace Spacy
          */
         struct NotConverged : std::runtime_error
         {
-            explicit NotConverged(const std::string& nameOfAlgorithm)
-                : std::runtime_error( nameOfAlgorithm + " method did not converge.\n")
-            {}
+            explicit NotConverged( const std::string& nameOfAlgorithm )
+                : std::runtime_error( nameOfAlgorithm + " method did not converge.\n" )
+            {
+            }
         };
 
         /**
@@ -97,9 +100,10 @@ namespace Spacy
              * @brief Constructor.
              * @param function name of function that throws
              */
-            explicit NotImplemented(const std::string& function, const std::string& target)
-                : std::runtime_error("In " + function + ": Not implemented for " + target + ".")
-            {}
+            explicit NotImplemented( const std::string& function, const std::string& target )
+                : std::runtime_error( "In " + function + ": Not implemented for " + target + "." )
+            {
+            }
         };
 
         /**
@@ -114,9 +118,10 @@ namespace Spacy
              * @param function name of function that throws
              * @param nu damping factor
              */
-            RegularityTestFailed(const std::string& function, double nu)
-                : std::runtime_error("Regularity test failed in " + function + "(val = " + std::to_string(nu) + ")")
-            {}
+            RegularityTestFailed( const std::string& function, double nu )
+                : std::runtime_error( "Regularity test failed in " + function + "(val = " + std::to_string( nu ) + ")" )
+            {
+            }
         };
 
         /**
@@ -130,9 +135,9 @@ namespace Spacy
              * @brief Constructor.
              * @param function name of function that throws.
              */
-            explicit SingularOperator(const std::string& function)
-                : std::runtime_error("In" + function + ": Singular operator.\n")
-            {}
+            explicit SingularOperator( const std::string& function ) : std::runtime_error( "In" + function + ": Singular operator.\n" )
+            {
+            }
         };
-    }
-}
+    } // namespace Exception
+} // namespace Spacy

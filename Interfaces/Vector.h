@@ -1,13 +1,15 @@
 #pragma once
 
+#include <functional>
+
 #include <Spacy/Adaptivity/SpaceManager.h>
 #include <Spacy/ForwardIterator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Util/Mixins/Get.h>
 #include <Spacy/VectorSpace.h>
+
 #include <type_traits>
-#include <functional>
 
 namespace Spacy
 {
@@ -39,16 +41,14 @@ namespace Spacy
     };
 
     /// Multiplication with arithmetic types (double,float,int,...).
-    template < class Arithmetic,
-               class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
+    template < class Arithmetic, class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
     Vector operator*( Arithmetic a, Vector x )
     {
         return x *= a;
     }
 
     /// Multiplication with arithmetic types (double,float,int,...).
-    template < class Arithmetic,
-               class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
+    template < class Arithmetic, class = std::enable_if_t< std::is_arithmetic< Arithmetic >::value > >
     Vector operator*( Vector x, Arithmetic a )
     {
         return x *= a;
@@ -82,7 +82,7 @@ namespace Spacy
     inline void checkDualPairing( const Vector& x, const Vector& y )
     {
         if ( !y.space().isPrimalWRT( x.space() ) )
-            throw Exception::IncompatibleSpace( x.space().index(), y.space().index() );
+            throw Exception::IncompatibleSpace( x.space().index(), x.space().name(), y.space().index(), y.space().name() );
     }
 
     template < class T, typename std::enable_if< std::is_arithmetic< T >::value >::type* = nullptr >
@@ -106,4 +106,4 @@ namespace Spacy
     {
         return y * x;
     }
-}
+} // namespace Spacy

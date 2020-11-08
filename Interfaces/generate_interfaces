@@ -1,5 +1,7 @@
 #!/bin/bash
 
+### Uses clang-type-erase (https://github.com/lubkoll/clang-type-erase)
+
 ADAPTIVITY_DIR=Spacy/Adaptivity
 UTIL_DIR=Spacy/Util
 CG_DIR=Spacy/Algorithm/CG

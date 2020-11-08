@@ -2,50 +2,47 @@
 
 #include <Spacy/Util/Mixins/MixinConnection.h>
 
-namespace Spacy
+namespace Spacy::Mixin
 {
-    namespace Mixin
+    class StateIndex : public MixinConnection< StateIndex >
     {
-        class StateIndex : public MixinConnection< StateIndex >
-        {
-            friend class MixinConnection< StateIndex >;
+        friend class MixinConnection< StateIndex >;
 
-        public:
-            explicit StateIndex( unsigned value = 0 ) noexcept;
-            void setStateIndex( unsigned value );
-            [[nodiscard]] unsigned getStateIndex() const noexcept;
-            void update( StateIndex* changedSubject );
+    public:
+        explicit StateIndex( unsigned value = 0 ) noexcept;
+        void setStateIndex( unsigned value );
+        [[nodiscard]] unsigned getStateIndex() const noexcept;
+        void update( StateIndex* changedSubject );
 
-        private:
-            unsigned value_;
-        };
+    private:
+        unsigned value_;
+    };
 
-        class ControlIndex : public MixinConnection< ControlIndex >
-        {
-            friend class MixinConnection< ControlIndex >;
+    class ControlIndex : public MixinConnection< ControlIndex >
+    {
+        friend class MixinConnection< ControlIndex >;
 
-        public:
-            explicit ControlIndex( unsigned value = 1 ) noexcept;
-            void setControlIndex( unsigned value );
-            [[nodiscard]] unsigned getControlIndex() const noexcept;
-            void update( ControlIndex* changedSubject );
+    public:
+        explicit ControlIndex( unsigned value = 1 ) noexcept;
+        void setControlIndex( unsigned value );
+        [[nodiscard]] unsigned getControlIndex() const noexcept;
+        void update( ControlIndex* changedSubject );
 
-        private:
-            unsigned value_;
-        };
+    private:
+        unsigned value_;
+    };
 
-        class AdjointIndex : public MixinConnection< AdjointIndex >
-        {
-            friend class MixinConnection< AdjointIndex >;
+    class AdjointIndex : public MixinConnection< AdjointIndex >
+    {
+        friend class MixinConnection< AdjointIndex >;
 
-        public:
-            explicit AdjointIndex( unsigned value = 2 ) noexcept;
-            void setAdjointIndex( unsigned value );
-            [[nodiscard]] unsigned getAdjointIndex() const noexcept;
-            void update( AdjointIndex* changedSubject );
+    public:
+        explicit AdjointIndex( unsigned value = 2 ) noexcept;
+        void setAdjointIndex( unsigned value );
+        [[nodiscard]] unsigned getAdjointIndex() const noexcept;
+        void update( AdjointIndex* changedSubject );
 
-        private:
-            unsigned value_;
-        };
-    } // namespace Mixin
-} // namespace Spacy
+    private:
+        unsigned value_;
+    };
+} // namespace Spacy::Mixin

@@ -10,13 +10,14 @@ namespace Spacy::Mixin
         friend class MixinConnection< AbsoluteAccuracy >;
 
     public:
-        explicit AbsoluteAccuracy( Real value = 1e-15 ) noexcept;
+        AbsoluteAccuracy() = default;
+        explicit AbsoluteAccuracy( Real value ) noexcept;
         void setAbsoluteAccuracy( Real value );
         [[nodiscard]] Real getAbsoluteAccuracy() const noexcept;
         void update( AbsoluteAccuracy* changedSubject );
 
     private:
-        Real value_;
+        Real value_{ 1e-15 };
     };
 
     class RelativeAccuracy : public MixinConnection< RelativeAccuracy >
@@ -24,13 +25,14 @@ namespace Spacy::Mixin
         friend class MixinConnection< RelativeAccuracy >;
 
     public:
-        explicit RelativeAccuracy( Real value = 1e-15 ) noexcept;
+        RelativeAccuracy() = default;
+        explicit RelativeAccuracy( Real value ) noexcept;
         void setRelativeAccuracy( Real value );
         [[nodiscard]] Real getRelativeAccuracy() const noexcept;
         void update( RelativeAccuracy* changedSubject );
 
     private:
-        Real value_;
+        Real value_{ 1e-15 };
     };
 
     class MinimalAccuracy : public MixinConnection< MinimalAccuracy >
@@ -38,13 +40,14 @@ namespace Spacy::Mixin
         friend class MixinConnection< MinimalAccuracy >;
 
     public:
-        explicit MinimalAccuracy( Real value = 1e-15 ) noexcept;
+        MinimalAccuracy() = default;
+        explicit MinimalAccuracy( Real value ) noexcept;
         void setMinimalAccuracy( Real value );
         [[nodiscard]] Real getMinimalAccuracy() const noexcept;
         void update( MinimalAccuracy* changedSubject );
 
     private:
-        Real value_;
+        Real value_{ 1e-15 };
     };
 
     class DampingAccuracy : public MixinConnection< DampingAccuracy >
@@ -52,13 +55,14 @@ namespace Spacy::Mixin
         friend class MixinConnection< DampingAccuracy >;
 
     public:
-        explicit DampingAccuracy( Real value = 1e-15 ) noexcept;
+        DampingAccuracy() = default;
+        explicit DampingAccuracy( Real value ) noexcept;
         void setDampingAccuracy( Real value );
         [[nodiscard]] Real getDampingAccuracy() const noexcept;
         void update( DampingAccuracy* changedSubject );
 
     private:
-        Real value_;
+        Real value_{ 1e-15 };
     };
 
     class NormalAccuracy : public MixinConnection< NormalAccuracy >
@@ -66,13 +70,14 @@ namespace Spacy::Mixin
         friend class MixinConnection< NormalAccuracy >;
 
     public:
-        explicit NormalAccuracy( Real value = 1e-15 ) noexcept;
+        NormalAccuracy() = default;
+        explicit NormalAccuracy( Real value ) noexcept;
         void setNormalAccuracy( Real value );
         [[nodiscard]] Real getNormalAccuracy() const noexcept;
         void update( NormalAccuracy* changedSubject );
 
     private:
-        Real value_;
+        Real value_{ 1e-15 };
     };
 
     class TangentialAccuracy : public MixinConnection< TangentialAccuracy >
@@ -80,13 +85,14 @@ namespace Spacy::Mixin
         friend class MixinConnection< TangentialAccuracy >;
 
     public:
-        explicit TangentialAccuracy( Real value = 1e-15 ) noexcept;
+        TangentialAccuracy() = default;
+        explicit TangentialAccuracy( Real value ) noexcept;
         void setTangentialAccuracy( Real value );
         [[nodiscard]] Real getTangentialAccuracy() const noexcept;
         void update( TangentialAccuracy* changedSubject );
 
     private:
-        Real value_;
+        Real value_{ 1e-15 };
     };
 
     class FallBackTangentialAccuracy : public MixinConnection< FallBackTangentialAccuracy >
@@ -94,12 +100,13 @@ namespace Spacy::Mixin
         friend class MixinConnection< FallBackTangentialAccuracy >;
 
     public:
-        explicit FallBackTangentialAccuracy( Real value = 1e-15 ) noexcept;
+        FallBackTangentialAccuracy() = default;
+        explicit FallBackTangentialAccuracy( Real value ) noexcept;
         void setFallBackTangentialAccuracy( Real value );
         [[nodiscard]] Real getFallBackTangentialAccuracy() const noexcept;
         void update( FallBackTangentialAccuracy* changedSubject );
 
     private:
-        Real value_;
+        Real value_{ 1e-15 };
     };
 } // namespace Spacy::Mixin

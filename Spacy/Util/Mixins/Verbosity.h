@@ -2,41 +2,38 @@
 
 #include "MixinConnection.h"
 
-namespace Spacy
+namespace Spacy::Mixin
 {
-    namespace Mixin
+    /// %Mixin class for verbosity.
+    class Verbosity : public MixinConnection< Verbosity >
     {
-        /// %Mixin class for verbosity.
-        class Verbosity : public MixinConnection< Verbosity >
-        {
-        public:
-            /**
-             * @brief Constructor.
-             * @param verbosityLevel verbosity level (0 = silent, 1 = print information, 2 = print
-             * detailed information)
-             */
-            explicit Verbosity( unsigned verbosityLevel = 0 ) noexcept;
+    public:
+        /**
+         * @brief Constructor.
+         * @param verbosityLevel verbosity level (0 = silent, 1 = print information, 2 = print
+         * detailed information)
+         */
+        explicit Verbosity( unsigned verbosityLevel = 0 ) noexcept;
 
-            /**
-             * @brief Enable/disable verbosity.
-             * @param verbose true: if verbosityLevel = 0, set verbosityLevel = 1; false: if set
-             * verbosityLevel = 0
-             */
-            void setVerbosity( bool verbose );
+        /**
+         * @brief Enable/disable verbosity.
+         * @param verbose true: if verbosityLevel = 0, set verbosityLevel = 1; false: if set
+         * verbosityLevel = 0
+         */
+        void setVerbosity( bool verbose );
 
-            /// Check if verbosityLevel > 0
-            [[nodiscard]] bool verbose() const noexcept;
+        /// Check if verbosityLevel > 0
+        [[nodiscard]] bool verbose() const noexcept;
 
-            void setVerbosityLevel( unsigned level ) noexcept;
+        void setVerbosityLevel( unsigned level ) noexcept;
 
-            /// Access verbosity level.
-            [[nodiscard]] unsigned getVerbosityLevel() const noexcept;
+        /// Access verbosity level.
+        [[nodiscard]] unsigned getVerbosityLevel() const noexcept;
 
-            /// update function for observer pattern.
-            void update( Verbosity* changedSubject );
+        /// update function for observer pattern.
+        void update( Verbosity* changedSubject );
 
-        private:
-            unsigned verbosityLevel_;
-        };
-    } // namespace Mixin
-} // namespace Spacy
+    private:
+        unsigned verbosityLevel_;
+    };
+} // namespace Spacy::Mixin
