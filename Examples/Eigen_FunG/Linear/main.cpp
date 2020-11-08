@@ -1,7 +1,8 @@
-#include <Spacy/Adapter/eigen.hh>
-#include <Spacy/Spacy.h>
 #include <Eigen/Dense>
 #include <fung/fung.hh>
+
+#include <Spacy/Adapter/Eigen.h>
+#include <Spacy/Spacy.h>
 
 #include <iostream>
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.13)
 
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
@@ -57,6 +57,14 @@ if(DOXYGEN_FOUND)
     )
 endif(DOXYGEN_FOUND)
 
+### Examples
 if(Kaskade)
     add_subdirectory(Examples/Kaskade)
+endif()
+
+if(Eigen3_FOUND)
+  find_package(FunG REQUIRED)
+  if(FunG_FOUND)
+      add_subdirectory(Examples/Eigen_FunG)
+  endif()
 endif()
