@@ -37,7 +37,7 @@ ENV PIPX_HOME=/usr/local/py-utils \
     PIPX_BIN_DIR=/usr/local/py-utils/bin
 ENV PATH=${PATH}:${PIPX_BIN_DIR}
 COPY library-scripts/python-debian.sh /tmp/library-scripts/
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-venv libatlas-base-dev fenics clang-format clang-tidy
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y python3-venv libatlas-base-dev fenics clang-format clang-tidy iwyu
 RUN /bin/bash /tmp/library-scripts/python-debian.sh "none" "/usr/local" "${PIPX_HOME}" "${USERNAME}" "false" \ 
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
@@ -55,6 +55,8 @@ COPY Kaskade7.4.tar.gz /tmp/deps/Kaskade7.4.tar.gz
 COPY library-scripts/install-kaskade.sh /tmp/library-scripts/
 RUN /bin/bash /tmp/library-scripts/install-kaskade.sh \ 
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
+
+RUN cd /tmp/deps && wget https://github.com/lubkoll/FunG/archive/v1.5.2.tar.gz && tar xzf v1.5.2.tar.gz && cd FunG-1.5.2 && mkdir build && cd build && cmake .. && cmake --build . --target install && cd ..
 
 USER $USERNAME
 RUN conan profile new default --detect
