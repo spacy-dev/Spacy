@@ -1,6 +1,7 @@
 #include "Chebyshev.h"
 
 #include <lapacke.h>
+#include <tuple>
 
 #include <Spacy/LinearOperator.h>
 #include <Spacy/ScalarProduct.h>
@@ -8,13 +9,13 @@
 #include <Spacy/ZeroVectorCreator.h>
 
 #include <iostream>
+#include <limits>
 #include <utility>
 
 namespace Spacy::Chebyshev
 {
-
-    void computeEigsFromCGCoefficients( const std::vector< Spacy::Real >& alpha, const std::vector< Spacy::Real >& beta, double& eigMin,
-                                        double& eigMax )
+    std::tuple< double, double > computeEigsFromCGCoefficients( const std::vector< Spacy::Real >& alpha,
+                                                                const std::vector< Spacy::Real >& beta )
     {
         const auto a_size = alpha.size();
         std::vector< double > eig( a_size, 0 );
@@ -42,8 +43,9 @@ namespace Spacy::Chebyshev
         LAPACKE_dstevr( LAPACK_COL_MAJOR, 'N', 'A', a_size, &diagonal[ 0 ], &subDiagonal[ 0 ], 0.0, 0.0, 0, 0, 1e-8, &m[ 0 ], &eig[ 0 ],
                         &z_vec[ 0 ], a_size, &isuppz_vec[ 0 ] );
 
-        eigMin = std::min( eig[ 0 ], eigMin );
-        eigMax = std::max( eig[ a_size - 1 ], eigMax );
+        const auto eigMin = std::min( eig[ 0 ], std::numeric_limits< double >::max() );
+        const auto eigMax = std::max( eig[ a_size - 1 ], std::numeric_limits< double >::lowest() );
+        return { eigMin, eigMax };
     }
 
     void ChebyshevPreconditioner::setSpectralBounds( Real gamma_min, Real gamma_max )

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <tuple>
+
 #include <Spacy/Operator.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Mixins.h>
@@ -20,8 +22,8 @@ namespace Spacy
          *  @param eigMin: lower spectral bound
          *  @param eigMax: upper spectral bound
          */
-        void computeEigsFromCGCoefficients( const std::vector< Spacy::Real >& alpha, const std::vector< Spacy::Real >& beta, double& eigMin,
-                                            double& eigMax );
+        std::tuple< double, double > computeEigsFromCGCoefficients( const std::vector< Spacy::Real >& alpha,
+                                                                    const std::vector< Spacy::Real >& beta );
 
         /**
          * @brief A Preconditioner based on the chebyshev-iteration solving A*x=b
