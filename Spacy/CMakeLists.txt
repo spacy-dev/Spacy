@@ -69,6 +69,8 @@ add_library(spacy ${SRC_LIST}
     Algorithm/CompositeStep/AffineCovariantSolver.cpp
     Algorithm/CompositeStep/QuadraticModel.h
     Algorithm/CompositeStep/QuadraticModel.cpp
+    Algorithm/Krylov/MinRes.h
+    Algorithm/Krylov/MinRes.cpp
     Algorithm/Newton/DampingStrategies.h
     Algorithm/Newton/DampingStrategies.cpp
     Algorithm/Newton/Newton.h
