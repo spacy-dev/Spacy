@@ -96,8 +96,8 @@ namespace Spacy::Kaskade
     };
 
     /// Create sub-space relation for \f$Y \subset X\f$
-    template < class XDescription, class YDescription, class IdxMap >
-    void setSubSpaceRelation( const VectorSpace& X, VectorSpace& Y )
+    template < class YDescription, class XDescription, class IdxMap >
+    void setSubSpaceRelation( VectorSpace& Y, const VectorSpace& X )
     {
         Y.setEmbedding( Spacy::Kaskade::ProductSpaceRelation< YDescription, XDescription, IdxMap >( Y, X ) );
         Y.setProjection( Spacy::Kaskade::ProductSpaceRelation< XDescription, YDescription, IdxMap, InverseIdxPair >( X, Y ) );

@@ -111,9 +111,9 @@ int main( int argc, char* argv[] )
 
     using ZXIdxMap =
         boost::fusion::vector< Spacy::Kaskade::IdxPair< Ids::state, Ids::state >, Spacy::Kaskade::IdxPair< Ids::control, Ids::control > >;
-    Spacy::Kaskade::setSubSpaceRelation< Descriptions, PrimalDescriptions, ZXIdxMap >( X, Z );
+    Spacy::Kaskade::setSubSpaceRelation< PrimalDescriptions, Descriptions, ZXIdxMap >( Z, X );
     using PXIdxMap = boost::fusion::vector< Spacy::Kaskade::IdxPair< 0, Ids::adjoint > >;
-    Spacy::Kaskade::setSubSpaceRelation< Descriptions, DualDescriptions, PXIdxMap >( X, P );
+    Spacy::Kaskade::setSubSpaceRelation< DualDescriptions, Descriptions, PXIdxMap >( P, X );
 
     // Normal step functional with cg solver
     // auto fn = Spacy::Kaskade::makeLagrangeCGFunctional<stateId,controlId,adjointId>(
