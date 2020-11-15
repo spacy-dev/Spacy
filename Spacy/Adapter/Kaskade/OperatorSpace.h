@@ -11,11 +11,11 @@ namespace Spacy
     namespace Kaskade
     {
         /// @cond
-        template < class, class, class >
+        template < class, class, class, bool, bool >
         class LinearOperator;
         /// @endcond
 
-        template < class AnsatzVariableSetDescription, class TestVariableSetDescription >
+        template < class AnsatzVariableSetDescription, class TestVariableSetDescription, bool transposed = false, bool shared = false >
         class LinearOperatorCreator
         {
             using Spaces = typename AnsatzVariableSetDescription::Spaces;
@@ -30,7 +30,8 @@ namespace Spacy
             {
             }
 
-            LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription, Matrix > operator()( const VectorSpace* space ) const
+            LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription, Matrix, transposed, shared >
+            operator()( const VectorSpace* space ) const
             {
                 return { OperatorImpl{ Matrix{} }, *space };
             }

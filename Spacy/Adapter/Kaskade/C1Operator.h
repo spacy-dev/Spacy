@@ -40,7 +40,7 @@ namespace Spacy::Kaskade
         using Range = typename Assembler::TestVariableSetDescription::template CoefficientVectorRepresentation<>::type;
         using Matrix = ::Kaskade::MatrixAsTriplet< double >;
         using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
-        using Linearization = LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription >;
+        using Linearization = LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription, Matrix >;
 
     public:
         /**

@@ -326,6 +326,42 @@ namespace Spacy::Kaskade
             {
             }
         };
+
+        template < int n >
+        struct CoefficientsToVariableSet
+        {
+            template < class Description >
+            static void apply( const typename Description::template CoefficientVectorRepresentation<>::type& x,
+                               ::Kaskade::VariableSet< Description >& y )
+            {
+                boost::fusion::at_c< n >( y.data ).coefficients() = boost::fusion::at_c< n >( x.data );
+                CoefficientsToVariableSet< n - 1 >::apply( x, y );
+            }
+
+            template < class Description >
+            static void apply( const ::Kaskade::VariableSet< Description >& x,
+                               typename Description::template CoefficientVectorRepresentation<>::type& y )
+            {
+                boost::fusion::at_c< n >( y.data ) = boost::fusion::at_c< n >( x.data ).coefficients();
+                CoefficientsToVariableSet< n - 1 >::apply( x, y );
+            }
+        };
+
+        template <>
+        struct CoefficientsToVariableSet< -1 >
+        {
+            template < class Description >
+            static void apply( const typename Description::template CoefficientVectorRepresentation<>::type& /*unused*/,
+                               ::Kaskade::VariableSet< Description >& /*unused*/ )
+            {
+            }
+
+            template < class Description >
+            static void apply( const ::Kaskade::VariableSet< Description >& x,
+                               typename Description::template CoefficientVectorRepresentation<>::type& y )
+            {
+            }
+        };
     } // namespace Detail
     /// \endcond
 
@@ -432,54 +468,16 @@ namespace Spacy::Kaskade
         }
     }
 
-    template < int n >
-    struct CoefficientsToVariableSet
+    template < class Description >
+    void copy( const typename Description::template CoefficientVectorRepresentation<>::type& x, ::Kaskade::VariableSet< Description >& y )
     {
-        template < class CoefficientVector, class VariableSet >
-        static void apply( const CoefficientVector& x, VariableSet& y )
-        {
-            boost::fusion::at_c< n >( y.data ).coefficients() = boost::fusion::at_c< n >( x.data );
-        }
-    };
-
-    template <>
-    struct CoefficientsToVariableSet< -1 >
-    {
-        template < class CoefficientVector, class VariableSet >
-        static void apply( const CoefficientVector& /*unused*/, VariableSet& /*unused*/ )
-        {
-        }
-    };
-
-    template < int n >
-    struct VariableSetToCoefficients
-    {
-        template < class VariableSet, class CoefficientVector >
-        static void apply( const VariableSet& x, CoefficientVector& y )
-        {
-            boost::fusion::at_c< n >( y.data ) = boost::fusion::at_c< n >( x.data ).coefficients();
-        }
-    };
-
-    template <>
-    struct VariableSetToCoefficients< -1 >
-    {
-        template < class VariableSet, class CoefficientVector >
-        static void apply( const VariableSet& x, CoefficientVector& y )
-        {
-        }
-    };
-
-    template < class CoefficientVector, class VariableSet >
-    void coefficientsToVariableSet( const CoefficientVector& x, VariableSet& y )
-    {
-        CoefficientsToVariableSet< VariableSet::Descriptions::noOfVariables - 1 >::apply( x, y );
+        Detail::CoefficientsToVariableSet< Description::noOfVariables - 1 >::apply( x, y );
     }
 
-    template < class VariableSet, class CoefficientVector >
-    void variableSetToCoefficients( const VariableSet& x, CoefficientVector& y )
+    template < class Description >
+    void copy( const ::Kaskade::VariableSet< Description >& x, typename Description::template CoefficientVectorRepresentation<>::type& y )
     {
-        VariableSetToCoefficients< VariableSet::Descriptions::noOfVariables - 1 >::apply( x, y );
+        Detail::CoefficientsToVariableSet< Description::noOfVariables - 1 >::apply( x, y );
     }
 } // namespace Spacy::Kaskade
 /** @} */

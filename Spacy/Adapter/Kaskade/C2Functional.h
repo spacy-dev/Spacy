@@ -332,7 +332,8 @@ namespace Spacy::Kaskade
 
             Assembler assembler( spaces_ );
             assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::RHS, getNumberOfThreads() );
-            copy< VariableSetDescription >( CoefficientVector( assembler.rhs() ), rhs_ );
+            auto rhs = CoefficientVector( assembler.rhs() );
+            copy< VariableSetDescription >( rhs, rhs_ );
 
             old_X_df_ = x;
         }

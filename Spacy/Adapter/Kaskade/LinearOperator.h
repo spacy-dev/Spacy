@@ -8,6 +8,7 @@
 #include <Spacy/LinearSolver.h>
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Base/VectorBase.h>
+#include <Spacy/Util/Exceptions.h>
 #include <Spacy/Vector.h>
 
 #include <dune/istl/operators.hh>
@@ -28,16 +29,19 @@ namespace Spacy::Kaskade
      * @tparam TestVariableSetDescription %Kaskade::VariableSetDescription for test variables
      * @see ::Spacy::LinearOperator
      */
-    template < class AnsatzVariableSetDescription, class TestVariableSetDescription, class Matrix = ::Kaskade::MatrixAsTriplet< double > >
+    template < class AnsatzVariableSetDescription, class TestVariableSetDescription, class Matrix = ::Kaskade::MatrixAsTriplet< double >,
+               bool transposed = false, bool shared = false >
     class LinearOperator : public OperatorBase,
                            public VectorBase,
-                           public AddArithmeticOperators< LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription > >
+                           public AddArithmeticOperators<
+                               LinearOperator< AnsatzVariableSetDescription, TestVariableSetDescription, Matrix, transposed, shared > >
     {
         using Spaces = typename AnsatzVariableSetDescription::Spaces;
         using Variables = typename AnsatzVariableSetDescription::Variables;
         using Domain = typename AnsatzVariableSetDescription::template CoefficientVectorRepresentation<>::type;
         using Range = typename TestVariableSetDescription::template CoefficientVectorRepresentation<>::type;
-        using OperatorImpl = ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range >;
+        using OperatorImpl = std::conditional_t< shared, std::shared_ptr< ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range > >,
+                                                 ::Kaskade::MatrixRepresentedOperator< Matrix, Domain, Range > >;
         using OperatorCreator = LinearOperatorCreator< AnsatzVariableSetDescription, TestVariableSetDescription >;
 
     public:
@@ -78,7 +82,28 @@ namespace Spacy::Kaskade
             copy< AnsatzVariableSetDescription >( x, x_ );
             Range y_( TestVariableSetDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
 
-            A_.apply( x_, y_ );
+            if constexpr ( transposed )
+            {
+                if constexpr ( shared )
+                {
+                    A_->applyTransposed( x_, y_ );
+                }
+                else
+                {
+                    A_.applyTransposed( x_, y_ );
+                }
+            }
+            else
+            {
+                if constexpr ( shared )
+                {
+                    A_->apply( x_, y_ );
+                }
+                else
+                {
+                    A_.apply( x_, y_ );
+                }
+            }
 
             auto y = zero( range() );
             copy< TestVariableSetDescription >( y_, y );
@@ -112,22 +137,50 @@ namespace Spacy::Kaskade
 
         decltype( auto ) get()
         {
-            return A_.get_non_const();
+            if constexpr ( shared )
+            {
+                return A_->get_non_const();
+            }
+            else
+            {
+                return A_.get_non_const();
+            }
         }
 
         [[nodiscard]] decltype( auto ) get() const
         {
-            return A_.template get< Matrix >();
+            if constexpr ( shared )
+            {
+                return A_->template get< Matrix >();
+            }
+            else
+            {
+                return A_.template get< Matrix >();
+            }
         }
 
         [[nodiscard]] auto& A()
         {
-            return A_;
+            if constexpr ( shared )
+            {
+                return *A_;
+            }
+            else
+            {
+                return A_;
+            }
         }
 
         [[nodiscard]] const auto& A() const
         {
-            return A_;
+            if constexpr ( shared )
+            {
+                return *A_;
+            }
+            else
+            {
+                return A_;
+            }
         }
 
         [[nodiscard]] Spacy::ContiguousIterator< double > begin()
@@ -154,7 +207,14 @@ namespace Spacy::Kaskade
         OperatorImpl A_;
         Spaces spaces_;
         std::function< LinearSolver( const LinearOperator& ) > solverCreator_ = []( const LinearOperator& M ) {
-            return makeDirectSolver< TestVariableSetDescription, AnsatzVariableSetDescription >( M.A(), M.range(), M.domain() );
+            if constexpr ( transposed )
+            {
+                throw Exception::NotImplemented( "Default solver creator", "transposed matrices" );
+            }
+            else
+            {
+                return makeDirectSolver< TestVariableSetDescription, AnsatzVariableSetDescription >( M.A(), M.range(), M.domain() );
+            }
         };
     };
 

@@ -6,6 +6,7 @@
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
 
 /** @addtogroup KaskadeGroup
  * @{
@@ -19,39 +20,53 @@ namespace Spacy::Kaskade
         static constexpr auto target = targetIdx;
     };
 
+    template < class IdxPair >
+    struct InverseIdxPair
+    {
+        static constexpr auto source = IdxPair::target;
+        static constexpr auto target = IdxPair::source;
+    };
+
+    template < class IdxPair >
+    struct IdentityIdxPair
+    {
+        static constexpr auto source = IdxPair::source;
+        static constexpr auto target = IdxPair::target;
+    };
+
     namespace Detail
     {
-        template < class TargetVariables, class SourceVariables, class SpaceMap, int idx = 0,
+        template < class TargetVariables, class SourceVariables, class SpaceMap, template < class > class DirectionMap, int idx = 0,
                    int maxIdx = boost::fusion::result_of::size< SpaceMap >::type::value >
         struct CopySubspaces
         {
-            static constexpr auto sourceId = boost::fusion::result_of::value_at_c< SpaceMap, idx >::type::source;
-            static constexpr auto targetId = boost::fusion::result_of::value_at_c< SpaceMap, idx >::type::target;
+            static constexpr auto sourceId = DirectionMap< typename boost::fusion::result_of::value_at_c< SpaceMap, idx >::type >::source;
+            static constexpr auto targetId = DirectionMap< typename boost::fusion::result_of::value_at_c< SpaceMap, idx >::type >::target;
 
             template < class X, class Y >
             static void apply( const X& x, Y& y )
             {
                 boost::fusion::at_c< targetId >( y ) = boost::fusion::at_c< sourceId >( x );
-                CopySubspaces< TargetVariables, SourceVariables, SpaceMap, idx + 1, maxIdx >::apply( x, y );
+                CopySubspaces< TargetVariables, SourceVariables, SpaceMap, DirectionMap, idx + 1, maxIdx >::apply( x, y );
             }
         };
 
         // last copy -> terminate recursion
-        template < class TargetVariables, class SourceVariables, class SpaceMap, int maxIdx >
-        struct CopySubspaces< TargetVariables, SourceVariables, SpaceMap, maxIdx, maxIdx >
+        template < class TargetVariables, class SourceVariables, class SpaceMap, template < class > class DirectionMap, int maxIdx >
+        struct CopySubspaces< TargetVariables, SourceVariables, SpaceMap, DirectionMap, maxIdx, maxIdx >
         {
             template < class X, class Y >
             static void apply( const X& /*unused*/, Y& /*unused*/ )
             {
             }
         };
-
     } // namespace Detail
 
-    template < class SourceDescription, class TargetDescription, class SpaceMap >
+    template < class SourceDescription, class TargetDescription, class SpaceMap, template < class > class DirectionMap = IdentityIdxPair >
     class ProductSpaceRelation : public OperatorBase
     {
-        using Copy = Detail::CopySubspaces< typename SourceDescription::Variables, typename TargetDescription::Variables, SpaceMap >;
+        using Copy =
+            Detail::CopySubspaces< typename SourceDescription::Variables, typename TargetDescription::Variables, SpaceMap, DirectionMap >;
 
     public:
         ProductSpaceRelation( const VectorSpace& domain, const VectorSpace& range )
@@ -79,5 +94,13 @@ namespace Spacy::Kaskade
         typename SourceDescription::Spaces sourceSpaces_;
         typename TargetDescription::Spaces targetSpaces_;
     };
+
+    /// Create sub-space relation for \f$Y \subset X\f$
+    template < class XDescription, class YDescription, class IdxMap >
+    void setSubSpaceRelation( const VectorSpace& X, VectorSpace& Y )
+    {
+        Y.setEmbedding( Spacy::Kaskade::ProductSpaceRelation< YDescription, XDescription, IdxMap >( Y, X ) );
+        Y.setProjection( Spacy::Kaskade::ProductSpaceRelation< XDescription, YDescription, IdxMap, InverseIdxPair >( X, Y ) );
+    }
 } // namespace Spacy::Kaskade
 /** @} */

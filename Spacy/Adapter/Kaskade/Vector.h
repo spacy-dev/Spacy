@@ -248,8 +248,8 @@ namespace Spacy
             {
                 VectorImpl v( Description::template CoefficientVectorRepresentation<>::init( variableSet_.descriptions.spaces ) );
                 VectorImpl w( Description::template CoefficientVectorRepresentation<>::init( variableSet_.descriptions.spaces ) );
-                variableSetToCoefficients( get(), v );
-                variableSetToCoefficients( y.get(), w );
+                copy( get(), v );
+                copy( y.get(), w );
                 return v * w;
             }
             //      Vector& axpy(double a, const AbstractVector& y)
