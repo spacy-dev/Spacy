@@ -1,0 +1,67 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc]
+        build_type: [Debug, Release]
+        compiler_version: [5, 6, 10]
+        include:
+          - build_type: Release
+            cc: gcc-5
+            cxx: g++-5
+            compiler: gcc
+            compiler_version: 5
+          - build_type: Release
+            cc: gcc-6
+            cxx: g++-6
+            compiler: gcc
+            compiler_version: 6
+          - build_type: Debug
+            gcov: gcov-10
+            cc: gcc-10
+            cxx: g++-10
+            compiler: gcc
+            compiler_version: 10
+            cxx_flags: -coverage
+          - build_type: Release
+            cc: clang-10
+            cxx: clang++-10
+            compiler: clang
+            compiler_version: 10
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - uses: srt32/git-actions@v0.0.3
+
+      - name: Set ENV variables
+        run: |
+          echo "COMPILER=${{matrix.compiler}}" >> $GITHUB_ENV
+          echo "COMPILER_VERSION=${{matrix.compiler_version}}" >> $GITHUB_ENV
+          echo "CXX=${{matrix.cxx}}" >> $GITHUB_ENV
+          echo "CC=${{matrix.cc}}" >> $GITHUB_ENV
+          echo "GCOV=${{matrix.gcov}}" >> $GITHUB_ENV
+          echo "BUILD_TYPE=${{matrix.build_type}}" >> $GITHUB_ENV
+          echo "COVERALLS_TOKEN=${{secrets.COVERALLS_TOKEN}}" >> $GITHUB_ENV
+          echo "FLAGS=${{matrix.cxx_flags}}" >> $GITHUB_ENV
+
+      - name: Print ENV vars
+        run: |
+          echo "COMPILER: ${COMPILER}"
+          echo "COMPILER_VERSION: ${COMPILER_VERSION}"
+          echo "CXX: ${CXX}"
+          echo "CC: ${CC}"
+          echo "GCOV: ${GCOV}"
+          echo "BUILD_TYPE: ${BUILD_TYPE}"
+
+      - name: Test
+        run: docker run --rm -v ${PWD}:/home/shared lubkoll/spacy-ci:base /home/shared/run_in_docker.sh "$CC" "$CXX" "$GCOV" "$COVERALLS_TOKEN"
+        if: ${{matrix.compiler == 'gcc'}}

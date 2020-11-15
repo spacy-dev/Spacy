@@ -3,22 +3,22 @@ language: c++
 addons:
   apt:
     sources:
-    - ubuntu-toolchain-r-test
+      - ubuntu-toolchain-r-test
 
     packages:
-    - ccache
-    - ninja-build
-    - g++-5
-    - gcc-5
-    - g++-6
-    - gcc-6
-    - curl
+      - ccache
+      - ninja-build
+      - g++-5
+      - gcc-5
+      - g++-6
+      - gcc-6
+      - curl
 
 env:
   # Workaround for https://github.com/travis-ci/travis-ci/issues/4681
   matrix:
     - TRAVIS_EMPTY_JOB_WORKAROUND=true
-  
+
 matrix:
   exclude:
     - env: TRAVIS_EMPTY_JOB_WORKAROUND=true
@@ -26,32 +26,32 @@ matrix:
     # LINUX
     # GCC 5
     - os: linux
-      env: COMPILER=g++-5 CCOMPILER=gcc-5 GCOV="" COMPUTE_COVERAGE=false MAKE_DOC=false
+      env: COMPILER=g++-5 CCOMPILER=gcc-5 GCOV="" MAKE_DOC=false
       compiler: gcc
 
     # GCC 6
     - os: linux
-      env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 COMPUTE_COVERAGE=true MAKE_DOC=true
+      env: COMPILER=g++-6 CCOMPILER=gcc-6 GCOV=gcov-6 MAKE_DOC=true
       compiler: gcc
-      
-    # OSX      
+
+    # OSX
     # Xcode 9.4
     - os: osx
       env: COMPUTE_COVERAGE=false
       osx_image: xcode9.4
-      
+
     # Xcode 10.1
     - os: osx
       env: COMPUTE_COVERAGE=false
       osx_image: xcode10.1
-     
+
 install:
   ############################################################################
   # All the dependencies are installed in ${TRAVIS_BUILD_DIR}/deps/
   ############################################################################
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
-  
+
   ############################################################################
   # Override compiler if needed
   ############################################################################
@@ -65,7 +65,7 @@ install:
       sudo apt install docker.io
       docker pull lubkoll/spacy-ci:base
     fi
-  
+
   ############################################################################
   # Install Eigen
   ############################################################################
@@ -94,11 +94,10 @@ script:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
       SHARED=/home/shared
-      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN} ${COMPUTE_COVERAGE} ${MAKE_DOC}
+      docker run --rm -ti -v ${TRAVIS_BUILD_DIR}:${SHARED} lubkoll/spacy-ci:base ${SHARED}/run_in_docker.sh ${CCOMPILER} ${COMPILER} ${GCOV} ${COVERALLS_TOKEN} ${MAKE_DOC}
     else
       mkdir build && cd build
       cmake -DBuildTest=ON ..
       cmake --build .
       cd Test && ctest
     fi
-
