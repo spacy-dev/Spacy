@@ -8,9 +8,11 @@
 #include <Spacy/Algorithm/CG/TerminationCriterion.h>
 #include <Spacy/Algorithm/CompositeStep/AffineCovariantSolver.h>
 #include <Spacy/Algorithm/DampingFactor.h>
+#include <Spacy/Algorithm/Krylov/MinRes.h>
 #include <Spacy/Algorithm/LipschitzConstant.h>
 #include <Spacy/Algorithm/Newton/Newton.h>
 #include <Spacy/Algorithm/Newton/TerminationCriteria.h>
+#include <Spacy/Algorithm/Preconditioner/Chebyshev.h>
 #include <Spacy/Algorithm/TrustRegion/TrustRegionSolver.h>
 
 // Spaces
