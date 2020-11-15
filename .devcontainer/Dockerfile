@@ -56,9 +56,9 @@ COPY library-scripts/install-kaskade.sh /tmp/library-scripts/
 RUN /bin/bash /tmp/library-scripts/install-kaskade.sh \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* /tmp/library-scripts/
 
-RUN cd /tmp/deps && wget https://github.com/lubkoll/FunG/archive/v1.5.2.tar.gz && tar xzf v1.5.2.tar.gz && cd FunG-1.5.2 && mkdir build && cd build && cmake .. && cmake --build . --target install && cd ..
-
 USER $USERNAME
+RUN cd /home/$USERNAME && mkdir -p tmp && cd tmp && wget https://github.com/lubkoll/FunG/archive/v1.5.5.tar.gz && tar xzf v1.5.5.tar.gz && cd FunG-1.5.5 && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/home/$USERNAME/.local && cmake --build . --target install && cd ..
+RUN export PATH="$PATH:/home/$USERNAME/.local"
 RUN conan profile new default --detect
 RUN conan profile update settings.compiler=gcc default
 RUN conan profile update settings.compiler.libcxx=libstdc++11 default
