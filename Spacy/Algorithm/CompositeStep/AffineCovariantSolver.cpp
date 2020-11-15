@@ -23,7 +23,7 @@ namespace Spacy
 {
     namespace
     {
-        auto primalProjection( const Spacy::Vector& v )
+        auto primalProjectionForProductSpaces( const Spacy::Vector& v )
         {
             auto w = v;
             auto& w_ = cast_ref< ProductSpace::Vector >( w );
@@ -31,7 +31,7 @@ namespace Spacy
             return w;
         }
 
-        auto dualProjection( const Spacy::Vector& v )
+        auto dualProjectionForProductSpaces( const Spacy::Vector& v )
         {
             auto w = v;
             auto& w_ = cast_ref< ProductSpace::Vector >( w );
@@ -87,9 +87,10 @@ namespace Spacy
         {
         }
 
-        AffineCovariantSolver::AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain )
+        AffineCovariantSolver::AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain, const VectorSpace* Y,
+                                                      const VectorSpace* P )
             : retraction_( linearRetraction ), dualUpdate_( linearRetraction ), N_( std::move( N ) ), L_( std::move( L ) ),
-              domain_( domain ), chartSpace_( domain )
+              domain_( domain ), Y_{ Y }, P_{ P }, chartSpace_( domain )
         {
         }
 
@@ -116,14 +117,14 @@ namespace Spacy
                     std::cout << "\nComposite Steps: Iteration " << step << ".\n";
                 if ( verbose() )
                     std::cout << spacing << "Computing normal step." << std::endl;
-                auto Dn = computeNormalStep( x );
-                auto norm_Dn = norm( Dn );
+                const auto Dn = computeNormalStep( x );
+                const auto norm_Dn = norm( Dn );
                 if ( verbose() )
                 {
                     std::cout << spacing << "Normal step length: " << norm_Dn << std::endl;
                     std::cout << spacing << "Computing normal damping factor" << std::endl;
                 }
-                DampingFactor nu = computeNormalStepDampingFactor( norm_Dn );
+                auto nu = computeNormalStepDampingFactor( norm_Dn );
 
                 if ( getVerbosityLevel() > 1 )
                 {
@@ -151,18 +152,12 @@ namespace Spacy
                 if ( verbose() )
                     std::cout << spacing << "Suggested regularization parameter for TRCG" << theta_sugg << std::endl;
 
-                auto tau = DampingFactor{ 0 };
-                Real norm_x = 0.;
-                Real norm_dx = 0.;
-                auto ds = Dt;
-                auto dx = Dt;
-
                 if ( verbose() )
                 {
                     std::cout << spacing << "Tangential step length: " << norm( Dt ) << std::endl;
                     std::cout << spacing << "Computing damping factors." << std::endl;
                 }
-                std::tie( tau, dx, ds, norm_x, norm_dx ) = computeCompositeStep( nu, norm_Dn, x, Dn, Dt, res_p, v );
+                auto [ tau, dx, ds, norm_x, norm_dx ] = computeCompositeStep( nu, norm_Dn, x, Dn, Dt, res_p, v );
 
                 if ( norm_dx > 0 )
                     previous_step_contraction = norm( ds ) / norm( dx );
@@ -628,6 +623,36 @@ namespace Spacy
             auto result = dualProjection( origin );
             result += primalProjection( retraction_( primalProjection( origin ), primalProjection( increment ) ) );
             return result;
+        }
+
+        Vector AffineCovariantSolver::primalProjection( const Vector& x ) const
+        {
+            if ( is< ProductSpace::Vector >( x ) )
+            {
+                return primalProjectionForProductSpaces( x );
+            }
+
+            if ( Y_ )
+            {
+                return x.space().embed( Y_->project( x ) );
+            }
+
+            throw Exception::NotImplemented( __func__, "non-product space vector without primal and dual space defined" );
+        }
+
+        Vector AffineCovariantSolver::dualProjection( const Vector& x ) const
+        {
+            if ( is< ProductSpace::Vector >( x ) )
+            {
+                return dualProjectionForProductSpaces( x );
+            }
+
+            if ( P_ )
+            {
+                return x.space().embed( P_->project( x ) );
+            }
+
+            throw Exception::NotImplemented( __func__, "non-product space vector without primal and dual space defined" );
         }
 
         DampingFactor AffineCovariantSolver::computeNormalStepDampingFactor( Real norm_Dn ) const

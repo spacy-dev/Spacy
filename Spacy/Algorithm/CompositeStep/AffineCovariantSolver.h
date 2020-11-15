@@ -66,8 +66,10 @@ namespace Spacy
              * c'(x_k)\delta x_k + c(x_k)=0\f]
              * @param L Lagrange functional
              * @param domain domain space \f$X=\{Y,U,P\}\f$
+             * @param Y space of primal variables
              */
-            AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain );
+            AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain, const VectorSpace* Y = nullptr,
+                                   const VectorSpace* P = nullptr );
 
             AffineCovariantSolver( C2Functional N, C2Functional L, VectorSpace& domain,
                                    std::function< Vector( const Vector&, const Vector& ) > retraction );
@@ -118,10 +120,15 @@ namespace Spacy
 
             Vector retractPrimal( const Vector& origin, const Vector& increment ) const;
 
+            Vector primalProjection( const Vector& x ) const;
+            Vector dualProjection( const Vector& x ) const;
+
             std::function< Vector( const Vector&, const Vector& ) > retraction_;
             std::function< Vector( const Vector&, const Vector& ) > dualUpdate_;
             C2Functional N_, L_;
             VectorSpace& domain_;
+            const VectorSpace* Y_ = nullptr; // primal space
+            const VectorSpace* P_ = nullptr; // dual space
             VectorSpace& chartSpace_;
 
             LipschitzConstant omegaL{ 1e-6 }, omegaC{ 1e-6 };
