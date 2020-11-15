@@ -15,19 +15,10 @@ export CXX=$(which $CXX_COMPILER)
 export CC=$(which $C_COMPILER)
 export PATH="$PATH:$DEPS"
 
-apt install wget
-
-cd $DEPS || exit 1
-wget http://github.com/Kitware/CMake/releases/download/v3.13.1/cmake-3.13.1.tar.gz
-tar xzf cmake-3.13.1.tar.gz && cd cmake-3.13.1 && ./bootstrap --prefix=$DEPS && make && make install
-
 cd $DEPS || exit 1
 git clone https://github.com/google/googletest.git
 cd googletest || exit 1
 mkdir -p build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$DEPS && cmake --build . && cmake --build . --target install
-
-cd $DEPS || exit 1
-git clone https://github.com/eigenteam/eigen-git-mirror.git && cd eigen-git-mirror && mkdir build && cd build && cmake .. -DCMAKE_INSTALL_PREFIX=$DEPS && make install
 
 cd $SHARED || exit 1
 mkdir -p build && cd build && rm -rf *

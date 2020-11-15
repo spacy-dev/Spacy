@@ -29,11 +29,11 @@ jobs:
             compiler: gcc
             compiler_version: 10
             cxx_flags: -coverage
-          - build_type: Release
-            cc: clang-10
-            cxx: clang++-10
-            compiler: clang
-            compiler_version: 10
+    #          - build_type: Release
+    #            cc: clang-10
+    #            cxx: clang++-10
+    #            compiler: clang
+    #            compiler_version: 10
 
     steps:
       - uses: actions/checkout@v2
