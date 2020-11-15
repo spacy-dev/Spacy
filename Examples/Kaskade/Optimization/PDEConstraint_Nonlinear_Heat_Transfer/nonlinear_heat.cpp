@@ -1,5 +1,6 @@
 #define FUSION_MAX_VECTOR_SIZE 15 // NOLINT(cppcoreguidelines-macro-usage)
 
+#include "../../interpolate.h"
 #include "nonlinear_control.hh"
 #include <functional>
 #include <fung/examples/nonlinear_heat.hh>
@@ -21,67 +22,12 @@
 #include <chrono>
 #include <iostream>
 
-namespace Kaskade
-{
-    template < typename Weighing = PlainAverage, typename FSElement, typename Function >
-    void interpolateGloballyFromFunctor( FSElement& fse, Function const& fu )
-    {
-        using ImageSpace = typename FSElement::Space;
-        using Grid = typename ImageSpace::Grid;
-
-        DynamicMatrix< Dune::FieldMatrix< typename ImageSpace::Scalar, ImageSpace::sfComponents, 1 > > globalValues;
-        DynamicMatrix< Dune::FieldMatrix< typename ImageSpace::Scalar, 1, 1 > > localCoefficients;
-        std::vector< typename Grid::ctype > sumOfWeights( fse.space().degreesOfFreedom(), 0.0 );
-        fse.coefficients() = typename ImageSpace::Scalar( 0.0 );
-
-        typename ImageSpace::Evaluator isfs( fse.space() );
-        Weighing w;
-
-        auto const cend = fse.space().gridView().template end< 0 >();
-        using ValueType = decltype( fu( *cend, Dune::FieldVector< typename Grid::ctype, ImageSpace::dim >() ) );
-        std::vector< ValueType > fuvalue; // declare here to prevent reallocations
-        for ( auto ci = fse.space().gridView().template begin< 0 >(); ci != cend; ++ci )
-        {
-            auto index = fse.space().indexSet().index( *ci );
-
-            isfs.moveTo( *ci );
-            typename Grid::ctype myWeight = w( *ci );
-            for ( int i = 0; i < isfs.size(); ++i )
-                sumOfWeights[ isfs.globalIndices()[ i ] ] += myWeight;
-
-            auto const& iNodes( isfs.shapeFunctions().interpolationNodes() );
-
-            globalValues.setSize( iNodes.size(), 1 );
-            localCoefficients.setSize( iNodes.size(), 1 );
-            fuvalue.resize( iNodes.size() );
-            for ( int i = 0; i < iNodes.size(); ++i )
-                fuvalue[ i ] = fu( *ci, iNodes[ i ] );
-
-            for ( int k = 0; k < FSElement::components / ImageSpace::sfComponents; ++k )
-            {
-                for ( int i = 0; i < iNodes.size(); ++i )
-                    for ( int j = 0; j < ImageSpace::sfComponents; ++j )
-                        globalValues[ i ][ 0 ][ j ][ 0 ] = myWeight * fuvalue[ i ][ ImageSpace::sfComponents * k + j ];
-
-                approximateGlobalValues( fse.space(), *ci, globalValues, localCoefficients );
-
-                assert( localCoefficients.N() == isfs.globalIndices().size() );
-                fse.space().mapper().combiner( *ci, index ).leftPseudoInverse( localCoefficients );
-                for ( int i = 0; i < localCoefficients.N(); ++i )
-                    fse.coefficients()[ isfs.globalIndices()[ i ] ][ k ] += localCoefficients[ i ][ 0 ];
-            }
-        }
-
-        for ( int i = 0; i < sumOfWeights.size(); ++i )
-            fse.coefficients()[ i ] /= sumOfWeights[ i ] * w.scalingFactor() + w.offset();
-    }
-} // namespace Kaskade
-
 template < class StateVector, class Reference, class ControlVector >
 auto trackingTypeCostFunctional( double alpha, const StateVector& y, const Reference& y_ref, const ControlVector& u )
 {
     using namespace FunG;
-    return squared( variable< Ids::state >( y ) - variable< Ids::reference >( y_ref ) ) + alpha * squared( variable< Ids::control >( u ) );
+    return finalize( squared( variable< Ids::state >( y ) - variable< Ids::reference >( y_ref ) ) +
+                     alpha * squared( variable< Ids::control >( u ) ) );
 }
 
 int main( int argc, char* argv[] )
@@ -94,7 +40,7 @@ int main( int argc, char* argv[] )
 
     double desiredAccuracy = getParameter( pt, "desiredAccuracy", 1e-6 );
     double eps = getParameter( pt, "eps", 1e-12 );
-    double alpha = getParameter( pt, "alpha", 1e-4 );
+    double alpha = getParameter( pt, "alpha", 1e-6 );
     int maxSteps = getParameter( pt, "maxSteps", 500 );
     int initialRefinements = getParameter( pt, "initialRefinements", 5 );
     int iterativeRefinements = getParameter( pt, "iterativeRefinements", 0 );
