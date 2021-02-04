@@ -266,6 +266,9 @@ namespace Spacy
              * @param v inital value
              * @param space underlying vector space
              */
+            void axpy(const double& s,  const Vector& y )
+            {
+            }
             Vector( const VectorImpl& v, const VectorSpace& space )
                 : Mixin::Get< VectorImpl >( v ), VectorBase( space )
             {
