@@ -1,7 +1,9 @@
 #include "OperatorSpace.h"
 
-#include <Spacy/Util/Exceptions.h>
+#include <Spacy/Operator.h>
 #include <Spacy/VectorSpace.h>
+#include <Spacy/Util/Exceptions.h>
+
 #include "LinearOperator.h"
 
 #include <dolfin.h>
