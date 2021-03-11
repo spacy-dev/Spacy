@@ -3,6 +3,7 @@
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
+#include <Spacy/Operator.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
