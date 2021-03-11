@@ -3,6 +3,7 @@
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Copy.h>
 
+#include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
