@@ -1,5 +1,6 @@
 #include "LUSolver.h"
 
+#include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
