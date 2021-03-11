@@ -52,7 +52,7 @@ namespace Spacy
                             const VectorSpace& range )
                 : OperatorBase( domain, range ), operator_( std::move( operator_impl ) ),
                   operatorSpace_( std::make_shared< VectorSpace >(
-                      LinearOperatorCreator(), []( const Spacy::Vector& ) { return Real( 0 ); },
+                      LinearOperatorCreator(), []( const Spacy::Vector& ) { return Real( 0 ); }, "operator space (deal.II)",
                       true ) ),
                   value_( VariableDims::size == 1 ? GetDim< 0, VariableDims >::value
                                                   : VariableDims::size )
