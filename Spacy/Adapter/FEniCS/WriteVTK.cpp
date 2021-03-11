@@ -2,6 +2,7 @@
 
 #include <Spacy/Adapter/Generic/WriteVTK.h>
 #include <Spacy/Util/Cast.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 
 #include "Vector.h"
