@@ -1,5 +1,6 @@
 #include "InducedScalarProduct.h"
 
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/ProductSpace/Vector.h>
 #include <Spacy/Util/Cast.h>
 
@@ -7,8 +8,7 @@
 
 namespace Spacy
 {
-    AdaptiveInducedScalarProduct::AdaptiveInducedScalarProduct(
-        std::function< LinearOperator() > operatorCreator )
+    AdaptiveInducedScalarProduct::AdaptiveInducedScalarProduct( std::function< LinearOperator() > operatorCreator )
         : operatorCreator_( std::move( operatorCreator ) )
     {
     }
@@ -27,8 +27,7 @@ namespace Spacy
         return M_( y )( x );
     }
 
-    PrimalInducedScalarProduct::PrimalInducedScalarProduct( LinearOperator M )
-        : M_( std::move( M ) )
+    PrimalInducedScalarProduct::PrimalInducedScalarProduct( LinearOperator M ) : M_( std::move( M ) )
     {
     }
 
@@ -48,4 +47,4 @@ namespace Spacy
 
         return M_( y )( x );
     }
-}
+} // namespace Spacy

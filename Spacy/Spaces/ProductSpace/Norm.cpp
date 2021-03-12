@@ -4,6 +4,7 @@
 #include "VectorSpace.h"
 
 #include <Spacy/Norm.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>

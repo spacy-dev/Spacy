@@ -2,6 +2,7 @@
 
 #include <Spacy/Algorithm/DampingFactor.h>
 #include <Spacy/C1Operator.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 
 namespace Spacy::Newton::Termination

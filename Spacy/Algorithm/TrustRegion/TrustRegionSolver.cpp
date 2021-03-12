@@ -2,6 +2,7 @@
 
 #include <Spacy/HilbertSpaceNorm.h>
 #include <Spacy/InducedScalarProduct.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Log.h>
 #include <Spacy/ZeroVectorCreator.h>
 

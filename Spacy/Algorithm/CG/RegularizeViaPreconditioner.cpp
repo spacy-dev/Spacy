@@ -1,5 +1,6 @@
 #include "RegularizeViaPreconditioner.h"
 
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Log.h>
 
 namespace Spacy::CG

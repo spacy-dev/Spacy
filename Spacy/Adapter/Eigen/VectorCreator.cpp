@@ -2,6 +2,7 @@
 
 #include "ScalarProduct.h"
 
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/ProductSpace/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 

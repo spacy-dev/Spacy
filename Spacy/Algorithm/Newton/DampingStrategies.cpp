@@ -1,6 +1,7 @@
 #include "DampingStrategies.h"
 
 #include <Spacy/C1Operator.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>

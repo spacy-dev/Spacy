@@ -2,6 +2,7 @@
 
 #include <iterator>
 
+#include <Spacy/Operator.h>
 #include <Spacy/ZeroVectorCreator.h>
 
 #include <algorithm>

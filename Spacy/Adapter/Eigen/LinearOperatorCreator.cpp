@@ -3,6 +3,7 @@
 #include "VectorCreator.h"
 #include <Eigen/Dense>
 
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/ZeroVectorCreator.h>
 

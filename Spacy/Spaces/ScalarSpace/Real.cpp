@@ -2,6 +2,7 @@
 
 #include "RealSpace.h"
 
+#include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 
 #include <cmath>

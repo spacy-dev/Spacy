@@ -3,6 +3,7 @@
 #include <tuple>
 
 #include <Spacy/C2Functional.h>
+#include <Spacy/Operator.h>
 #include <Spacy/ScalarProduct.h>
 #include <Spacy/Util/Invoke.h>
 #include <Spacy/Vector.h>

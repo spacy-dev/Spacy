@@ -2,6 +2,7 @@
 
 #include <Spacy/DynamicOperator.h>
 #include <Spacy/LinearOperator.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 #include <Spacy/ZeroVectorCreator.h>
 

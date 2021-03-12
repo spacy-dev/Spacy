@@ -2,6 +2,7 @@
 
 #include "Real.h"
 
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
 

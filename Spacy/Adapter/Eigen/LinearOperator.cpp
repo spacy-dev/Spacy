@@ -4,6 +4,7 @@
 #include "LinearSolver.h"
 #include "Vector.h"
 
+#include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 #include <Spacy/ZeroVectorCreator.h>
 

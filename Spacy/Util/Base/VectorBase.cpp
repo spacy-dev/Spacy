@@ -1,5 +1,6 @@
 #include "VectorBase.h"
 
+#include <Spacy/Operator.h>
 #include <Spacy/VectorSpace.h>
 
 namespace Spacy
