@@ -5,6 +5,7 @@
 #include "Vector.h"
 
 #include <Spacy/Util/Cast.h>
+#include <Spacy/Operator.h>
 #include <Spacy/ZeroVectorCreator.h>
 
 #include <utility>
