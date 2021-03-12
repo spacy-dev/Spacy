@@ -6,6 +6,7 @@
 #include <Spacy/Adaptivity/SpaceManager.h>
 #include <Spacy/Adaptivity/SpatialAdaptivity.h>
 #include <Spacy/HilbertSpaceNorm.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>

@@ -4,6 +4,7 @@
 #include <Test/Mock/vectorCreator.hh>
 
 #include <Spacy/LinearSolver.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>

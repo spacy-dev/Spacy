@@ -2,6 +2,7 @@
 
 #include "linearOperator.hh"
 
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>

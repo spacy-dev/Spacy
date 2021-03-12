@@ -1,3 +1,4 @@
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/ScalarSpace/LinearSolver.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>

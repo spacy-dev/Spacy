@@ -1,6 +1,7 @@
 #include <Test/Spacy/Algorithm/Newton/newtonTestSetup.hh>
 #include <Test/Spacy/Algorithm/scalarTests.hh>
 
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/RealSpace.h>
 
 #include <gtest/gtest.h>

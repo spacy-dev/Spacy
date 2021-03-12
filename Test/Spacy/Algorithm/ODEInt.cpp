@@ -1,5 +1,6 @@
 #include <Spacy/Adapter/Eigen.h>
 #include <Spacy/Algorithm/ODEInt.h>
+#include <Spacy/Operator.h>
 #include <Spacy/Spaces/ScalarSpace/DynamicOperator.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 #include <Spacy/Util/Cast.h>
