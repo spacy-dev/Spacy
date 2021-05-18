@@ -1,3 +1,7 @@
+// - setEmbedding und setProjection sind jetzt Templates
+// - neue Klasse SubSpaceRelation und IdEmbedding (siehe MS_Merge), ProductSpaceRelation in Spacy/Adapter/Kaskade/SubspaceRelation (sollte man das umbenennen?) erbt von SubSpaceRelation
+// - embeddings_ und projections_ sind jetzt vom Typ SubSpaceRelation anstatt Operator (siehe MS_Merge)
+
 #pragma once
 
 #include <functional>
@@ -5,6 +9,7 @@
 #include <Spacy/Norm.h>
 #include <Spacy/ScalarProduct.h>
 #include <Spacy/Util/Mixins/Eps.h>
+#include <Spacy/Util/Base/OperatorBase.h>
 
 #include <memory>
 #include <vector>
@@ -18,8 +23,8 @@ namespace Spacy
     {
         static unsigned spaceIndex = 1;
     }
-    class Operator;
     class ZeroVectorCreator;
+    class SubSpaceRelation;
     /// @endcond
 
     /**
@@ -109,14 +114,10 @@ namespace Spacy
         ZeroVectorCreator& creator();
 
         [[nodiscard]] const ZeroVectorCreator& creator() const;
+        
+        const SubSpaceRelation& getProjectionFrom( const VectorSpace& V ) const;
 
-        void setProjection( const Operator& P );
-
-        const Operator& getProjectionFrom( const VectorSpace& V ) const;
-
-        void setEmbedding( const Operator& E );
-
-        const Operator& getEmbeddingIn( const VectorSpace& V ) const;
+        const SubSpaceRelation& getEmbeddingIn( const VectorSpace& V ) const;
 
         [[nodiscard]] bool isEmbeddedIn( const VectorSpace& V ) const noexcept;
 
@@ -129,6 +130,22 @@ namespace Spacy
         [[nodiscard]] Vector project( Vector&& v ) const;
 
         const std::string& name() const noexcept;
+        
+        // SpaceRelation must derive from SubSpaceRelation
+        template < class SpaceRelation >
+        void setProjection( const SpaceRelation& P )
+        {
+            checkSpaceCompatibility( *this, P.range() );
+            projections_.push_back( std::make_unique< SpaceRelation >( P ) );
+        }
+
+        // SpaceRelation must derive from SubSpaceRelation
+        template < class SpaceRelation >
+        void setEmbedding( const SpaceRelation& E )
+        {
+            checkSpaceCompatibility( *this, E.domain() );
+            embeddings_.push_back( std::make_unique< SpaceRelation >( E ) );
+        }
 
     private:
         void setDualSpace( const VectorSpace& V );
@@ -142,8 +159,43 @@ namespace Spacy
         std::vector< unsigned > dualSpaces_ = {};   ///< dual spaces with respect to this space
         const VectorSpace* dualSpace_ = nullptr;
         std::function< bool( const Vector& ) > restriction_ = []( const Vector& /*unused*/ ) { return true; };
-        std::vector< std::unique_ptr< Operator > > embeddings_{};
-        std::vector< std::unique_ptr< Operator > > projections_{};
+        std::vector< std::unique_ptr< SubSpaceRelation > > embeddings_{};
+        std::vector< std::unique_ptr< SubSpaceRelation > > projections_{};
+    };
+    
+    ///Serves as a base class for projections and embeddings
+    /// Up to now, embeddings are not transitive one could establish transitivity processing all embeddings and generating compositions 
+    /// However, such composed embeddings are, of course, less efficient than direct embeddings
+    class SubSpaceRelation :
+        public OperatorBase
+    {
+    public: 
+    /// Establish a mapping between domain and range
+       SubSpaceRelation( const VectorSpace& domain, const VectorSpace& range ); 
+
+    ///  Apply a projection to a vector
+       virtual Vector operator()(const Vector& in) const = 0;
+       
+    /// TODO: The following  routines assume about block structure of a vector space. They should not be in this base class, rather in the derived adapter classes. Type erasure might be useful
+    /// The assumption is that "domain" is a subspace of a product space "range", consisting of certain components 
+    /// These routines are useful, if operator blocks that correspond to "domain" have to be extracted from a block matrix, definaed on "range"
+       
+       /// First componennt in range
+       virtual int getCBegin() const {return 0; }
+       /// Last componennt in range
+       virtual int getCEnd() const { return 1; }
+       /// Returns, whether the component i of "domain" is in the range of the embedding
+       virtual bool isInRange(int i) const {return false;}
+    };
+    
+    /// Implements the identity embedding. This is useful, if two spaces are the same internally, but have to be distingished from an abstract point of view
+    class IdEmbedding : public SubSpaceRelation
+    {
+    public:
+        IdEmbedding( const VectorSpace& domain, const VectorSpace& range ) :
+        SubSpaceRelation(domain,range){}
+        Vector operator()( const Vector& in) const override;
+        bool isInRange(int i) const override {return true;}
     };
 
     /// Construct Banach space.

@@ -11,9 +11,30 @@
 #include <stdexcept>
 #include <utility>
 
+#include <iostream>
+
+
 namespace Spacy
 {
-    VectorSpace::VectorSpace() = default;
+    SubSpaceRelation::SubSpaceRelation( const VectorSpace& domain, const VectorSpace& range ) :
+    OperatorBase(domain,range)
+    { };
+
+    Vector IdEmbedding::operator()( const Vector& v ) const
+    {
+        checkSpaceCompatibility(v.space(),domain());
+        
+        // eventuell noch changeSpace implementieren, wie in MS_Merge -> IdEmbedding::apply
+        
+        return v;
+    }
+    
+    VectorSpace::VectorSpace() 
+    {
+        // Every VectorSpace is embedded in itself:
+        embeddings_.push_back(std::make_unique<IdEmbedding>(IdEmbedding(*this,*this))); 
+        projections_.push_back(std::make_unique<IdEmbedding>(IdEmbedding(*this,*this)));      
+    }
 
     VectorSpace::~VectorSpace() = default;
 
@@ -22,6 +43,12 @@ namespace Spacy
     {
         if ( defaultIndex )
             index_ = 0;
+        else
+        {
+            // Every VectorSpace is embedded in itself:
+            embeddings_.push_back(std::make_unique<IdEmbedding>(IdEmbedding(*this,*this))); 
+            projections_.push_back(std::make_unique<IdEmbedding>(IdEmbedding(*this,*this))); 
+        }
     }
 
     VectorSpace::VectorSpace( VectorSpace&& V )
@@ -123,13 +150,7 @@ namespace Spacy
         return *creator_;
     }
 
-    void VectorSpace::setProjection( const Operator& P )
-    {
-        checkSpaceCompatibility( *this, P.range() );
-        projections_.push_back( std::make_unique< Operator >( P ) );
-    }
-
-    const Operator& VectorSpace::getProjectionFrom( const VectorSpace& V ) const
+    const SubSpaceRelation& VectorSpace::getProjectionFrom( const VectorSpace& V ) const
     {
         const auto iter = std::find_if( begin( projections_ ), end( projections_ ),
                                         [ &V ]( const auto& projection ) { return projection->domain().index() == V.index(); } );
@@ -141,13 +162,7 @@ namespace Spacy
         return **iter;
     }
 
-    void VectorSpace::setEmbedding( const Operator& E )
-    {
-        checkSpaceCompatibility( *this, E.domain() );
-        embeddings_.push_back( std::make_unique< Operator >( E ) );
-    }
-
-    const Operator& VectorSpace::getEmbeddingIn( const VectorSpace& V ) const
+    const SubSpaceRelation& VectorSpace::getEmbeddingIn( const VectorSpace& V ) const
     {
         if ( !isEmbeddedIn( V ) )
         {
