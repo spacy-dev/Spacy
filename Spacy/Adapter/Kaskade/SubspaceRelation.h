@@ -1,7 +1,9 @@
+// ProductSpaceRelation kann jetzt getCBegin getCEnd und isInRange
+
 #pragma once
 
 #include "Copy.h"
-#include "Vector.h"
+//#include "Vector.h"
 
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
@@ -11,7 +13,9 @@
 /** @addtogroup KaskadeGroup
  * @{
  */
-namespace Spacy::Kaskade
+namespace Spacy
+{
+namespace Kaskade
 {
     template < int sourceIdx, int targetIdx >
     struct IdxPair
@@ -63,19 +67,19 @@ namespace Spacy::Kaskade
     } // namespace Detail
 
     template < class SourceDescription, class TargetDescription, class SpaceMap, template < class > class DirectionMap = IdentityIdxPair >
-    class ProductSpaceRelation : public OperatorBase
+    class ProductSpaceRelation : public Spacy::SubSpaceRelation
     {
         using Copy =
             Detail::CopySubspaces< typename SourceDescription::Variables, typename TargetDescription::Variables, SpaceMap, DirectionMap >;
 
     public:
         ProductSpaceRelation( const VectorSpace& domain, const VectorSpace& range )
-            : OperatorBase( domain, range ), sourceSpaces_( extractSpaces< SourceDescription >( domain ) ),
+            : SubSpaceRelation( domain, range ), sourceSpaces_( extractSpaces< SourceDescription >( domain ) ),
               targetSpaces_( extractSpaces< TargetDescription >( range ) )
         {
         }
 
-        Spacy::Vector operator()( const Spacy::Vector& x ) const
+        Spacy::Vector operator()( const Spacy::Vector& x ) const  override
         {
             using Domain = typename SourceDescription::template CoefficientVectorRepresentation<>::type;
             Domain xk( SourceDescription::template CoefficientVectorRepresentation<>::init( sourceSpaces_ ) );
@@ -89,18 +93,97 @@ namespace Spacy::Kaskade
             copy< TargetDescription >( yk, y );
             return y;
         }
+        
+        int getCBegin() const override
+        {
+            return GetMinIndex<SpaceMap, DirectionMap>::apply();
+        }
+        
+        int getCEnd() const override
+        {
+            return GetMaxIndex<SpaceMap, DirectionMap>::apply() + 1;
+        }
+        
+        bool isInRange(int i) const override
+        {
+            return InRange<SpaceMap, DirectionMap>::apply(i);
+        }
 
     private:
         typename SourceDescription::Spaces sourceSpaces_;
         typename TargetDescription::Spaces targetSpaces_;
+        
+        template <class Map, template < class > class DirMap, int i = 0, int maxIdx = boost::fusion::result_of::size< Map >::type::value>
+        struct GetMinIndex
+        {
+            static int apply()
+            {
+                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::source;
+                static int res = GetMinIndex<Map, DirMap, i+1, maxIdx>::apply();
+                if ( res < val )    return res;
+                else                return val;
+            }
+        };
+        
+        template <class Map, template < class > class DirMap, int maxIdx>
+        struct GetMinIndex <Map, DirMap, maxIdx, maxIdx>
+        {
+            static int apply()
+            {
+                return 99; //terminate recursion
+            }
+        };
+        
+        template <class Map, template < class > class DirMap, int i = 0, int maxIdx = boost::fusion::result_of::size< Map >::type::value>
+        struct GetMaxIndex
+        {
+            static int apply()
+            {
+                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::source;
+                static int res = GetMaxIndex<Map, DirMap, i+1, maxIdx>::apply();
+                if ( res > val )    return res;
+                else                return val;
+            }
+        };
+        
+        template <class Map, template < class > class DirMap, int maxIdx>
+        struct GetMaxIndex <Map, DirMap, maxIdx, maxIdx>
+        {
+            static int apply()
+            {
+                return 0; //terminate recursion
+            }
+        };
+        
+        template <class Map, template < class > class DirMap, int i = 0, int maxIdx = boost::fusion::result_of::size< Map >::type::value>
+        struct InRange
+        {
+            static bool apply(int j)
+            {
+                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::source;
+                if ( val == j )    return true;
+                else               return InRange<Map, DirMap, i+1, maxIdx>::apply(j);
+            }
+        };
+        
+        template <class Map, template < class > class DirMap, int maxIdx>
+        struct InRange <Map, DirMap, maxIdx, maxIdx>
+        {
+            static bool apply(int j)
+            {
+                return false; //terminate recursion
+            }
+        };
+        
     };
 
     /// Create sub-space relation for \f$Y \subset X\f$
     template < class YDescription, class XDescription, class IdxMap >
     void setSubSpaceRelation( VectorSpace& Y, const VectorSpace& X )
     {
-        Y.setEmbedding( Spacy::Kaskade::ProductSpaceRelation< YDescription, XDescription, IdxMap >( Y, X ) );
+        Y.setEmbedding( Spacy::Kaskade::ProductSpaceRelation< YDescription, XDescription, IdxMap >( Y, X ));
         Y.setProjection( Spacy::Kaskade::ProductSpaceRelation< XDescription, YDescription, IdxMap, InverseIdxPair >( X, Y ) );
     }
-} // namespace Spacy::Kaskade
+}
+}// namespace Spacy::Kaskade
 /** @} */
