@@ -1,13 +1,14 @@
 #define FUSION_MAX_VECTOR_SIZE 15 // NOLINT(cppcoreguidelines-macro-usage)
 
 #include "../../interpolate.h"
-#include "nonlinear_control.hh"
+#include "nonlinear_heat.hh"
 #include <functional>
 #include <fung/examples/nonlinear_heat.hh>
 #include <fung/fung.hh>
 
 #include <Spacy/Adapter/kaskade.hh>
 #include <Spacy/Spacy.h>
+#include "Spacy/Adapter/Kaskade/SubspaceRelation.h"
 
 #include <fem/forEach.hh>
 #include <fem/gridmanager.hh>
@@ -22,6 +23,7 @@
 #include <chrono>
 #include <iostream>
 
+using Kaskade::Ids;
 using Kaskade::Components;
 using Kaskade::ContinuousLagrangeMapper;
 using Kaskade::FEFunctionSpace;
@@ -31,6 +33,7 @@ using Kaskade::VariableId;
 using Kaskade::VariableSetDescription;
 using std::cout;
 using std::endl;
+using namespace Kaskade;
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 /* * * * * * * * * * * * * * * * * * * * * * function spaces * * * * * * * * * * * * * * * * * * * * * */
@@ -51,12 +54,21 @@ using PrimalDescriptions = VariableSetDescription< Spaces, PrimalVariables >;
 using DualDescriptions = VariableSetDescription< Spaces, DualVariables >;
 using VarSet = Descriptions::VariableSet;
 
+  template <class Scalar, class Vector>
+  auto heatModel(double c, double d, Scalar u, const Vector& du)
+  {
+          using FunG::variable;
+    using FunG::squared; 
+    return (c+d*squared(variable<0>(u)))*variable<0>(du);
+  }
+
+
 template < class StateVector, class Reference, class ControlVector >
 auto trackingTypeCostFunctional( double alpha, const StateVector& y, const Reference& y_ref, const ControlVector& u )
 {
     using namespace FunG;
-    return finalize( squared( variable< Ids::state >( y ) - variable< Ids::reference >( y_ref ) ) +
-                     alpha * squared( variable< Ids::control >( u ) ) );
+    return squared( variable< Ids::state >( y ) - variable< Ids::reference >( y_ref ) ) +
+                     alpha * squared( variable< Ids::control >( u ) ) ;
 }
 
 int main( int argc, char* argv[] )
@@ -124,7 +136,7 @@ int main( int argc, char* argv[] )
     Dune::FieldVector< double, 1 > u0{ 0 };
     Dune::FieldVector< double, 1 > y_ref{ 0.5 };
     Dune::FieldMatrix< double, 1, dim > dy0{ 0 };
-    auto constraint = FunG::heatModel( c, d, y0, dy0 );
+    auto constraint = heatModel( c, d, y0, dy0 );
     auto costFunctional = trackingTypeCostFunctional( alpha, y0, y_ref, u0 );
 
     // Normal step functional with direct solver
@@ -153,9 +165,10 @@ int main( int argc, char* argv[] )
     cout << "start solver" << endl;
     using namespace std::chrono;
     const auto startTime = high_resolution_clock::now();
-    auto result = cs();
+    //auto result = cs();
     std::cout << "computation time: " << duration_cast< seconds >( high_resolution_clock::now() - startTime ).count() << "s." << std::endl;
 
+    auto result = zero(X);
     VarSet x( desc );
     Spacy::Kaskade::copy( result, x );
 
