@@ -1,3 +1,5 @@
+// Z. 245 - 256: get_v als getter für v_, siehe MS_Merge -> get
+
 #pragma once
 
 #include "Copy.h"
@@ -230,6 +232,7 @@ namespace Spacy
             /// Access coefficient vector.
             VariableSet& get()
             {
+                //std::cout << "hier" << std::endl;
                 return variableSet_;
             }
 
@@ -237,6 +240,19 @@ namespace Spacy
             const VariableSet& get() const
             {
                 return variableSet_;
+            }
+            
+            /// Access coefficient vector.
+            VectorImpl& get_v()
+            {
+                //std::cout << "dort" << std::endl;
+                return v_;
+            }
+
+            /// Access coefficient vector.
+            const VectorImpl& get_v() const
+            {
+                return v_;
             }
 
             /**
