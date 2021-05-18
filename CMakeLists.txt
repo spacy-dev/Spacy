@@ -6,7 +6,7 @@ if(CCACHE_PROGRAM)
 endif()
 
 option(BuildTest "BuildTest" OFF)
-option(Kaskade "Kaskade" OFF)
+option(Kaskade "Kaskade" ON)
 option(Dolfin "Dolfin" OFF)
 option(dealII "dealII" OFF)
 option(Logging "Logging" ON)
