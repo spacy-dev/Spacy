@@ -89,6 +89,8 @@ add_library(spacy ${SRC_LIST}
     Algorithm/Scalar/Models.cpp
     Algorithm/TrustRegion/TrustRegionSolver.h
     Algorithm/TrustRegion/TrustRegionSolver.cpp
+    Algorithm/PrimalDualProjection/TriangConstraintPrec.h
+    Algorithm/PrimalDualProjection/TriangConstraintPrec.cpp
     ### Spaces ###
     Spaces/RealSpace.h
     Spaces/ProductSpace.h
