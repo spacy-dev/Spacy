@@ -20,7 +20,7 @@
 #include "utilities/gridGeneration.hh" //  createUnitSquare
 #include "utilities/kaskopt.hh"
 
-#include "ScalarProduct.h"
+//#include "ScalarProduct.h"
 #include "tempGrid.hh"
 
 namespace Spacy

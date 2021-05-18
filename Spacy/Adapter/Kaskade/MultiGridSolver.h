@@ -24,7 +24,7 @@ namespace Spacy::Kaskade
 
     public:
         MultiGridSolver( Matrix A, Spaces spaces, int atol, int maxit, int verbose, bool onlyLowerTriangle = false,
-                         ::Kaskade::DirectType directType = ::Kaskade::DirectType::UMFPACK )
+                         ::DirectType directType = ::DirectType::UMFPACK )
             : A_{ std::move( A ) }, spaces_{ std::move( spaces ) }, atol_{ atol }, maxit_{ maxit }, verbose_{ verbose },
               onlyLowerTriangle_{ onlyLowerTriangle }, directType_{ directType }
         {
@@ -58,7 +58,7 @@ namespace Spacy::Kaskade
         int maxit_;
         int verbose_;
         bool onlyLowerTriangle_;
-        ::Kaskade::DirectType directType_;
+        ::DirectType directType_;
     };
 } // namespace Spacy::Kaskade
 /** @} */

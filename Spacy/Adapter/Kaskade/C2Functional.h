@@ -65,7 +65,7 @@ namespace Spacy::Kaskade
         };
 
         template < class Functional, class Matrix >
-        using Linearization = LinearOperator< typename Functional::AnsatzVars, typename Functional::AnsatzVars, Matrix >;
+        using Linearization = LinearOperator< typename Functional::AnsatzVars, typename Functional::AnsatzVars, Matrix, false, false >;
     } // namespace Detail
 
     /**
@@ -91,7 +91,7 @@ namespace Spacy::Kaskade
         /// operator for the description of the second derivative
         using KaskadeOperator = ::Kaskade::MatrixRepresentedOperator< Matrix, CoefficientVector, CoefficientVector >;
 
-        using Linearization = LinearOperator< VariableSetDescription, VariableSetDescription, Matrix >;
+        using Linearization = LinearOperator< VariableSetDescription, VariableSetDescription, Matrix, false, false >;
 
         /**
          * @brief Construct a twice differentiable functional \f$f: X\rightarrow \mathbb{R}\f$
@@ -110,7 +110,7 @@ namespace Spacy::Kaskade
         C2Functional( const FunctionalDefinition& f, const VectorSpace& domain, int rbegin = 0,
                       int rend = FunctionalDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
                       int cend = FunctionalDefinition::TestVars::noOfVariables )
-            : FunctionalBase( domain ), f_( f ), spaces_( extractSpaces< VariableSetDescription >( domain ) ),
+            : FunctionalBase( domain ), f_( f ), spaces_( extractSpaces< VariableSetDescription >( domain ) ), assembler_(spaces_),
               rhs_( zero( domain.dualSpace() ) ), rbegin_( rbegin ), rend_( rend ), cbegin_( cbegin ), cend_( cend ),
               operatorSpace_( std::make_shared< VectorSpace >(
                   LinearOperatorCreator< VariableSetDescription, VariableSetDescription >( domain, domain.dualSpace() ),
@@ -144,7 +144,7 @@ namespace Spacy::Kaskade
                       std::function< LinearSolver( const Linearization& ) > solverCreator, int rbegin = 0,
                       int rend = FunctionalDefinition::AnsatzVars::noOfVariables, int cbegin = 0,
                       int cend = FunctionalDefinition::TestVars::noOfVariables )
-            : FunctionalBase( domain ), f_( f ), spaces_( extractSpaces< VariableSetDescription >( domain ) ),
+            : FunctionalBase( domain ), f_( f ), spaces_( extractSpaces< VariableSetDescription >( domain ) ), assembler_(spaces_),
               rhs_( zero( domain.dualSpace() ) ), rbegin_( rbegin ), rend_( rend ), cbegin_( cbegin ), cend_( cend ),
               solverCreator_( std::move( solverCreator ) ),
               operatorSpace_( std::make_shared< VectorSpace >(
@@ -166,7 +166,7 @@ namespace Spacy::Kaskade
          * @param g functional to copy from
          */
         C2Functional( const C2Functional& g )
-            : FunctionalBase( g.domain() ), NumberOfThreads( g ), f_( g.f_ ), spaces_( g.spaces_ ), A_( g.A_ ), value_( g.value_ ),
+            : FunctionalBase( g.domain() ), NumberOfThreads( g ), f_( g.f_ ), spaces_( g.spaces_ ), assembler_(g.spaces_), A_( g.A_ ), value_( g.value_ ),
               old_X_f_( g.old_X_f_ ), old_X_df_( g.old_X_df_ ), old_X_ddf_( g.old_X_ddf_ ), rhs_( g.rhs_ ),
               onlyLowerTriangle_( g.onlyLowerTriangle_ ), rbegin_( g.rbegin_ ), rend_( g.rend_ ), cbegin_( g.cbegin_ ), cend_( g.cend_ ),
               solverCreator_( g.solverCreator_ ), operatorSpace_( g.operatorSpace_ )
@@ -182,6 +182,7 @@ namespace Spacy::Kaskade
             setNumberOfThreads( g.getNumberOfThreads() );
             f_ = g.f_;
             spaces_ = g.spaces_;
+            assembler_(g.spaces_);
             A_ = g.A_;
             value_ = g.value_;
             old_X_f_ = g.old_X_f_;
@@ -280,6 +281,12 @@ namespace Spacy::Kaskade
             return spaces_;
         }
 
+        
+        const Assembler& assembler() 
+        {
+            return assembler_;
+        }
+            
         /**
          * @brief Access onlyLowerTriangle flag.
          * @return true if only the lower triangle of a symmetric matrix is stored in the
@@ -311,9 +318,8 @@ namespace Spacy::Kaskade
 
             copy( x, u );
 
-            Assembler assembler( spaces_ );
-            assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::VALUE, getNumberOfThreads() );
-            value_ = assembler.functional();
+            assembler_.assemble( ::Kaskade::linearization( f_, u ), Assembler::VALUE, getNumberOfThreads() );
+            value_ = assembler_.functional();
 
             old_X_f_ = x;
         }
@@ -330,9 +336,8 @@ namespace Spacy::Kaskade
 
             copy( x, u );
 
-            Assembler assembler( spaces_ );
-            assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::RHS, getNumberOfThreads() );
-            auto rhs = CoefficientVector( assembler.rhs() );
+            assembler_.assemble( ::Kaskade::linearization( f_, u ), Assembler::RHS, getNumberOfThreads() );
+            auto rhs = CoefficientVector( assembler_.rhs() );
             copy< VariableSetDescription >( rhs, rhs_ );
 
             old_X_df_ = x;
@@ -343,15 +348,14 @@ namespace Spacy::Kaskade
         {
             if ( old_X_ddf_ && ( old_X_ddf_ == x ) )
                 return;
-
+            
             VariableSetDescription variableSet( spaces_ );
             typename VariableSetDescription::VariableSet u( variableSet );
 
             copy( x, u );
-
-            Assembler assembler( spaces_ );
-            assembler.assemble( ::Kaskade::linearization( f_, u ), Assembler::MATRIX, getNumberOfThreads() );
-            auto A = Detail::GetMatrix< Matrix >::apply( assembler, onlyLowerTriangle_, rbegin_, rend_, cbegin_, cend_ );
+            
+            assembler_.assemble( ::Kaskade::linearization( f_, u ), Assembler::MATRIX, getNumberOfThreads() );
+            auto A = Detail::GetMatrix< Matrix >::apply( assembler_, onlyLowerTriangle_, rbegin_, rend_, cbegin_, cend_ );
             A_ = std::make_shared< KaskadeOperator >( std::move( A ) );
 
             old_X_ddf_ = x;
@@ -359,6 +363,7 @@ namespace Spacy::Kaskade
 
         FunctionalDefinition f_;
         Spaces spaces_;
+        mutable Assembler assembler_;
         mutable std::shared_ptr< KaskadeOperator > A_;
         mutable double value_ = 0;
         mutable ::Spacy::Vector old_X_f_{};

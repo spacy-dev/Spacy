@@ -8,6 +8,7 @@
 #include <Spacy/Vector.h>
 
 #include "linalg/direct.hh"
+#include "utilities/enums.hh"
 
 namespace Spacy::Kaskade
 {
@@ -38,8 +39,8 @@ namespace Spacy::Kaskade
          * MatrixProperties::SYMMETRIC)
          */
         DirectSolver( KaskadeOperator A, const VectorSpace& domain, const VectorSpace& range,
-                      ::Kaskade::DirectType directSolver = ::Kaskade::DirectType::UMFPACK3264,
-                      ::Kaskade::MatrixProperties property = ::Kaskade::MatrixProperties::GENERAL )
+                      ::DirectType directSolver = ::DirectType::UMFPACK3264,
+                      ::MatrixProperties property = ::MatrixProperties::GENERAL )
             : OperatorBase( domain, range ), A_( std::move( A ) ), spaces_( extractSpaces< AnsatzVariableDescription >( domain ) ),
               directSolver_( directSolver ), property_( property )
         {
@@ -51,11 +52,11 @@ namespace Spacy::Kaskade
             if ( solver_ == nullptr )
                 solver_ = std::make_shared< ::Kaskade::InverseLinearOperator< ::Kaskade::DirectSolver< Domain, Range > > >(
                     ::Kaskade::directInverseOperator( A_, directSolver_, property_ ) );
-
+                
             Range y_( TestVariableDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
             Domain x_( AnsatzVariableDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
             copy< AnsatzVariableDescription >( x, x_ );
-
+            
             solver_->apply( x_, y_ );
 
             auto y = zero( range() );
@@ -67,8 +68,8 @@ namespace Spacy::Kaskade
     private:
         KaskadeOperator A_;
         Spaces spaces_;
-        ::Kaskade::DirectType directSolver_ = ::Kaskade::DirectType::UMFPACK3264;
-        ::Kaskade::MatrixProperties property_ = ::Kaskade::MatrixProperties::GENERAL;
+        ::DirectType directSolver_ = ::DirectType::UMFPACK3264;
+        ::MatrixProperties property_ = ::MatrixProperties::GENERAL;
         mutable std::shared_ptr< ::Kaskade::InverseLinearOperator< ::Kaskade::DirectSolver< Domain, Range > > > solver_ = nullptr;
     };
 
@@ -89,8 +90,8 @@ namespace Spacy::Kaskade
      */
     template < class AnsatzVariableSetDescription, class TestVariableSetDescription, class KaskadeOperator >
     auto makeDirectSolver( KaskadeOperator A, const VectorSpace& domain, const VectorSpace& range,
-                           ::Kaskade::DirectType directSolver = ::Kaskade::DirectType::UMFPACK3264,
-                           ::Kaskade::MatrixProperties property = ::Kaskade::MatrixProperties::GENERAL )
+                           ::DirectType directSolver = ::DirectType::UMFPACK3264,
+                           ::MatrixProperties property = ::MatrixProperties::GENERAL )
     {
         return DirectSolver< KaskadeOperator, AnsatzVariableSetDescription, TestVariableSetDescription >( std::move( A ), domain, range,
                                                                                                           directSolver, property );
