@@ -1,3 +1,5 @@
+// neu: Z. 331 - 375 ( copyToCoefficientVector und CopyFromCoefficientVector, siehe MS_Merge )
+
 #pragma once
 
 #include "L2Product.h"
@@ -327,6 +329,53 @@ namespace Spacy::Kaskade
             }
         };
 
+        
+        /// Copy from ::Spacy::Vector to coefficient vector of %Kaskade 7.
+        template < class Description >
+        void copyToCoefficientVector(
+            const ::Spacy::Vector& x,
+            typename Description::template CoefficientVectorRepresentation<>::type& y )
+        {
+           // std::cout << "StC ";
+            if ( is< Vector< Description > >( x ) )
+            {
+                y.data = cast_ref< Vector< Description > >( x ).get().data;
+                return;
+            }
+
+            if ( is< ProductSpace::Vector >( x ) )
+            {
+                    Detail::Copy< 0, Description::noOfVariables >::template toCoefficientVector<
+                    Description >( cast_ref< ProductSpace::Vector >( x ), y );
+                return;
+            }
+            std::cout << "copyToCoefficientVector: Spacy::Vector and Description do not fit" << std::endl;
+            auto yy = cast_ref< Vector< Description > >( x );
+        }
+
+        ///  Copy coefficient vector of %Kaskade 7 to ::Spacy::Vector.
+        template < class Description >
+        void copyFromCoefficientVector(
+            const typename Description::template CoefficientVectorRepresentation<>::type& x,
+            ::Spacy::Vector& y )
+        {
+           // std::cout << "CtS ";
+            if ( is< Vector< Description > >( y ) )
+            {
+                 cast_ref< Vector< Description > >( y ).get().data=x.data;
+                return;
+            }
+
+            if ( is< ProductSpace::Vector >( y ) )
+            {
+                Detail::Copy< 0, Description::noOfVariables >::template fromCoefficientVector<
+                    Description >( x, cast_ref< ProductSpace::Vector >( y ) );
+                return;
+            }
+            std::cout << "copyFromCoefficientVector: Spacy::Vector and Description do not fit" << std::endl;
+            auto yy = cast_ref< Vector< Description > >( y );
+        }
+        
         template < int n >
         struct CoefficientsToVariableSet
         {
@@ -380,7 +429,6 @@ namespace Spacy::Kaskade
             //        for(auto i = 0u; productSpace.subSpaces().size(); ++i )
             return extractProductSpace< Description >( productSpace.subSpace( 0 ) );
         }
-
         const auto& spaces_ = cast_ref< ProductSpace::VectorCreator >( spaces.creator() );
         using seq = std::make_integer_sequence< unsigned, boost::fusion::result_of::size< typename Description::Spaces >::value >;
         return Detail::extractSpaces< Description >( spaces_, seq{} );
@@ -391,10 +439,9 @@ namespace Spacy::Kaskade
     typename Description::Spaces extractSpaces( const VectorSpace& spaces )
     {
         using Spaces = typename Description::Spaces;
-
-        if ( is< ProductSpace::VectorCreator >( spaces.creator() ) )
+        
+        if ( is< ProductSpace::VectorCreator >( spaces.creator() ) ) 
             return extractProductSpace< Description >( spaces );
-
         return extractSingleSpace< Description >( spaces );
     }
 
