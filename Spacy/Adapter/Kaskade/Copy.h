@@ -440,8 +440,9 @@ namespace Spacy::Kaskade
     {
         using Spaces = typename Description::Spaces;
         
-        if ( is< ProductSpace::VectorCreator >( spaces.creator() ) ) 
+        /*if ( is< ProductSpace::VectorCreator >( spaces.creator() ) ) { 
             return extractProductSpace< Description >( spaces );
+        }*/
         return extractSingleSpace< Description >( spaces );
     }
 

@@ -13,7 +13,6 @@
 #include <Spacy/Adapter/kaskade.hh>
 #include <Spacy/Adapter/KaskadeParabolic/directSolver.hh>
 #include <Spacy/Spacy.h>
-#include <Spacy/Algorithm/PrimalDualProjection/ModifiedPPCG.h>
 #include <Spacy/Algorithm/PrimalDualProjection/TriangConstraintPrec.h>
 #include <Spacy/VectorSpace.h>
 
@@ -101,19 +100,18 @@ int main( int argc, char* argv[] )
     
     ///////////////////////////////////////////////// Kaskade FEM-Spaces
     cout << "create FEM-Spaces" << endl;
-    //using L2Space = FEFunctionSpace<BoundaryMapper<ContinuousLagrangeMapper, double, GridView> >;
+    using L2Space = FEFunctionSpace<BoundaryMapper<ContinuousLagrangeMapper, double, GridView> >;
     using H1Space = FEFunctionSpace< ContinuousLagrangeMapper< double, GridView > >;
-    //using Spaces = boost::fusion::vector< H1Space const*, L2Space const* >;
-    using Spaces = boost::fusion::vector< FEFunctionSpace< ContinuousLagrangeMapper< double, GridView > > const*  >;//, FEFunctionSpace<BoundaryMapper<ContinuousLagrangeMapper, double, GridView> > const* >;
+    using Spaces = boost::fusion::vector< FEFunctionSpace< ContinuousLagrangeMapper< double, GridView > > const*, FEFunctionSpace<BoundaryMapper<ContinuousLagrangeMapper, double, GridView> > const* >;
 
     using components = Components<3>;
     using VariableDescriptions = boost::fusion::vector< Variable< SpaceIndex< 0 >, components, VariableId< 0 > >,
-                                                        Variable< SpaceIndex< 0 >, components, VariableId< 1 > >,
+                                                        Variable< SpaceIndex< 1 >, components, VariableId< 1 > >,
                                                         Variable< SpaceIndex< 0 >, components, VariableId< 2 > > >;
     using PrimalVariables = boost::fusion::vector< Variable< SpaceIndex< 0 >, components, VariableId< 0 > >,
-                                                Variable< SpaceIndex< 0 >, components, VariableId< 1 > > >;
+                                                Variable< SpaceIndex< 1 >, components, VariableId< 1 > > >;
     using StateVariables = boost::fusion::vector< Variable< SpaceIndex< 0 >, components, VariableId< 0 > > >;
-    using ControlVariables = boost::fusion::vector< Variable< SpaceIndex< 0 >, components, VariableId< 0 > > >;
+    using ControlVariables = boost::fusion::vector< Variable< SpaceIndex< 1 >, components, VariableId< 0 > > >;
     using DualVariables = boost::fusion::vector< Variable< SpaceIndex< 0 >, components, VariableId< 0 > > >;
 
     using Descriptions = VariableSetDescription< Spaces, VariableDescriptions >;
@@ -123,9 +121,9 @@ int main( int argc, char* argv[] )
     using ControlDescriptions = VariableSetDescription< Spaces, ControlVariables >;
     using VarSet = Descriptions::VariableSet;
     
-    //L2Space l2Space(gm, gm.grid().leafGridView(), FEorder, totalIndexSet, partialIndexSetId);
+    L2Space l2Space(gm, gm.grid().leafGridView(), FEorder, totalIndexSet, partialIndexSetId);
     H1Space h1Space( gm, gm.grid().leafGridView(), FEorder );
-    Spaces spaces( &h1Space   );//, &l2Space);
+    Spaces spaces( &h1Space, &l2Space);
 
     Descriptions desc( spaces, { "y", "u", "p" } );               // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     PrimalDescriptions primalDescription( spaces, { "y", "u" } ); // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
