@@ -6,3 +6,4 @@
 #include "ProductSpace/ScalarProduct.h"
 #include "ProductSpace/Vector.h"
 #include "ProductSpace/VectorSpace.h"
+#include "ProductSpace/Operator_V2.h"
