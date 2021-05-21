@@ -93,6 +93,13 @@ namespace Spacy
             Vector solve( const Vector& x, const Vector& b ) const;
 
             /**
+             * @param b right hand side
+             */
+            Vector operator()(const Vector& b) const;
+
+            Vector operator()(const Vector& b, const VectorSpace& domain) const;
+            
+            /**
              * @brief Set a new termination criterion which must satisfy the @ref
              * CG_TerminationCriterionConceptAnchor "TerminationCriterionConcept".
              * @param newTerminate new termination criterion
@@ -152,6 +159,12 @@ namespace Spacy
             {
                 return iterations_;
             }
+            
+            //Used for computation of eigenvalues in ppcg
+            std::function<void(const std::vector<::Spacy::Real>& , const std::vector<::Spacy::Real>&)> callback = [](const std::vector<::Spacy::Real>& vec1, const std::vector<::Spacy::Real>& vec2){};
+            std::function<void(const ::Spacy::Vector& x)> outputY;
+            std::function<void(const ::Spacy::Vector& x)> outputP;
+            std::function<::Spacy::Vector(::Spacy::Vector,::Spacy::Vector)> transfer = [](::Spacy::Vector src, ::Spacy::Vector res){ return src;};
 
         private:
             /// CG Implementation.

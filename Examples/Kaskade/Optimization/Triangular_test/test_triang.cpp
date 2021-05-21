@@ -14,6 +14,12 @@
 #include <Spacy/Adapter/KaskadeParabolic/directSolver.hh>
 #include <Spacy/Spacy.h>
 #include <Spacy/Algorithm/PrimalDualProjection/TriangConstraintPrec.h>
+#include <Spacy/Algorithm/PrimalDualProjection/ModifiedPPCG.h>
+#include <Spacy/Algorithm/PrimalDualProjection/PDP.hh>
+#include "Spacy/Algorithm/CG/CG.h"
+#include "Spacy/Algorithm/CG/RegularizeViaPreconditioner.h"
+#include "Spacy/Algorithm/CG/TerminationCriterion.h"
+#include "Spacy/Algorithm/CG/TerminationCriteria.h"
 #include <Spacy/VectorSpace.h>
 
 #include <fem/forEach.hh>
@@ -44,21 +50,23 @@ int main( int argc, char* argv[] )
     const auto silence = 0;
     std::unique_ptr< boost::property_tree::ptree > pt = getKaskadeOptions( argc, argv, silence, false );
 
-    const auto desiredAccuracy = getParameter( pt, "desiredAccuracy", 1e-6 );
-    const auto maxSteps = getParameter( pt, "maxSteps", 500 );
-    const auto initialRefinements = getParameter( pt, "initialRefinements", 3 );
+    const auto maxSteps             = getParameter( pt, "maxSteps", 500 );
+    const auto FEorder              = getParameter( pt, "FEorder", 1 );
+    const auto verbose              = getParameter( pt, "verbose", 2 );
+    
+    const auto initialRefinements   = getParameter( pt, "initialRefinements", 2 );
     const auto iterativeRefinements = getParameter( pt, "iterativeRefinements", 0 );
-    const auto FEorder = getParameter( pt, "FEorder", 1 );
-    const auto verbose = getParameter( pt, "verbose", 2 );
-    const auto desContr = getParameter( pt, "desiredContraction", 0.5 );
-    const auto relDesContr = getParameter( pt, "relaxedContraction", desContr + 0.1 );
-    const auto maxContr = getParameter( pt, "maxContraction", 0.75 );
-    const auto tychonovParameter = getParameter( pt, "tychonovParameter", 1 );
-    const auto numberOfCubesX = getParameter (pt, "NumberOfCubesX", 1);
-    const auto numberOfCubesY = getParameter (pt, "NumberOfCubesY", 1);
-    const auto numberOfCubesZ = getParameter (pt, "NumberOfCubesZ", 1);
-    const auto stateAcc = getParameter (pt, "stateAccuracy", 1e-3);
-    const auto controlAcc = getParameter (pt, "controlAccuracy", 1e-3);
+    
+    const auto tychonovParameter    = getParameter( pt, "tychonovParameter", 1 );
+    
+    const auto numberOfCubesX       = getParameter (pt, "NumberOfCubesX", 1);
+    const auto numberOfCubesY       = getParameter (pt, "NumberOfCubesY", 1);
+    const auto numberOfCubesZ       = getParameter (pt, "NumberOfCubesZ", 1);
+    
+    //const auto stateAcc             = getParameter (pt, "stateAccuracy", 1e-3);
+    //const auto controlAcc           = getParameter (pt, "controlAccuracy", 1e-3);
+    //const auto adjointAcc           = getParameter (pt, "adjointAccuracy", 1e-3);
+    const auto modifiedCGAcc        = getParameter (pt, "modifiedCGAccuracy", 1e-3);
 
     ///////////////////////////////////////////////// Grid
     using Grid = Dune::UGGrid< dim >;
@@ -145,33 +153,32 @@ int main( int argc, char* argv[] )
     ///////////////////////////////////////////////// Spacy Vector-Spaces
     cout << "create Vector-Spaces" << endl;
     
-    auto totalSpace = makeHilbertSpace< Descriptions >( desc, "X" );
+    auto totalSpace_ = makeHilbertSpace< Descriptions >( desc, "X" );
     
-    auto primalSpace = makeHilbertSpace< PrimalDescriptions >( primalDescription, "Z" );
+    auto primalSpace_ = makeHilbertSpace< PrimalDescriptions >( primalDescription, "Z" );
     using ZXIdxMap = boost::fusion::vector< IdxPair<0,0>, IdxPair<1,1> >;
-    setSubSpaceRelation< PrimalDescriptions, Descriptions, ZXIdxMap >( primalSpace, totalSpace );
+    setSubSpaceRelation< PrimalDescriptions, Descriptions, ZXIdxMap >( primalSpace_, totalSpace_ );
     
-    auto dualSpace = makeHilbertSpace< DualDescriptions >( dualDescription, "P" );
+    auto adjointSpace_ = makeHilbertSpace< DualDescriptions >( dualDescription, "P" );
     using PXIdxMap = boost::fusion::vector< IdxPair<0,2> >;
-    setSubSpaceRelation< DualDescriptions, Descriptions, PXIdxMap >( dualSpace, totalSpace );
+    setSubSpaceRelation< DualDescriptions, Descriptions, PXIdxMap >( adjointSpace_, totalSpace_ );
     
-    auto stateSpace = makeHilbertSpace< StateDescriptions >( stateDescription, "Y" );
+    auto stateSpace_ = makeHilbertSpace< StateDescriptions >( stateDescription, "Y" );
     using YXIdxMap = boost::fusion::vector< IdxPair<0,0> >;
-    setSubSpaceRelation< StateDescriptions, Descriptions, YXIdxMap >( stateSpace, totalSpace );
+    setSubSpaceRelation< StateDescriptions, Descriptions, YXIdxMap >( stateSpace_, totalSpace_ );
     using YZIdxMap = boost::fusion::vector< IdxPair<0,0> >;
-    setSubSpaceRelation< StateDescriptions, PrimalDescriptions, YZIdxMap >( stateSpace, primalSpace );
+    setSubSpaceRelation< StateDescriptions, PrimalDescriptions, YZIdxMap >( stateSpace_, primalSpace_ );
     
-    auto controlSpace = makeHilbertSpace< ControlDescriptions >( controlDescription, "U" );
+    auto controlSpace_ = makeHilbertSpace< ControlDescriptions >( controlDescription, "U" );
     using UXIdxMap = boost::fusion::vector< IdxPair<0,1> >;
-    setSubSpaceRelation< ControlDescriptions, Descriptions, UXIdxMap >( controlSpace, totalSpace );
+    setSubSpaceRelation< ControlDescriptions, Descriptions, UXIdxMap >( controlSpace_, totalSpace_ );
     using UZIdxMap = boost::fusion::vector< IdxPair<0,1> >;
-    setSubSpaceRelation< ControlDescriptions, PrimalDescriptions, UZIdxMap >( controlSpace, primalSpace );
-    
+    setSubSpaceRelation< ControlDescriptions, PrimalDescriptions, UZIdxMap >( controlSpace_, primalSpace_ );
     
     
     ///////////////////////////////////////////////// Functional 
     cout << "create Functional" << endl;
-    auto resultRef = zero(stateSpace);
+    auto resultRef = zero(stateSpace_);
     StateDescriptions::VariableSet reference_deformation(stateDescription);
     copy(resultRef, reference_deformation);     
     
@@ -181,52 +188,70 @@ int main( int argc, char* argv[] )
     using Functional = LagrangeFunctional<decltype(integrand),
                                                decltype(reference_deformation), 0, 1,
                                                2, double, Descriptions>;
-    auto fL = makeC2Functional(Functional(tychonovParameter,reference_deformation, integrand), totalSpace);
+    auto fL = makeC2Functional(Functional(tychonovParameter,reference_deformation, integrand), totalSpace_);
     
     cout << "Assembling" << endl;
-    auto x0 = zero(totalSpace);
+    auto x0 = zero(totalSpace_);
     fL.hessian(x0);
+    auto b=fL.d1(x0);
     
     ///////////////////////////////////////////////// Blocks, Solvers
     cout << "create Blocks and Solvers" << endl;
     
     using KMAT = ::Kaskade::MatrixAsTriplet<double>;
     
-    auto minusB         = makeCallableBlock<Functional>(fL,controlSpace,dualSpace);
-    auto stateSolver    = makeDirectSolver<DualDescriptions,StateDescriptions>
-                            (makeMatrixBlock<decltype(fL),KMAT,DualDescriptions,StateDescriptions>(fL,dualSpace,stateSpace).get(),dualSpace,stateSpace);
-    auto controlSolver  = makeDirectSolver<ControlDescriptions,ControlDescriptions>
-                            (makeSymmetricMatrixBlock<decltype(fL),KMAT,ControlDescriptions>(fL,controlSpace).get(),controlSpace, controlSpace); 
-    auto adjointSolver  = makeDirectSolver<StateDescriptions,DualDescriptions>
-                            (makeMatrixBlock<decltype(fL),KMAT,StateDescriptions,DualDescriptions>(fL,stateSpace,dualSpace).get(),stateSpace,dualSpace);
+    auto A              = makeCallableBlock<Functional>(fL,stateSpace_,adjointSpace_);
+    auto minusB         = makeCallableBlock<Functional>(fL,controlSpace_,adjointSpace_);
+    auto M              = makeSymmetricCallableBlock<Functional>(fL,primalSpace_);
+    
+    auto BPX            = makeCallableBlock<Functional>(fL,adjointSpace_,stateSpace_); // eigentlich makeSingleBlockPreconditioner, aber wo ist der?
+    
+    auto stateSolver_   = makeDirectSolver<DualDescriptions,StateDescriptions>
+                            (makeMatrixBlock<decltype(fL),KMAT,DualDescriptions,StateDescriptions>(fL,adjointSpace_,stateSpace_).get(),adjointSpace_,stateSpace_);
+    auto controlSolver_ = makeDirectSolver<ControlDescriptions,ControlDescriptions>
+                            (makeSymmetricMatrixBlock<decltype(fL),KMAT,ControlDescriptions>(fL,controlSpace_).get(),controlSpace_, controlSpace_); 
+    auto adjointSolver_ = makeDirectSolver<StateDescriptions,DualDescriptions>
+                            (makeMatrixBlock<decltype(fL),KMAT,StateDescriptions,DualDescriptions>(fL,stateSpace_,adjointSpace_).get(),stateSpace_,adjointSpace_);
                             
     ///////////////////////////////////////////////// Execute
     cout << "Execute" << endl;
     
-    ::Spacy::ModifiedPPCG::TriangularConstraintPreconditioner triH(stateSolver,controlSolver,adjointSolver,minusB,totalSpace,stateSpace);
-    auto temp = zero(totalSpace);
+    Spacy::CG::NoRegularization NR;
+    
+    ::Spacy::PDP::Solver pdp(M,A,minusB,BPX,controlSolver_,NR,totalSpace_);
+    ::Spacy::ModifiedPPCG::TriangularConstraintPreconditioner triH(stateSolver_,controlSolver_,adjointSolver_,minusB,totalSpace_,stateSpace_);
+    ::Spacy::ModifiedPPCG::Solver modPPCG_(triH, M, minusB, totalSpace_, stateSpace_);
+    
+    modPPCG_.setTerminationCriterion(  Spacy::CG::Termination::AdaptiveRelativeEnergyError() );
+    modPPCG_.setRelativeAccuracy(modifiedCGAcc);
+    modPPCG_.setMaxSteps(5000); 
+    std::cout << "Condition number ModifiedPPCG: " << modPPCG_.getConditionNumber() << std::endl;
+    
+    auto temp = zero(totalSpace_);
     copy(x_ref,temp);
-    auto res = triH(temp);
+    auto res = modPPCG_(temp);
+    
+//     auto res = pdp(b);
     
     ///////////////////////////////////////////////// Results
-    cout << "finishing" << endl;
+    cout << "finishing ... " << std::flush;
     
     VarSet r( desc );
     copy( res,r );
 
-    auto spacy_z = primalSpace.project( res );
+    auto spacy_z = primalSpace_.project( res );
     PrimalDescriptions::VariableSet z( primalDescription );
     copy( spacy_z, z );
 
-    auto spacy_y = stateSpace.project( spacy_z );
+    auto spacy_y = stateSpace_.project( spacy_z );
     StateDescriptions::VariableSet y( stateDescription );
     copy( spacy_y, y );
     
-    auto spacy_u = controlSpace.project( spacy_z );
+    auto spacy_u = controlSpace_.project( spacy_z );
     ControlDescriptions::VariableSet u( controlDescription );
     copy( spacy_u, u );
     
-    auto spacy_p = dualSpace.project( res );
+    auto spacy_p = adjointSpace_.project( res );
     DualDescriptions::VariableSet p( dualDescription );
     copy( spacy_p, p );
     
@@ -239,6 +264,8 @@ int main( int argc, char* argv[] )
     writeVTKFile( gm.grid().leafGridView(), p, "dual_variables", options, FEorder );
     writeVTKFile( gm.grid().leafGridView(), u, "control_variables", options, FEorder );
     writeVTKFile( gm.grid().leafGridView(), y, "state_variables", options, FEorder );
+    
+    cout << "done" << endl;
     
     /**/
     return 0;

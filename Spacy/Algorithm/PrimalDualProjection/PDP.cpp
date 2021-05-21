@@ -42,10 +42,10 @@ namespace Spacy
         Vector Solver::C_transpose(const Vector& input) const
         {
             auto result = zero(primalSpace_);
-            result += A_.transposed(input);
+            result += primalSpace_.embed( A_.transposed(input) );
             
             
-            result += minusB_.transposed(input);
+            result += primalSpace_.embed( minusB_.transposed(input) );
             return result; 
         }
         
@@ -210,12 +210,12 @@ namespace Spacy
             for(unsigned int step = 1; step < getMaxSteps(); step++)
             {
                 LOG_SEPARATOR(log_tag);
-                std::cout << "(0.5)" << std::endl;
-                adjointSolver(stateSpace_.project(-rx),stateSpace_);
                 std::cout << "(1)" << std::endl;
+                adjointSolver(stateSpace_.project(-rx),stateSpace_); //zweites Argument adjointSpace?
+                std::cout << "(2)" << std::endl;
                 // Check regularization part
                 dp = adjointSpace_.embed(adjointSolver(stateSpace_.project(-rx),stateSpace_)); //Vermerk: b ^= -c in BA
-                std::cout << "(1.5)" << std::endl;
+                std::cout << "(3)" << std::endl;
                 //Spacy::Chebyshev::computeEigsFromCGCoefficients(alpha_vec, beta_vec, eigMin, eigMax);
                 
                 logIterationsAdjoint(adjointSolver.getIterations());
@@ -228,7 +228,7 @@ namespace Spacy
                 }
                 
                 p += dp;
-                std::cout << "(2)" << std::endl;
+                
                 
                 rx += C_transpose(dp);
                 
@@ -236,7 +236,7 @@ namespace Spacy
                 dx = primalSpace_.project(modPPCG_(totalSpace_.embed(-rx)));
                 
                 LOG(log_tag, "PPCG Number of Iterations: ", modPPCG_.getIterations());
-                std::cout << "(3)" << std::endl;
+                
                 
                 convex_flag_ = modPPCG_.isPositiveDefinite();
                 
@@ -253,7 +253,7 @@ namespace Spacy
                     result_ = Result::TruncatedAtNonConvexity;
                     return x;
                 }
-                std::cout << "(4)" << std::endl;
+                
                 bp = -( rp + C_(dx) );
                 
                 auto ddy = stateSolver(bp, stateSpace_ ); 
@@ -265,7 +265,6 @@ namespace Spacy
                 proj_iterations_ += stateSolver.getIterations();
                 
                 //Spacy::Chebyshev::computeEigsFromCGCoefficients(alpha_vec, beta_vec, eigMin, eigMax);
-                std::cout << "(5)" << std::endl;
                 
                 if(stateSolver.indefiniteOperator())
                 {

@@ -6,6 +6,7 @@
 #include <Spacy/Util/Cast.h>
 #include <Spacy/Util/Exceptions.h>
 #include <Spacy/Vector.h>
+#include <Spacy/ZeroVectorCreator.h>
 
 #include <algorithm>
 #include <cassert>
@@ -40,6 +41,18 @@ namespace Spacy::CG
         while ( result != Result::Converged && result != Result::TruncatedAtNonConvexity )
             y = cgLoop( x, b );
         return y;
+    }
+    
+    Vector Solver::operator()( const Vector& b ) const
+    {
+        auto x = 0.0*P_(b);
+        return solve(x,b);
+    }
+
+    Vector Solver::operator()( const Vector& b, const VectorSpace& domain ) const
+    {
+        auto x = zero(domain);
+        return solve(x,b);
     }
 
     CG::TerminationCriterion& Solver::terminationCriterion() noexcept
@@ -79,8 +92,8 @@ namespace Spacy::CG
             regimpl.resetMemory();
         }
         // initialization phase for conjugate gradients
-        auto Ax = A_( x );
-        r -= Ax;
+        auto Ax = A_( x );std::cout << "hier" << std::endl;
+        r -= Ax;std::cout << "dort" << std::endl;
         auto Qr = Q( r );
 
         auto q = Qr;
