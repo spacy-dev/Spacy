@@ -211,7 +211,7 @@ namespace Spacy
             {
                 LOG_SEPARATOR(log_tag);
                 std::cout << "(1)" << std::endl;
-                adjointSolver(stateSpace_.project(-rx),stateSpace_); //zweites Argument adjointSpace?
+                adjointSolver(adjointSpace_.embed(stateSpace_.project(-rx)),stateSpace_); //zweites Argument adjointSpace?
                 std::cout << "(2)" << std::endl;
                 // Check regularization part
                 dp = adjointSpace_.embed(adjointSolver(stateSpace_.project(-rx),stateSpace_)); //Vermerk: b ^= -c in BA
