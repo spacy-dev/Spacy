@@ -160,7 +160,7 @@ namespace Kaskade
         {
             static bool apply(int j)
             {
-                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::source;
+                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::target;
                 if ( val == j )    return true;
                 else               return InRange<Map, DirMap, i+1, maxIdx>::apply(j);
             }
