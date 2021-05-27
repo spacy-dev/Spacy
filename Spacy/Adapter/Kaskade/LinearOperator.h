@@ -1,3 +1,5 @@
+// minimale Anpassung in CallableLinearOperator-> operator(), transpose, ApplyScaleAdd und ApplyScaleAddT
+
 #pragma once
 
 #include "Copy.h"
@@ -424,9 +426,8 @@ namespace Spacy::Kaskade
                 checkSpaceCompatibility(x.space(),domain());
                 bufferD_ = totalDomain_.embed(x);
                 
-                ::boost::fusion::for_each(blocks,ApplyScaleAdd(1.0,cast_ref< DomainVectorT >(bufferD_).get_v(),
-                                                                    cast_ref< RangeVectorT >(bufferR_).get_v(),true,embeddingD_,embeddingR_) );
-
+                ::boost::fusion::for_each(blocks,ApplyScaleAdd(1.0,bufferD_,bufferR_,true,embeddingD_,embeddingR_) );
+ 
                 return range().project(bufferR_);
         }
 
@@ -435,7 +436,7 @@ namespace Spacy::Kaskade
                 checkSpaceCompatibility(x.space(),range());
                 bufferR_ = totalRange_.embed(x);
                 
-                ::boost::fusion::for_each(blocks,ApplyScaleAddT(1.0,cast_ref<RangeVectorT >(bufferR_).get_v(),cast_ref< DomainVectorT >(bufferD_).get_v(),true,embeddingR_,embeddingD_));
+                ::boost::fusion::for_each(blocks,ApplyScaleAddT(1.0,bufferR_,bufferD_,true,embeddingR_,embeddingD_));
                 
                 return domain().project(bufferD_);
         }
@@ -464,7 +465,7 @@ namespace Spacy::Kaskade
         
         struct ApplyScaleAdd 
             {
-                ApplyScaleAdd(double a, DomainT const& x, RangeT& y, bool init, const Spacy::SubSpaceRelation &embD, const Spacy::SubSpaceRelation &embR): 
+                ApplyScaleAdd(double a, Spacy::Vector const& x, Spacy::Vector& y, bool init, const Spacy::SubSpaceRelation &embD, const Spacy::SubSpaceRelation &embR): 
                 a_(a), x_(x), y_(y), embD_(embD), embR_(embR)
                 {
                     for (int i=0; i<nRowsT; ++i)
@@ -479,13 +480,15 @@ namespace Spacy::Kaskade
                     
                     if(embD_.isInRange(Block::colId) && embR_.isInRange(Block::rowId))
                     {
-                        typename result_of::at_c<typename DomainT::Functions const,Block::colId>::type xi = at_c<Block::colId>(x_.data);
-                        typename result_of::at_c<typename RangeT::Functions,Block::rowId>::type  yi = at_c<Block::rowId>(y_.data);
- 
+                        typename result_of::at_c<typename DomainT::Functions const,Block::colId>::type xi = 
+                                                at_c<Block::colId>(cast_ref< DomainVectorT >(x_).get().data).coefficients();
+                        typename result_of::at_c<typename RangeT::Functions,Block::rowId>::type yi = 
+                                                at_c<Block::rowId>(cast_ref< RangeVectorT >(y_).get().data).coefficients();
+
                         if (b.threadedMatrix.get())
-                        {                    
+                        {                   
                             if (doInit[Block::rowId])
-                            {
+                            { 
                                 b.threadedMatrix->mv(xi,yi);
                                 doInit[Block::rowId] = false;
                             }
@@ -494,7 +497,7 @@ namespace Spacy::Kaskade
                         }
                         
                         else
-                        {         
+                        {       
                             if (doInit[Block::rowId])
                             {
                                 b.matrix->mv(xi,yi);
@@ -510,15 +513,15 @@ namespace Spacy::Kaskade
                 
             private:
                 double a_;
-                DomainT const& x_;
-                RangeT& y_;
+                Spacy::Vector const& x_;
+                Spacy::Vector& y_;
                 const Spacy::SubSpaceRelation &embD_, &embR_;
                 mutable bool doInit[nRowsT]; 
             };
 
             struct ApplyScaleAddT
             {
-                ApplyScaleAddT(double a, RangeT const& x, DomainT& y, bool init, const Spacy::SubSpaceRelation &embR, const Spacy::SubSpaceRelation &embD): 
+                ApplyScaleAddT(double a, Spacy::Vector const& x, Spacy::Vector& y, bool init, const Spacy::SubSpaceRelation &embR, const Spacy::SubSpaceRelation &embD): 
                 a_(a), x_(x), y_(y), embD_(embD), embR_(embR)
                 {
                     for (int i=0; i<nColsT; ++i)
@@ -534,8 +537,10 @@ namespace Spacy::Kaskade
                    if(embR_.isInRange(Block::rowId) && embD_.isInRange(Block::colId))
 //                   if(embR_.isInRange(Block::colId) && embD_.isInRange(Block::rowId))
                     {
-                    typename result_of::at_c<typename RangeT::Functions const,Block::rowId>::type xi = at_c<Block::rowId>(x_.data);
-                    typename result_of::at_c<typename DomainT::Functions,Block::colId>::type  yi = at_c<Block::colId>(y_.data);
+                    typename result_of::at_c<typename RangeT::Functions const,Block::rowId>::type xi = 
+                                                at_c<Block::rowId>(cast_ref< RangeVectorT >(x_).get().data).coefficients();
+                    typename result_of::at_c<typename DomainT::Functions,Block::colId>::type  yi = 
+                                                at_c<Block::colId>(cast_ref< DomainVectorT >(y_).get().data).coefficients();
                     if (!b.matrix.get())
                         abort();
 
@@ -564,8 +569,8 @@ namespace Spacy::Kaskade
                 
             private:
                 double a_;
-                RangeT const& x_;
-                DomainT& y_;
+                Spacy::Vector const& x_;
+                Spacy::Vector& y_;
                 const Spacy::SubSpaceRelation &embD_, &embR_;
                 mutable bool doInit[nColsT]; 
             };
