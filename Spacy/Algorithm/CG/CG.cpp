@@ -1,3 +1,5 @@
+// IterativeRefinements ist standardmäßig 1000, daher manuell auf 0 gesetzt -> sinnvoll??
+
 #include "CG.h"
 
 #include "RegularizeViaPreconditioner.h"
@@ -18,7 +20,7 @@ namespace Spacy::CG
 {
     Solver::Solver( CallableOperator A, CallableOperator P, Regularization regularization, bool truncated )
         : A_( std::move( A ) ), P_( std::move( P ) ), terminate_( CG::Termination::StrakosTichyEnergyError{} ), truncated_( truncated ),
-          regularization_( std::move( regularization ) )
+          regularization_( std::move( regularization ) ), IterativeRefinements(0)
     {
         if ( !::Spacy::is< NoRegularization >( regularization_ ) )
             regularized_ = true;
@@ -92,8 +94,8 @@ namespace Spacy::CG
             regimpl.resetMemory();
         }
         // initialization phase for conjugate gradients
-        auto Ax = A_( x );std::cout << "hier" << std::endl;
-        r -= Ax;std::cout << "dort" << std::endl;
+        auto Ax = A_( x );
+        r -= Ax;
         auto Qr = Q( r );
 
         auto q = Qr;
