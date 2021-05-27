@@ -1,3 +1,5 @@
+// Übergabe von AT und BPXT zusätzlich für adjointSolver -> Operator statt OperatorWithTranspose?
+
 #include "PDP.hh"
 
 #include <Spacy/Spaces/ProductSpace.h>
@@ -24,10 +26,10 @@ namespace Spacy
         DEFINE_LOG_TAG(static const char* log_tag = "PDP");
         
         
-        Solver::Solver(Operator M, OperatorWithTranspose A,OperatorWithTranspose minusB, CallableOperator BPX, CallableOperator controlSolver, ::Spacy::CG::Regularization R,const VectorSpace& totalSpace):
-        M_((M)), A_((A)), minusB_((minusB)), BPX_(BPX), R_(R),
+        Solver::Solver(Operator M, OperatorWithTranspose A, OperatorWithTranspose AT, OperatorWithTranspose minusB, CallableOperator BPX, CallableOperator BPXT, CallableOperator controlSolver, ::Spacy::CG::Regularization R,const VectorSpace& totalSpace):
+        M_((M)), A_((A)), AT_((AT)), minusB_((minusB)), BPX_(BPX), BPXT_(BPXT), R_(R),
         totalSpace_(totalSpace), primalSpace_(M_.domain()),adjointSpace_(minusB_.range()), controlSpace_(minusB_.domain()), stateSpace_(A_.domain()),
-        /*ChebPrec_(A,BPX),*/ controlSolver_(std::move(controlSolver))
+        ChebPrec_(A,BPX), controlSolver_(std::move(controlSolver))
         {
         }
         
@@ -123,7 +125,7 @@ namespace Spacy
             
             /// Initialize Adjoint Solver
             Spacy::CG::NoRegularization NR;
-            auto adjointSolver = Spacy::CG::Solver(A_, BPX_, NR, true);
+            auto adjointSolver = Spacy::CG::Solver(AT_, BPXT_, NR, true);
             adjointSolver.setEps(eps());
             adjointSolver.setAbsoluteAccuracy(eps());
             adjointSolver.setMaxSteps(getMaxSteps());
@@ -165,6 +167,7 @@ namespace Spacy
             /// !!!!!!!!!!! Does not work if theta != 0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             auto rx = primalSpace_.project( - bx);
             
+            
             //if(theta_ != 0) rx+= theta_*R_(x_);
             
             
@@ -182,7 +185,7 @@ namespace Spacy
             auto ddy=zero(stateSpace_);
             
             
-            //ChebPrec_.setRelativeAccuracy(chebyshevAcc_);
+//             ChebPrec_.setRelativeAccuracy(chebyshevAcc_);
             
             Spacy::ModifiedPPCG::TriangularConstraintPreconditioner triH(BPX_,controlSolver_,BPX_,minusB_,totalSpace_,stateSpace_);
             Spacy::ModifiedPPCG::Solver modPPCG_(triH, M_, minusB_, totalSpace_, stateSpace_);
@@ -210,14 +213,11 @@ namespace Spacy
             for(unsigned int step = 1; step < getMaxSteps(); step++)
             {
                 LOG_SEPARATOR(log_tag);
-                std::cout << "(1)" << std::endl;
-                adjointSolver(adjointSpace_.embed(stateSpace_.project(-rx)),stateSpace_); //zweites Argument adjointSpace?
-                std::cout << "(2)" << std::endl;
                 // Check regularization part
-                dp = adjointSpace_.embed(adjointSolver(stateSpace_.project(-rx),stateSpace_)); //Vermerk: b ^= -c in BA
-                std::cout << "(3)" << std::endl;
-                //Spacy::Chebyshev::computeEigsFromCGCoefficients(alpha_vec, beta_vec, eigMin, eigMax);
-                
+                dp = adjointSpace_.embed(adjointSolver(stateSpace_.project(-rx),adjointSpace_)); //Vermerk: b ^= -c in BA
+
+//                 Spacy::Preconditioner::computeEigsFromCGCoefficients(alpha_vec, beta_vec);
+
                 logIterationsAdjoint(adjointSolver.getIterations());
                 LOG(log_tag, "Adjoint Solver Number of Iterations: ", adjointSolver.getIterations());
                 dual_iterations_ += adjointSolver.getIterations();
@@ -226,7 +226,7 @@ namespace Spacy
                     signalConvex_(true,false);
                     return x;
                 }
-                
+
                 p += dp;
                 
                 
@@ -237,7 +237,7 @@ namespace Spacy
                 
                 LOG(log_tag, "PPCG Number of Iterations: ", modPPCG_.getIterations());
                 
-                
+
                 convex_flag_ = modPPCG_.isPositiveDefinite();
                 
                 //         if(modPPCG_->isSingular())
@@ -253,18 +253,18 @@ namespace Spacy
                     result_ = Result::TruncatedAtNonConvexity;
                     return x;
                 }
-                
+               
                 bp = -( rp + C_(dx) );
-                
+               
                 auto ddy = stateSolver(bp, stateSpace_ ); 
-                
-                dx += ddy;
-                
+              
+                dx += primalSpace_.embed(ddy);
+               
                 LOG(log_tag, "State Solver Number of Iterations: ", stateSolver.getIterations());
-                
+               
                 proj_iterations_ += stateSolver.getIterations();
                 
-                //Spacy::Chebyshev::computeEigsFromCGCoefficients(alpha_vec, beta_vec, eigMin, eigMax);
+//                 Spacy::Preconditioner::computeEigsFromCGCoefficients(alpha_vec, beta_vec);
                 
                 if(stateSolver.indefiniteOperator())
                 {

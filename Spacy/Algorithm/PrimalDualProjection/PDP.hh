@@ -10,7 +10,7 @@
 #pragma once
 
 #include "ModifiedPPCG.h"
-//#include "Spacy/Algorithm/Chebyshev/Chebyshev.h"
+#include "Spacy/Algorithm/Preconditioner/Chebyshev.h"
 #include "TriangConstraintPrec.h"
 
 #include <Spacy/Spaces/ProductSpace/Operator_V2.h>
@@ -53,8 +53,8 @@ namespace Spacy
             };
 
             public:
-               Solver(Operator M,  OperatorWithTranspose A, OperatorWithTranspose minusB, CallableOperator BPX,
-                      CallableOperator controlSolver, ::Spacy::CG::Regularization R, const VectorSpace&);
+               Solver(Operator M, OperatorWithTranspose A, OperatorWithTranspose AT, OperatorWithTranspose minusB, CallableOperator BPX, CallableOperator BPXT,
+                      CallableOperator controlSolver, ::Spacy::CG::Regularization R,const VectorSpace& totalSpace);
 
                 /**
                  * @brief Solving the Problem
@@ -80,7 +80,7 @@ namespace Spacy
                 Vector C_transpose(const Vector& ) const;
                 
                 mutable bool cheb_created_ = false;
-                //mutable ::Spacy::Chebyshev::ChebyshevPreconditioner ChebPrec_;
+                mutable ::Spacy::Preconditioner::Chebyshev ChebPrec_;
 
                 mutable bool convex_flag_ = true;
                 mutable bool energyIsConvex_ = true;
@@ -88,7 +88,9 @@ namespace Spacy
                 Operator M_;
                 OperatorWithTranspose minusB_;
                 OperatorWithTranspose A_;
+                OperatorWithTranspose AT_;
                 CallableOperator BPX_;
+                CallableOperator BPXT_;
 
                 ::Spacy::CG::Regularization R_;
                 CallableOperator controlSolver_;
