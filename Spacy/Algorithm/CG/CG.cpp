@@ -84,6 +84,9 @@ namespace Spacy::CG
 
     Vector Solver::cgLoop( Vector x, Vector r ) const
     {
+        std::vector<Spacy::Real> alpha_vec;
+        std::vector<Spacy::Real> beta_vec;
+        
         terminate_.clear();
         result = Result::Failed;
 
@@ -122,6 +125,7 @@ namespace Spacy::CG
             regularization_.apply( qAq, qRq );
 
             const auto alpha = sigma / qAq;
+            alpha_vec.push_back(alpha);
 
             terminate_.update( get( alpha ), get( qAq ), get( qRq ), get( sigma ), x );
             //  don't trust small numbers
@@ -160,6 +164,7 @@ namespace Spacy::CG
             // determine new search direction
             const auto sigmaNew = abs( r( Qr ) ); // sigma = <Qr,r>
             const auto beta = sigmaNew / sigma;
+            beta_vec.push_back(beta);
             sigma = sigmaNew;
 
             q *= get( beta );
@@ -172,6 +177,8 @@ namespace Spacy::CG
             Rq *= get( beta );
             Rq += r; // Pq = r + beta*Pq
         }
+        
+        callback(alpha_vec,beta_vec);
 
         return x;
     }
