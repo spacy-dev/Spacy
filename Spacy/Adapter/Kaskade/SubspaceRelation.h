@@ -118,7 +118,7 @@ namespace Kaskade
         {
             static int apply()
             {
-                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::source;
+                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::target;
                 static int res = GetMinIndex<Map, DirMap, i+1, maxIdx>::apply();
                 if ( res < val )    return res;
                 else                return val;
@@ -139,7 +139,7 @@ namespace Kaskade
         {
             static int apply()
             {
-                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::source;
+                static int val = DirMap< typename boost::fusion::result_of::value_at_c< Map, i >::type >::target;
                 static int res = GetMaxIndex<Map, DirMap, i+1, maxIdx>::apply();
                 if ( res > val )    return res;
                 else                return val;
