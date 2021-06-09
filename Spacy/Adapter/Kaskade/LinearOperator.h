@@ -300,12 +300,12 @@ namespace Spacy::Kaskade
             checkSpaceCompatibility(x.space(),range());
             Domain y_( DomainDescription::template CoefficientVectorRepresentation<>::init(domainspaces_) );
             Range x_( RangeDescription::template CoefficientVectorRepresentation<>::init(rangespaces_) );
-            Detail::copyToCoefficientVector< RangeDescription >( x, x_ );
+            copy< RangeDescription >( x, x_ );
             
             A_.applyTransposed( x_, y_ );
             
             auto y = zero( domain() );
-            Detail::copyFromCoefficientVector< DomainDescription >( y_, y );
+            copy< DomainDescription >( y_, y );
             
             
             return y;
@@ -317,12 +317,12 @@ namespace Spacy::Kaskade
             
             Domain x_( DomainDescription::template CoefficientVectorRepresentation<>::init(domainspaces_) );
             Range y_( RangeDescription::template CoefficientVectorRepresentation<>::init(rangespaces_) );
-            Detail::copyToCoefficientVector< DomainDescription >( x, x_ );
+            copy< DomainDescription >( x, x_ );
                             
             A_.apply( x_, y_ );
             
             auto y = zero( range() );
-            Detail::copyFromCoefficientVector< RangeDescription >( y_, y );
+            copy< RangeDescription >( y_, y );
 
             
             return y;
@@ -393,7 +393,7 @@ namespace Spacy::Kaskade
 
             template <class Bl>
             auto operator()(Bl const& bl) const 
-            { 
+            {
                 ::Kaskade::IstlInterfaceDetail::Block<typename Bl::BlockType,typename Bl::SparseIndex,Bl::rowId,Bl::colId,Bl::symmetric,Bl::transposed>  blk(bl.matrix);
                 if((nThreads_>1 || Bl::transposed) && embD_.isInRange(Bl::colId) && embR_.isInRange(Bl::rowId))
                 {
@@ -529,12 +529,11 @@ namespace Spacy::Kaskade
                 }
                 
                 
-                
                 template <class Block>
                 void operator()(Block const& b) const {
                     using namespace boost::fusion;
                     
-                   if(embR_.isInRange(Block::rowId) && embD_.isInRange(Block::colId))
+                  if(embR_.isInRange(Block::rowId) && embD_.isInRange(Block::colId))
 //                   if(embR_.isInRange(Block::colId) && embD_.isInRange(Block::rowId))
                     {
                     typename result_of::at_c<typename RangeT::Functions const,Block::rowId>::type xi = 
