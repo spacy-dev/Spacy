@@ -81,6 +81,7 @@ namespace Spacy
                 
                 mutable bool cheb_created_ = false;
                 mutable ::Spacy::Preconditioner::Chebyshev ChebPrec_;
+                mutable ::Spacy::Preconditioner::Chebyshev ChebPrecT_;
 
                 mutable bool convex_flag_ = true;
                 mutable bool energyIsConvex_ = true;

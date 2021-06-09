@@ -69,7 +69,6 @@ namespace Spacy
         
         Vector Solver::solve( const Vector& b) const
         {
-                        
             
             terminate_.clear();
             
@@ -115,7 +114,7 @@ namespace Spacy
                 result_ = Result::TruncatedAtNonConvexity;
                 return x;
             }
-            
+
             // P_p  = P_(p)
             auto P_p = r;  // required for termination criteria
             
@@ -187,6 +186,7 @@ namespace Spacy
                 beta_vec.push_back(get(beta));
                 
                 sigma = sigmaNew;
+                
                 
                 if(sigma < 0 )
                 {

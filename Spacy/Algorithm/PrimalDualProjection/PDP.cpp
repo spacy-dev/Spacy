@@ -17,7 +17,7 @@ namespace Spacy
     {
         Logger< unsigned > logIterationsState( "stateIt.log" );
         Logger< unsigned > logIterationsAdjoint( "adjointIt.log" );
-        Logger< unsigned > logIterationsIcg( "icgIt.log" );
+//         Logger< unsigned > logIterationsIcg( "icgIt.log" );
         Logger< double > logTheta( "Theta.log" );
     }
     namespace PDP
@@ -29,7 +29,7 @@ namespace Spacy
         Solver::Solver(Operator M, OperatorWithTranspose A, OperatorWithTranspose AT, OperatorWithTranspose minusB, CallableOperator BPX, CallableOperator BPXT, CallableOperator controlSolver, ::Spacy::CG::Regularization R,const VectorSpace& totalSpace):
         M_((M)), A_((A)), AT_((AT)), minusB_((minusB)), BPX_(BPX), BPXT_(BPXT), R_(R),
         totalSpace_(totalSpace), primalSpace_(M_.domain()),adjointSpace_(minusB_.range()), controlSpace_(minusB_.domain()), stateSpace_(A_.domain()),
-        ChebPrec_(A,BPX), controlSolver_(std::move(controlSolver))
+        ChebPrec_(A,BPX), ChebPrecT_(AT,BPXT), controlSolver_(std::move(controlSolver))
         {
         }
         
@@ -44,7 +44,7 @@ namespace Spacy
         Vector Solver::C_transpose(const Vector& input) const
         {
             auto result = zero(primalSpace_);
-            result += primalSpace_.embed( A_.transposed(input) );
+            result += primalSpace_.embed( AT_(input) );
             
             
             result += primalSpace_.embed( minusB_.transposed(input) );
@@ -98,6 +98,7 @@ namespace Spacy
             
             return result;
         }
+        
         bool Solver::isPositiveDefinite() const
         {
             return definiteness_ == DefiniteNess::PositiveDefinite;
@@ -161,11 +162,7 @@ namespace Spacy
             sumNormSquaredUpdate_ = 0.0;
             
             
-            auto bx = primalSpace_.project(b);
-            
-            /// x==0 
-            /// !!!!!!!!!!! Does not work if theta != 0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            auto rx = primalSpace_.project( - bx);
+            auto rx = primalSpace_.project(-b);
             
             
             //if(theta_ != 0) rx+= theta_*R_(x_);
@@ -185,9 +182,10 @@ namespace Spacy
             auto ddy=zero(stateSpace_);
             
             
-//             ChebPrec_.setRelativeAccuracy(chebyshevAcc_);
+            ChebPrec_.setRelativeAccuracy(chebyshevAcc_);
+            ChebPrecT_.setRelativeAccuracy(chebyshevAcc_);
             
-            Spacy::ModifiedPPCG::TriangularConstraintPreconditioner triH(BPX_,controlSolver_,BPX_,minusB_,totalSpace_,stateSpace_);
+            Spacy::ModifiedPPCG::TriangularConstraintPreconditioner triH(BPX_/*ChebPrec_*/,controlSolver_,BPXT_/*ChebPrecT_*/,minusB_,totalSpace_,stateSpace_);
             Spacy::ModifiedPPCG::Solver modPPCG_(triH, M_, minusB_, totalSpace_, stateSpace_);
             
             
@@ -214,9 +212,9 @@ namespace Spacy
             {
                 LOG_SEPARATOR(log_tag);
                 // Check regularization part
-                dp = adjointSpace_.embed(adjointSolver(stateSpace_.project(-rx),adjointSpace_)); //Vermerk: b ^= -c in BA
+                dp = adjointSolver(stateSpace_.project(-rx),adjointSpace_); //Vermerk: b ^= -c in BA
 
-//                 Spacy::Preconditioner::computeEigsFromCGCoefficients(alpha_vec, beta_vec);
+                auto eigs = Spacy::Preconditioner::computeEigsFromCGCoefficients(alpha_vec, beta_vec);
 
                 logIterationsAdjoint(adjointSolver.getIterations());
                 LOG(log_tag, "Adjoint Solver Number of Iterations: ", adjointSolver.getIterations());
@@ -232,15 +230,16 @@ namespace Spacy
                 
                 rx += C_transpose(dp);
                 
-                triH.setSpectralBounds(eigMin, eigMax);
+//                 triH.setSpectralBounds(std::get<0>(eigs),std::get<1>(eigs)); std::cout << std::get<0>(eigs) << ", " << std::get<1>(eigs) << std::endl;
                 dx = primalSpace_.project(modPPCG_(totalSpace_.embed(-rx)));
+                
                 
                 LOG(log_tag, "PPCG Number of Iterations: ", modPPCG_.getIterations());
                 
 
                 convex_flag_ = modPPCG_.isPositiveDefinite();
                 
-                //         if(modPPCG_->isSingular())
+                //         if(modPPCG_.isSingular())
                 //         {
                 //             LOG_INFO(log_tag, "inexactCG is singular");
                 //             signalConvex_(true,false);
@@ -256,15 +255,16 @@ namespace Spacy
                
                 bp = -( rp + C_(dx) );
                
-                auto ddy = stateSolver(bp, stateSpace_ ); 
+                auto ddy = stateSolver(bp, stateSpace_ );
               
                 dx += primalSpace_.embed(ddy);
                
+                logIterationsState(stateSolver.getIterations());
                 LOG(log_tag, "State Solver Number of Iterations: ", stateSolver.getIterations());
                
                 proj_iterations_ += stateSolver.getIterations();
                 
-//                 Spacy::Preconditioner::computeEigsFromCGCoefficients(alpha_vec, beta_vec);
+                eigs = Spacy::Preconditioner::computeEigsFromCGCoefficients(alpha_vec, beta_vec);
                 
                 if(stateSolver.indefiniteOperator())
                 {
@@ -282,7 +282,7 @@ namespace Spacy
                 auto normX = sqrt(M_(x)(x));
                 normDx_ =std::fabs(get(omega)) *sqrt(dxMdx);
                 
-                //LOG(log_tag, "normX (old): ", normX, "normDx_: ", normDx_);
+//                 LOG(log_tag, "normX (old): ", normX, "normDx_: ", normDx_);
                 
                 energyIsConvex_ = signalConvex_(false,false);
                 bool converged = convergenceTest(convex_flag_, energyIsConvex_, M_, x ,  omega*dx);
@@ -350,7 +350,7 @@ namespace Spacy
             
             if(normDxOld_ == 0) //normDxOld_ = 0 -> noch im ersten Schritt, erzwingt so mind. 2 Schritte (es ei denn dx ist sehr sehr klein)
             {
-                // LOG_INFO(log_tag, "Not Converged: normDxOld = 0");
+//                 LOG_INFO(log_tag, "Not Converged: normDxOld = 0");
                 return false;
             }
             else

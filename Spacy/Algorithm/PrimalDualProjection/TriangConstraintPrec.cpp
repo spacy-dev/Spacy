@@ -10,7 +10,7 @@
 #include <Spacy/Util/Logger.h>
 #include <Spacy/Util/Cast.h>
 
-//#include <Spacy/Algorithm/Chebyshev/Chebyshev.h>
+#include "Spacy/Algorithm/Preconditioner/Chebyshev.h"
 
 #include <utility>
 #include <iostream>
@@ -49,8 +49,8 @@ namespace
 
         void TriangularConstraintPreconditioner::setSpectralBounds(double eigMin, double eigMax) 
         {
-            //cast_ref<::Spacy::Chebyshev::ChebyshevPreconditioner>(adjointSolver_).setSpectralBounds(eigMin,eigMax);
-            //cast_ref<::Spacy::Chebyshev::ChebyshevPreconditioner>(stateSolver_).setSpectralBounds(eigMin,eigMax);
+            cast_ref<::Spacy::Preconditioner::Chebyshev>(adjointSolver_).setSpectralBounds(eigMin,eigMax);
+            cast_ref<::Spacy::Preconditioner::Chebyshev>(stateSolver_).setSpectralBounds(eigMin,eigMax);
         }
 
         
