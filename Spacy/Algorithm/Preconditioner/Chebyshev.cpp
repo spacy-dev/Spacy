@@ -1,3 +1,5 @@
+// P_ wird jetzt P übergeben (nicht mehr A)
+
 #include "Chebyshev.h"
 
 #include <lapacke.h>
@@ -50,7 +52,7 @@ namespace Spacy::Preconditioner
 
     Chebyshev::Chebyshev( Spacy::CallableOperator A, Spacy::CallableOperator P, ::Spacy::Real gamma_max, ::Spacy::Real gamma_min )
 
-        : A_( std::move( A ) ), P_( std::move( A ) ), gamma_max_( std::move( gamma_max ) ), gamma_min_( std::move( gamma_min ) )
+        : A_( std::move( A ) ), P_( std::move( P ) ), gamma_max_( std::move( gamma_max ) ), gamma_min_( std::move( gamma_min ) )
     {
     }
 
@@ -69,7 +71,7 @@ namespace Spacy::Preconditioner
         const auto x1 = zero( x0.space() );
         std::vector< Spacy::Vector > x = { std::move( x0 ), x1, x1 };
 
-        auto r = b;
+        auto r = b; 
 
         for ( int i = 0; i < N; ++i )
         {
@@ -113,6 +115,7 @@ namespace Spacy::Preconditioner
         const auto condition = gamma_max_ / gamma_min_;
         const auto theta = ( sqrt( condition ) - 1 ) / ( sqrt( condition ) + 1 );
         int k = 1;
+        
         while ( 2. / ( std::pow( get( theta ), k ) + std::pow( get( theta ), -k ) ) > get( getRelativeAccuracy() ) )
             ++k;
         return k;
