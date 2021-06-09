@@ -17,3 +17,4 @@
 #include "Kaskade/Vector.h"
 #include "Kaskade/VectorSpace.h"
 #include "Kaskade/WriteVTK.h"
+#include "Kaskade/preconditioner.hh"
