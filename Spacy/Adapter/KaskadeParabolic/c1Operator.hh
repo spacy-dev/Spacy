@@ -9,7 +9,7 @@
 
 #include <Spacy/C1Operator.h>
 #include <Spacy/Util/Mixins/Get.h>
-#include <Spacy/Util/Mixins/numberOfThreads.hh>
+#include <Spacy/Util/Mixins/NumberOfThreads.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
 

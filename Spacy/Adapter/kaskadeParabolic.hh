@@ -1,7 +1,7 @@
 #pragma once
 
-#include "KaskadeParabolic/ScalarProduct.h"
-#include "KaskadeParabolic/VectorSpace.h"
+#include "KaskadeParabolic/scalarProduct.hh"
+#include "KaskadeParabolic/vectorSpace.hh"
 #include "KaskadeParabolic/c1Operator.hh"
 #include "KaskadeParabolic/c2Functional.hh"
 #include "KaskadeParabolic/directBlockPreconditioner.hh"
@@ -13,6 +13,7 @@
 #include "KaskadeParabolic/util.hh"
 #include "KaskadeParabolic/vector.hh"
 #include "KaskadeParabolic/writeVTK.hh"
+#include "KaskadeParabolic/SubspaceRelation.h"
 
-#include "KaskadeParabolic/ModelPredictiveController.hh"
-#include "KaskadeParabolic/errorEstimator.hh"
+// #include "KaskadeParabolic/ModelPredictiveController.hh"
+// #include "KaskadeParabolic/errorEstimator.hh"

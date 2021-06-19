@@ -6,11 +6,11 @@
 
 #include "fem/variables.hh"
 
-#include "Spacy/Adapter/Kaskade/util.hh"
+//#include "Spacy/Adapter/Kaskade/util.hh"
 #include "Spacy/C2Functional.h"
 #include "Spacy/LinearSolver.h"
 #include "Spacy/Operator.h"
-#include "Spacy/Spaces/ProductSpace/vector.hh"
+#include "Spacy/Spaces/ProductSpace/Vector.h"
 #include "Spacy/Util/Base/OperatorBase.h"
 #include "Spacy/Vector.h"
 #include <Spacy/ZeroVectorCreator.h>

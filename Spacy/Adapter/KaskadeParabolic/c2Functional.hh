@@ -8,7 +8,7 @@
 #include "io/vtk.hh"
 #include "linalg/triplet.hh"
 
-#include <Spacy/Algorithm/CG/linearSolver.hh>
+#include <Spacy/Algorithm/CG/LinearSolver.h>
 #include <Spacy/C1Operator.h>
 #include <Spacy/Util/Base/FunctionalBase.h>
 #include <Spacy/Util/Mixins/Eps.h>
@@ -17,7 +17,7 @@
 #include <Spacy/VectorSpace.h>
 #include <Spacy/ZeroVectorCreator.h>
 
-#include "VectorSpace.h"
+#include "vectorSpace.hh"
 #include "directBlockPreconditioner.hh"
 #include "directSolver.hh"
 #include "gridManager.hh"
