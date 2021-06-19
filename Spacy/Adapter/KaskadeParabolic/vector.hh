@@ -20,6 +20,126 @@ namespace Spacy
         template < class >
         class SubCreator;
 
+        namespace Detail
+        {
+            template < class ReturnT >
+            struct AccessInfo
+            {
+                int blockSize;
+                int spatialDim;
+                std::function< ReturnT( int, int ) > accessor;
+            };
+
+            template < class ReturnT >
+            using AccessInfos = std::vector< AccessInfo< ReturnT > >;
+
+            template < class ReturnT, int N, int I = 0 >
+            struct AddAccessInfo
+            {
+                template < class AccessInfos, class Container >
+                AddAccessInfo( AccessInfos& accessInfos, Container& container )
+                {
+                    const auto blockSize = int( boost::fusion::at_c< I >( container ).size() );
+                    const auto spatialDim = int( boost::fusion::at_c< I >( container )[ 0 ].size() );
+                    accessInfos.push_back( AccessInfo< ReturnT >{ blockSize, spatialDim, [ &container ]( int i, int k ) -> ReturnT {
+                                                                     return boost::fusion::at_c< I >( container )[ i ][ k ];
+                                                                 } } );
+                    AddAccessInfo< ReturnT, N, I + 1 >( accessInfos, container );
+                }
+            };
+
+            template < class ReturnT, int N >
+            struct AddAccessInfo< ReturnT, N, N >
+            {
+                template < class AccessInfos, class Container >
+                AddAccessInfo( AccessInfos& /*unused*/, Container& /*unused*/ )
+                {
+                }
+            };
+
+            template < template < class... > class Container, class... Args >
+            auto getAccessInfos( Container< Args... >& container )
+            {
+                using ReturnT = double&;
+                AccessInfos< ReturnT > accessInfos;
+                AddAccessInfo< ReturnT, sizeof...( Args ) >( accessInfos, container );
+                return accessInfos;
+            }
+
+            template < template < class... > class Container, class... Args >
+            auto getAccessInfos( const Container< Args... >& container )
+            {
+                using ReturnT = const double&;
+                AccessInfos< ReturnT > accessInfos;
+                AddAccessInfo< ReturnT, sizeof...( Args ) >( accessInfos, container );
+                return accessInfos;
+            }
+        } // namespace Detail
+
+        template < class Vector >
+        struct ContiguousIterator
+        {
+            static constexpr auto N = boost::fusion::result_of::size< Vector >::type::value;
+            using ValueRef = typename std::conditional< std::is_const< Vector >::value, const double&, double& >::type;
+            using AccessInfo = Detail::AccessInfos< ValueRef >;
+
+            explicit ContiguousIterator( Vector* v = nullptr, int i = 0, int k = 0 )
+                : v( v ), i( i ), k( k ), infos( v ? Detail::getAccessInfos( *v ) : AccessInfo{} )
+            {
+            }
+
+            ContiguousIterator operator++()
+            {
+                increment();
+                return *this;
+            }
+
+            ContiguousIterator operator++( int )
+            {
+                ContiguousIterator tmp( v, i, k );
+                ++( *this );
+                return tmp;
+            }
+
+            ValueRef operator*() const
+            {
+                return infos[ j ].accessor( i, k );
+            }
+
+            bool operator==( const ContiguousIterator& other ) const noexcept
+            {
+                return isAtEnd( other ) || ( v == other.v && i == other.i && j == other.j && k == other.k );
+            }
+
+        private:
+            [[nodiscard]] bool isAtEnd( const ContiguousIterator& other ) const noexcept
+            {
+                return ( other.v == nullptr && j == N ) || ( v == nullptr && other.j == N );
+            }
+
+            void increment()
+            {
+                ++k;
+                if ( k == infos[ j ].spatialDim )
+                {
+                    ++i;
+                    k = 0;
+                }
+
+                if ( i == infos[ j ].blockSize )
+                {
+                    ++j;
+                    i = 0;
+                }
+            }
+
+            Vector* v;
+            int i{ 0 };
+            int k{ 0 };
+            AccessInfo infos;
+            std::size_t j{ 0 };
+        };
+        
         /**
          * @ingroup KaskadeParabolicGroup VectorSpaceGroup
          * @brief Coefficient vector implementation for time dependent vector implemented with
@@ -397,6 +517,26 @@ namespace Spacy
                     vs_right += vs_left;
                 }
                 return vs_right;
+            }
+            
+            ContiguousIterator< typename VectorImpl::Sequence > begin()
+            {
+                return ContiguousIterator< typename VectorImpl::Sequence >{ /*&v_.data*/ };
+            }
+
+            ContiguousIterator< const typename VectorImpl::Sequence > begin() const
+            {
+                return ContiguousIterator< const typename VectorImpl::Sequence >{ /*&v_.data*/ };
+            }
+
+            ContiguousIterator< typename VectorImpl::Sequence > end()
+            {
+                return ContiguousIterator< typename VectorImpl::Sequence >{};
+            }
+
+            ContiguousIterator< const typename VectorImpl::Sequence > end() const
+            {
+                return ContiguousIterator< const typename VectorImpl::Sequence >{};
             }
 
         private:
