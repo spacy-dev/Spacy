@@ -154,6 +154,22 @@ namespace Spacy
             return ::Spacy::makeHilbertSpace(
                 KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, "y" ), l2Product{} );
         }
+        
+        /**
+         * @ingroup VectorSpaceGroup
+         * @brief Create space of piecewise constant in time functions with hilbert space
+         * structure with %Kaskade 7.
+         * @param gm Spacy Gridmanager holding grid information (temporal and spatial)
+         * @param name_ name of created Space
+         */
+        template < class VariableDescription, class Spaces >
+        auto makeHilbertSpace( GridManager< Spaces >& gm, std::string name_ )
+        {
+            using VariableSetDescription = ::Kaskade::VariableSetDescription< Spaces, VariableDescription >;
+
+            return ::Spacy::makeHilbertSpace(
+                KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, name_ ), l2Product{} );
+        }
 
         /**
          * @ingroup VectorSpaceGroup
