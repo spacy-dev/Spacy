@@ -180,32 +180,6 @@ namespace Spacy
                 return hessian( x )( dx );
             }
 
-            void computeErrorDistribution(::Spacy::Vector x )
-            {
-                assembleMassMatrices();
-                assemblePDElocalPart( x );
-                assembleStateEquationError( x );
-                assembleAdjointEquationError( x );
-                assembleStationarityConditionError( x );
-
-                return;
-            }
-
-            std::vector<::Spacy::Real > getStateEqError() const
-            {
-                return StateEqDist;
-            }
-
-            std::vector<::Spacy::Real > getAdjEqError() const
-            {
-                return AdjEqDist;
-            }
-
-            std::vector<::Spacy::Real > getStatCondError() const
-            {
-                return StatCondDist;
-            }
-
             /**
                    * @brief Access \f$f''(x)\f$ as linear operator \f$X\rightarrow X^*\f$.
                    * @param x point of linearization
@@ -221,7 +195,7 @@ namespace Spacy
 
                 return *H_ptr;
             }
-
+            
             /**
                    * @brief Access onlyLowerTriangle flag.
                    * @return true if only the lower triangle of a symmetric matrix is stored in the
@@ -230,6 +204,16 @@ namespace Spacy
             bool onlyLowerTriangle() const noexcept
             {
                 return onlyLowerTriangle_;
+            }
+            
+            const Assembler& assembler(int i) 
+            {
+                return assembler_.at(i);
+            }
+            
+            const AssemblerSP& assemblerSP(int i) 
+            {
+                return assemblersp_.at(i);
             }
 
             /**
@@ -327,6 +311,9 @@ namespace Spacy
                 auto spaces = gm_.getSpacesVec();
                 for ( auto i = 0u; i < no_time_steps; i++ )
                 {
+                    assembler_.push_back(  Assembler( *spaces.at( i ) )  );
+                    assemblersp_.push_back(  AssemblerSP( *spaces.at( i ) )  );
+                    
                     typename VariableSetDescription::VariableSet x_ref(
                         VariableSetDescription( *spaces.at( i ), {"y", "u", "p"} ) );
                     //          if(i<5)
@@ -381,20 +368,21 @@ namespace Spacy
 
                 auto dtVec = gm_.getTempGrid().getDtVec();
                 auto spacesVec = gm_.getSpacesVec();
-                auto x_ps = ::Spacy::cast_ref< PSV >( x );
-
-                // subvectors as Spacy::Vector
-                auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
-                auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
-                auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
-
-                // Implementation on as Spacy::KaskadeParabolic::Vector
-                assert( Spacy::is< VectorImplY >( x_y ) );
-                auto x_y_impl = ::Spacy::cast_ref< VectorImplY >( x_y );
-                assert(::Spacy::is< VectorImplU >( x_u ) );
-                auto x_u_impl = ::Spacy::cast_ref< VectorImplU >( x_u );
-                assert(::Spacy::is< VectorImplP >( x_p ) );
-                auto x_p_impl = ::Spacy::cast_ref< VectorImplP >( x_p );
+//                 auto x_ps = ::Spacy::cast_ref< PSV >( x );
+// 
+//                 // subvectors as Spacy::Vector
+//                 auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
+//                 auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
+//                 auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
+// 
+//                 // Implementation on as Spacy::KaskadeParabolic::Vector
+//                 assert( Spacy::is< VectorImplY >( x_y ) );
+//                 auto x_y_impl = ::Spacy::cast_ref< VectorImplY >( x_y );
+//                 assert(::Spacy::is< VectorImplU >( x_u ) );
+//                 auto x_u_impl = ::Spacy::cast_ref< VectorImplU >( x_u );
+//                 assert(::Spacy::is< VectorImplP >( x_p ) );
+//                 auto x_p_impl = ::Spacy::cast_ref< VectorImplP >( x_p );
+                auto x_ps = cast_ref< Vector< VariableSetDescription > >( x );
 
                 value_updated = false;
                 for ( auto timeStep = 0u; timeStep < dtVec.size(); timeStep++ )
@@ -415,9 +403,9 @@ namespace Spacy
                     // Kaskade VariableSet for (y,u,p);
                     typename VariableSetDescription::VariableSet x( variableSet );
 
-                    boost::fusion::at_c< 0 >( x.data ) = x_y_impl.getCoeffVec( timeStep );
-                    boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( timeStep );
-                    boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( timeStep );
+                    boost::fusion::at_c< 0 >( x.data ) = ::boost::fusion::at_c< 0 >(x_ps.get_nonconst( timeStep ).data ).coefficients();
+                    boost::fusion::at_c< 1 >( x.data ) = ::boost::fusion::at_c< 1 >(x_ps.get_nonconst( timeStep ).data ).coefficients();
+                    boost::fusion::at_c< 2 >( x.data ) = ::boost::fusion::at_c< 2 >(x_ps.get_nonconst( timeStep ).data ).coefficients();
 
                     //          std::cout<<" x data
                     //          "<<boost::fusion::at_c<0>(x.data).coefficients().two_norm()<<std::endl;
@@ -426,10 +414,9 @@ namespace Spacy
                     //          std::cout<<" x data
                     //          "<<boost::fusion::at_c<2>(x.data).coefficients().two_norm()<<std::endl;
 
-                    Assembler assembler( space );
-                    assembler.assemble(::Kaskade::linearization( fVec_.at( timeStep ), x ),
+                    assembler_.at(timeStep).assemble(::Kaskade::linearization( fVec_.at( timeStep ), x ),
                                        Assembler::VALUE, getNumberOfThreads() );
-                    value_i_.at( timeStep ) = assembler.functional();
+                    value_i_.at( timeStep ) = assembler_.at(timeStep).functional();
                 }
 
                 if ( value_updated )
@@ -460,29 +447,27 @@ namespace Spacy
                 auto spacesVec = gm_.getSpacesVec();
 
                 /// DOMAIN VECTOR
-                auto x_ps = ::Spacy::cast_ref< PSV >( x );
-                // subvectors as Spacy::Vector
-                auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
-                auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
-                auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
-                // Implementation on as Spacy::KaskadeParabolic::Vector
-                auto x_y_impl = ::Spacy::cast_ref< VectorImplY >( x_y );
-                auto x_u_impl = ::Spacy::cast_ref< VectorImplU >( x_u );
-                auto x_p_impl = ::Spacy::cast_ref< VectorImplP >( x_p );
+//                 auto x_ps = ::Spacy::cast_ref< PSV >( x );
+//                 // subvectors as Spacy::Vector
+//                 auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
+//                 auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
+//                 auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
+//                 // Implementation on as Spacy::KaskadeParabolic::Vector
+//                 auto x_y_impl = ::Spacy::cast_ref< VectorImplY >( x_y );
+//                 auto x_u_impl = ::Spacy::cast_ref< VectorImplU >( x_u );
+//                 auto x_p_impl = ::Spacy::cast_ref< VectorImplP >( x_p );
 
                 /// Get implementation of rhs_
-                auto& rhs_ps = ::Spacy::cast_ref< PSV >( rhs_ );
-                // subvectors as Spacy::Vector
-                auto& rhs_y =
-                    (::Spacy::cast_ref< PSV >( rhs_ps.component( PRIMAL ) ) ).component( 0 );
-                auto& rhs_u =
-                    (::Spacy::cast_ref< PSV >( rhs_ps.component( PRIMAL ) ) ).component( 1 );
-                auto& rhs_p =
-                    (::Spacy::cast_ref< PSV >( rhs_ps.component( DUAL ) ) ).component( 0 );
-                // Implementation on as Spacy::KaskadeParabolic::Vector
-                auto& rhs_y_impl = ::Spacy::cast_ref< VectorImplY >( rhs_y );
-                auto& rhs_u_impl = ::Spacy::cast_ref< VectorImplU >( rhs_u );
-                auto& rhs_p_impl = ::Spacy::cast_ref< VectorImplP >( rhs_p );
+//                 auto& rhs_ps = ::Spacy::cast_ref< PSV >( rhs_ );
+//                 // subvectors as Spacy::Vector
+//                 auto& rhs_y = cast_ref<PSV>(primalComponent(rhs_)).component( 0 );
+//                 auto& rhs_u = cast_ref<PSV>(primalComponent(rhs_)).component( 1 );
+//                 auto& rhs_p = cast_ref<PSV>(dualComponent(rhs_)).component( 0 );
+//                 // Implementation on as Spacy::KaskadeParabolic::Vector
+//                 auto& rhs_y_impl = ::Spacy::cast_ref< VectorImplY >( rhs_y );
+//                 auto& rhs_u_impl = ::Spacy::cast_ref< VectorImplU >( rhs_u );
+//                 auto& rhs_p_impl = ::Spacy::cast_ref< VectorImplP >( rhs_p );
+                auto& rhs_v =  cast_ref< Vector< VariableSetDescription > >( rhs_ );
 
                 if ( verbose )
                     std::cout << "assembling the gradients of the static parts " << std::endl;
@@ -490,40 +475,47 @@ namespace Spacy
                 for ( auto i = 1u; i < dtVec.size(); i++ )
                 {
                     auto space = *spacesVec.at( i );
-                    VariableSetDescription variableSet( space );
-                    typename VariableSetDescription::VariableSet x( variableSet );
+//                     VariableSetDescription variableSet( space );
+//                     typename VariableSetDescription::VariableSet x( variableSet );
+// 
+//                     boost::fusion::at_c< 0 >( x.data ) = x_y_impl.getCoeffVec( i );
+//                     boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( i );
+//                     boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
 
-                    boost::fusion::at_c< 0 >( x.data ) = x_y_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
-
-                    Assembler assembler( space );
-                    assembler.assemble(::Kaskade::linearization( fVec_.at( i ), x ), Assembler::RHS,
+                    assembler_.at(i).assemble(::Kaskade::linearization( fVec_.at( i ), cast_ref< Vector< VariableSetDescription > >( x ).get(i) ), Assembler::RHS,
                                        getNumberOfThreads() );
-                    CoefficientVector c( assembler.rhs() );
+                    CoefficientVector c( assembler_.at(i).rhs() );
                     CoefficientVectorY ycoeff(
-                        ::Kaskade::component< 0 >( CoefficientVector( assembler.rhs() ) ) );
+                        ::Kaskade::component< 0 >( CoefficientVector( assembler_.at(i).rhs() ) ) );
                     CoefficientVectorU ucoeff(
-                        ::Kaskade::component< 1 >( CoefficientVector( assembler.rhs() ) ) );
+                        ::Kaskade::component< 1 >( CoefficientVector( assembler_.at(i).rhs() ) ) );
                     CoefficientVectorP pcoeff(
-                        ::Kaskade::component< 2 >( CoefficientVector( assembler.rhs() ) ) );
+                        ::Kaskade::component< 2 >( CoefficientVector( assembler_.at(i).rhs() ) ) );
 
-                    rhs_y_impl.getCoeffVec_nonconst( i ) += boost::fusion::at_c< 0 >( ycoeff.data );
-                    rhs_u_impl.getCoeffVec_nonconst( i ) += boost::fusion::at_c< 0 >( ucoeff.data );
-                    rhs_p_impl.getCoeffVec_nonconst( i ) += boost::fusion::at_c< 0 >( pcoeff.data );
+                    auto& rhs_y_impl = ::boost::fusion::at_c< 0 >(rhs_v.get_nonconst( i ).data ).coefficients();
+                    auto& rhs_u_impl = ::boost::fusion::at_c< 1 >(rhs_v.get_nonconst( i ).data ).coefficients();
+                    auto& rhs_p_impl = ::boost::fusion::at_c< 2 >(rhs_v.get_nonconst( i ).data ).coefficients();
+
+                    rhs_y_impl += boost::fusion::at_c< 0 >( ycoeff.data );
+                    rhs_u_impl += boost::fusion::at_c< 0 >( ucoeff.data );
+                    rhs_p_impl += boost::fusion::at_c< 0 >( pcoeff.data );
 
                     // integration of constant function
-                    rhs_y_impl.getCoeffVec_nonconst( i ) *= get( dtVec.at( i ) );
-                    rhs_u_impl.getCoeffVec_nonconst( i ) *= get( dtVec.at( i ) );
-                    rhs_p_impl.getCoeffVec_nonconst( i ) *= get( dtVec.at( i ) );
+                    rhs_y_impl *= get( dtVec.at( i ) );
+                    rhs_u_impl *= get( dtVec.at( i ) );
+                    rhs_p_impl *= get( dtVec.at( i ) );
                 }
 
                 // complete assembly of d/dy,d/dp part (Adjoint and state equation)
                 // make sure the first parts are empty, as the time integral does not contribute to
                 // the value there
-                rhs_y_impl.getCoeffVec_nonconst( 0 ) *= 0;
-                rhs_u_impl.getCoeffVec_nonconst( 0 ) *= 0;
-                rhs_p_impl.getCoeffVec_nonconst( 0 ) *= 0;
+                auto& rhs_y_impl = ::boost::fusion::at_c< 0 >(rhs_v.get_nonconst( 0 ).data ).coefficients();
+                auto& rhs_u_impl = ::boost::fusion::at_c< 1 >(rhs_v.get_nonconst( 0 ).data ).coefficients();
+                auto& rhs_p_impl = ::boost::fusion::at_c< 2 >(rhs_v.get_nonconst( 0 ).data ).coefficients();
+                
+                rhs_y_impl *= 0;
+                rhs_u_impl *= 0;
+                rhs_p_impl *= 0;
 
                 for ( auto i = 0u; i < dtVec.size(); i++ )
                 {
@@ -535,14 +527,16 @@ namespace Spacy
                     CoefficientVectorP p_curr_(
                         VPSetDescription::template CoefficientVectorRepresentation<>::init(
                             space ) );
-                    boost::fusion::at_c< 0 >( p_curr_.data ) = x_p_impl.getCoeffVec( i );
+                    boost::fusion::at_c< 0 >( p_curr_.data ) = ::boost::fusion::at_c< 2 >
+                                                                    ( cast_ref< Vector< VariableSetDescription > >( x ).get( i ).data ).coefficients();
 
                     if ( i != dtVec.size() - 1 )
                     {
                         CoefficientVectorP p_next_(
                             VPSetDescription::template CoefficientVectorRepresentation<>::init(
                                 *spacesVec.at( i + 1 ) ) );
-                        boost::fusion::at_c< 0 >( p_next_.data ) = x_p_impl.getCoeffVec( i + 1 );
+                        boost::fusion::at_c< 0 >( p_next_.data ) = ::boost::fusion::at_c< 2 >
+                                                                    ( cast_ref< Vector< VariableSetDescription > >( x ).get( i + 1 ).data ).coefficients();
 
                         // CAUTION HERE
                         assert( p_curr_.dim() == p_next_.dim() );
@@ -553,7 +547,7 @@ namespace Spacy
                     CoefficientVectorY y_curr_(
                         VYSetDescription::template CoefficientVectorRepresentation<>::init(
                             space ) );
-                    boost::fusion::at_c< 0 >( y_curr_.data ) = x_y_impl.getCoeffVec( i );
+                    boost::fusion::at_c< 0 >( y_curr_.data ) = cast_ref< Vector< VariableSetDescription > >( x ).getCoeffVec( i );
 
                     // INITIAL CONDITION
                     if ( i == 0 )
@@ -600,7 +594,7 @@ namespace Spacy
                         CoefficientVectorY y_before_(
                             VYSetDescription::template CoefficientVectorRepresentation<>::init(
                                 *spacesVec.at( i - 1 ) ) );
-                        boost::fusion::at_c< 0 >( y_before_.data ) = x_y_impl.getCoeffVec( i - 1 );
+                        boost::fusion::at_c< 0 >( y_before_.data ) = cast_ref< Vector< VariableSetDescription > >( x ).getCoeffVec( i - 1 );
 
                         // CAUTION HERE
                         assert( y_curr_.dim() == y_before_.dim() );
@@ -613,19 +607,21 @@ namespace Spacy
                     boost::fusion::at_c< 2 >( x_diff.data ) =
                         boost::fusion::at_c< 0 >( p_curr_.data );
 
-                    AssemblerSP assembler( space );
-                    assembler.assemble(::Kaskade::linearization( SP_, x_diff ), Assembler::RHS,
+                    assemblersp_.at(i).assemble(::Kaskade::linearization( SP_, x_diff ), Assembler::RHS,
                                        getNumberOfThreads() );
                     // NOTE: (d/dy<y,p>)phi = <phi,p>, hence we need component 0
                     CoefficientVectorY y_part_coeff(
-                        ::Kaskade::component< 0 >( CoefficientVector( assembler.rhs() ) ) );
+                        ::Kaskade::component< 0 >( CoefficientVector( assemblersp_.at(i).rhs() ) ) );
                     // NOTE: (d/dp<y,p>)phi = <y,phi>, hence we need component 2
                     CoefficientVectorP p_part_coeff(
-                        ::Kaskade::component< 2 >( CoefficientVector( assembler.rhs() ) ) );
+                        ::Kaskade::component< 2 >( CoefficientVector( assemblersp_.at(i).rhs() ) ) );
 
-                    rhs_y_impl.getCoeffVec_nonconst( i ) +=
+                    auto& rhs_y_impl = ::boost::fusion::at_c< 0 >(rhs_v.get_nonconst( i ).data ).coefficients();
+                    auto& rhs_p_impl = ::boost::fusion::at_c< 2 >(rhs_v.get_nonconst( i ).data ).coefficients();
+                    
+                    rhs_y_impl +=
                         boost::fusion::at_c< 0 >( y_part_coeff.data );
-                    rhs_p_impl.getCoeffVec_nonconst( i ) +=
+                    rhs_p_impl +=
                         boost::fusion::at_c< 0 >( p_part_coeff.data );
                 }
 
@@ -641,19 +637,19 @@ namespace Spacy
 
                 auto dtVec = gm_.getTempGrid().getDtVec();
                 auto spacesVec = gm_.getSpacesVec();
-                auto x_ps = ::Spacy::cast_ref< PSV >( x );
+//                 auto x_ps = ::Spacy::cast_ref< PSV >( x );
 
                 assembleMassMatrices();
 
                 // subvectors as Spacy::Vector
-                auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
-                auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
-                auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
+//                 auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
+//                 auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
+//                 auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
 
                 // Implementation on as Spacy::KaskadeParabolic::Vector
-                auto x_y_impl = cast_ref< VectorImplY >( x_y );
-                auto x_u_impl = cast_ref< VectorImplU >( x_u );
-                auto x_p_impl = cast_ref< VectorImplP >( x_p );
+//                 auto x_y_impl = cast_ref< VectorImplY >( x_y );
+//                 auto x_u_impl = cast_ref< VectorImplU >( x_u );
+//                 auto x_p_impl = cast_ref< VectorImplP >( x_p );
 
                 for ( auto i = 0u; i < dtVec.size(); i++ )
                 {
@@ -673,30 +669,29 @@ namespace Spacy
                     hessian_updated = true;
 
                     // Kaskade VariableSet for (y,u,p);
-                    VariableSetDescription variableSet( spaces );
-                    typename VariableSetDescription::VariableSet x( variableSet );
+//                     VariableSetDescription variableSet( spaces );
+//                     typename VariableSetDescription::VariableSet x( variableSet );
+// 
+//                     boost::fusion::at_c< 0 >( x.data ) = x_y_impl.getCoeffVec( i );
+//                     boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( i );
+//                     boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
 
-                    boost::fusion::at_c< 0 >( x.data ) = x_y_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
 
-                    Assembler assembler( spaces );
-
-                    assembler.assemble(::Kaskade::linearization( fVec_.at( i ), x ),
+                    assembler_.at(i).assemble(::Kaskade::linearization( fVec_.at( i ), cast_ref< Vector< VariableSetDescription > >( x ).get(i) ),
                                        Assembler::MATRIX, getNumberOfThreads() );
 
                     My_.at( i ) = Mytype(
-                        assembler.template get< Matrix >( onlyLowerTriangle_, 0, 1, 0, 1 ) );
+                        assembler_.at(i).template get< Matrix >( onlyLowerTriangle_, 0, 1, 0, 1 ) );
                     A_t_.at( i ) = ATtype(
-                        assembler.template get< Matrix >( onlyLowerTriangle_, 0, 1, 2, 3 ) );
+                        assembler_.at(i).template get< Matrix >( onlyLowerTriangle_, 0, 1, 2, 3 ) );
                     Mu_.at( i ) = Mutype(
-                        assembler.template get< Matrix >( onlyLowerTriangle_, 1, 2, 1, 2 ) );
+                        assembler_.at(i).template get< Matrix >( onlyLowerTriangle_, 1, 2, 1, 2 ) );
                     B_t_.at( i ) = BTtype(
-                        assembler.template get< Matrix >( onlyLowerTriangle_, 1, 2, 2, 3 ) );
+                        assembler_.at(i).template get< Matrix >( onlyLowerTriangle_, 1, 2, 2, 3 ) );
                     A_.at( i ) =
-                        Atype( assembler.template get< Matrix >( onlyLowerTriangle_, 2, 3, 0, 1 ) );
+                        Atype( assembler_.at(i).template get< Matrix >( onlyLowerTriangle_, 2, 3, 0, 1 ) );
                     B_.at( i ) =
-                        Btype( assembler.template get< Matrix >( onlyLowerTriangle_, 2, 3, 1, 2 ) );
+                        Btype( assembler_.at(i).template get< Matrix >( onlyLowerTriangle_, 2, 3, 1, 2 ) );
 
                     My_.at( i ).get_non_const().setStartToZero();
                     Mu_.at( i ).get_non_const().setStartToZero();
@@ -739,20 +734,21 @@ namespace Spacy
                     VariableSetDescription variableSet( space );
                     typename VariableSetDescription::VariableSet x( variableSet );
 
-                    AssemblerSP assemblersp( space );
-                    assemblersp.assemble(::Kaskade::linearization( SP_, x ), Assembler::MATRIX,
+                    assemblersp_.at(timeStep).assemble(::Kaskade::linearization( SP_, x ), Assembler::MATRIX,
                                          getNumberOfThreads() );
 
                     Mass_diag_.at( timeStep ) = Masstype(
-                        assemblersp.template get< Matrix >( onlyLowerTriangle_, 2, 3, 0, 1 ) );
+                        assemblersp_.at(timeStep).template get< Matrix >( onlyLowerTriangle_, 2, 3, 0, 1 ) );
                     Mass_diag_.at( timeStep ).get_non_const().setStartToZero();
 
                     if ( timeStep != dtVec.size() - 1 )
                     {
                         Mass_sd_.at( timeStep ) = Masstype(
-                            assemblersp.template get< Matrix >( onlyLowerTriangle_, 2, 3, 0, 1 ) );
+                            assemblersp_.at(timeStep).template get< Matrix >( onlyLowerTriangle_, 2, 3, 0, 1 ) );
                         Mass_sd_.at( timeStep ).get_non_const().setStartToZero();
                     }
+//                     else
+//                         Mass_diag_.at( timeStep ).getTriplet().print();
 
                     MassAssembled_.at( timeStep ) = true;
                 }
@@ -775,259 +771,12 @@ namespace Spacy
                         VectorSpace( OCP::LinearBlockOperatorCreator< VariableSetDescription,
                                                                       VariableSetDescription >(
                                          this->domain(), this->domain() ),
-                                     normfunc, true ),
+                                     normfunc,"", true ),
                         solverCreator_ ) );
                 //              std::cout<<"done with constructing the LBO pointer"<<std::endl;
                 return;
             }
 
-            void assemblePDElocalPart(::Spacy::Vector x )
-            {
-                if ( verbose )
-                    std::cout << "assembling PDE local part" << std::endl;
-                auto dtVec = gm_.getTempGrid().getDtVec();
-                auto spacesVec = gm_.getSpacesVec();
-
-                spatialPart.clear();
-                /// DOMAIN VECTOR
-                auto x_ps = ::Spacy::cast_ref< PSV >( x );
-                // subvectors as Spacy::Vector
-                auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
-                auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
-                auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
-                // Implementation on as Spacy::KaskadeParabolic::Vector
-                assert( Spacy::is< VectorImplY >( x_y ) );
-                auto x_y_impl = ::Spacy::cast_ref< VectorImplY >( x_y );
-                assert(::Spacy::is< VectorImplU >( x_u ) );
-                auto x_u_impl = ::Spacy::cast_ref< VectorImplU >( x_u );
-                assert(::Spacy::is< VectorImplP >( x_p ) );
-                auto x_p_impl = ::Spacy::cast_ref< VectorImplP >( x_p );
-
-                for ( auto i = 1u; i < dtVec.size(); i++ )
-                {
-                    auto space = *spacesVec.at( i );
-                    VariableSetDescription variableSet( space );
-                    typename VariableSetDescription::VariableSet x( variableSet );
-
-                    boost::fusion::at_c< 0 >( x.data ) = x_y_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
-
-                    Assembler assembler( space );
-                    assembler.assemble(::Kaskade::linearization( fVec_.at( i ), x ), Assembler::RHS,
-                                       getNumberOfThreads() );
-                    spatialPart.push_back( CoefficientVector( assembler.rhs() ) );
-                }
-            }
-
-            void assembleStateEquationError( Spacy::Vector x )
-            {
-                if ( verbose )
-                    std::cout << "computing the stateEqErr " << std::endl;
-
-                auto dtVec = gm_.getTempGrid().getDtVec();
-                auto spacesVec = gm_.getSpacesVec();
-
-                /// DOMAIN VECTOR
-                auto x_ps = ::Spacy::cast_ref< PSV >( x );
-                // subvectors as Spacy::Vector
-                auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
-                auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
-                auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
-                // Implementation on as Spacy::KaskadeParabolic::Vector
-                assert( Spacy::is< VectorImplY >( x_y ) );
-                auto x_y_impl = ::Spacy::cast_ref< VectorImplY >( x_y );
-                assert(::Spacy::is< VectorImplU >( x_u ) );
-                auto x_u_impl = ::Spacy::cast_ref< VectorImplU >( x_u );
-                assert(::Spacy::is< VectorImplP >( x_p ) );
-                auto x_p_impl = ::Spacy::cast_ref< VectorImplP >( x_p );
-
-                StateEqDist = std::vector< Spacy::Real >( dtVec.size(), Real{0} );
-
-                for ( auto i = 1u; i < dtVec.size(); i++ )
-                {
-                    if ( verbose )
-                        std::cout << "computing <u_m-u_{m-1},z_m-z_{m-1}> " << std::endl;
-                    CoefficientVectorY ydiff(
-                        VYSetDescription::template CoefficientVectorRepresentation<>::init(
-                            *spacesVec.at( i ) ) );
-
-                    boost::fusion::at_c< 0 >( ydiff.data ) = x_y_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 0 >( ydiff.data ) -= x_y_impl.getCoeffVec( i - 1 );
-
-                    CoefficientVectorP pdiff(
-                        VPSetDescription::template CoefficientVectorRepresentation<>::init(
-                            *spacesVec.at( i ) ) );
-                    boost::fusion::at_c< 0 >( pdiff.data ) = x_p_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 0 >( pdiff.data ) -= x_p_impl.getCoeffVec( i - 1 );
-
-                    auto My = ydiff;
-                    Mass_diag_.at( i ).apply( ydiff, My );
-                    StateEqDist.at( i ) += pdiff * My;
-                    std::cout << StateEqDist.at( i ) << std::endl;
-
-                    if ( verbose )
-                        std::cout << "computing 0.5*k_m*a(y_m,u_m)(z_m-z_{m-1}) " << std::endl;
-                    CoefficientVectorP a_coeff(
-                        ::Kaskade::component< 2 >( spatialPart.at( i - 1 ) ) );
-                    auto dummy = a_coeff * pdiff;
-                    dummy *= get( dtVec.at( i ) ) / 2.;
-                    StateEqDist.at( i ) += dummy;
-                    std::cout << StateEqDist.at( i ) << std::endl;
-
-                    // SOURCE TERM WOULD GO HERE
-                }
-            }
-
-            void assembleAdjointEquationError( Spacy::Vector x )
-            {
-                if ( verbose )
-                    std::cout << "computing the adjEqErr " << std::endl;
-
-                auto dtVec = gm_.getTempGrid().getDtVec();
-                auto spacesVec = gm_.getSpacesVec();
-
-                /// DOMAIN VECTOR
-                auto x_ps = ::Spacy::cast_ref< PSV >( x );
-                // subvectors as Spacy::Vector
-                auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
-                auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
-                auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
-                // Implementation on as Spacy::KaskadeParabolic::Vector
-                assert( Spacy::is< VectorImplY >( x_y ) );
-                auto x_y_impl = ::Spacy::cast_ref< VectorImplY >( x_y );
-                assert(::Spacy::is< VectorImplU >( x_u ) );
-                auto x_u_impl = ::Spacy::cast_ref< VectorImplU >( x_u );
-                assert(::Spacy::is< VectorImplP >( x_p ) );
-                auto x_p_impl = ::Spacy::cast_ref< VectorImplP >( x_p );
-
-                AdjEqDist.resize( dtVec.size(), Real{0} );
-
-                //  for a(y_{m-1},u_m)p_m
-                std::vector< CoefficientVector > spatialPart_adj;
-
-                for ( auto i = 1u; i < dtVec.size(); i++ )
-                {
-                    if ( verbose )
-                        std::cout << "Assembling a(ym-1,um)p_m for adjoint equation " << i
-                                  << std::endl;
-
-                    auto space = *spacesVec.at( i );
-                    VariableSetDescription variableSet( space );
-                    typename VariableSetDescription::VariableSet x( variableSet );
-
-                    boost::fusion::at_c< 0 >( x.data ) = x_y_impl.getCoeffVec( i - 1 );
-                    boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
-                    std::cout << boost::fusion::at_c< 0 >( x.data ).coefficients().two_norm() << " "
-                              << boost::fusion::at_c< 1 >( x.data ).coefficients().two_norm() << " "
-                              << boost::fusion::at_c< 2 >( x.data ).coefficients().two_norm()
-                              << std::endl;
-
-                    Assembler assembler( space );
-                    assembler.assemble(::Kaskade::linearization( fVec_.at( i ), x ), Assembler::RHS,
-                                       getNumberOfThreads() );
-                    spatialPart_adj.push_back( CoefficientVector( assembler.rhs() ) );
-                }
-
-                for ( auto i = 1u; i < dtVec.size(); i++ )
-                {
-                    if ( verbose )
-                        std::cout << "summing up part " << i << " of adjoint equation" << std::endl;
-                    CoefficientVectorY y_now(
-                        VYSetDescription::template CoefficientVectorRepresentation<>::init(
-                            *spacesVec.at( i ) ) );
-                    CoefficientVectorY y_before(
-                        VYSetDescription::template CoefficientVectorRepresentation<>::init(
-                            *spacesVec.at( i - 1 ) ) );
-
-                    boost::fusion::at_c< 0 >( y_now.data ) = x_y_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 0 >( y_before.data ) = x_y_impl.getCoeffVec( i - 1 );
-
-                    CoefficientVectorY a_coeff_indexverschieden(
-                        ::Kaskade::component< 0 >( spatialPart_adj.at( i - 1 ) ) );
-                    CoefficientVectorP a_coeff_indexgleich(
-                        ::Kaskade::component< 0 >( spatialPart.at( i - 1 ) ) );
-
-                    AdjEqDist.at( i ) += a_coeff_indexgleich * y_now;
-                    AdjEqDist.at( i ) -= a_coeff_indexverschieden * y_before;
-
-                    AdjEqDist.at( i ) *= dtVec.at( i ) / 2.;
-                }
-            }
-
-            void assembleStationarityConditionError( Spacy::Vector x )
-            {
-                if ( verbose )
-                    std::cout << "computing the StatCondErr " << std::endl;
-
-                auto dtVec = gm_.getTempGrid().getDtVec();
-                auto spacesVec = gm_.getSpacesVec();
-
-                /// DOMAIN VECTOR
-                auto x_ps = ::Spacy::cast_ref< PSV >( x );
-                // subvectors as Spacy::Vector
-                auto x_y = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 0 );
-                auto x_u = (::Spacy::cast_ref< PSV >( x_ps.component( PRIMAL ) ) ).component( 1 );
-                auto x_p = (::Spacy::cast_ref< PSV >( x_ps.component( DUAL ) ) ).component( 0 );
-                // Implementation on as Spacy::KaskadeParabolic::Vector
-                assert( Spacy::is< VectorImplY >( x_y ) );
-                auto x_y_impl = ::Spacy::cast_ref< VectorImplY >( x_y );
-                assert(::Spacy::is< VectorImplU >( x_u ) );
-                auto x_u_impl = ::Spacy::cast_ref< VectorImplU >( x_u );
-                assert(::Spacy::is< VectorImplP >( x_p ) );
-                auto x_p_impl = ::Spacy::cast_ref< VectorImplP >( x_p );
-
-                StatCondDist.resize( dtVec.size(), Real{0} );
-
-                //  for a(y_{m},u_{m-1})
-                std::vector< CoefficientVector > spatialPart_stat;
-
-                for ( auto i = 1u; i < dtVec.size(); i++ )
-                {
-                    if ( verbose )
-                        std::cout << "Assembling a(ym,um-1)p_m for stationarity condition " << i
-                                  << std::endl;
-                    auto space = *spacesVec.at( i );
-                    VariableSetDescription variableSet( space );
-                    typename VariableSetDescription::VariableSet x( variableSet );
-
-                    boost::fusion::at_c< 0 >( x.data ) = x_y_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( i - 1 );
-                    boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
-
-                    Assembler assembler( space );
-                    assembler.assemble(::Kaskade::linearization( fVec_.at( i ), x ), Assembler::RHS,
-                                       getNumberOfThreads() );
-                    spatialPart_stat.push_back( CoefficientVector( assembler.rhs() ) );
-                }
-
-                for ( auto i = 1u; i < dtVec.size(); i++ )
-                {
-                    if ( verbose )
-                        std::cout << "summing up part " << i << " of stationarity condition"
-                                  << std::endl;
-                    CoefficientVectorU u_now(
-                        VUSetDescription::template CoefficientVectorRepresentation<>::init(
-                            *spacesVec.at( i ) ) );
-                    CoefficientVectorU u_before(
-                        VUSetDescription::template CoefficientVectorRepresentation<>::init(
-                            *spacesVec.at( i - 1 ) ) );
-
-                    boost::fusion::at_c< 0 >( u_now.data ) = x_u_impl.getCoeffVec( i );
-                    boost::fusion::at_c< 0 >( u_before.data ) = x_u_impl.getCoeffVec( i - 1 );
-
-                    CoefficientVectorY a_coeff_indexverschieden(
-                        ::Kaskade::component< 1 >( spatialPart_stat.at( i - 1 ) ) );
-                    CoefficientVectorP a_coeff_indexgleich(
-                        ::Kaskade::component< 1 >( spatialPart.at( i - 1 ) ) );
-                    StatCondDist.at( i ) += a_coeff_indexgleich * u_now;
-                    std::cout << StatCondDist.at( i ) << std::endl;
-                    StatCondDist.at( i ) -= a_coeff_indexverschieden * u_before;
-
-                    StatCondDist.at( i ) *= dtVec.at( i ) / 2.;
-                }
-            }
             // Problem definition
             GridManager< Spaces >& gm_;
             std::function< FunctionalDefinition(
@@ -1037,6 +786,9 @@ namespace Spacy
             mutable std::vector< FunctionalDefinition > fVec_;
 
             CoefficientVectorY y0_;
+            
+            mutable std::vector<Assembler> assembler_;
+            mutable std::vector<AssemblerSP> assemblersp_;
 
             mutable bool verbose = false;
             mutable bool hessian_updated;
@@ -1076,17 +828,12 @@ namespace Spacy
 
             bool onlyLowerTriangle_ = false;
 
-            std::function< LinearSolver( const Linearization& ) > solverCreator_ =
+            std::function< LinearSolver( const Linearization& ) > solverCreator_ = //{};
                 []( const Linearization& f ) {
                     OCP::DirectBlockPreconditioner< FunctionalDefinition > P( f );
                     return ::Spacy::makeTCGSolver( f, P );
                 };
 
-            // ERROR ESTIMATION
-            std::vector< CoefficientVector > spatialPart;
-            ::std::vector<::Spacy::Real > StateEqDist;
-            ::std::vector<::Spacy::Real > StatCondDist;
-            ::std::vector<::Spacy::Real > AdjEqDist;
         };
 
         /**
