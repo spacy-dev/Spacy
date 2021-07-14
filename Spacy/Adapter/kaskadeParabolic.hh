@@ -14,6 +14,12 @@
 #include "KaskadeParabolic/vector.hh"
 #include "KaskadeParabolic/writeVTK.hh"
 #include "KaskadeParabolic/SubspaceRelation.h"
+#include "KaskadeParabolic/LinearOperator.h"
+#include "KaskadeParabolic/MassMatrix.h"
+#include "KaskadeParabolic/PDESolver.h"
+#include "KaskadeParabolic/PDESolverSurr.h"
+#include "KaskadeParabolic/preconditioner.hh"
+#include "KaskadeParabolic/DirectSolver.h"
 
 // #include "KaskadeParabolic/ModelPredictiveController.hh"
 // #include "KaskadeParabolic/errorEstimator.hh"
