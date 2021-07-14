@@ -54,7 +54,7 @@ int main( int argc, char* argv[] )
     const auto initialRefinements   = getParameter( pt, "initialRefinements", 3 );
     const auto iterativeRefinements = getParameter( pt, "iterativeRefinements", 0 );
     
-    const auto tychonovParameter    = getParameter( pt, "tychonovParameter", 1 );
+    const auto tychonovParameter    = getParameter( pt, "tychonovParameter", 0.001 );
     
     const auto numberOfCubesX       = getParameter (pt, "NumberOfCubesX", 1);
     const auto numberOfCubesY       = getParameter (pt, "NumberOfCubesY", 1);
