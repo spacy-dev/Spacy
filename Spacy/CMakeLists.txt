@@ -95,6 +95,8 @@ add_library(spacy ${SRC_LIST}
     Algorithm/PrimalDualProjection/ModifiedPPCG.cpp
     Algorithm/PrimalDualProjection/PDP.hh
     Algorithm/PrimalDualProjection/PDP.cpp
+    Algorithm/PrimalDualProjection/PDP_withoutA.hh
+    Algorithm/PrimalDualProjection/PDP_withoutA.cpp
     ### Spaces ###
     Spaces/RealSpace.h
     Spaces/ProductSpace.h

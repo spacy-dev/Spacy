@@ -1,1 +1,1 @@
-add_subdirectory(OptimalControl)
+add_subdirectory(OptimalControl_noFung)

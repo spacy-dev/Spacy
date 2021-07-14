@@ -60,6 +60,7 @@ endif(DOXYGEN_FOUND)
 ### Examples
 if(Kaskade)
     add_subdirectory(Examples/Kaskade)
+    add_subdirectory(Examples/KaskadeParabolic)
 endif()
 
 if(Eigen3_FOUND)
