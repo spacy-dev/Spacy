@@ -173,7 +173,7 @@ namespace Spacy
                     std::cout << std::endl;
                     return x;
                 }
-                    
+                
                 g = -P_(range().embed(r));
                 //P_.apply(g,range().embed(-r));
                 std::cout << "o" << std::flush;

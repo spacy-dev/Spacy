@@ -1,5 +1,3 @@
-// IterativeRefinements ist standardmäßig 1000, daher manuell auf 0 gesetzt -> sinnvoll??
-
 #include "CG.h"
 
 #include "RegularizeViaPreconditioner.h"

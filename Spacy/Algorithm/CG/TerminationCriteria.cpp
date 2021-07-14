@@ -225,8 +225,8 @@ namespace Spacy::CG::Termination
               std::accumulate( scaledGamma2.end() - 2 * lookAhead_, scaledGamma2.end() - lookAhead_, 0. );
         tau = tau + ( 3.365 / 2.23 ) * getStdDev(); // basically one sided confidence interval of 99,5% for n = 5
 
-        if ( scaledGamma2.size() > getMaxSteps() ||
-             ( scaledGamma2.size() > 2 * lookAhead_ && tau < 0.75 && squaredRelativeError() < tol * tol ) )
+        if ( ( scaledGamma2.size() > getMaxSteps() ||
+             ( scaledGamma2.size() > 2 * lookAhead_ && tau < 0.75 && squaredRelativeError() < tol * tol ) ) && getVerbosityLevel() > 0)
         {
             std::cout << "      adaptive termination criterion (relative error): " << sqrt( squaredRelativeError() )
                       << "\n      tolerance: " << tol << std::endl;
@@ -325,9 +325,9 @@ namespace Spacy::CG::Termination
     {
         const auto a = this->errorEstimationTerminate();
         const auto b = st_.terminate( cg_iterate, getSquaredErrorEstimator(), getSquaredSolutionEstimator() );
-        if ( a )
+        if ( a && getVerbosityLevel() > 0)
             std::cout << " terminating due to relative accuracy" << std::endl;
-        if ( b )
+        if ( b && getVerbosityLevel() > 0 )
             std::cout << " terminating due to alternative step termination criterion" << std::endl;
 
         if ( a )
