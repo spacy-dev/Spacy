@@ -38,10 +38,10 @@ namespace Spacy
              * @param gm Spacy Gridmanager holding grid information (temporal and spatial)
              * @param name name of variable (needed for writing paraview files)
              */
-            VectorCreator(::Spacy::KaskadeParabolic::GridManager< Spaces >& gm, std::string name )
+            VectorCreator(::Spacy::KaskadeParabolic::GridManager< Spaces >& gm, std::vector<std::string> name )
                 : gm_( gm )
             {
-                name_.push_back( name );
+                name_ = name;
                 auto spaces = gm.getSpacesVec();
 
                 for ( auto i = 0u; i < spaces.size(); i++ )
@@ -136,82 +136,82 @@ namespace Spacy
             ::Spacy::KaskadeParabolic::GridManager< Spaces >& gm_;
             std::vector< std::string > name_{};
         };
-
-        /**
-         * @ingroup VectorSpaceGroup
-         * @brief Create single space of piecewise constant in time functions with hilbert space
-         * structure with %Kaskade 7.
-         * @param gm Spacy Gridmanager holding grid information (temporal and spatial)
-         */
-        template < class Spaces >
-        auto makeHilbertSpace( GridManager< Spaces >& gm )
-        {
-
-            using VD = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 0 > >;
-            using VariableSetDescription = ::Kaskade::VariableSetDescription< Spaces, VD >;
-            std::cout << " Creating Single Space HilbertSpace" << std::endl;
-
-            return ::Spacy::makeHilbertSpace(
-                KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, "y" ), l2Product{} );
-        }
         
         /**
          * @ingroup VectorSpaceGroup
          * @brief Create space of piecewise constant in time functions with hilbert space
          * structure with %Kaskade 7.
          * @param gm Spacy Gridmanager holding grid information (temporal and spatial)
+         * @param names_ Variable names
          * @param name_ name of created Space
          */
-        template < class VariableDescription, class Spaces >
-        auto makeHilbertSpace( GridManager< Spaces >& gm, std::string name_ )
+        template < class VariableSetDescription, class Spaces >
+        auto makeHilbertSpace( GridManager< Spaces >& gm, std::vector<std::string> names_, std::string name_ )
         {
-            using VariableSetDescription = ::Kaskade::VariableSetDescription< Spaces, VariableDescription >;
-
             return ::Spacy::makeHilbertSpace(
-                KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, name_ ), l2Product{} );
+                KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, names_ ), l2Product{}, name_ );
         }
 
-        /**
-         * @ingroup VectorSpaceGroup
-         * @brief Create product space piecewise constant in time functions with hilbert space
-         * structure with %Kaskade 7.
-         * @param gm Spacy Gridmanager holding grid information (temporal and spatial)
-         * @param primalIds ids of primal variables
-         * @param dualIds ids of dual variables
-         */
-        template < class Spaces >
-        auto makeHilbertSpace( GridManager< Spaces >& gm, const std::vector< unsigned >& primalIds,
-                               const std::vector< unsigned >& dualIds )
-        {
-            // assume optimal control context
-            assert( primalIds.size() == 2 && dualIds.size() == 1 );
-
-            std::vector< std::shared_ptr< VectorSpace > > newSpaces;
-
-            // State
-            using VD = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 0 > >;
-            using VariableSetDescription = ::Kaskade::VariableSetDescription< Spaces, VD >;
-            newSpaces.push_back( std::make_shared< VectorSpace >(::Spacy::makeHilbertSpace(
-                ::Spacy::KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, "y" ),
-                ::Spacy::KaskadeParabolic::l2Product() ) ) );
-            // Control
-            using VD2 = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 1 > >;
-            using VariableSetDescription2 = ::Kaskade::VariableSetDescription< Spaces, VD2 >;
-            newSpaces.push_back( std::make_shared< VectorSpace >(::Spacy::makeHilbertSpace(
-                ::Spacy::KaskadeParabolic::VectorCreator< VariableSetDescription2 >( gm, "u" ),
-                ::Spacy::KaskadeParabolic::l2Product() ) ) );
-            // Adjoint
-            using VD3 = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 2 > >;
-            using VariableSetDescription3 = ::Kaskade::VariableSetDescription< Spaces, VD3 >;
-            newSpaces.push_back( std::make_shared< VectorSpace >(::Spacy::makeHilbertSpace(
-                ::Spacy::KaskadeParabolic::VectorCreator< VariableSetDescription3 >( gm, "p" ),
-                ::Spacy::KaskadeParabolic::l2Product() ) ) );
-
-            //      std::cout << "create space with " << newSpaces.size() << " variables." <<
-            //      std::endl;
-
-            return ::Spacy::ProductSpace::makeHilbertSpace( newSpaces, primalIds, dualIds );
-        }
+//         /**
+//          * @ingroup VectorSpaceGroup
+//          * @brief Create single space of piecewise constant in time functions with hilbert space
+//          * structure with %Kaskade 7.
+//          * @param gm Spacy Gridmanager holding grid information (temporal and spatial)
+//          */
+//         template < class Spaces >
+//         auto makeHilbertSpace( GridManager< Spaces >& gm )
+//         {
+// 
+//             using VD = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 0 > >;
+//             using VariableSetDescription = ::Kaskade::VariableSetDescription< Spaces, VD >;
+//             std::cout << " Creating Single Space HilbertSpace" << std::endl;
+// 
+//             return ::Spacy::makeHilbertSpace(
+//                 KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, "y" ), l2Product{} );
+//         }
+// 
+// 
+//         /**
+//          * @ingroup VectorSpaceGroup
+//          * @brief Create product space piecewise constant in time functions with hilbert space
+//          * structure with %Kaskade 7.
+//          * @param gm Spacy Gridmanager holding grid information (temporal and spatial)
+//          * @param primalIds ids of primal variables
+//          * @param dualIds ids of dual variables
+//          */
+//         template < class Spaces >
+//         auto makeHilbertSpace( GridManager< Spaces >& gm, const std::vector< unsigned >& primalIds,
+//                                const std::vector< unsigned >& dualIds )
+//         {
+//             // assume optimal control context
+//             assert( primalIds.size() == 2 && dualIds.size() == 1 );
+// 
+//             std::vector< std::shared_ptr< VectorSpace > > newSpaces;
+// 
+//             // State
+//             using VD = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 0 > >;
+//             using VariableSetDescription = ::Kaskade::VariableSetDescription< Spaces, VD >;
+//             newSpaces.push_back( std::make_shared< VectorSpace >(::Spacy::makeHilbertSpace(
+//                 ::Spacy::KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, "y" ),
+//                 ::Spacy::KaskadeParabolic::l2Product() ) ) );
+//             // Control
+//             using VD2 = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 1 > >;
+//             using VariableSetDescription2 = ::Kaskade::VariableSetDescription< Spaces, VD2 >;
+//             newSpaces.push_back( std::make_shared< VectorSpace >(::Spacy::makeHilbertSpace(
+//                 ::Spacy::KaskadeParabolic::VectorCreator< VariableSetDescription2 >( gm, "u" ),
+//                 ::Spacy::KaskadeParabolic::l2Product() ) ) );
+//             // Adjoint
+//             using VD3 = boost::fusion::vector<::Kaskade::VariableDescription< 0, 1, 2 > >;
+//             using VariableSetDescription3 = ::Kaskade::VariableSetDescription< Spaces, VD3 >;
+//             newSpaces.push_back( std::make_shared< VectorSpace >(::Spacy::makeHilbertSpace(
+//                 ::Spacy::KaskadeParabolic::VectorCreator< VariableSetDescription3 >( gm, "p" ),
+//                 ::Spacy::KaskadeParabolic::l2Product() ) ) );
+// 
+//             //      std::cout << "create space with " << newSpaces.size() << " variables." <<
+//             //      std::endl;
+// 
+//             return ::Spacy::ProductSpace::makeHilbertSpace( newSpaces, primalIds, dualIds );
+//         }
     }
     /** @} */
 }
