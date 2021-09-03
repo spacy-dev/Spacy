@@ -24,7 +24,7 @@ namespace Spacy
         DEFINE_LOG_TAG(static const char* log_tag = "PDP");
         
         
-        Solver::Solver(Operator M, Operator stateSolver, Operator adjointSolver, OperatorWithTranspose minusB, CallableOperator surrogateStateSolver, CallableOperator surrogateAdjointSolver, CallableOperator controlSolver, const VectorSpace& totalSpace):
+        Solver::Solver(Operator M, Spacy::SolverBase stateSolver, Spacy::SolverBase adjointSolver, OperatorWithTranspose minusB, CallableOperator surrogateStateSolver, CallableOperator surrogateAdjointSolver, CallableOperator controlSolver, const VectorSpace& totalSpace):
         M_((M)), stateSolver_(std::move(stateSolver)), adjointSolver_(std::move(adjointSolver)), minusB_((minusB)), surrogateStateSolver_(std::move(surrogateStateSolver)), surrogateAdjointSolver_(std::move(surrogateAdjointSolver)), totalSpace_(totalSpace), primalSpace_(M_.domain()),adjointSpace_(minusB_.range()), controlSpace_(minusB_.domain()), stateSpace_(stateSolver_.domain()), controlSolver_(std::move(controlSolver))
         {
         }
@@ -100,7 +100,7 @@ namespace Spacy
             
             sumNormSquaredUpdate_ = 0.0;
             
-            
+
             auto rx = primalSpace_.project(-b);
             
             
@@ -114,7 +114,7 @@ namespace Spacy
             auto rp = zero(adjointSpace_);
             auto bp = zero(adjointSpace_);
             auto ddy=zero(stateSpace_);
-            
+         
             
             
             Spacy::ModifiedPPCG::TriangularConstraintPreconditioner triH(surrogateStateSolver_,controlSolver_,surrogateAdjointSolver_,minusB_,totalSpace_,stateSpace_);
@@ -138,12 +138,13 @@ namespace Spacy
             for(unsigned int step = 1; step < getMaxSteps(); step++)
             {
                 LOG_SEPARATOR(log_tag);
+                
                 // Check regularization part
                 dp = adjointSolver_(stateSpace_.project(-rx)); //Vermerk: b ^= -c in BA
 
-//                 logIterationsAdjoint(adjointSolver_.getCGIterations());
-//                 LOG(log_tag, "Adjoint Solver Number of Iterations: ", adjointSolver_.getCGIterations());
-//                 dual_iterations_ += adjointSolver_.getCGIterations();
+                logIterationsAdjoint(adjointSolver_.getIterations());
+                LOG(log_tag, "Adjoint Solver Number of Iterations: ", adjointSolver_.getIterations());
+                dual_iterations_ += adjointSolver_.getIterations();
                 
 //                 if(adjointSolver.indefiniteOperator())
 //                 {
@@ -153,11 +154,11 @@ namespace Spacy
 
                 p += dp;
                 
-                rx -= primalSpace_.embed( stateSpace_.project(rx) ); // ry -> 0
+                rx = primalSpace_.embed( controlSpace_.project(rx) ); // ry -> 0
                 rx += primalSpace_.embed( minusB_.transposed(dp) ); // ru -= B^T(dp)
                 
+
                 dx = primalSpace_.project(modPPCG_(totalSpace_.embed(-rx)));
-                
                 
                 LOG(log_tag, "PPCG Number of Iterations: ", modPPCG_.getIterations());
                 
@@ -177,23 +178,25 @@ namespace Spacy
                     result_ = Result::TruncatedAtNonConvexity;
                     return x;
                 }
-               
+                
                 bp = -( minusB_( controlSpace_.project(dx) ) );
-               
+                
                 auto ddy = stateSolver_(bp);
-              
+                
+                
                 dx = primalSpace_.embed(ddy) + primalSpace_.embed( controlSpace_.project(dx) );
                
-//                 logIterationsState(stateSolver_.getCGIterations());
-//                 LOG(log_tag, "State Solver Number of Iterations: ", stateSolver_.getCGIterations());
-//                 proj_iterations_ += stateSolver_.getCGIterations();
+                logIterationsState(stateSolver_.getIterations());
+                LOG(log_tag, "State Solver Number of Iterations: ", stateSolver_.getIterations());
+                proj_iterations_ += stateSolver_.getIterations();
                 
 //                 if(stateSolver.indefiniteOperator())
 //                 {
 //                     signalConvex_(true,false);
 //                     return x;
 //                 }
-                Mdx=M_(dx);;
+                
+                Mdx=M_(dx);
                 
                 Real dxMdx = Mdx(dx);
                 
@@ -204,7 +207,7 @@ namespace Spacy
                 auto normX = sqrt(M_(x)(x));
                 normDx_ =std::fabs(get(omega)) *sqrt(dxMdx);
                 
-//                 LOG(log_tag, "normX (old): ", normX, "normDx_: ", normDx_);
+                LOG(log_tag, "normX (old): ", normX, "normDx_: ", normDx_);
                 
                 energyIsConvex_ = signalConvex_(false,false);
                 bool converged = convergenceTest(convex_flag_, energyIsConvex_, M_, x ,  omega*dx);
@@ -223,7 +226,9 @@ namespace Spacy
                     
                     result_ = Result::Converged;
                     iterations_ = step;
+                    
                     std::cout << std::endl;
+                    
                     return x;
                 }
                 
@@ -231,7 +236,7 @@ namespace Spacy
                 
                 rx += omega * Mdx;
                 
-                
+                if (normDxOld_.get() != 0) std::cout << "Contraction: " << normDx_/normDxOld_ << std::endl;
                 normDxOld_ = normDx_;
             }
             LOG_INFO(log_tag, "pcgStep > getMaxSteps()");

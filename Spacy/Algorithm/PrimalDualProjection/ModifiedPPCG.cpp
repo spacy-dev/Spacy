@@ -102,18 +102,18 @@ namespace Spacy
             
             auto p = g;
             
-            Real sigma = P_.getSigma();
+            Real sigma = -P_.getSigma();
             
             
-            if(sigma < 0)
-            {
-                LOG_INFO(log_tag, "Fail Preconditionernot positive definite in PPCG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                LOG(log_tag, "sigma: ", sigma);
-                LOG_INFO(log_tag, "In iteration: 1");
-                definiteness_ = DefiniteNess::Indefinite;
-                result_ = Result::TruncatedAtNonConvexity;
-                return x;
-            }
+//             if(sigma < 0)
+//             {
+//                 LOG_INFO(log_tag, "Fail Preconditioner not positive definite in PPCG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//                 LOG(log_tag, "sigma: ", sigma);
+//                 LOG_INFO(log_tag, "In iteration: 1");
+//                 definiteness_ = DefiniteNess::Indefinite;
+//                 result_ = Result::TruncatedAtNonConvexity;
+//                 return x;
+//             }
 
             // P_p  = P_(p)
             auto P_p = r;  // required for termination criteria
@@ -149,7 +149,7 @@ namespace Spacy
                     return x;
                 }
                 
-                alpha = sigma/p_H_p;
+                alpha = -sigma/p_H_p;
                 alpha_vec.push_back(get(alpha));
                 
                 terminate_.update( get( alpha ), get( p_H_p ), get( p_P_p ), get( sigma ), x );
@@ -180,7 +180,7 @@ namespace Spacy
                 iterations_++;
                 iterationsInLifeTime_++;
                 
-                Real sigmaNew = P_.getSigma();
+                Real sigmaNew = -P_.getSigma();
                                 
                 beta = sigmaNew/sigma;
                 beta_vec.push_back(get(beta));
@@ -188,22 +188,21 @@ namespace Spacy
                 sigma = sigmaNew;
                 
                 
-                if(sigma < 0 )
-                {
-                    LOG_INFO(log_tag, "Fail: Preconditioner not positive definite in PPCG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                    LOG(log_tag, "sigma: ", sigmaNew);
-                    LOG(log_tag, "In iteration: ", step);
-                    definiteness_ = DefiniteNess::Indefinite;
-                    result_ = Result::TruncatedAtNonConvexity;
-                    return x;
-                }
+//                 if(sigma < 0 )
+//                 {
+//                     LOG_INFO(log_tag, "Fail: Preconditioner not positive definite in PPCG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+//                     LOG(log_tag, "sigma: ", sigmaNew);
+//                     LOG(log_tag, "In iteration: ", step);
+//                     definiteness_ = DefiniteNess::Indefinite;
+//                     result_ = Result::TruncatedAtNonConvexity;
+//                     return x;
+//                 }
                 
                 p *= get(beta);
                 p += g;
                 
                 P_p *= get( beta );
                 P_p += r;
-                
             }
             result_ = Result::NotConverged;
             return x;

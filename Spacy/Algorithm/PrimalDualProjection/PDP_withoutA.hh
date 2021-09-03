@@ -7,10 +7,7 @@
 #include <Spacy/Spaces/ProductSpace/Operator_V2.h>
 #include <Spacy/Spaces/ScalarSpace/Real.h>
 
-#include "../CG/CG.h"
-#include "../CG/RegularizeViaPreconditioner.h"
-#include "../CG/TerminationCriterion.h"
-#include "../CG/TerminationCriteria.h"
+#include <Spacy/Adapter/KaskadeParabolic/PDESolverBase.h>
 
 
 namespace Spacy
@@ -44,7 +41,7 @@ namespace Spacy
             };
 
             public:
-               Solver(Operator M, Operator stateSolver, Operator adjointSolver, OperatorWithTranspose minusB, CallableOperator surrogateStateSolver, CallableOperator surrogateAdjointSolver, CallableOperator controlSolver, const VectorSpace& totalSpace);
+               Solver(Operator M, Spacy::SolverBase stateSolver, Spacy::SolverBase adjointSolver, OperatorWithTranspose minusB, CallableOperator surrogateStateSolver, CallableOperator surrogateAdjointSolver, CallableOperator controlSolver, const VectorSpace& totalSpace);
 
                 /**
                  * @brief Solving the Problem
@@ -69,8 +66,8 @@ namespace Spacy
                 mutable bool energyIsConvex_ = true;
 
                 Operator M_;
-                Operator stateSolver_;
-                Operator adjointSolver_;
+                Spacy::SolverBase stateSolver_;
+                Spacy::SolverBase adjointSolver_;
                 OperatorWithTranspose minusB_;
                 CallableOperator surrogateStateSolver_;
                 CallableOperator surrogateAdjointSolver_;
