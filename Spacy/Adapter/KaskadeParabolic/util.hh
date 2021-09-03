@@ -52,6 +52,7 @@ namespace Spacy
             {
                 boost::fusion::at_c< n >( y.data ).coefficients() =
                     boost::fusion::at_c< n >( x.data );
+                CoefficientsToVariableSet< n - 1 >::apply( x, y );
             }
         };
 
@@ -72,6 +73,7 @@ namespace Spacy
             {
                 boost::fusion::at_c< n >( y.data ) =
                     boost::fusion::at_c< n >( x.data ).coefficients();
+                VariableSetToCoefficients< n - 1 >::apply( x, y );
             }
         };
 
