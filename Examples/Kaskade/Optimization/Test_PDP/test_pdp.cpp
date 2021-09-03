@@ -54,17 +54,17 @@ int main( int argc, char* argv[] )
     const auto initialRefinements   = getParameter( pt, "initialRefinements", 3 );
     const auto iterativeRefinements = getParameter( pt, "iterativeRefinements", 0 );
     
-    const auto tychonovParameter    = getParameter( pt, "tychonovParameter", 0.001 );
+    const auto tychonovParameter    = getParameter( pt, "tychonovParameter", 0.1 );
     
     const auto numberOfCubesX       = getParameter (pt, "NumberOfCubesX", 1);
     const auto numberOfCubesY       = getParameter (pt, "NumberOfCubesY", 1);
     const auto numberOfCubesZ       = getParameter (pt, "NumberOfCubesZ", 1);
     
-    const auto stateAcc             = getParameter (pt, "stateAccuracy", 1e-3);
-    const auto adjointAcc           = getParameter (pt, "adjointAccuracy", 1e-3);
-    const auto modifiedCGAcc        = getParameter (pt, "modifiedCGAccuracy", 1e-3);
-    const auto chebyshevAcc         = getParameter (pt, "chebyshevAccuracy", 1e-3);
-    const auto desiredAccuracy      = getParameter (pt, "desiredAccuracy", 1e-3);
+    const auto stateAcc             = getParameter (pt, "stateAccuracy", 1e-2);
+    const auto adjointAcc           = getParameter (pt, "adjointAccuracy", 1e-2);
+    const auto modifiedCGAcc        = getParameter (pt, "modifiedCGAccuracy", 1e-2);
+    const auto chebyshevAcc         = getParameter (pt, "chebyshevAccuracy", 1e-2);
+    const auto desiredAccuracy      = getParameter (pt, "desiredAccuracy", 1e-2);
 
     ///////////////////////////////////////////////// Grid
     using Grid = Dune::UGGrid< dim >;

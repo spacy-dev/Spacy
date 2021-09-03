@@ -17,6 +17,7 @@
 #include "KaskadeParabolic/LinearOperator.h"
 #include "KaskadeParabolic/MassMatrix.h"
 #include "KaskadeParabolic/PDESolver.h"
+#include "KaskadeParabolic/PDESolverBase.h"
 #include "KaskadeParabolic/PDESolverSurr.h"
 #include "KaskadeParabolic/preconditioner.hh"
 #include "KaskadeParabolic/DirectSolver.h"
