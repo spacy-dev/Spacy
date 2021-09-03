@@ -1,0 +1,195 @@
+#pragma once
+
+#include <Spacy/Util/Mixins.h>
+#include <Spacy/Util/Base/OperatorBase.h>
+
+#include <Spacy/Operator.h>
+#include <Spacy/Vector.h>
+#include <Spacy/ZeroVectorCreator.h>
+
+#include <Spacy/Algorithm/CG/CG.h>
+#include <Spacy/Algorithm/CG/RegularizeViaPreconditioner.h>
+
+#include "vector.hh"
+
+namespace Spacy::KaskadeParabolic
+{
+    using namespace std::chrono;
+    
+    template <class DomainDescription, class RangeDescription, class MassMatrix, class CallableLinearOperator, class Prec>
+    class Solver :
+            public OperatorBase,
+            public Mixin::Eps,
+            public Mixin::MaxSteps,
+            public Mixin::RelativeAccuracy,
+            public Mixin::Verbosity
+    {
+    public:
+        Solver(const MassMatrix& D, const CallableLinearOperator& A, const Prec& BPX, const std::vector< Real > dtVec, bool forward = true)
+        : OperatorBase(A.domain(),A.range()), D_(D), A_(A), BPX_(BPX), dtVec_(dtVec), forward_(forward), iterations_(0)
+        {
+            
+        }
+        
+        Spacy::Vector operator()(const Spacy::Vector& b) const
+        {
+            checkSpaceCompatibility(A_.range(),b.space());
+            
+            auto x = zero(A_.domain());
+    
+            if (forward_)
+            {
+                for (int t = 1; t < dtVec_.size(); t++)
+                {
+                    Real dt = dtVec_.at(t);
+                    
+                    /// Initialize CG Solver
+                    Spacy::CG::NoRegularization NR;
+                    auto CGSolver = Spacy::CG::Solver(Op(D_,A_,dt,t), BPX_Op(BPX_,t) /*Id<RangeDescription,DomainDescription>(t,A_.range(),A_.domain())*/, NR, true);
+                    CGSolver.setEps(eps());
+                    CGSolver.setAbsoluteAccuracy(eps());
+                    CGSolver.setMaxSteps(getMaxSteps());
+                    CGSolver.setTerminationCriterion( CG::Termination::AdaptiveRelativeEnergyError() );
+                    CGSolver.setRelativeAccuracy(1e-3/*getRelativeAccuracy()*/);
+                    CGSolver.setVerbosity(false);
+                    
+                    
+                    auto rhs_ = zero(b.space());
+                    auto& rhs_t = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs_ ).get_nonconst(t);
+                    
+                    auto Dx = D_.applyFor(x,t-1,t);
+                    auto Dxt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( Dx ).get(t-1);
+                    auto bt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( b ).get(t);
+                    
+                    
+                    rhs_t = bt;
+                    rhs_ *= dt.get();
+                    rhs_t += Dxt;
+                    
+                    // (D+tau*A) x_{t} = D x_{t-1} + tau*b
+                    x += CGSolver(rhs_);
+                    
+                    iterations_ += CGSolver.getIterations();
+                }
+            }
+            else
+            {
+                for (int t = dtVec_.size()-2; t >= 0; t--)
+                {
+                    Real dt = dtVec_.at(t+1);
+                    
+                    /// Initialize CG Solver
+                    Spacy::CG::NoRegularization NR;
+                    auto CGSolver = Spacy::CG::Solver(Op(D_,A_,dt,t), /*BPX_Op(BPX_,t)*/ Id<RangeDescription,DomainDescription>(t,A_.range(),A_.domain()), NR, true);
+                    CGSolver.setEps(eps());
+                    CGSolver.setAbsoluteAccuracy(eps());
+                    CGSolver.setMaxSteps(getMaxSteps());
+                    CGSolver.setTerminationCriterion( CG::Termination::AdaptiveRelativeEnergyError() );
+                    CGSolver.setRelativeAccuracy(1e-3/*getRelativeAccuracy()*/);
+                    CGSolver.setVerbosity(false);
+
+                    
+                    auto rhs_ = zero(b.space());
+                    auto& rhs_t = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs_ ).get_nonconst(t);
+                    
+                    auto Dx = D_.applyFor(x,t+1,t+2);
+                    auto Dxt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( Dx ).get(t+1);
+                    auto bt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( b ).get(t);
+                    
+                    
+                    rhs_t = bt;
+                    rhs_ *= dt.get();
+                    rhs_t += Dxt;
+                    
+                    
+                    x += CGSolver(rhs_);
+                    
+                    iterations_ += CGSolver.getIterations();
+                }
+            }
+            
+            return x;
+        }
+        
+        int getCGIterations() const noexcept
+        {
+            return iterations_;
+        }
+        
+    private:
+        MassMatrix D_;
+        CallableLinearOperator A_;
+        Prec BPX_;
+        std::vector< Real > dtVec_{};
+        bool forward_;
+        mutable int iterations_;
+        
+        struct Op : OperatorBase
+        {
+            Op (const MassMatrix& D, const CallableLinearOperator& A, Real dt, int t)
+            : D_(D), A_(A), dt_(dt), t_(t), OperatorBase(A.domain(),A.range())
+            { }
+            
+            Spacy::Vector operator()(const Spacy::Vector& x) const
+            {
+                checkSpaceCompatibility(domain(),x.space());
+                
+                auto y = D_.applyFor(x,t_,t_+1);
+                
+                y += dt_ * A_.applyFor(x,t_,t_+1);
+                
+                return y;
+            }
+            
+            MassMatrix D_;
+            CallableLinearOperator A_;
+            Real dt_;
+            int t_;
+        };
+        
+        struct BPX_Op : OperatorBase
+        {
+            BPX_Op (const Prec& BPX, int t)
+            : BPX_(BPX), t_(t), OperatorBase(BPX.domain(),BPX.range())
+            { }
+            
+            Spacy::Vector operator()(const Spacy::Vector& x) const
+            {
+                checkSpaceCompatibility(domain(),x.space());
+                
+                return BPX_.applyFor(x,t_,t_+1);
+            }
+            
+            Prec BPX_;
+            int t_;
+        };
+        
+        template <class DomainDesc, class RangeDesc>
+        struct Id : OperatorBase
+        {
+            Id (int t, const Spacy::VectorSpace& domain, const Spacy::VectorSpace& range)
+            : t_(t), OperatorBase(domain,range)
+            { }
+            
+            Spacy::Vector operator()(const Spacy::Vector& x) const
+            {
+                auto y = zero(range());
+                
+                auto& yt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDesc > >( y ).get_nonconst(t_);
+                auto xt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDesc > >( x ).get(t_);
+                
+                yt = xt;
+                
+                return y;
+            }
+            
+            int t_;
+        };
+    };
+    
+    template<class DomainDescription, class RangeDescription, class MassMatrix, class CallableLinearOperator, class Prec>
+    auto makePDESolver(const MassMatrix& D, const CallableLinearOperator& A, const Prec& BPX, const std::vector< Real > dtVec, bool forward = true)
+    {
+        return Solver<DomainDescription,RangeDescription,MassMatrix,CallableLinearOperator,Prec>(D,A,BPX,dtVec,forward);
+    }
+} //Spacy::KaskadeParabolic
