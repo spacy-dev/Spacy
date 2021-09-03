@@ -67,6 +67,7 @@ namespace KaskadeParabolic
     template < class SourceDescription, class TargetDescription, class SpaceMap, template < class > class DirectionMap = IdentityIdxPair >
     class ProductSpaceRelation : public Spacy::SubSpaceRelation
     {
+        
         using Copy =
             Detail::CopySubspaces< typename SourceDescription::Variables, typename TargetDescription::Variables, SpaceMap, DirectionMap >;
 
@@ -78,7 +79,7 @@ namespace KaskadeParabolic
         }
 
         Spacy::Vector operator()( const Spacy::Vector& x ) const  override
-        {            
+        {
             auto y = zero( range() );
             
             for (int t = 0; t < N; t++)

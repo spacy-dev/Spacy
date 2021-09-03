@@ -321,7 +321,7 @@ namespace Spacy
                         ::Kaskade::interpolateGloballyWeak<::Kaskade::PlainAverage >(
                             ::boost::fusion::at_c< 0 >( x_ref.data ),
                             ::Kaskade::makeWeakFunctionView(
-                                []( auto const& cell,
+                                [i,no_time_steps]( auto const& cell,
                                     auto const& xLocal ) -> ::Dune::FieldVector< double, 1 > {
                                     auto x = cell.geometry().global( xLocal );
                                     return Dune::FieldVector< double, 1 >(

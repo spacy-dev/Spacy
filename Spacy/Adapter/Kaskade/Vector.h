@@ -230,7 +230,6 @@ namespace Spacy
             /// Access coefficient vector.
             VariableSet& get()
             {
-                //std::cout << "hier" << std::endl;
                 return variableSet_;
             }
 

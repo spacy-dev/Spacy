@@ -1,5 +1,3 @@
-// minimale Anpassung in CallableLinearOperator-> operator(), transpose, ApplyScaleAdd und ApplyScaleAddT
-
 #pragma once
 
 #include "Copy.h"
@@ -281,18 +279,14 @@ namespace Spacy::Kaskade
         domainspaces_( creator< VectorCreator<DomainDescription> >(domain).get().spaces ),
         rangespaces_( creator< VectorCreator<RangeDescription> >( range ).get().spaces ),
         A_( A  )
-        {
-        //A_.getTriplet().deleteZeros();
-        }
+        { }
         
         MatrixLinearOperator(const OperatorMatrixRepresentation&& A, const VectorSpace& domain, const VectorSpace& range )
         : OperatorBase( domain,range),
         domainspaces_( creator< VectorCreator<DomainDescription> >(domain).get().spaces ),
         rangespaces_( creator< VectorCreator<RangeDescription> >( range ).get().spaces ),
         A_( std::move(A)  )
-        {
-        // A_.getTriplet().deleteZeros();
-        }
+        { }
         
         /// Compute \f$A(x)\f$.
         ::Spacy::Vector transposed( const ::Spacy::Vector& x ) const
@@ -434,7 +428,7 @@ namespace Spacy::Kaskade
         ::Spacy::Vector transposed( const ::Spacy::Vector& x ) const
         {
                 checkSpaceCompatibility(x.space(),range());
-                bufferR_ = totalRange_.embed(x);
+                bufferR_ = bufferR_.space().embed(x);
                 
                 ::boost::fusion::for_each(blocks,ApplyScaleAddT(1.0,bufferR_,bufferD_,true,embeddingR_,embeddingD_));
                 
