@@ -25,6 +25,18 @@
 using namespace Kaskade;
 
 
+template < class F, class G, std::enable_if_t< !std::is_same< F, G >::value >* = nullptr >
+const auto& if_( const F& f, const G& g )
+{
+    return g;
+}
+
+template < class F, class G, std::enable_if_t< std::is_same< F, G >::value >* = nullptr >
+const auto& if_( const F& f, const G& g )
+{
+    return f;
+}
+
 /****************************************************************************************/
 /* Boundary */
 /****************************************************************************************/

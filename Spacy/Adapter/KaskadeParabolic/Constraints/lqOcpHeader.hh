@@ -89,8 +89,8 @@ public:
       {
         return J.template d1<yIdx>(arg) + c.template d2<yIdx,yIdx>(p,arg);
       }
-      if(row==uIdx) return J.template d1<uIdx>(arg) - p.value*if_(arg.value,u);
-      if(row==pIdx) return c.template d1<yIdx>(arg) - u*if_(arg.value,p.value);
+      if(row==uIdx) return J.template d1<uIdx>(arg) - p.value*arg.value/*if_(arg.value,u)*/;
+      if(row==pIdx) return c.template d1<yIdx>(arg) - u*arg.value/*if_(arg.value,p.value)*/;
       return 0;
     }
 
@@ -113,8 +113,8 @@ public:
       if(row==uIdx && col==uIdx)
         return J.template d2<uIdx,uIdx>(arg1,arg2);
 
-      if(row==pIdx && col==uIdx) return - if_(arg1.value,p.value) * if_(arg2.value,u);
-      if(row==uIdx && col==pIdx) return - if_(arg1.value,u) * if_(arg2.value,p.value);
+      if(row==pIdx && col==uIdx) return - arg1.value/*if_(arg1.value,p.value)*/ * arg2.value/*if_(arg2.value,u)*/;
+      if(row==uIdx && col==pIdx) return - arg1.value/*if_(arg1.value,u)*/ * arg2.value/*if_(arg2.value,p.value)*/;
 
       if(row==yIdx && col==pIdx) return +c.template d2<yIdx,yIdx>(arg2,arg1);
       if(row==pIdx && col==yIdx) return +c.template d2<yIdx,yIdx>(arg1,arg2);
@@ -157,15 +157,15 @@ public:
     template<int row>
     Scalar d1_impl (VariationalArg<Scalar,dim,TestVars::template Components<row>::m> const& arg) const
     {
-      if(row==yIdx) return gamma*(p*if_(arg.value,y));
-      if(row==pIdx) return gamma*(y*if_(arg.value,p));
+      if(row==yIdx) return gamma*(p*arg.value/*if_(arg.value,y)*/);
+      if(row==pIdx) return gamma*(y*arg.value/*if_(arg.value,p)*/);
       return 0;
     }
 
     template<int row, int col>
     Scalar d2_impl (VariationalArg<Scalar,dim,TestVars::template Components<row>::m> const &arg1, VariationalArg<Scalar,dim,AnsatzVars::template Components<col>::m> const &arg2) const
     {
-      if( (row==yIdx && col==pIdx) || (row==pIdx && col==yIdx) ) return gamma*(if_(arg1.value,y) * if_(arg2.value,p));
+      if( (row==yIdx && col==pIdx) || (row==pIdx && col==yIdx) ) return gamma*(arg1.value/*if_(arg1.value,y)*/ * arg2.value/*if_(arg2.value,p)*/);
       return 0;
     }
 

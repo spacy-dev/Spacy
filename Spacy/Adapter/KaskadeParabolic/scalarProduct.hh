@@ -303,7 +303,6 @@ namespace Spacy
         {
           static bool const present   = true;
           static bool const constant  = false;
-
         };
 
         template <int row, int col>

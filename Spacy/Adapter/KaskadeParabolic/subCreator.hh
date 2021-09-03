@@ -3,8 +3,11 @@
 #include <type_traits>
 
 #include <Spacy/Util/Mixins/Get.h>
+#include <Spacy/Vector.h>
+#include <Spacy/VectorSpace.h>
+#include <Spacy/Adapter/Kaskade/Vector.h>
 
-
+#include <iostream>
 
 namespace Spacy
 {
@@ -28,6 +31,11 @@ namespace Spacy
       SubCreator(Args&&... args)
         : Mixin::Get<Description>( std::forward<Args>(args)... )
       {}
+      
+        Spacy::Kaskade::Vector< Description > operator()( const VectorSpace* space ) const
+        {
+            return Spacy::Kaskade::Vector< Description >{*space};
+        }
 
     };
 

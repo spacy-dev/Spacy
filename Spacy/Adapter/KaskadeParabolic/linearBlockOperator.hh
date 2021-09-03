@@ -746,16 +746,12 @@ namespace Spacy
 
                         // Adjoint Equation
                         // perform
-                        // | 0                                 M(0)          -M_sd(0)^T
-                        // |   |y_d(0) |
-                        // |      dt*My(1)                                (dt*A_t(1) + M(1))
-                        // -M_sd(1)^T                       | * |  :    |
-                        // |            ...                                                ...
-                        // ...                      |   |y_d(N) |
-                        // |                 dt*My(N)                                     0
-                        // (dt*A_t(N) + M(N))            |   |p_d(0) |
-                        //                                                                                                         |  :    |
-                        //                                                                                                         |p_d(N) |
+                        // | 0                                 M(0)          -M_sd(0)^T |   |y_d(0) |
+                        // | dt*My(1)                   (dt*A_t(1) + M(1))   -M_sd(1)^T | * |  :    |
+                        // | ...                               ...              ...     |   |y_d(N) |
+                        // | dt*My(N)                   (dt*A_t(N) + M(N))       0      |   |p_d(0) |
+                        //                                                                  |  :    |
+                        //                                                                  |p_d(N) |
 
                         if ( verbose )
                             std::cout << "Adjoint Equation of timestep " << i << std::endl;
@@ -990,6 +986,26 @@ namespace Spacy
                 const std::vector< Real > getDtVec() const
                 {
                     return dtVec_;
+                }
+                
+                [[nodiscard]] Spacy::ContiguousIterator< double > begin()
+                {
+                    return Spacy::ContiguousIterator< double >{};
+                }
+
+                [[nodiscard]] Spacy::ContiguousIterator< const double > begin() const
+                {
+                    return Spacy::ContiguousIterator< const double >{};
+                }
+
+                [[nodiscard]] Spacy::ContiguousIterator< double > end()
+                {
+                    return Spacy::ContiguousIterator< double >{};
+                }
+
+                [[nodiscard]] Spacy::ContiguousIterator< const double > end() const
+                {
+                    return Spacy::ContiguousIterator< const double >{};
                 }
 
             private:

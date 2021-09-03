@@ -26,7 +26,8 @@ namespace Spacy::Algorithm
     {
         if ( norm_r / norm_r0 < getRelativeAccuracy() || norm_r < eps() )
         {
-            LOG( log_tag, "Norm Solution: ", sqrt( x( x ) ) );
+            if (verbose())
+                LOG( log_tag, "Norm Solution: ", sqrt( x( x ) ) );
             return true;
         }
 
@@ -35,13 +36,17 @@ namespace Spacy::Algorithm
 
     Vector MinRes::minresLoop( Vector x, const Vector& b ) const
     {
-        LOG_INFO( log_tag, "Starting MINRES-Solver." );
-        LOG_SEPARATOR( log_tag );
+        if (verbose())
+        {
+            LOG_INFO( log_tag, "Starting MINRES-Solver." );
+            LOG_SEPARATOR( log_tag );
+        }
 
         iterations_ = 0;
 
         auto v_old = zero( b.space() );
-        LOG( log_tag, "Iteration: ", 1 );
+        if (getVerbosityLevel() > 1)
+            LOG( log_tag, "Iteration: ", 1 );
 
         auto v = b - H_( x );
 
@@ -68,7 +73,10 @@ namespace Spacy::Algorithm
 
         for ( unsigned step = 1; step < getMaxSteps(); step++ )
         {
-            LOG_SEPARATOR( log_tag );
+            if (getVerbosityLevel() > 1)
+            {
+                LOG_SEPARATOR( log_tag );
+            }
 
             auto Hzmv = H_( z ) - gamma * v_old;
             auto delta = z( Hzmv );
@@ -105,10 +113,12 @@ namespace Spacy::Algorithm
             c = c_new;
 
             const auto norm_r = norm( eta_old );
-            LOG( log_tag, "Norm residuum: ", norm_r );
+            if (getVerbosityLevel() > 1)
+                LOG( log_tag, "Norm residuum: ", norm_r );
             if ( convergenceTest( norm_r0, norm_r, x ) )
             {
-                LOG( log_tag, "MINRES converged in step: ", iterations_ );
+                if (verbose())
+                    LOG( log_tag, "MINRES converged in step: ", iterations_ );
                 return x;
             }
         }

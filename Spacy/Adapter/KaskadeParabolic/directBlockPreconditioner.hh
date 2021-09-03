@@ -243,18 +243,18 @@ namespace Spacy
                         if ( verbose )
                             std::cout << "Solving the adjoint equation for timestep " << i
                                       << std::endl;
-                        std::vector< double > xp( x_p_coeff.at( i ).dim(), 0. );
-                        std::vector< double > by( b_y_coeff.at( i ).dim(), 0. );
+//                         std::vector< double > xp( x_p_coeff.at( i ).dim(), 0. );
+//                         std::vector< double > by( b_y_coeff.at( i ).dim(), 0. );
 
                         //            std::cout <<i<< " RHS ADJOINT " << b_y.at(i).two_norm() <<
                         //            std::endl;
 
-                        b_y_coeff.at( i ).write( by.begin() );
+//                         b_y_coeff.at( i ).write( by.begin() );
 
                         // Solve diag^T p=b0
-                        solDiag.at( i )->op.solver->solve( by, xp, true );
+                        solDiag.at( i )->apply( x_p_coeff.at( i ), b_y_coeff.at( i ) );
 
-                        x_p_coeff.at( i ).read( xp.begin() );
+//                         x_p_coeff.at( i ).read( xp.begin() );
 
                         //            std::cout <<i<< " SOL ADJOINT " << x_p.at(i).two_norm() <<
                         //            std::endl;

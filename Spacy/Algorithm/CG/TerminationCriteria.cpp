@@ -20,7 +20,7 @@ namespace Spacy::CG::Termination
             std::cout << "      termination criterion (relative error): " << sqrt( squaredRelativeError() ) << "\n      tolerance: " << tol
                       << std::endl;
         }
-        if ( scaledGamma2.size() > getMaxSteps() || ( scaledGamma2.size() > lookAhead_ && squaredRelativeError() < tol * tol ) )
+        if ( ( scaledGamma2.size() > getMaxSteps() || ( scaledGamma2.size() > lookAhead_ && squaredRelativeError() < tol * tol ) ) && getVerbosityLevel() > 0 )
         {
             std::cout << "      termination criterion (relative error): " << sqrt( squaredRelativeError() ) << "\n      tolerance: " << tol
                       << std::endl;

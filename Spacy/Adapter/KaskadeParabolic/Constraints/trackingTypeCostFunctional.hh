@@ -36,8 +36,8 @@ namespace Kaskade
     template<int row>
     Scalar d1 (VariationalArg<Scalar,dim,AnsatzVars::template Components<row>::m> const& arg) const
     {
-      if(row==stateId) return beta*((y - y_ref) * d.d0()) * (if_(arg.value,y) * d.d0());//( (y - y_ref) * d.d0() ) * ( if_(arg.value,y) * d.d0() + y * d.d1(arg) );
-      if(row==controlId) return alpha*(u*if_(arg.value,u));
+      if(row==stateId) return beta*((y - y_ref) * d.d0()) * (arg.value/*if_(arg.value,y)*/ * d.d0());//( (y - y_ref) * d.d0() ) * ( if_(arg.value,y) * d.d0() + y * d.d1(arg) );
+      if(row==controlId) return alpha*(u*arg.value/*if_(arg.value,u)*/);
       return 0;
     }
 
@@ -45,9 +45,9 @@ namespace Kaskade
     Scalar d2 (VariationalArg<Scalar,dim,AnsatzVars::template Components<row>::m> const& arg1,
                VariationalArg<Scalar,dim,AnsatzVars::template Components<col>::m> const& arg2) const
     {
-      if(row==stateId && col==stateId) return beta*(if_(arg1.value,y)*d.d0()) * (if_(arg2.value,y)*d.d0());/*( if_(arg1.value,y) * d.d0() + y * d.d1(arg1) ) * ( if_(arg2.value,y) * d.d0() + y * d.d1(arg2) )
+      if(row==stateId && col==stateId) return beta*(arg1.value/*if_(arg1.value,y)*/*d.d0()) * (arg2.value/*if_(arg2.value,y)*/*d.d0());/*( if_(arg1.value,y) * d.d0() + y * d.d1(arg1) ) * ( if_(arg2.value,y) * d.d0() + y * d.d1(arg2) )
           + ( (y - y_ref) * d.d0() ) * ( if_(arg1.value,y) * d.d1(arg2) + if_(arg2.value,y) * d.d1(arg1) );*///if_(arg1.value,y) * if_(arg2.value,y);
-      if(row==controlId && col==controlId) return alpha*if_(arg1.value,u)*if_(arg2.value,u);
+      if(row==controlId && col==controlId) return alpha*arg1.value/*if_(arg1.value,u)*/*arg2.value/*if_(arg2.value,u)*/;
       return 0;
     }
 
@@ -104,8 +104,8 @@ namespace Kaskade
     template<int row>
     Scalar d1 (VariationalArg<Scalar,dim,AnsatzVars::template Components<row>::m> const& arg) const
     {
-      if(row==stateId) return beta*(y - y_ref) * if_(arg.value,y);
-      if(row==controlId) return alpha*(u*if_(arg.value,u));
+      if(row==stateId) return beta*(y - y_ref) * arg.value/*if_(arg.value,y)*/;
+      if(row==controlId) return alpha*(u*arg.value/*if_(arg.value,u)*/);
       return 0;
     }
 
@@ -113,8 +113,8 @@ namespace Kaskade
     Scalar d2 (VariationalArg<Scalar,dim,AnsatzVars::template Components<row>::m> const& arg1,
                VariationalArg<Scalar,dim,AnsatzVars::template Components<col>::m> const& arg2) const
     {
-      if(row==stateId && col==stateId) return beta*if_(arg1.value,y) * if_(arg2.value,y);
-      if(row==controlId && col==controlId) return alpha*if_(arg1.value,u)*if_(arg2.value,u);
+      if(row==stateId && col==stateId) return beta*arg1.value/*if_(arg1.value,y)*/ * arg2.value/*if_(arg2.value,y)*/;
+      if(row==controlId && col==controlId) return alpha*arg1.value/*if_(arg1.value,u)*/*arg2.value/*if_(arg2.value,u)*/;
       return 0;
     }
 
