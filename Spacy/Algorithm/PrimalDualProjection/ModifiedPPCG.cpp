@@ -28,10 +28,8 @@ namespace Spacy
         
         DEFINE_LOG_TAG(static const char* log_tag = "ModPPCG");
         
-        Solver::Solver(const TriangularConstraintPreconditioner& P, Operator M, OperatorWithTranspose minusB,
-                       const VectorSpace& domainIn, const VectorSpace& stateSpace, Real theta )
-        : OperatorBase( domainIn, domainIn ), P_(P), M_(M), minusB_((minusB)), stateSpace_(stateSpace), 
-        primalSpace_(M_.domain()), adjointSpace_(minusB_.range()), theta_(theta)
+        Solver::Solver(const TriangularConstraintPreconditioner& P, const Operator& My, const Operator& Mu, const OperatorWithTranspose& minusB, const VectorSpace& domainIn, const PPCG_Test& test, Real theta )
+        : OperatorBase( domainIn, domainIn ), P_(P), My_(My), Mu_(Mu), minusB_(minusB), stateSpace_(My.domain()), controlSpace_(Mu.domain()), adjointSpace_(minusB_.range()), test_(test), stee_(), theta_(theta)
         {
         }
         
@@ -67,24 +65,35 @@ namespace Spacy
             return result_ == Result::TooSingular;
         }
         
-        Vector Solver::solve( const Vector& b) const
+        Vector Solver::solve( const Vector& b ) const
         {
             
             terminate_.clear();
+            stee_.clear();
+            stee_.setLookAhead(2);
             
             iterations_ = 0;
             
             auto x = zero(domain());
+            auto y = zero(stateSpace_);
+            auto u = zero(controlSpace_);
+            auto p = zero(adjointSpace_);
             
             
             // Todo check if correct for simplified normal step
             terminate_.setEps( get( eps() ) );
+            stee_.setEps( get( eps() ) );
                         
             terminate_.setRelativeAccuracy( get( getRelativeAccuracy() ) );
             terminate_.setAbsoluteAccuracy( get( getAbsoluteAccuracy() ) );
+                        
+            stee_.setRelativeAccuracy( get( getRelativeAccuracy() ) );
+            stee_.setAbsoluteAccuracy( get( getAbsoluteAccuracy() ) );
             
-            auto H_p = zero(primalSpace_);
-            auto r = -primalSpace_.project(b); 
+            auto H_py = zero(stateSpace_);
+            auto H_pu = zero(controlSpace_);
+            auto ry = zero(stateSpace_);
+            auto ru = -controlSpace_.project(b);
             
             Real beta = 0.0;
             Real alpha = 0.0;
@@ -93,94 +102,115 @@ namespace Spacy
             std::vector<Spacy::Real> beta_vec;
             
             
-            auto g=zero(domain());
+            auto gy=zero(stateSpace_);
+            auto gu=zero(controlSpace_);
+            auto gp=zero(adjointSpace_);
             //P_.apply(g,range().embed(-r));
-            g=-P_(range().embed(r));
-            std::cout << "o" << std::flush;
+            P_(-ry,-ru,gy,gu,gp);
+            
+            if(verbose()) { std::cout << "o" << std::flush; }
             iterations_++;
             iterationsInLifeTime_++;
             
-            auto p = g;
+            auto py=gy;
+            auto pu=gu;
+            auto pp=gp;
             
-            Real sigma = -P_.getSigma();
+            Real sigma = P_.getSigma();
             
             
-//             if(sigma < 0)
-//             {
-//                 LOG_INFO(log_tag, "Fail Preconditioner not positive definite in PPCG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//                 LOG(log_tag, "sigma: ", sigma);
-//                 LOG_INFO(log_tag, "In iteration: 1");
-//                 definiteness_ = DefiniteNess::Indefinite;
-//                 result_ = Result::TruncatedAtNonConvexity;
-//                 return x;
-//             }
+            if(sigma < 0)
+            {
+                if(verbose()) LOG_INFO(log_tag, "Fail Preconditioner not positive definite in PPCG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                if(verbose()) LOG(log_tag, "sigma: ", sigma);
+                if(verbose()) LOG_INFO(log_tag, "In iteration: 1");
+                definiteness_ = DefiniteNess::Indefinite;
+                result_ = Result::TruncatedAtNonConvexity;
+                return x;
+            }
 
             // P_p  = P_(p)
-            auto P_p = r;  // required for termination criteria
+            auto P_py = ry;  // required for termination criteria
+            auto P_pu = ru;  // required for termination criteria
             
+            stee_.setRelativeAccuracy( get( getRelativeAccuracy() ) );
+//             stee_.setVerbosityLevel(2);
             terminate_.setRelativeAccuracy( get( getRelativeAccuracy() ) );
+            
+            double ratioY = 1;
+            double ratioU = 1;
             
             for(unsigned step = 1; step <= getMaxSteps(); step++)
             {
-                
-                H_p = M_(primalSpace_.project(p));
-                if(get(theta_) != 0.0) H_p+=theta_*R_(primalSpace_.project(p));
+                H_py = My_(py);
+                H_pu = Mu_(pu);
                 
                 // p_H_p = p_M_p because p is in the nullspace of tilde C
-                Real p_H_p = H_p(primalSpace_.project(p));
+                Real p_H_p = H_py(py) * ratioY + H_pu(pu) * ratioU;
                 
                 // remaining parts of H_p, which include the update of the Lagrangian multiplier
-                H_p += primalSpace_.embed( minusB_.transposed(adjointSpace_.project(p)) );
+                H_pu += minusB_.transposed(pp);
                 
                 // note that \tilde A cannot be applied, so we use the first component of -tilde P_ p
-                H_p -= primalSpace_.embed( stateSpace_.project(P_p) );
+                H_py -= P_py;
                 
-                Real p_P_p = P_p(primalSpace_.project(p));
+                Real p_P_p = P_py(py) * ratioY + P_pu(pu) * ratioU;
                 
                 
                 
                 
                 if(p_H_p < 0)
                 {
-                    LOG(log_tag, "Problem not positive definite: pHp: ", p_H_p);
-                    LOG(log_tag, "In iteration: ", step);
+                    if(verbose()) LOG(log_tag, "Problem not positive definite: pHp: ", p_H_p);
+                    if(verbose()) LOG(log_tag, "In iteration: ", step);
                     definiteness_ = DefiniteNess::Indefinite;
                     result_ = Result::TruncatedAtNonConvexity;
                     return x;
                 }
                 
-                alpha = -sigma/p_H_p;
+                alpha = sigma/p_H_p;
                 alpha_vec.push_back(get(alpha));
                 
+                stee_.update(get( alpha ), get( p_H_p ), get( p_P_p ), get( sigma ), x );
                 terminate_.update( get( alpha ), get( p_H_p ), get( p_P_p ), get( sigma ), x );
                 
                 if ( vanishingStep( step, alpha_vec, beta_vec ) )
                 {
-                    std::cout << std::endl;
+                    if(verbose()) std::cout << std::endl;
                     if ( step == 1 )
                     {
-                        x +=p;
+                        return x.space().embed(py) + x.space().embed(pu) + x.space().embed(pp);
                     }
                     result_ = Result::Converged;
                     return x;
                 }
                 
-                x += alpha * p;
-                r += alpha * H_p;
+                y += alpha * py;
+                u += alpha * pu; 
+                p += alpha * pp;
+                x  = x.space().embed(y) + x.space().embed(u) + x.space().embed(p);
+                ry += alpha * H_py;
+                ru += alpha * H_pu;
                 
-                if ( terminate_() )
+                
+                if ( stee_() )
                 {
-                    std::cout << std::endl;
+                    if(verbose())
+                    {
+                        std::cout << std::endl;
+//                         test_(y,u,p,-controlSpace_.project(b));
+//                         test_.diffVec(stateSpace_.project(x),controlSpace_.project(x),adjointSpace_.project(x));
+                    }
                     return x;
                 }
                 
-                g = -P_(range().embed(r));
+                P_(-ry,-ru,gy,gu,gp);
                 //P_.apply(g,range().embed(-r));
-                std::cout << "o" << std::flush;
+                if(verbose()) { std::cout << "o" << std::flush; }
                 iterations_++;
                 iterationsInLifeTime_++;
                 
-                Real sigmaNew = -P_.getSigma();
+                Real sigmaNew = P_.getSigma();
                                 
                 beta = sigmaNew/sigma;
                 beta_vec.push_back(get(beta));
@@ -188,21 +218,27 @@ namespace Spacy
                 sigma = sigmaNew;
                 
                 
-//                 if(sigma < 0 )
-//                 {
-//                     LOG_INFO(log_tag, "Fail: Preconditioner not positive definite in PPCG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//                     LOG(log_tag, "sigma: ", sigmaNew);
-//                     LOG(log_tag, "In iteration: ", step);
-//                     definiteness_ = DefiniteNess::Indefinite;
-//                     result_ = Result::TruncatedAtNonConvexity;
-//                     return x;
-//                 }
+                if(sigma < 0 )
+                {
+                    if(verbose()) LOG_INFO(log_tag, "Fail: Preconditioner not positive definite in PPCG !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    if(verbose()) LOG(log_tag, "sigma: ", sigmaNew);
+                    if(verbose()) LOG(log_tag, "In iteration: ", step);
+                    definiteness_ = DefiniteNess::Indefinite;
+                    result_ = Result::TruncatedAtNonConvexity;
+                    return x;
+                }
                 
-                p *= get(beta);
-                p += g;
+                py *= get(beta);
+                pu *= get(beta);
+                pp *= get(beta);
+                py += gy;
+                pu += gu;
+                pp += gp;
                 
-                P_p *= get( beta );
-                P_p += r;
+                P_py *= get( beta );
+                P_pu *= get( beta );
+                P_py += ry;
+                P_pu += ru;
             }
             result_ = Result::NotConverged;
             return x;

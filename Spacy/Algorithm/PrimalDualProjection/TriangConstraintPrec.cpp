@@ -27,56 +27,41 @@ namespace
     namespace ModifiedPPCG
     {
         TriangularConstraintPreconditioner::TriangularConstraintPreconditioner(
-            ::Spacy::LinearSolver stateSolver, ::Spacy::LinearSolver controlSolver,
-            ::Spacy::LinearSolver adjointSolver, OperatorWithTranspose minusB,
-            const VectorSpace& domain,
-            const VectorSpace& stateSpace)
-            : OperatorBase( domain, domain ), stateSolver_( std::move( stateSolver ) ),
-              controlSolver_( std::move( controlSolver ) ),
-              adjointSolver_( std::move( adjointSolver ) ), minusB_( (minusB) ),
-              stateSpace_(stateSpace),controlSpace_(minusB.domain()),adjointSpace_(minusB.range())
+            const ::Spacy::SolverBase& stateSolver, const Operator& controlSolver,
+            const ::Spacy::SolverBase& adjointSolver, const OperatorWithTranspose& minusB,
+            const VectorSpace& domain)
+            : OperatorBase( domain, domain ), stateSolver_( stateSolver ),
+              controlSolver_( controlSolver ),
+              adjointSolver_( adjointSolver ), minusB_( (minusB) ),
+              stateSpace_(stateSolver.range()),controlSpace_(controlSolver.domain()),adjointSpace_(minusB.range())
         {
         }
 
-        Vector TriangularConstraintPreconditioner::operator()(Vector x ) const
+        void TriangularConstraintPreconditioner::operator()(Vector y, Vector u , Vector& outy, Vector& outu, Vector& outp) const
         {
-            auto out = zero( domain() );
-
-            apply(out, std::move(x) );
-
-            return out;
+            apply(outy, outu, outp, std::move(y), std::move(u) );
         }
 
         void TriangularConstraintPreconditioner::setSpectralBounds(double eigMin, double eigMax) 
         {
-            cast_ref<::Spacy::Preconditioner::Chebyshev>(adjointSolver_).setSpectralBounds(eigMin,eigMax);
-            cast_ref<::Spacy::Preconditioner::Chebyshev>(stateSolver_).setSpectralBounds(eigMin,eigMax);
+//             cast_ref<::Spacy::Preconditioner::Chebyshev>(adjointSolver_).setSpectralBounds(eigMin,eigMax);
+//             cast_ref<::Spacy::Preconditioner::Chebyshev>(stateSolver_).setSpectralBounds(eigMin,eigMax);
         }
 
         
-        void TriangularConstraintPreconditioner::apply( Vector& out, Vector&& in ) const
+        void TriangularConstraintPreconditioner::apply( Vector& outy, Vector& outu, Vector& outp, Vector&& iny, Vector&& inu ) const
         {
-            out = domain().embed( adjointSolver_( stateSpace_.project(in)) );
+            outp = adjointSolver_( iny );
+            iterations_ += adjointSolver_.getIterations();
             
-            if(is< ::Spacy::CG::Solver >( adjointSolver_ ) && ::Spacy::cast_ref<::Spacy::CG::Solver >(adjointSolver_).indefiniteOperator())
-            {
-                signalConvex_(true,false);
-                std::cout << "Fail: AT in Preconditioner indefinite!!!!!!!!!!!!!!!" << std::endl;
-            }
+            inu -= minusB_.transposed( outp );
+            outu = controlSolver_( inu );
             
-            in -= domain().embed( minusB_.transposed( adjointSpace_.project(out)) );
-            auto u = controlSolver_( controlSpace_.project(in));
-            sigma_ = u( controlSpace_.project(in));
-            out += domain().embed(u);
+            sigma_ = outu( inu );
             
-            in -= domain().embed( minusB_(u) );
-            out += domain().embed(stateSolver_( adjointSpace_.project(in) ));
-            
-            if(is< ::Spacy::CG::Solver >( stateSolver_ ) && ::Spacy::cast_ref<::Spacy::CG::Solver >(stateSolver_).indefiniteOperator())
-            {
-                signalConvex_(true,false);
-                std::cout << "Fail: A in Preconditioner indefinite!!!!!!!!!!!!!!!" << std::endl;
-            }
+            auto inp = -minusB_(outu);
+            outy = stateSolver_( inp );
+            iterations_ += stateSolver_.getIterations();
         }
 
 

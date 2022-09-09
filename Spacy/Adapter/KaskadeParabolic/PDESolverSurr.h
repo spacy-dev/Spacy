@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Spacy/Util/Mixins.h>
-
 #include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 #include <Spacy/ZeroVectorCreator.h>
@@ -13,94 +12,121 @@ namespace Spacy::KaskadeParabolic
 {
     template <class DomainDescription, class RangeDescription, class CallableLinearOperator, class Prec>
     class SurrogateSolver :
+            public OperatorBase,
             public Mixin::Eps,
             public Mixin::MaxSteps,
             public Mixin::RelativeAccuracy,
             public Mixin::Verbosity
     {
+        
     public:
-        SurrogateSolver(const CallableLinearOperator& A, Prec P, const std::vector< Real > dtVec, bool forward = true)
-        : A_(A), P_(P), dtVec_(dtVec), forward_(forward)
+        SurrogateSolver(const CallableLinearOperator& A, Prec& P, const GridManager< typename DomainDescription::Spaces >& gm, bool forward = true)
+        : OperatorBase(A.range(),A.domain()), A_(A), P_(P), gm_(gm), forward_(forward), iterations_(0)
         {
-            
         }
         
         Spacy::Vector operator()(const Spacy::Vector& b) const
         {
-            checkSpaceCompatibility(P_.domain(),b.space());
+            checkSpaceCompatibility(domain(),b.space());
             
-            auto x = zero(A_.domain());
+            auto x = zero(range());
+            auto rhs_ = zero(domain());
+            
+            auto dtVec_ = gm_.getTempGrid().getDtVec();
+            auto N = dtVec_.size();
+            
+            int local_iterations_ = 0;
     
             if (forward_)
             {
-                for (int t = 1; t < dtVec_.size(); t++)
-                {
+                for (int t = 1; t < N; t++)
+                {   
                     Real dt = dtVec_.at(t);
 
-                    auto& xt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDescription > >( x ).get_nonconst(t);
-                    auto xlt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDescription > >( x ).get(t-1);
+                    auto& xt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDescription > >( x ).getCoeffVec_nonconst(t);
+                    auto xlt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDescription > >( x ).getCoeffVec(t-1);
                     
-                    auto rhs_ = zero(b.space());
-                    auto& rhs_t = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs_ ).get_nonconst(t);
+                    auto& rhs_t = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs_ ).getCoeffVec_nonconst(t);
                     
-                    auto Ax = A_.applyFor(x,t-1,t);
-                    auto Axt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( Ax ).get(t-1);
-                    auto bt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( b ).get(t);
-                    
+                    auto Ax = A_.applyFor(x,t-1,t); 
+                    const auto& Axt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( Ax ).getCoeffVec(t-1);
+                    const auto& bt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( b ).getCoeffVec(t);
                     
                     rhs_t = bt;
                     rhs_t -= Axt;
-                    rhs_ *= dt.get();
                     
-                    auto rhs = P_.applyFor(rhs_,t,t+1);
+                    auto rhs = dt.get() * P_.applyFor(rhs_,t,t+1);
+                    const auto& rhst = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs ).getCoeffVec(t);
                     
-                    //x_{t} = x_{t-1} + P( dt*b - dt*A x_{t-1} )
+                    //x_{t} = x_{t-1} + dt * P( b - A x_{t-1} )
                     xt = xlt;
-                    x += rhs;
+                    xt += rhst;
+                    
+                    
+                    local_iterations_++;
                 }
             }
             else
             {
-                for (int t = dtVec_.size()-2; t >= 0; t--)
+                const auto& bt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( b ).getCoeffVec(N-1);
+                auto& rhs_t = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs_ ).getCoeffVec_nonconst(N-1);
+                rhs_t = bt;
+                
+                //x_{N-1} = dt * P(b)
+                x += dtVec_.at(N-1).get() * P_.applyFor(rhs_,N-1,N);
+                
+                for (int t = N-2; t >= 1; t--)
                 {
-                    Real dt = dtVec_.at(t+1);
-
-                    auto& xt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDescription > >( x ).get_nonconst(t);
-                    auto xlt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDescription > >( x ).get(t+1);
                     
-                    auto rhs_ = zero(b.space());
-                    auto& rhs_t = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs_ ).get_nonconst(t);
+                    Real dt = dtVec_.at(t);
+
+                    auto& xt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDescription > >( x ).getCoeffVec_nonconst(t);
+                    auto xlt = cast_ref< Spacy::KaskadeParabolic::Vector< DomainDescription > >( x ).getCoeffVec(t+1);
+                    
+                    auto& rhs_t = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs_ ).getCoeffVec_nonconst(t);
                     
                     auto Ax = A_.applyFor(x,t+1,t+2);
-                    auto Axt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( Ax ).get(t+1);
-                    auto bt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( b ).get(t);
+                    const auto& Axt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( Ax ).getCoeffVec(t+1);
                     
+                    const auto& bt = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( b ).getCoeffVec(t);
                     
                     rhs_t = bt;
                     rhs_t -= Axt;
-                    rhs_ *= dt.get();
                     
-                    auto rhs = P_.applyFor(rhs_,t,t+1);
+                    auto rhs = dt.get() * P_.applyFor(rhs_,t,t+1);
+                    const auto& rhst = cast_ref< Spacy::KaskadeParabolic::Vector< RangeDescription > >( rhs ).getCoeffVec(t);
                     
-                    //x_{t} = x_{t+1} + P( dt*b - dt*A x_{t+1} )
+                    //x_{t} = x_{t+1} + dt * P( b - A x_{t+1} )
                     xt = xlt;
-                    x += rhs;
+                    xt += rhst;
+                    
+                    
+                    local_iterations_++;
                 }
             }
+            
+            iterations_ = local_iterations_;
+            
             return x;
         }
         
+        unsigned getIterations() const
+        {
+            return iterations_;
+        }
+        
     private:
-        CallableLinearOperator A_;
-        Prec P_;
-        std::vector< Real > dtVec_{};
+        const CallableLinearOperator& A_;
+        Prec& P_;
+        const GridManager< typename DomainDescription::Spaces >& gm_;
         bool forward_;
+        mutable int iterations_;
     };
     
     template<class DomainDescription, class RangeDescription, class CallableLinearOperator, class Prec>
-    auto makeSurrogatePDESolver( const CallableLinearOperator& A, const Prec& P, const std::vector< Real > dtVec, bool forward = true )
+    auto makeSurrogatePDESolver( const CallableLinearOperator& A, Prec& P, const GridManager< typename RangeDescription::Spaces >& gm, bool forward = true )
     {
-        return SurrogateSolver<DomainDescription,RangeDescription,CallableLinearOperator,Prec>(A,P,dtVec,forward);
+        return SurrogateSolver<DomainDescription,RangeDescription,CallableLinearOperator,Prec>(A,P,gm,forward);
     }
 
 } //Spacy::KaskadeParabolic

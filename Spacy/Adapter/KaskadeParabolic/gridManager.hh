@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <boost/fusion/tuple.hpp>
+#include <boost/signals2.hpp>
 
 #include <dune/grid/config.h>
 #include <dune/grid/io/file/vtk/vtkwriter.hh>
@@ -19,6 +20,8 @@
 #include "fem/variables.hh"
 #include "utilities/gridGeneration.hh" //  createUnitSquare
 #include "utilities/kaskopt.hh"
+
+#include "/home/nuss/98/bt702998/Spacy/Examples/Kaskade/createSimpleGeometries.hh"
 
 //#include "ScalarProduct.h"
 #include "tempGrid.hh"
@@ -51,6 +54,8 @@ namespace Spacy
             using H1Space =
                 typename std::remove_reference< decltype( *std::declval< H1Space_ptr >() ) >::type;
             using Grid = typename H1Space::Grid;
+            using Signal = ::boost::signals2::signal< void( unsigned ) >;
+            using OnRefimenentSlotType = Signal::slot_type;
             static constexpr int dim = Grid::dimension;
 
             GridManager() = delete;
@@ -68,9 +73,9 @@ namespace Spacy
              * (higher lambda -> more points at beginning of interval
                    *
                    */
-            GridManager( unsigned N, Real T, unsigned initialRefinements = 4, unsigned FEorder = 1,
+            GridManager( unsigned N, Real T, unsigned initialRefinements = 4, unsigned dim = 2, unsigned FEorder = 1,
                          ::std::string gridType = "uniform", Real lambda = Real{-0.1} )
-                : initialRefinements_( initialRefinements ), FEorder_( FEorder )
+                : initialRefinements_( initialRefinements ), FEorder_( FEorder ), dim_(dim)
             {
                 /// uniform temporal grid
                 if ( gridType == "uniform" )
@@ -81,21 +86,15 @@ namespace Spacy
                     tgptr_ = std::make_shared< TempGrid >( TempGrid( Real{0}, T, N ) );
                 }
 
-                /// exponential temporal grid
-                if ( gridType == "exponential" )
-                {
-                    if ( verbose )
-                        std::cout << "generating exponential Grid with " << N << " points on [0,"
-                                  << T << "]" << std::endl;
-                    tgptr_ = std::make_shared< TempGrid >( TempGrid( Real{0}, T, N, lambda ) );
-                }
-
                 /// Spatial grid generation
                 gm_.reserve( N );
                 for ( auto i = 0u; i < N; i++ )
                 {
-                    gm_.push_back( std::make_shared<::Kaskade::GridManager< Grid > >(
-                        ::Kaskade::createUnitSquare< Grid >( 1., false ) ) );
+//                     if(dim_==2)
+                    gm_.push_back( std::make_shared<::Kaskade::GridManager< Grid > >( ::Kaskade::createUnitSquare< Grid >( 1., false ) ) );
+//                     if(dim_==3)
+//                     gm_.push_back( std::make_shared<::Kaskade::GridManager< Grid > >( createPlate<Grid>(1.,1.,1.,1.) ) );
+                    
                     gm_.at( i )->globalRefine( initialRefinements );
                     gm_.at( i )->enforceConcurrentReads( true );
                     //          std::cout << "Size of grid at timestep " << i << ": " <<
@@ -113,6 +112,8 @@ namespace Spacy
                     spacesVec_.emplace_back(
                         std::make_shared< Spaces >( Spaces( &( *spacesVecHelper_.at( i ) ) ) ) );
                 }
+                
+                S_ = std::make_shared< Signal >( Signal() );
             }
 
             /// Move constructor.
@@ -264,7 +265,47 @@ namespace Spacy
 
                 return spacesVec_.back();
             }
+            
+            /**
+            * @brief Refine the time grid
+            * @param N number of timesteps for new grid
+            * @return Kaskade Spaces that has been constructed for the new time grid vertex
+            */
+            void refineGrid( unsigned N )
+            {
+                assert(N > gm_.size());
+                /// refine the time grid
+                tgptr_->refineGrid( N );
 
+                for (int t = gm_.size(); t<N; t++)
+                {
+                    /// construct new Kaskade Gridmanager for this new timestep
+                    gm_.push_back(std::move( std::make_shared<::Kaskade::GridManager< Grid > >(
+                                    ::Kaskade::createUnitSquare< Grid >( 1., false ) ) ) );
+                    gm_.at( t )->globalRefine( initialRefinements_ );
+                    gm_.at( t )->enforceConcurrentReads( true );
+
+                    /// construct new Spaces for this new timestep
+                    spacesVecHelper_.emplace_back( std::make_shared< H1Space >(
+                        H1Space( *gm_.at(t), gm_.at( t )->grid().leafGridView(), FEorder_ ) ) );
+                    spacesVec_.emplace_back(
+                        std::make_shared< Spaces >( Spaces( &( *( spacesVecHelper_.back() ) ) ) ) );
+                }
+                
+                this->S_->operator()( N ); 
+            }
+            
+            void globalRefine( unsigned refinements )
+            {
+                for (int i=0; i<spacesVec_.size(); i++)
+                {
+                    gm_.at(i)->globalRefine(refinements);
+                }
+            }
+
+            
+            std::shared_ptr< Signal > S_;
+            const unsigned dim_;
         private:
             bool verbose = false;
             std::shared_ptr< TempGrid > tgptr_ = nullptr;
@@ -272,6 +313,7 @@ namespace Spacy
             std::vector< std::shared_ptr< H1Space > > spacesVecHelper_{};
             std::vector< std::shared_ptr< Spaces > > spacesVec_{};
             unsigned initialRefinements_, FEorder_;
+            
         };
     }
 }

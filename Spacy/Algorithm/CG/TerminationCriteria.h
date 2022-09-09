@@ -71,10 +71,10 @@ namespace Spacy::CG::Termination
          */
         [[nodiscard]] bool minimalDecreaseAchieved() const noexcept;
 
-    private:
+    
         /// returns the estimated sqaured absolute energy error
         [[nodiscard]] double squaredRelativeError() const noexcept;
-
+private:
         unsigned lookAhead_ = 5;
         std::vector< double > scaledGamma2 = std::vector< double >{};
         double energyNorm2 = 0;

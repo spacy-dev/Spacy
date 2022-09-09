@@ -1,12 +1,15 @@
 #pragma once
 
+// #include <chrono>
+
 // #include "Copy.h"
 // #include "DirectSolver.h"
 // #include "OperatorSpace.h"
 // #include "Util/NumaMatrixAsOperator.h"
-#include "linalg/triplet.hh"
+// #include "linalg/triplet.hh"
 #include "fem/assemble.hh"
 #include "fem/istlinterface.hh"
+#include <boost/signals2.hpp>
 
 #include "c2Functional.hh"
 
@@ -51,12 +54,12 @@ namespace Spacy::KaskadeParabolic
             * @param domain domain space
             * @param range range space
             */
-        MatrixLinearOperator(Functional& f, const VectorSpace& domain, const VectorSpace& range, int rB, int rE, int dB, int dE, int tEnd )
+        MatrixLinearOperator(Functional& f, const VectorSpace& domain, const VectorSpace& range, int rB, int rE, int dB, int dE )
         : OperatorBase( domain,range),
         domainspaces_( creator< VectorCreator<DomainDescription> >(domain).getSpace(0) ),
-        rangespaces_( creator< VectorCreator<RangeDescription> >( range ).getSpace(0) ), tEnd_(tEnd)
+        rangespaces_( creator< VectorCreator<RangeDescription> >( range ).getSpace(0) ), f_(f)
         { 
-            for (int t = 0; t < tEnd_; t++)
+            for (int t = 0; t < f.getGridMan().getTempGrid().getDtVec().size(); t++)
             {
                 A_.push_back( OperatorMatrixRepresentation(f.assembler(t).template get<Matrix>(false,rB,rE,dB,dE)) );
             }
@@ -69,7 +72,7 @@ namespace Spacy::KaskadeParabolic
             
             auto y = zero( range() );
             
-            for (int t=0; t<tEnd_; t++)
+            for (int t=0; t<f_.getGridMan().getTempGrid().getDtVec().size(); t++)
             {
                 Domain x_( DomainDescription::template CoefficientVectorRepresentation<>::init(domainspaces_) );
                 Range y_( RangeDescription::template CoefficientVectorRepresentation<>::init(rangespaces_) );
@@ -96,7 +99,7 @@ namespace Spacy::KaskadeParabolic
                 Range y_( RangeDescription::template CoefficientVectorRepresentation<>::init(rangespaces_) );
                 
                 boost::fusion::at_c< 0 >( x_.data ) = cast_ref< DomainVector >(x).getCoeffVec(t);
-                                
+                
                 A_.at(t).apply( x_, y_ );
                 
                 cast_ref< RangeVector >(y).getCoeffVec_nonconst(t) = boost::fusion::at_c< 0 >( y_.data );
@@ -120,7 +123,7 @@ namespace Spacy::KaskadeParabolic
         std::vector<OperatorMatrixRepresentation> A_;
         DomainSpaces domainspaces_;
         RangeSpaces rangespaces_;
-        int tEnd_;
+        const Functional& f_;
     };
     
     template< class DomainDescription,class RangeDescription, class Functional >
@@ -129,7 +132,15 @@ namespace Spacy::KaskadeParabolic
         auto& d=domain.getEmbeddingIn(f.domain());
         auto& r=range.getEmbeddingIn(f.domain());
         return MatrixLinearOperator<DomainDescription,RangeDescription,Functional>
-                (f,domain,range,r.getCBegin(),r.getCEnd(),d.getCBegin(),d.getCEnd(),f.getGridMan().getTempGrid().getDtVec().size());
+                (f,domain,range,r.getCBegin(),r.getCEnd(),d.getCBegin(),d.getCEnd());
+    }
+    
+    template< class DomainDescription, class Functional >
+    auto makeSymmetricMatrixBlock(Functional& f,const VectorSpace& domain)
+    {
+        auto& d=domain.getEmbeddingIn(f.domain());
+        return MatrixLinearOperator<DomainDescription,DomainDescription,Functional>
+                (f,domain,domain,d.getCBegin(),d.getCEnd(),d.getCBegin(),d.getCEnd());
     }
     
     
@@ -144,6 +155,11 @@ namespace Spacy::KaskadeParabolic
     {
         using Assembler = ::Kaskade::VariationalFunctionalAssembler<
             ::Kaskade::LinearizationAt< FunctionalDefinition > >;
+            
+        using VariableSetDescription = typename FunctionalDefinition::AnsatzVars;
+        using ScalProdDefinition = OCP::ScalarProdFunctional< double, VariableSetDescription >;
+        using AssemblerSP = ::Kaskade::VariationalFunctionalAssembler<
+            ::Kaskade::LinearizationAt< ScalProdDefinition > >;
 
     public:
         using TDomainDescription = typename Assembler::AnsatzVariableSetDescription;
@@ -201,28 +217,54 @@ namespace Spacy::KaskadeParabolic
         };
         
 
-        CallableLinearOperator(Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, 
-            const VectorSpace& domain, const VectorSpace& range, int tEnd, int nThreads=1 )
+        CallableLinearOperator(const Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, 
+            const VectorSpace& domain, const VectorSpace& range, bool stiff=true, int nThreads=1 )
         : OperatorBase( domain,range),
-        nThreads_(nThreads), tEnd_(tEnd), f_(f), embeddingD_(domain.getEmbeddingIn(f.domain())), embeddingR_(range.getEmbeddingIn(f.domain()))
+        nThreads_(nThreads), f_(f), embeddingD_(domain.getEmbeddingIn(f.domain())), embeddingR_(range.getEmbeddingIn(f.domain())), stiff_(stiff)
         {
-            for (int t = 0; t < tEnd_; t++)
+            for (int t = 0; t < f_.getGridMan().getTempGrid().getDtVec().size(); t++)
             {
-                blocks.push_back(boost::fusion::transform(::Kaskade::IstlInterfaceDetail::AllBlocks<Assembler>::apply(f.assembler(t)),
+                if (stiff)
+                    blocks.push_back(boost::fusion::transform(::Kaskade::IstlInterfaceDetail::AllBlocks<Assembler>::apply(f.assembler(t)),
+                                                            Translate(embeddingD_,embeddingR_,nThreads)));
+                else
+                    blocksSP.push_back(boost::fusion::transform(::Kaskade::IstlInterfaceDetail::AllBlocks<AssemblerSP>::apply(f.assemblerSP(t)),
                                                             Translate(embeddingD_,embeddingR_,nThreads)));
             }
             bufferD_=zero(f.domain());
             bufferR_=zero(f.domain());
+            
+            c = f.getGridMan().S_->connect(3,[this]( unsigned N ) { return this->update(N); } );
         };
-                    
-        ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const
+        
+        /// Destructor
+        ~CallableLinearOperator()
         {
+            c.disconnect();
+        }
+        
+        ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const
+        {       using namespace std::chrono;
                 checkSpaceCompatibility(x.space(),domain());
-                bufferD_ = bufferD_.space().embed(x);
+//                 auto startTime = high_resolution_clock::now();
+//                 CALLGRIND_TOGGLE_COLLECT;
+                bufferD_ = f_.domain().embed(x);
+//                 CALLGRIND_TOGGLE_COLLECT;
+//                 auto endTime = high_resolution_clock::now() - startTime;
                 
-                for (int t = 0; t < tEnd_; t++)
-                    ::boost::fusion::for_each(blocks.at(t),ApplyScaleAdd(1.0,bufferD_,bufferR_,true,embeddingD_,embeddingR_,t) );
- 
+                if(stiff_)
+                    for (int t = 0; t < f_.getGridMan().getTempGrid().getDtVec().size(); t++)
+                    {
+                        ::boost::fusion::for_each(blocks.at(t),ApplyScaleAdd(1.0,bufferD_,bufferR_,true,embeddingD_,embeddingR_,t));
+                    }
+                else
+                    for (int t = 0; t < f_.getGridMan().getTempGrid().getDtVec().size(); t++)
+                    {
+                        ::boost::fusion::for_each(blocksSP.at(t),ApplyScaleAdd(1.0,bufferD_,bufferR_,true,embeddingD_,embeddingR_,t));
+                    }
+                    
+//                 std::cout << "Zeit embed: " << duration_cast< milliseconds >( endTime ).count() << "ms, " << duration_cast< microseconds >( endTime ).count() % 1000 << "mics." << std::endl;
+                
                 return range().project(bufferR_);
         }
 
@@ -231,8 +273,12 @@ namespace Spacy::KaskadeParabolic
                 checkSpaceCompatibility(x.space(),range());
                 bufferR_ = bufferR_.space().embed(x);
                 
-                for (int t = 0; t < tEnd_; t++)
-                    ::boost::fusion::for_each(blocks.at(t),ApplyScaleAddT(1.0,bufferR_,bufferD_,true,embeddingR_,embeddingD_,t));
+                if(stiff_)
+                    for (int t = 0; t < f_.getGridMan().getTempGrid().getDtVec().size(); t++)
+                        ::boost::fusion::for_each(blocks.at(t),ApplyScaleAddT(1.0,bufferR_,bufferD_,true,embeddingR_,embeddingD_,t));
+                else
+                    for (int t = 0; t < f_.getGridMan().getTempGrid().getDtVec().size(); t++)
+                        ::boost::fusion::for_each(blocksSP.at(t),ApplyScaleAddT(1.0,bufferR_,bufferD_,true,embeddingR_,embeddingD_,t));
                 
                 return domain().project(bufferD_);
         }
@@ -241,10 +287,14 @@ namespace Spacy::KaskadeParabolic
         {
                 checkSpaceCompatibility(x.space(),domain());
                 bufferD_ = bufferD_.space().embed(x);
-                
-                for (int t = tBegin; t < tEnd; t++)
-                    ::boost::fusion::for_each(blocks.at(t),ApplyScaleAdd(1.0,bufferD_,bufferR_,true,embeddingD_,embeddingR_,t) );
  
+                if(stiff_)
+                    for (int t = tBegin; t < tEnd; t++)
+                        ::boost::fusion::for_each(blocks.at(t),ApplyScaleAdd(1.0,bufferD_,bufferR_,true,embeddingD_,embeddingR_,t));
+                else
+                    for (int t = tBegin; t < tEnd; t++)
+                        ::boost::fusion::for_each(blocksSP.at(t),ApplyScaleAdd(1.0,bufferD_,bufferR_,true,embeddingD_,embeddingR_,t));
+                
                 return range().project(bufferR_);
         }
 
@@ -253,29 +303,68 @@ namespace Spacy::KaskadeParabolic
                 checkSpaceCompatibility(x.space(),range());
                 bufferR_ = bufferR_.space().embed(x);
                 
-                for (int t = tBegin; t < tEnd; t++)
-                    ::boost::fusion::for_each(blocks.at(t),ApplyScaleAddT(1.0,bufferR_,bufferD_,true,embeddingR_,embeddingD_,t));
+                if(stiff_)
+                    for (int t = tBegin; t < tEnd; t++)
+                        ::boost::fusion::for_each(blocks.at(t),ApplyScaleAddT(1.0,bufferR_,bufferD_,true,embeddingR_,embeddingD_,t));
+                else
+                    for (int t = tBegin; t < tEnd; t++)
+                        ::boost::fusion::for_each(blocksSP.at(t),ApplyScaleAddT(1.0,bufferR_,bufferD_,true,embeddingR_,embeddingD_,t));
                 
                 return domain().project(bufferD_);
         }
             
+        void update(unsigned N)
+        {
+            if(stiff_)
+            {
+                blocks.clear();
+                blocks.reserve(N);
+                
+                while(blocks.size() < N)
+                {
+                        blocks.push_back(boost::fusion::transform(::Kaskade::IstlInterfaceDetail::AllBlocks<Assembler>::apply(f_.assembler(blocks.size())),
+                                                                Translate(embeddingD_,embeddingR_,nThreads_)));
+                }
+            }
+            else
+            {
+                blocksSP.clear();
+                blocksSP.reserve(N);
+                
+                while(blocksSP.size() < N)
+                {
+                        blocksSP.push_back(boost::fusion::transform(::Kaskade::IstlInterfaceDetail::AllBlocks<AssemblerSP>::apply(f_.assemblerSP(blocksSP.size())),
+                                                                Translate(embeddingD_,embeddingR_,nThreads_)));
+                }
+            }
+        }
         
         template<class Matrix>
         Matrix get(int t) const
         {
-            return f_.assembler(t).template get< Matrix >(false,embeddingR_.getCBegin(),embeddingR_.getCEnd(),embeddingD_.getCBegin(),embeddingD_.getCEnd());
+            if(stiff_)
+                return f_.assembler(t).template get< Matrix >(false,embeddingR_.getCBegin(),embeddingR_.getCEnd(),embeddingD_.getCBegin(),embeddingD_.getCEnd());
+            else
+                return f_.assemblerSP(t).template get< Matrix >(false,embeddingR_.getCBegin(),embeddingR_.getCEnd(),embeddingD_.getCBegin(),embeddingD_.getCEnd());
         }
 
         
     private:
         mutable ::Spacy::Vector bufferD_, bufferR_;
-        int nThreads_, tEnd_;
-        Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f_;
-        const Spacy::SubSpaceRelation &embeddingD_, &embeddingR_;             
+        int nThreads_;
+        const Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f_;
+        const Spacy::SubSpaceRelation &embeddingD_, &embeddingR_;     
+        bool stiff_;
+        boost::signals2::connection c;
         
         typedef typename boost::fusion::result_of::as_vector<typename ::Kaskade::IstlInterfaceDetail::AllBlocks<Assembler>::result>::type allblocks;
         
         std::vector< typename boost::fusion::result_of::as_vector<typename boost::fusion::result_of::transform<allblocks,Translate>::type>::type > blocks;
+        
+        typedef typename boost::fusion::result_of::as_vector<typename ::Kaskade::IstlInterfaceDetail::AllBlocks<AssemblerSP>::result>::type allblocksSP;
+        
+        std::vector< typename boost::fusion::result_of::as_vector<typename boost::fusion::result_of::transform<allblocksSP,Translate>::type>::type > blocksSP;
+        
         
         
         struct ApplyScaleAdd 
@@ -393,15 +482,15 @@ namespace Spacy::KaskadeParabolic
     };
     
     template< class FunctionalDefinition>
-    auto makeCallableBlock(Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, const VectorSpace& domain, const VectorSpace& range, int nThreads=1)
+    auto makeCallableBlock(const Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, const VectorSpace& domain, const VectorSpace& range, bool stiff=true, int nThreads=1)
     {
-        return CallableLinearOperator<FunctionalDefinition>(f,domain, range, f.getGridMan().getTempGrid().getDtVec().size(), nThreads);
+        return CallableLinearOperator<FunctionalDefinition>(f,domain, range, stiff, nThreads);
     }
     
     template< class FunctionalDefinition>
-    auto makeSymmetricCallableBlock(Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, const VectorSpace& domain, int nThreads=1)
+    auto makeSymmetricCallableBlock(const Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, const VectorSpace& domain, bool stiff=true, int nThreads=1)
     {
-        return CallableLinearOperator<FunctionalDefinition>(f,domain, domain, f.getGridMan().getTempGrid().getDtVec().size(), nThreads);
+        return CallableLinearOperator<FunctionalDefinition>(f,domain, domain, stiff, nThreads);
     }
 } // namespace Spacy::KaskadeParabolic
 /** @} */

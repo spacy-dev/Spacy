@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <boost/signals2.hpp>
 
 #include "fem/assemble.hh"
 #include "fem/istlinterface.hh"
@@ -95,6 +96,8 @@ namespace Spacy
             using VectorImplP = Vector< VPSetDescription >;
 
             using PSV = ::Spacy::ProductSpace::Vector;
+            
+            using Signal = ::boost::signals2::signal< void( unsigned ) >;
 
             /**
                    * @brief Construct a twice differentiable dynamical functional \f$f: X\rightarrow
@@ -109,12 +112,19 @@ namespace Spacy
                           const VectorSpace& domain )
                 : FunctionalBase( domain ), f_( f ), gm_( gm ),
                   y0_( VYSetDescription::template CoefficientVectorRepresentation<>::init(
-                      *gm_.getSpacesVec().at( 0 ) ) )
+                      *gm_.getSpacesVec().at( 0 ) ) ), dim_(gm.dim_)
             {
                 if ( verbose )
                     std::cout << "C2 functional built with " << gm.getSpacesVec().size()
                               << std::endl;
                 this->resizeMembers();
+                
+                S_ = std::make_shared< Signal >( Signal() );
+                
+                // connect to Signal of domain
+                auto& creator_ = creator< VectorCreator< VariableSetDescription > >( domain );
+                this->c = gm.S_->connect(2,
+                    [this]( unsigned N ) { return this->informAboutGrid( N ); } );
             }
 
             /**
@@ -146,6 +156,13 @@ namespace Spacy
                    * @param x argument
                    * @return \f$f(x)\f$
                    */
+            
+            /// Destructor
+            ~C2Functional()
+            {
+                c.disconnect();
+            }
+            
             Real operator()( const ::Spacy::Vector& x ) const
             {
                 if ( verbose )
@@ -192,7 +209,6 @@ namespace Spacy
 
                 if ( hessian_updated || !H_ptr )
                     makeHessianLBOPointer();
-
                 return *H_ptr;
             }
             
@@ -206,12 +222,12 @@ namespace Spacy
                 return onlyLowerTriangle_;
             }
             
-            const Assembler& assembler(int i) 
+            const Assembler& assembler(int i) const
             {
                 return assembler_.at(i);
             }
             
-            const AssemblerSP& assemblerSP(int i) 
+            const AssemblerSP& assemblerSP(int i) const
             {
                 return assemblersp_.at(i);
             }
@@ -250,6 +266,8 @@ namespace Spacy
                    */
             void informAboutRefinement( unsigned k )
             {
+                unsigned dim = dim_;
+                
                 if ( verbose )
                     std::cout << "C2Functional got informed about refinement" << std::endl;
                 A_.insert( A_.begin() + k, Atype() );
@@ -260,7 +278,7 @@ namespace Spacy
                 Mu_.insert( Mu_.begin() + k, Mutype() );
                 Mass_diag_.insert( Mass_diag_.begin() + k, Masstype() );
                 Mass_sd_.insert( Mass_sd_.begin() + k, Masstype() );
-                MassAssembled_.insert( MassAssembled_.begin() + k, false );
+                MassAssembled_.push_back( /*MassAssembled_.begin() + k,*/ false ); // insert?
 
                 value_i_.insert( value_i_.begin() + k, 0 );
 
@@ -269,17 +287,79 @@ namespace Spacy
                 OpAssembled_ = false;
 
                 auto insertedSpace = gm_.getSpacesVec().at( k );
+                
+                assembler_.push_back( Assembler( *insertedSpace )  ); // insert?
+                assemblersp_.push_back( AssemblerSP( *insertedSpace )  ); // insert?
+                
                 typename VariableSetDescription::VariableSet x_ref( *insertedSpace );
                 ::Kaskade::interpolateGloballyWeak<::Kaskade::PlainAverage >(
                     ::boost::fusion::at_c< 0 >( x_ref.data ),
-                    ::Kaskade::makeWeakFunctionView( []( auto const& cell, auto const& xLocal )
+                    ::Kaskade::makeWeakFunctionView( [dim]( auto const& cell, auto const& xLocal )
                                                          -> ::Dune::FieldVector< double, 1 > {
                         auto x = cell.geometry().global( xLocal );
-                        return Dune::FieldVector< double, 1 >( 12 * ( 1 - x[ 1 ] ) * x[ 1 ] *
-                                                               ( 1 - x[ 0 ] ) * x[ 0 ] );
+                        double ref = 12.;
+                        for(int j = 0; j < dim; j++)
+                        {
+                            ref *= ( 1 - x[ j ] ) * x[ j ];
+                        }
+                        return Dune::FieldVector< double, 1 >( ref );
                     } ) );
 
                 fVec_.insert( fVec_.begin() + k, f_( x_ref ) );
+            }
+            
+            /**
+            * @brief Tell the operator about the new temporal grid 
+            * @param N number of time steps of new Grid
+            */
+            void informAboutGrid( unsigned N )
+            {
+                unsigned dim = dim_;
+                
+                if ( verbose )
+                    std::cout << "C2Functional got informed about refinement" << std::endl;
+                for (int i=assembler_.size(); i<N; i++)
+                {
+                    A_.push_back( Atype() );
+                    B_.push_back( Btype() );
+                    A_t_.push_back( ATtype() );
+                    B_t_.push_back( BTtype() );
+                    My_.push_back( Mytype() );
+                    Mu_.push_back( Mutype() );
+                    Mass_diag_.push_back( Masstype() );
+                    Mass_sd_.push_back( Masstype() );
+                    MassAssembled_.push_back( false );
+
+                    value_i_.push_back( 0 );
+
+                    HessAssembled_ = false;
+                    GradAssembled_ = false;
+                    OpAssembled_ = false;
+
+                    auto insertedSpace = gm_.getSpacesVec().at( i );
+                    
+                    assembler_.push_back( Assembler( *insertedSpace )  );
+                    assemblersp_.push_back( AssemblerSP( *insertedSpace )  );
+                    
+                    typename VariableSetDescription::VariableSet x_ref( *insertedSpace );
+                    ::Kaskade::interpolateGloballyWeak<::Kaskade::PlainAverage >(
+                        ::boost::fusion::at_c< 0 >( x_ref.data ),
+                        ::Kaskade::makeWeakFunctionView( [dim]( auto const& cell, auto const& xLocal )
+                                                            -> ::Dune::FieldVector< double, 1 > {
+                            auto x = cell.geometry().global( xLocal );
+                            double ref = 12.;
+                            for(int j = 0; j < dim; j++)
+                            {
+                                ref *= ( 1 - x[ j ] ) * x[ j ];
+                            }
+                            return Dune::FieldVector< double, 1 >( ref );
+                        } ) );
+
+                    fVec_.push_back( f_( x_ref ) );
+                }
+                
+                hessian(zero(domain()));
+                this->S_->operator()( N );
             }
 
             void setInitialCondition( auto y0_coeff )
@@ -292,6 +372,8 @@ namespace Spacy
             /// resize the members vectors a size equal to #timesteps
             void resizeMembers() const
             {
+                unsigned dim = dim_;
+                
                 rhs_ = zero( domain() );
                 auto no_time_steps = gm_.getTempGrid().getDtVec().size();
                 rhs_i_.resize( no_time_steps );
@@ -306,6 +388,8 @@ namespace Spacy
                 Mass_diag_.resize( no_time_steps );
                 Mass_sd_.resize( no_time_steps );
                 MassAssembled_.resize( no_time_steps, false );
+                assembler_.reserve( no_time_steps );
+                assemblersp_.reserve( no_time_steps );
                 fVec_.reserve( no_time_steps );
 
                 auto spaces = gm_.getSpacesVec();
@@ -316,16 +400,19 @@ namespace Spacy
                     
                     typename VariableSetDescription::VariableSet x_ref(
                         VariableSetDescription( *spaces.at( i ), {"y", "u", "p"} ) );
-                    //          if(i<5)
                     {
                         ::Kaskade::interpolateGloballyWeak<::Kaskade::PlainAverage >(
                             ::boost::fusion::at_c< 0 >( x_ref.data ),
                             ::Kaskade::makeWeakFunctionView(
-                                [i,no_time_steps]( auto const& cell,
+                                [i,no_time_steps,dim]( auto const& cell,
                                     auto const& xLocal ) -> ::Dune::FieldVector< double, 1 > {
                                     auto x = cell.geometry().global( xLocal );
-                                    return Dune::FieldVector< double, 1 >(
-                                        12 * ( 1 - x[ 1 ] ) * x[ 1 ] * ( 1 - x[ 0 ] ) * x[ 0 ] );
+                                    double ref = 12.;
+                                    for(int j = 0; j < dim; j++)
+                                    {
+                                        ref *= ( 1 - x[ j ] ) * x[ j ];
+                                    }
+                                    return Dune::FieldVector< double, 1 >( ref );
                                 } ) );
                     }
 
@@ -482,8 +569,8 @@ namespace Spacy
 //                     boost::fusion::at_c< 1 >( x.data ) = x_u_impl.getCoeffVec( i );
 //                     boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
 
-                    assembler_.at(i).assemble(::Kaskade::linearization( fVec_.at( i ), cast_ref< Vector< VariableSetDescription > >( x ).get(i) ), Assembler::RHS,
-                                       getNumberOfThreads() );
+                    assembler_.at(i).assemble(::Kaskade::linearization( fVec_.at( i ),
+                                                cast_ref< Vector< VariableSetDescription > >( x ).get(i) ), Assembler::RHS, getNumberOfThreads() );
                     CoefficientVector c( assembler_.at(i).rhs() );
                     CoefficientVectorY ycoeff(
                         ::Kaskade::component< 0 >( CoefficientVector( assembler_.at(i).rhs() ) ) );
@@ -677,8 +764,9 @@ namespace Spacy
 //                     boost::fusion::at_c< 2 >( x.data ) = x_p_impl.getCoeffVec( i );
 
 
-                    assembler_.at(i).assemble(::Kaskade::linearization( fVec_.at( i ), cast_ref< Vector< VariableSetDescription > >( x ).get(i) ),
-                                       Assembler::MATRIX, getNumberOfThreads() );
+                    assembler_.at(i).assemble( ::Kaskade::linearization( fVec_.at( i ),
+                            cast_ref< Vector< VariableSetDescription > >( x ).get(i) ),
+                                              Assembler::MATRIX, getNumberOfThreads() );
 
                     My_.at( i ) = Mytype(
                         assembler_.at(i).template get< Matrix >( onlyLowerTriangle_, 0, 1, 0, 1 ) );
@@ -787,6 +875,8 @@ namespace Spacy
 
             CoefficientVectorY y0_;
             
+            const unsigned dim_;
+            
             mutable std::vector<Assembler> assembler_;
             mutable std::vector<AssemblerSP> assemblersp_;
 
@@ -833,6 +923,11 @@ namespace Spacy
                     OCP::DirectBlockPreconditioner< FunctionalDefinition > P( f );
                     return ::Spacy::makeTCGSolver( f, P );
                 };
+                
+            boost::signals2::connection c;
+            
+        public:
+            std::shared_ptr< Signal > S_;
 
         };
 

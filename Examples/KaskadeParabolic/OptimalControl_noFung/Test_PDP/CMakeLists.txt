@@ -1,6 +1,6 @@
 #cmake_minimum_required(VERSION 3.2)
 
-project(test_pdp)
+project(pdp)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -15,7 +15,7 @@ if(NOT CMAKE_CONFIGURATION_TYPE AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 ### FILE(GLOB SRCS "*.cpp" "$ENV{HOME}/Kaskade7.4_svn_2019-04-02_blas_lapack/libs/*.o")
-FILE(GLOB SRCS "test_pdp.cpp" "$ENV{HOME}/Kaskade7.4_svn_2019-04-02_blas_lapack/libs/mumps_solve.o" "$ENV{HOME}/Kaskade7.4_svn_2019-04-02_blas_lapack/libs/umfpack_solve.o")
+FILE(GLOB SRCS "pdp.cpp" "$ENV{HOME}/Kaskade7.4_svn_2019-04-02_blas_lapack/libs/mumps_solve.o" "$ENV{HOME}/Kaskade7.4_svn_2019-04-02_blas_lapack/libs/umfpack_solve.o")
 FILE(GLOB HDRS "*.hh, *.h")
 
 include_directories($ENV{HOME}/Kaskade7.4_svn_2019-04-02_blas_lapack)

@@ -7,6 +7,7 @@
 #include "linalg/triplet.hh"
 #include "fem/assemble.hh"
 #include "fem/istlinterface.hh"
+#include <boost/signals2.hpp>
 
 #include "c2Functional.hh"
 
@@ -51,16 +52,23 @@ namespace Spacy::KaskadeParabolic
             * @param domain domain space
             * @param range range space
             */
-        MassMatrixLinearOperator(Functional& f, const VectorSpace& domain, const VectorSpace& range, int rB, int rE, int dB, int dE, int tEnd )
+        MassMatrixLinearOperator(const Functional& f, const VectorSpace& domain, const VectorSpace& range, int rB, int rE, int dB, int dE )
         : OperatorBase( domain,range),
         domainspaces_( creator< VectorCreator<DomainDescription> >(domain).getSpace(0) ),
-        rangespaces_( creator< VectorCreator<RangeDescription> >( range ).getSpace(0) ), tEnd_(tEnd)
+        rangespaces_( creator< VectorCreator<RangeDescription> >( range ).getSpace(0) ), f_(f), rB_(rB), rE_(rE), dB_(dB), dE_(dE)
         { 
-            for (int t = 0; t < tEnd_; t++)
+            for (int t = 0; t < f.getGridMan().getTempGrid().getDtVec().size(); t++)
             {
                 A_.push_back( OperatorMatrixRepresentation(f.assemblerSP(t).template get<Matrix>(false,rB,rE,dB,dE)) );
             }
             
+            c = f.S_->connect([this]( unsigned N ) { return this->update(N); } );
+        }
+        
+        /// Destructor
+        ~MassMatrixLinearOperator()
+        {
+            c.disconnect();
         }
         
         ::Spacy::Vector operator()( const ::Spacy::Vector& x ) const
@@ -69,7 +77,7 @@ namespace Spacy::KaskadeParabolic
             
             auto y = zero( range() );
             
-            for (int t=0; t<tEnd_; t++)
+            for (int t=0; t<f_.getGridMan().getTempGrid().getDtVec().size(); t++)
             {
                 Domain x_( DomainDescription::template CoefficientVectorRepresentation<>::init(domainspaces_) );
                 Range y_( RangeDescription::template CoefficientVectorRepresentation<>::init(rangespaces_) );
@@ -115,12 +123,25 @@ namespace Spacy::KaskadeParabolic
             return A_.at(t);
         }
         
+        void update(unsigned N)
+        {
+            A_.clear();
+            A_.reserve(N);
+            
+            while(A_.size() < N)
+            {
+                A_.push_back( OperatorMatrixRepresentation(f_.assemblerSP(A_.size()).template get<Matrix>(false,rB_,rE_,dB_,dE_)) );
+            }
+        }
+        
     private:
         
         std::vector<OperatorMatrixRepresentation> A_;
         DomainSpaces domainspaces_;
         RangeSpaces rangespaces_;
-        int tEnd_;
+        const Functional& f_;
+        int rB_,rE_,dB_,dE_;
+        boost::signals2::connection c;
     };
     
     template< class DomainDescription,class RangeDescription, class Functional >
@@ -129,7 +150,7 @@ namespace Spacy::KaskadeParabolic
         auto& d=domain.getEmbeddingIn(f.domain());
         auto& r=range.getEmbeddingIn(f.domain());
         return MassMatrixLinearOperator<DomainDescription,RangeDescription,Functional>
-                (f,domain,range,r.getCBegin(),r.getCEnd(),d.getCBegin(),d.getCEnd(),f.getGridMan().getTempGrid().getDtVec().size());
+                (f,domain,range,r.getCBegin(),r.getCEnd(),d.getCBegin(),d.getCEnd());
     }
     
 } // namespace Spacy::Kaskade

@@ -187,19 +187,15 @@ namespace Spacy
 
                 // connect to Signal of Creator
                 auto& creator_ = creator< VectorCreator< Description > >( space );
-                this->c = creator_.S_->connect(
-                    [this]( unsigned index ) { return this->refine( index ); } );
+                this->c = creator_.getGridMan().S_->connect(1,
+                    [this]( unsigned N ) { std::cout << "V" << std::endl; return this->refineGrid( N ); } );
             }
 
             /// Copy constructor
             Vector( const Vector& v )
                 : VectorBase( v ), variableSet_( v.variableSet_ ), description_( v.description_ ),
-                  v_( v.v_ )
-            {
-                auto& creator_ = creator< VectorCreator< Description > >( v.space() );
-                this->c = creator_.S_->connect(
-                    [this]( unsigned index ) -> void { return this->refine( index ); } );
-            }
+                  v_( v.v_ ), c(v.c)
+            { }
 
             /// Copy assigment
             Vector& operator=( const Vector& v )
@@ -208,9 +204,7 @@ namespace Spacy
                 this->variableSet_ = v.variableSet_;
                 this->description_ = v.description_;
                 this->v_ = v.v_;
-                auto& creator_ = creator< VectorCreator< Description > >( v.space() );
-                this->c = creator_.S_->connect(
-                    [this]( unsigned index ) -> void { return this->refine( index ); } );
+                this->c = v.c;
             }
             /// Move assignment
             Vector& operator=( Vector&& v )
@@ -219,10 +213,7 @@ namespace Spacy
                 this->variableSet_ = std::move( v.variableSet_ );
                 this->description_ = std::move( v.description_ );
                 this->v_ = std::move( v.v_ );
-
-                auto& creator_ = creator< VectorCreator< Description > >( v.space() );
-                this->c = creator_.S_->connect(
-                    [this]( unsigned index ) -> void { return this->refine( index ); } );
+                this->c = std::move( v.c );
             }
 
             /// Destructor
@@ -255,7 +246,31 @@ namespace Spacy
 
                     result += v * w;
                 }
+                return result;
+            }
+            
+            /**
+              * @brief Apply as dual element.
+              * @param y primal vector
+              * @return \f$x(y)\f$
+              */
+            ::Spacy::Real operator()( const Vector& y, int i ) const
+            {
+                assert( this->variableSet_.size() == y.variableSet_.size() );
+                Real result{0.};
+                auto cy = creator< VectorCreator< Description > >( y.space() );
+                auto cthis = creator< VectorCreator< Description > >( this->space() );
 
+                    VectorImpl w( Description::template CoefficientVectorRepresentation<>::init(
+                        cy.getSpace( i ) ) );
+                    VectorImpl v( Description::template CoefficientVectorRepresentation<>::init(
+                        cthis.getSpace( i ) ) );
+
+                    variableSetToCoefficients( y.variableSet_.at( i ), w );
+                    variableSetToCoefficients( this->variableSet_.at( i ), v );
+
+                    result += v * w;
+                
                 return result;
             }
 
@@ -276,8 +291,19 @@ namespace Spacy
                                     .get() ) );
                 //        assert(variableSet_.at(k).data.coefficients().size() ==
                 //        variableSet_.at(k+1).data.coefficients().size());
-                boost::fusion::at_c< 0 >( variableSet_.at( k ).data ) =
-                    boost::fusion::at_c< 0 >( variableSet_.at( k + 1 ).data );
+                
+                VectorImpl vi( Description::template CoefficientVectorRepresentation<>::init( vc.getSpace( k+1 ) ) );
+                variableSetToCoefficients( this->variableSet_.at( k+1 ), vi );
+                if (k>0)
+                {
+                    VectorImpl wi( Description::template CoefficientVectorRepresentation<>::init( vc.getSpace( k-1 ) ) );
+                    variableSetToCoefficients( this->variableSet_.at( k-1 ), wi );
+                    vi += wi;
+                    vi *= 0.5;
+                }
+                coefficientsToVariableSet( vi, this->variableSet_.at( k ) ); 
+//                 boost::fusion::at_c< 0 >( variableSet_.at( k ).data ) =
+//                     boost::fusion::at_c< 0 >( variableSet_.at( k + 1 ).data );
 
                 description_.insert( description_.begin() + k,
                                      std::make_shared< Description >( vc_k.get() ) );
@@ -285,6 +311,63 @@ namespace Spacy
                     v_.begin() + k,
                     VectorImpl( Description::template CoefficientVectorRepresentation<>::init(
                         variableSet_.at( k ).descriptions.spaces ) ) );
+            }
+            
+            /**
+             * @brief react to Grid refinement
+             * @param N number of time steps of new Grid
+             */
+            void refineGrid( unsigned N )
+            {
+                auto n = variableSet_.size();
+                auto vSH = variableSet_;
+                for (int k=n; k<N; k++)
+                {
+                    ::Spacy::KaskadeParabolic::VectorCreator< Description > vc = ::Spacy::creator< VectorCreator< Description > >( this->space() );
+                    ::Spacy::KaskadeParabolic::SubCreator< Description > vc_k = vc.getSubCreator( k );
+                    variableSet_.push_back(VariableSet( vc_k.get() ) );
+                    description_.push_back(std::make_shared< Description >( vc_k.get() ) );
+                    v_.push_back( VectorImpl( Description::template CoefficientVectorRepresentation<>::init( variableSet_.at( k ).descriptions.spaces ) ) );
+                }
+                auto tg_d = cast_ref< ::Spacy::KaskadeParabolic::VectorCreator< Description > > ( this->space().creator() ).getGridMan().getTempGrid();
+                auto vV_d = tg_d.getVertexVec();
+                auto dt_d = tg_d.getDtVec();
+                Real vV_o {0};
+                
+                for (int t=1; t<N-1; t++)
+                {
+                    vV_o += Real{ vV_d.back() / (double)( n - 1 )};
+                    int index = tg_d.getInverval( vV_o );
+                    int indexH = index;
+                    auto coeff = 0;
+                    auto coeffH = 0;
+                    
+                    if (vV_o <= vV_d.at(index))
+                    {
+                        coeff =  1 - ( (vV_d.at(index).get()-vV_o.get()) / dt_d.at(index).get() );
+                        indexH--;
+                        coeffH =  1 - ( (vV_o.get()-vV_d.at(indexH).get()) / dt_d.at(index).get() );
+                    }
+                    else
+                    {
+                        coeff = 1 - ( (vV_o.get()-vV_d.at(index).get()) / dt_d.at(index+1) ).get();
+                        indexH++;
+                        coeffH = 1 - ( (vV_d.at(indexH).get()-vV_o.get()) / dt_d.at(index+1).get() );
+                    }
+                    
+                    auto& tv = vSH.at(index);
+                    tv *= coeff;
+                    auto& tHv = vSH.at(indexH);
+                    tHv *= coeffH;
+                    
+                    auto& yv = variableSet_.at(t);
+                    yv = tv;
+                    yv += tHv;
+                }
+                auto& tv = vSH.at(n-1);
+                auto& yv = variableSet_.at(N-1);
+                yv = tv;
+                
             }
 
             /// Access Kaskade VariableSet of time i
@@ -324,13 +407,20 @@ namespace Spacy
              * @param y vector to add to this vector
              * @return \f$ x+=y\f$.
              */
-            Vector& operator+=( const Vector& y )
+            Vector operator+=( const Vector& y )
             {
-                checkSpaceCompatibility( this->space(), y.space() );
-                assert( this->variableSet_.size() == y.variableSet_.size() );
-                for ( auto i = 0u; i < this->variableSet_.size(); i++ )
-                    this->variableSet_.at( i ) += y.variableSet_.at( i );
-                return *this;
+                if (this->variableSet_.size() == y.variableSet_.size())
+                {
+                    checkSpaceCompatibility( this->space(), y.space() );
+                    assert( this->variableSet_.size() == y.variableSet_.size() );
+                    for ( auto i = 0u; i < this->variableSet_.size(); i++ )
+                        this->variableSet_.at( i ) += y.variableSet_.at( i );
+                    return *this;
+                }
+                else // no Space Compatibility guaranteed + slow
+                {
+                    return subtractOtherTempGrid(-y);
+                }
             }
 
             /**
@@ -338,13 +428,19 @@ namespace Spacy
              * @param y vector to subtract from this vector
              * @return \f$ x-=y\f$.
              */
-            Vector& operator-=( const Vector& y )
+            Vector operator-=( const Vector& y )
             {
-                checkSpaceCompatibility( this->space(), y.space() );
-                assert( this->variableSet_.size() == y.variableSet_.size() );
-                for ( auto i = 0u; i < this->variableSet_.size(); i++ )
-                    this->variableSet_.at( i ) -= y.variableSet_.at( i );
-                return *this;
+                if (this->variableSet_.size() == y.variableSet_.size())
+                {
+                    checkSpaceCompatibility( this->space(), y.space() );
+                    for ( auto i = 0u; i < this->variableSet_.size(); i++ )
+                        this->variableSet_.at( i ) -= y.variableSet_.at( i );
+                    return *this;
+                }
+                else // no Space Compatibility guaranteed + slow
+                {
+                    return subtractOtherTempGrid(y);
+                }
             }
 
             /**
@@ -396,7 +492,7 @@ namespace Spacy
              * @param y vector to subtract from this vector
              * @return \f$ x-=y\f$.
              */
-            Vector subtractOtherTempGrid( const Vector& y )
+            Vector subtractOtherTempGrid( const Spacy::Vector& y )
             {
                 ::Spacy::KaskadeParabolic::VectorCreator< Description > vc =
                     ::Spacy::creator< VectorCreator< Description > >( this->space() );
@@ -407,7 +503,7 @@ namespace Spacy
 
                 for ( auto i = 0u; i < variableSet_.size(); i++ )
                 {
-                    this->variableSet_.at( i ) -= y.evaluate( vertices.at( i ) );
+                    this->variableSet_.at( i ) -= Spacy::cast_ref<Vector<Description>>(y).evaluate( vertices.at( i ) );
                 }
                 return *this;
             }

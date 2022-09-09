@@ -11,7 +11,7 @@
 #include "subCreator.hh"
 #include "vector.hh"
 
-#include "boost/signals2.hpp"
+#include <boost/signals2.hpp>
 
 #include "fem/variables.hh"
 #include <dune/grid/uggrid.hh>
@@ -49,6 +49,12 @@ namespace Spacy
                         SubCreator< Description >( Description( *spaces.at( i ), name_ ) ) ) );
 
                 S_ = std::make_shared< Signal >( Signal() );
+                c = gm_.S_->connect(0,[this]( unsigned N ) { std::cout << "VS" << std::endl; return this->refineGrid( N ); } );
+            }
+            
+            ~VectorCreator()
+            {
+                c.disconnect();
             }
 
             /// Generate vector for %Kaskade 7.
@@ -89,52 +95,74 @@ namespace Spacy
                 return gm_;
             }
 
+//             /**
+//                  * @brief Refine the VectorSpace in time, calls the refine on GridManager and the
+//              * vectors (via boost::signal)
+//                  * @param k index of interval to be refined
+//                  * @return Kaskade Space that was inserted
+//                  */
+//             std::shared_ptr< Spaces > refine( unsigned k )
+//             {
+//                 // refining the grid
+//                 const std::shared_ptr< Spaces > insertedSpace = gm_.refine( k );
+// 
+//                 /// insert a subcreator
+//                 auto toinsertCreator = std::make_shared< SubCreator< Description > >(
+//                     SubCreator< Description >( Description( *insertedSpace, name_ ) ) );
+//                 this->creators_.insert( creators_.begin() + k, toinsertCreator );
+// 
+//                 // Invoke refinement on the vectors
+//                 this->S_->operator()( k );
+//                 return insertedSpace;
+//             }
+// 
+//             /**
+//                  * @brief Refine the VectorSpace in time, calls the refine the vectors (via
+//              * boost::signal)
+//                  * NOT ON THE GRID!! This function assumes the grid was refined (e.g. y space was
+//              * refined via refine(k), now u space refinement with this function)
+//                  * @param k index of interval to be refined
+//                  * @param insertedSpace Kaskade space that was inserted when calling the above
+//              * refine(k)
+//                  */
+//             void refine_noGridRef( unsigned k, std::shared_ptr< Spaces > insertedSpace )
+//             {
+//                 /// insert a subcreator
+//                 auto toinsertCreator = std::make_shared< SubCreator< Description > >(
+//                     SubCreator< Description >( Description( *insertedSpace, name_ ) ) );
+//                 this->creators_.insert( creators_.begin() + k, toinsertCreator );
+// 
+//                 // Invoke refinement on the vectors
+//                 this->S_->operator()( k );
+//             }
+            
             /**
-                 * @brief Refine the VectorSpace in time, calls the refine on GridManager and the
-             * vectors (via boost::signal)
-                 * @param k index of interval to be refined
-                 * @return Kaskade Space that was inserted
-                 */
-            std::shared_ptr< Spaces > refine( unsigned k )
+            * @brief Refine the VectorSpace in time, calls the refineGrid the vectors (via boost::signal)
+            * @param N number of time steps of new Grid
+            */
+            void refineGrid( unsigned N )
             {
-                // refining the grid
-                const std::shared_ptr< Spaces > insertedSpace = gm_.refine( k );
-
-                /// insert a subcreator
-                auto toinsertCreator = std::make_shared< SubCreator< Description > >(
-                    SubCreator< Description >( Description( *insertedSpace, name_ ) ) );
-                this->creators_.insert( creators_.begin() + k, toinsertCreator );
-
+                for(int t=this->creators_.size(); t<N; t++)
+                {
+                    /// insert a subcreator
+                    auto toinsertCreator = std::make_shared< SubCreator< Description > >(
+                        SubCreator< Description >( Description( *gm_.getSpacesVec().at(t), name_ ) ) );
+                    this->creators_.push_back( toinsertCreator );
+                }
+                std::cout << "VSrefine" << std::endl; 
                 // Invoke refinement on the vectors
-                this->S_->operator()( k );
-                return insertedSpace;
+//                 this->S_->operator()( N );
             }
-
-            /**
-                 * @brief Refine the VectorSpace in time, calls the refine the vectors (via
-             * boost::signal)
-                 * NOT ON THE GRID!! This function assumes the grid was refined (e.g. y space was
-             * refined via refine(k), now u space refinement with this function)
-                 * @param k index of interval to be refined
-                 * @param insertedSpace Kaskade space that was inserted when calling the above
-             * refine(k)
-                 */
-            void refine_noGridRef( unsigned k, std::shared_ptr< Spaces > insertedSpace )
-            {
-                /// insert a subcreator
-                auto toinsertCreator = std::make_shared< SubCreator< Description > >(
-                    SubCreator< Description >( Description( *insertedSpace, name_ ) ) );
-                this->creators_.insert( creators_.begin() + k, toinsertCreator );
-
-                // Invoke refinement on the vectors
-                this->S_->operator()( k );
-            }
-            std::shared_ptr< Signal > S_;
+            
 
         private:
             std::vector< std::shared_ptr< SubCreator< Description > > > creators_;
             ::Spacy::KaskadeParabolic::GridManager< Spaces >& gm_;
             std::vector< std::string > name_{};
+            boost::signals2::connection c;
+            
+        public:
+            std::shared_ptr< Signal > S_;
         };
         
         /**
@@ -148,8 +176,7 @@ namespace Spacy
         template < class VariableSetDescription, class Spaces >
         auto makeHilbertSpace( GridManager< Spaces >& gm, std::vector<std::string> names_, std::string name_ )
         {
-            return ::Spacy::makeHilbertSpace(
-                KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, names_ ), l2Product{}, name_ );
+            return ::Spacy::makeHilbertSpace( KaskadeParabolic::VectorCreator< VariableSetDescription >( gm, names_ ), l2Product{}, name_ );
         }
 
 //         /**

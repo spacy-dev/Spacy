@@ -8,12 +8,11 @@
 ///---------- Originalversion in Algorithm/CG, hier nur kleinere Anpassungen für PPCG (output,...) -------------
 
 
-#include "Spacy/LinearSolver.h"
 #include "Spacy/Operator.h"
 #include "Spacy/Vector.h"
 #include "Spacy/Util/Mixins/Index.h"
 #include "Spacy/Util/Base/OperatorBase.h"
-#include <Spacy/Algorithm/CG/LinearSolver.h>
+#include <Spacy/Adapter/KaskadeParabolic/PDESolverBase.h>
 
 namespace Spacy
 {
@@ -44,12 +43,11 @@ namespace Spacy
              * @param domain domain space
              * @param range range space
              */
-            TriangularConstraintPreconditioner( ::Spacy::LinearSolver stateSolver,
-                                                ::Spacy::LinearSolver controlSolver,
-                                                ::Spacy::LinearSolver adjointSolver,
-                                                OperatorWithTranspose minusB, 
-                                                const VectorSpace& domain,
-                                                const VectorSpace& stateSpace
+            TriangularConstraintPreconditioner(  const ::Spacy::SolverBase& stateSolver,
+                                                 const Operator& controlSolver,
+                                                 const ::Spacy::SolverBase& adjointSolver,
+                                                 const OperatorWithTranspose& minusB, 
+                                                 const VectorSpace& domain
             );
             
             /**
@@ -57,11 +55,11 @@ namespace Spacy
              * @param x argument
              * @return \f$P(x)\f$
              */
-            virtual Vector operator()(Vector in) const;
+            virtual void operator()(Vector y, Vector u , Vector& outy, Vector& outu, Vector& outp) const;
                         
             unsigned getBPXCallsInLifeTime() const
             {
-                return iterationsInLifeTime_;
+                return iterations_;
             }
             
             Real getSigma() const 
@@ -71,18 +69,19 @@ namespace Spacy
             
             std::function<bool(bool setSignal, bool isConvex)> signalConvex_ = [](bool setSignal, bool isConvex){ return true; };
       
-            void apply(Vector& out, Vector&& in) const;  // in will be overwritten
+            void apply( Vector& outy, Vector& outu, Vector& outp, Vector&& iny, Vector&& inu ) const;  // in will be overwritten
             
         private:
             
             
-            ::Spacy::LinearSolver stateSolver_, controlSolver_, adjointSolver_;
+            const ::Spacy::SolverBase &stateSolver_, &adjointSolver_;
+            const Operator& controlSolver_;
             const ::Spacy::VectorSpace& stateSpace_, &controlSpace_, &adjointSpace_;
-            OperatorWithTranspose minusB_;
+            const OperatorWithTranspose& minusB_;
+            
+            mutable int iterations_ = 0;
             
             mutable Real sigma_ = 0.0;
-            
-            mutable int iterationsInLifeTime_ = 0;
         };
     }
 }

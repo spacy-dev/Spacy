@@ -4,6 +4,7 @@
 #include "vectorSpace.hh"
 #include "vector.hh"
 #include "gridManager.hh"
+#include <boost/signals2.hpp>
 
 #include <Spacy/Util/Base/OperatorBase.h>
 #include <Spacy/Util/Cast.h>
@@ -18,7 +19,7 @@ namespace Spacy::KaskadeParabolic
      * @ingroup KaskadeGroup
      * @brief Direct solver interface for %Kaskade 7.
      */
-    template < class CallableLinearOperator, class AnsatzVariableDescription, class TestVariableDescription >
+    template < class CallableLinearOperator, class Functional, class AnsatzVariableDescription, class TestVariableDescription >
     class DirectSolver : public OperatorBase
     {
         using Spaces = typename AnsatzVariableDescription::Spaces;
@@ -40,20 +41,28 @@ namespace Spacy::KaskadeParabolic
          * MatrixProperties::SYMMETRIC)
          */
         DirectSolver( const CallableLinearOperator& A,
-                      const GridManager< Spaces >& gm,
+                      const Functional& f,
                       const VectorSpace& domain, const VectorSpace& range,
                       ::DirectType directSolver = ::DirectType::UMFPACK3264,
                       ::MatrixProperties property = ::MatrixProperties::GENERAL )
-            : OperatorBase( domain, range ), spaces_( *gm.getSpacesVec().at(0) ),
-              directSolver_( directSolver ), property_( property ), tEnd_(gm.getTempGrid().getDtVec().size())
+            : OperatorBase( domain, range ), spaces_( *f.getGridMan().getSpacesVec().at(0) ),
+              directSolver_( directSolver ), property_( property ), A_(A), f_(f)
         {
             using KMAT = ::Kaskade::MatrixAsTriplet<double>;
-            for (int t = 0; t < tEnd_; t++)
+            for (int t = 0; t < f.getGridMan().getTempGrid().getDtVec().size(); t++)
             {
                 solver_.push_back(std::make_shared< ::Kaskade::InverseLinearOperator< ::Kaskade::DirectSolver< Domain, Range > > >(
                     ::Kaskade::directInverseOperator( ::Kaskade::MatrixRepresentedOperator<KMAT,Domain,Range>(A.template get<KMAT>(t)),
                                                       directSolver_, property_ ) ) );
             }
+            
+            c = f.S_->connect([this]( unsigned N ) { return this->update(N); } );
+        }
+        
+        /// Destructor
+        ~DirectSolver()
+        {
+            c.disconnect();
         }
 
         /// Compute \f$A^{-1}x\f$.
@@ -61,11 +70,11 @@ namespace Spacy::KaskadeParabolic
         {
             auto y = zero( range() );
             
-            for (int t = 0; t < tEnd_; t++)
+            for (int t = 0; t < f_.getGridMan().getTempGrid().getDtVec().size(); t++)
             {
                 Range y_( TestVariableDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
                 Domain x_( AnsatzVariableDescription::template CoefficientVectorRepresentation<>::init( spaces_ ) );
-
+ 
                 auto & xv = cast_ref< Vector< AnsatzVariableDescription > >( x ).get(t);
                 Spacy::Kaskade::copy< AnsatzVariableDescription >( xv, x_ );
                 
@@ -98,13 +107,28 @@ namespace Spacy::KaskadeParabolic
             
             return y;
         }
+        
+        void update(unsigned N)
+        {
+            solver_.clear();
+            solver_.reserve(N);
+            
+            using KMAT = ::Kaskade::MatrixAsTriplet<double>;
+            while (solver_.size() < N)
+            {
+                solver_.push_back(std::make_shared< ::Kaskade::InverseLinearOperator< ::Kaskade::DirectSolver< Domain, Range > > >(
+                    ::Kaskade::directInverseOperator( ::Kaskade::MatrixRepresentedOperator<KMAT,Domain,Range>(A_.template get<KMAT>(solver_.size())),directSolver_, property_ ) ) );
+            }
+        }
 
     private:
         Spaces spaces_;
         ::DirectType directSolver_ = ::DirectType::UMFPACK3264;
         ::MatrixProperties property_ = ::MatrixProperties::GENERAL;
         std::vector< std::shared_ptr< ::Kaskade::InverseLinearOperator< ::Kaskade::DirectSolver< Domain, Range > > > > solver_;
-        int tEnd_;
+        const CallableLinearOperator& A_;
+        const Functional& f_;
+        boost::signals2::connection c;
     };
 
     /**
@@ -122,12 +146,12 @@ namespace Spacy::KaskadeParabolic
      * DirectSolver<KaskadeOperator,AnsatzVariableSetDescription,TestVariableSetDescription>( A
      * , spaces , domain , range , directSolver , property )
      */
-    template < class AnsatzVariableSetDescription, class TestVariableSetDescription, class CallableLinearOperator >
-    auto makeDirectSolver( const CallableLinearOperator& A, const GridManager< typename AnsatzVariableSetDescription::Spaces >& gm,
+    template < class AnsatzVariableSetDescription, class TestVariableSetDescription, class CallableLinearOperator, class Functional >
+    auto makeDirectSolver( const CallableLinearOperator& A, const Functional& f,
                            const VectorSpace& domain, const VectorSpace& range,
                            ::DirectType directSolver = ::DirectType::UMFPACK3264,
                            ::MatrixProperties property = ::MatrixProperties::GENERAL )
     {
-        return DirectSolver< CallableLinearOperator, AnsatzVariableSetDescription, TestVariableSetDescription >( A, gm, domain, range, directSolver, property );
+        return DirectSolver< CallableLinearOperator, Functional, AnsatzVariableSetDescription, TestVariableSetDescription >( A, f, domain, range, directSolver, property );
     }
 } // namespace Spacy::KaskadeParabolic

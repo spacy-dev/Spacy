@@ -17,6 +17,7 @@
 #include "c2Functional.hh"
 
 #include "fem/assemble.hh"
+#include <boost/signals2.hpp>
 #include "utilities/memory.hh"
 #include "mg/additiveMultigrid.hh"
 #include "mg/multiplicativeMultigrid.hh"
@@ -77,42 +78,19 @@ public:
 	 * @param range range space of the solver
 	 */
 	SingleBlockPreconditioner(const VectorSpace& domain, const VectorSpace& range,
-				  Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, bool transposed = false) :
-			OperatorBase(domain, range)
+				  const Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, bool transposed = false) :
+			OperatorBase(domain, range), f_(f), transposed_(transposed)
 	{
-        auto dtVec_ = f.getGridMan().getTempGrid().getDtVec();
-        tEnd_ = dtVec_.size();
-        if(!transposed)
-        {
-            for (int t = 0; t < tEnd_; t++)
-            {
-                auto StiffMat = f.assembler(t).template get<NumaMat>(false,2,3,0,1);
-                StiffMat    *= dtVec_.at(t).get();
-                
-                auto MassMat = f.assemblerSP(t).template get<NumaMat>(false,2,3,0,1);
-                
-                auto Mat = MassMat + StiffMat;
-
-                
-                prec_.push_back(moveUnique(::Kaskade::makeJacobiMultiGrid(Mat, *f.getGridMan().getKaskGridMan().at(t) )));
-            }
-        }
-        else
-        {
-            for (int t = 0; t < tEnd_-1; t++)    
-            {
-                auto StiffMat = f.assembler(t).template get<NumaMat>(false,0,1,2,3);
-                StiffMat    *= dtVec_.at(t+1).get();
-
-                auto MassMat = f.assemblerSP(t).template get<NumaMat>(false,0,1,2,3);
-
-                auto Mat = MassMat + StiffMat;
-
-
-                prec_.push_back(moveUnique(::Kaskade::makeJacobiMultiGrid(Mat, *f.getGridMan().getKaskGridMan().at(t) )));
-            }
-        }
+        update();
+        
+        c = f.S_->connect([this]( unsigned N ) { return this->update(); } );
 	}
+	
+	/// Destructor
+    ~SingleBlockPreconditioner()
+    {
+        c.disconnect();
+    }
 
 	/// Compute \f$A^{-1}x\f$.
 	::Spacy::Vector operator()(const ::Spacy::Vector& x) const
@@ -124,7 +102,7 @@ public:
         const auto& x__ = cast_ref<DomainVector>(x);
         auto& y__ = cast_ref<RangeVector>(y);
                 
-        for (int t = 0; t < tEnd_; t++)
+        for (int t = 0; t < f_.getGridMan().getTempGrid().getDtVec().size(); t++)
         {
             Apply<Domain, Range, Prec>::wrap( *prec_.at(t), ::boost::fusion::at_c<0>(x__.get(t).data).coefficients(), ::boost::fusion::at_c<0>(y__.get_nonconst(t).data).coefficients() );
         }
@@ -147,12 +125,85 @@ public:
         
 		return y;
 	}
+	
+	void update()
+    {
+        auto dtVec_ = f_.getGridMan().getTempGrid().getDtVec();
+        int tEnd_ = dtVec_.size();
+        
+        prec_.clear();
+        prec_.reserve(tEnd_);
+        
+        if(!transposed_)
+        {
+            for (int t = 0; t < tEnd_; t++)
+            {
+                auto StiffMat = f_.assembler(t).template get<NumaMat>(false,2,3,0,1);
+                StiffMat    *= dtVec_.at(t).get();
+                
+                auto MassMat = f_.assemblerSP(t).template get<NumaMat>(false,2,3,0,1);
+                
+                auto Mat = MassMat + StiffMat;
+
+//                 auto mgStack = ::Kaskade::makeGeometricMultiGridStack(*f_.getGridMan().getKaskGridMan().at(t),duplicate(Mat),false);
+//                 auto coarsePreconditioner = ::Kaskade::makeDirectPreconditioner(std::move(mgStack.coarseGridMatrix()),DirectType::MUMPS);
+//                 auto mg = ::Kaskade::makeMultiplicativeMultiGrid(std::move(mgStack),MakeJacobiSmoother(),moveUnique(std::move(coarsePreconditioner)),3,3);
+//                 mg.setSmootherStepSize(0.5);
+//                 prec_.push_back(moveUnique(mg));
+                
+                prec_.push_back(moveUnique(::Kaskade::makeJacobiMultiGrid(Mat, *f_.getGridMan().getKaskGridMan().at(t) )));
+//                 prec_.push_back(moveUnique(::Kaskade::makeBPX(Mat, *f_.getGridMan().getKaskGridMan().at(t) )));
+            }
+        }
+        else
+        {
+            for (int t = 0; t < tEnd_; t++)    
+            {
+                auto StiffMat = f_.assembler(t).template get<NumaMat>(false,0,1,2,3);
+                StiffMat    *= dtVec_.at(t).get();
+
+                auto MassMat = f_.assemblerSP(t).template get<NumaMat>(false,0,1,2,3);
+
+                auto Mat = MassMat + StiffMat;
+
+//                 auto mgStack = ::Kaskade::makeGeometricMultiGridStack(*f_.getGridMan().getKaskGridMan().at(t),duplicate(Mat),false);
+//                 auto coarsePreconditioner = ::Kaskade::makeDirectPreconditioner(std::move(mgStack.coarseGridMatrix()),DirectType::MUMPS);
+//                 auto mg = ::Kaskade::makeMultiplicativeMultiGrid(std::move(mgStack),MakeJacobiSmoother(),moveUnique(std::move(coarsePreconditioner)),3,3);
+//                 mg.setSmootherStepSize(0.5);
+//                 prec_.push_back(moveUnique(mg));
+                
+                prec_.push_back(moveUnique(::Kaskade::makeJacobiMultiGrid(Mat, *f_.getGridMan().getKaskGridMan().at(t) )));
+//                 prec_.push_back(moveUnique(::Kaskade::makeBPX(Mat, *f_.getGridMan().getKaskGridMan().at(t) )));
+            }
+        }
+    }
 
 private:
+    
+    class MakeJacobiSmoother
+    {
+    public:
+        template <typename Matrix>
+        auto operator()(Matrix const& a) const
+        {
+            return makePrecon(a);
+        }
+        
+    private:
+        template <class Operator>
+        auto makePrecon(Operator const& op) const
+        {
+            return ::Kaskade::ICC_0Preconditioner<Operator>(op);
+        }
+    };
+    
+    
         
     // This is a pImpl, thus should be a std::unique_ptr, problem with that is that copying the Object is difficulat
     std::vector< std::shared_ptr<Prec> > prec_;
-    int tEnd_;
+    const Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f_;
+    const bool transposed_;
+    boost::signals2::connection c;
 };
 
 /**
@@ -167,7 +218,7 @@ private:
 template<class AnsatzVariableSetDescription, class TestVariableSetDescription,
 		class FunctionalDefinition>
 auto makeSingleBlockPreconditioner(const VectorSpace& domain, const VectorSpace& range,
-				   Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, bool transposed = false)
+				   const Spacy::KaskadeParabolic::C2Functional<FunctionalDefinition>& f, bool transposed = false)
 {
 	return SingleBlockPreconditioner< AnsatzVariableSetDescription,
 			TestVariableSetDescription, FunctionalDefinition,

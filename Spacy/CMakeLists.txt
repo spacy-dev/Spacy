@@ -37,6 +37,8 @@ add_library(spacy ${SRC_LIST}
     LinearOperator.h
     LinearSolver.h
     Norm.h
+    Notify.h
+    Notify.cpp
     Operator.h
     ScalarProduct.h
     Spacy.h
@@ -93,8 +95,10 @@ add_library(spacy ${SRC_LIST}
     Algorithm/PrimalDualProjection/TriangConstraintPrec.cpp
     Algorithm/PrimalDualProjection/ModifiedPPCG.h
     Algorithm/PrimalDualProjection/ModifiedPPCG.cpp
-    Algorithm/PrimalDualProjection/PDP.hh
-    Algorithm/PrimalDualProjection/PDP.cpp
+    Algorithm/PrimalDualProjection/PPCG_Test.h
+    Algorithm/PrimalDualProjection/PPCG_Test.cpp
+#     Algorithm/PrimalDualProjection/PDP.hh
+#     Algorithm/PrimalDualProjection/PDP.cpp
     Algorithm/PrimalDualProjection/PDP_withoutA.hh
     Algorithm/PrimalDualProjection/PDP_withoutA.cpp
     ### Spaces ###

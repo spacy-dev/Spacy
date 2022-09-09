@@ -15,7 +15,7 @@ namespace Spacy::CG::Termination
     bool StrakosTichyEnergyError::operator()() const
     {
         auto tol = max( getRelativeAccuracy(), eps() );
-        if ( getVerbosityLevel() > 1 )
+        if ( getVerbosityLevel() > 1 && scaledGamma2.size() > lookAhead_)
         {
             std::cout << "      termination criterion (relative error): " << sqrt( squaredRelativeError() ) << "\n      tolerance: " << tol
                       << std::endl;

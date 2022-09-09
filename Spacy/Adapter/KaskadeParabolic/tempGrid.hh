@@ -68,7 +68,7 @@ namespace Spacy
             }
 
             /**
-             * @brief refine time grid
+             * @brief refine time grid at index
              * @param index index of time interval to be refined
              */
             void refine( const unsigned index )
@@ -79,6 +79,31 @@ namespace Spacy
                 dtVec_.insert( dtVec_.begin() + index,
                                ( vertexVec_.at( index ) - vertexVec_.at( index - 1 ) ) );
                 dtVec_.at( index + 1 ) = ( vertexVec_.at( index + 1 ) - vertexVec_.at( index ) );
+                return;
+            }
+            
+            /**
+             * @brief refine time grid -> now with N timesteps
+             * @param N number of timesteps
+             */
+            void refineGrid( const unsigned N )
+            {
+                assert( N > 2 );
+                
+                vertexVec_.clear();
+                dtVec_.clear();
+                vertexVec_.reserve( N );
+                dtVec_.reserve( N );
+                
+                dtVec_.push_back( 0 );
+                vertexVec_.push_back( ts_ );
+
+                for ( auto i = 1u; i < N; i++ )
+                {
+                    dtVec_.push_back( Real{( te_ - ts_ ) / (double)( N - 1 )} );
+                    vertexVec_.push_back( vertexVec_.at( i - 1 ) + dtVec_.at( i ) );
+                }
+                
                 return;
             }
 
@@ -110,7 +135,7 @@ namespace Spacy
                 auto i = 0u;
                 for ( ; i < vertexVec_.size(); i++ )
                 {
-                    if ( vertexVec_.at( i ) /*+  1e-10*/ >= t )
+                    if ( vertexVec_.at( i ) +  1e-10 >= t )
                         return i;
                 }
 

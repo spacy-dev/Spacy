@@ -1,5 +1,7 @@
 #pragma once
 
+#include "PPCG_Test.h"
+
 #include <Spacy/Operator.h>
 #include <Spacy/Vector.h>
 #include <Spacy/VectorSpace.h>
@@ -47,8 +49,7 @@ namespace Spacy
             };
             
         public:
-            Solver(const TriangularConstraintPreconditioner& P, Operator M, OperatorWithTranspose minusB,
-                   const VectorSpace& domain, const VectorSpace& stateSpace, Real theta=0.0 );
+            Solver(const TriangularConstraintPreconditioner& P, const Operator& My, const Operator& Mu, const OperatorWithTranspose& minusB, const VectorSpace& domainIn, const PPCG_Test& test, Real theta = 0.0 );
             
             bool isPositiveDefinite() const noexcept;
             
@@ -83,19 +84,23 @@ namespace Spacy
             const TriangularConstraintPreconditioner& P_;
 
             /// Hessian of full quadratic functional            
-            Operator M_;
+            const Operator& My_;
+            const Operator& Mu_;
 
             /// Negative of control operator
-            OperatorWithTranspose minusB_;
-
+            const OperatorWithTranspose& minusB_;
+            
             /// Regularization part
             CallableOperator R_ = [](const Vector & x) { return 0.0*x;};
 
              /// Required vector spaces
-            const VectorSpace &stateSpace_, &primalSpace_, &adjointSpace_;
+            const VectorSpace &stateSpace_, &controlSpace_, &adjointSpace_;
+            
+            const PPCG_Test& test_;
             
             
             mutable CG::TerminationCriterion terminate_={ CG::Termination::StrakosTichyEnergyError{} };
+            mutable CG::Termination::StrakosTichyEnergyError stee_;
             
             
             mutable Result result_ = Result::Failed;

@@ -43,7 +43,7 @@ namespace Spacy
             using ExtractDescription_t = typename ExtractDescription< Description, i >::type;
         }
         /// \endcond
-
+        
         template < int n >
         struct CoefficientsToVariableSet
         {
@@ -139,5 +139,64 @@ namespace Spacy
             return std::tie( x_y_impl, x_u_impl, x_p_impl );
         }
     }
+    
+    template < class Description, int id = 0,
+                int maxId = boost::fusion::result_of::size< typename Description::Variables >::type::value >
+    struct CopyFromKaskade
+    {
+        static void apply( const typename Description::template CoefficientVectorRepresentation<>::type& x, ::Spacy::Vector& y, int t )
+        {
+            boost::fusion::at_c< id >( cast_ref< Spacy::KaskadeParabolic::Vector< Description > >( y ).get_nonconst(t).data ).coefficients() =
+                boost::fusion::at_c< id >( x.data );
+            CopyFromKaskade< Description, id + 1, maxId >::apply( x, y, t );
+        }
+    };
+
+    template < class Description, int maxId >
+    struct CopyFromKaskade< Description, maxId, maxId >
+    {
+        static void apply( const typename Description::template CoefficientVectorRepresentation<>::type& /*unused*/,
+                            const ::Spacy::Vector& /*unused*/, int /*unused*/ )
+        {
+        }
+    };
+
+    template < class Description, int id = 0,
+                int maxId = boost::fusion::result_of::size< typename Description::Variables >::type::value >
+    struct CopyToKaskade
+    {
+        static void apply( const ::Spacy::Vector& x, typename Description::template CoefficientVectorRepresentation<>::type& y, int t )
+        {
+            boost::fusion::at_c< id >( y.data ) =
+                boost::fusion::at_c< id >( cast_ref< Spacy::KaskadeParabolic::Vector< Description > >( x ).get(t).data ).coefficients();
+            CopyToKaskade< Description, id + 1, maxId >::apply( x, y, t );
+        }
+    };
+
+    template < class Description, int maxId >
+    struct CopyToKaskade< Description, maxId, maxId >
+    {
+        static void apply( const ::Spacy::Vector& /*unused*/,
+                            const typename Description::template CoefficientVectorRepresentation<>::type& /*unused*/, int /*unused*/ )
+        {
+        }
+    };
+    
+    /// Copy from ::Spacy::Vector to coefficient vector of %Kaskade 7.
+    template < class Description >
+    void copy( const ::Spacy::Vector& x, typename Description::template CoefficientVectorRepresentation<>::type& y, int t )
+    {
+        CopyToKaskade< Description >::apply( x, y, t );
+        return;
+    }
+
+    ///  Copy coefficient vector of %Kaskade 7 to ::Spacy::Vector.
+    template < class Description >
+    void copy( const typename Description::template CoefficientVectorRepresentation<>::type& x, ::Spacy::Vector& y, int t )
+    {
+        CopyFromKaskade< Description >::apply( x, y, t );
+        return;
+    }
+    
     /** @} */
 }
